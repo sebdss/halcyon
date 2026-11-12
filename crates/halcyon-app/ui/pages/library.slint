@@ -1,0 +1,603 @@
+// Bibliothèque 0.4 : cinq vues (grille, liste, carrousel, immersive, compacte), sélection
+// commune au clavier et à la manette, menu contextuel, filtres et tri conservés.
+//
+// La sélection est tenue par Rust (`LibraryUi.selected`, position dans la liste filtrée) :
+// elle survit aux changements de vue et de filtre. Le carrousel et le mode immersif ne
+// reçoivent qu'une fenêtre d'une vingtaine de jeux autour de la sélection (`strip`).
+
+import { ListView, ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { GameCard, StripItem } from "../types.slint";
+import { Actions, LibraryUi, AppUi, SmartUi, GameMenu } from "../state.slint";
+import {
+    GameTile, GameCover, PrimaryButton, SecondaryButton, IconButton, Chip, Segmented, TextField, Dropdown, Icon,
+    Overline, KeyHint
+} from "../components.slint";
+
+/// Ligne de la vue en liste.
+component ListRow inherits Rectangle {
+    in property <GameCard> game;
+    in property <bool> selected;
+    height: 68px;
+    border-radius: Theme.radius;
+    background: root.selected ? Theme.accent-soft : ta.has-hover ? Theme.surface : transparent;
+    border-width: root.selected ? 1px : 0px;
+    border-color: Theme.focus.with-alpha(0.7);
+
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { Actions.open-game(root.game.id); }
+        double-clicked => { Actions.play(root.game.id); }
+        pointer-event(e) => {
+            if (e.button == PointerEventButton.right && e.kind == PointerEventKind.up) {
+                GameMenu.request(root.game.id, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+            }
+        }
+    }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 16px;
+        GameCover {
+            y: 6px;
+            width: 37px;
+            height: 56px;
+            corner: 5px;
+            show-title: false;
+            source: root.game.cover;
+            has-image: root.game.has-cover;
+            color-a: root.game.color-a;
+            color-b: root.game.color-b;
+            initials: root.game.initials;
+            title: root.game.title;
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 3px;
+            horizontal-stretch: 1;
+            Text { text: root.game.title; color: Theme.text; font-size: Theme.t-body; font-weight: 600; overflow: elide; }
+            Text {
+                text: root.game.source + (root.game.badge != "" ? "  ·  " + root.game.badge : "") + (root.game.installed ? "" : "  ·  Non installé");
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+                overflow: elide;
+            }
+        }
+        Text { width: 130px; text: root.game.playtime; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; overflow: elide; }
+        Text { width: 150px; text: root.game.last-played; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; overflow: elide; }
+        Rectangle {
+            width: 40px;
+            IconButton {
+                icon: root.game.favorite ? Icons.star-filled : Icons.star;
+                tint: root.game.favorite ? Theme.warm : Theme.text-dim;
+                active-tint: Theme.warm;
+                tooltip: root.game.favorite ? "Retirer des favoris" : "Ajouter aux favoris";
+                clicked => { Actions.toggle-favorite(root.game.id); }
+            }
+        }
+        Rectangle {
+            width: 40px;
+            IconButton {
+                icon: Icons.play;
+                icon-size: 16px;
+                enabled: root.game.installed;
+                tint: Theme.accent;
+                active-tint: Theme.accent-hover;
+                tooltip: root.game.installed ? "Jouer" : "Non installé";
+                clicked => { Actions.play(root.game.id); }
+            }
+        }
+        Rectangle {
+            width: 40px;
+            IconButton {
+                icon: Icons.more;
+                icon-size: 16px;
+                tooltip: "Plus d'actions (touche Menu)";
+                clicked => { GameMenu.request(root.game.id, self.absolute-position.x - 220px, self.absolute-position.y + 36px); }
+            }
+        }
+    }
+}
+
+/// Bande de jaquettes centrée sur la sélection (carrousel, mode immersif). Les positions
+/// suivent une valeur animée : le défilement glisse au lieu de sauter.
+component Strip inherits Rectangle {
+    in property <length> tile: 190px;
+    in property <length> gap: 22px;
+    in property <bool> show-text: true;
+    in property <float> anchor: 0.5;
+    property <float> pos: LibraryUi.selected;
+    animate pos { duration: Theme.normal; easing: ease-out; }
+    height: root.show-text ? root.tile * 1.5 * 1.08 + 60px : root.tile * 1.5 * 1.08 + 12px;
+    clip: true;
+
+    for item in LibraryUi.strip: GameTile {
+        property <bool> is-sel: item.index == LibraryUi.selected;
+        x: root.width * root.anchor - root.tile / 2 + (item.index - root.pos) * (root.tile + root.gap) - (self.is-sel ? root.tile * 0.04 : 0px);
+        y: self.is-sel ? 6px : root.tile * 1.5 * 0.04 + 6px;
+        cover-width: self.is-sel ? root.tile * 1.08 : root.tile;
+        visible: self.x + self.width > -20px && self.x < root.width + 20px;
+        game: item.card;
+        selected: self.is-sel;
+        show-text: root.show-text;
+        animate cover-width, y { duration: Theme.fast; easing: ease-out; }
+        open(id) => {
+            if (self.is-sel) {
+                Actions.open-game(id);
+            } else {
+                LibraryUi.select-index(item.index);
+            }
+        }
+        play(id) => { Actions.play(id); }
+        context(id, x, y) => { GameMenu.request(id, x, y); }
+    }
+}
+
+/// Fiche du jeu sélectionné (carrousel, mode immersif).
+component FocusInfo inherits VerticalLayout {
+    in property <bool> large: false;
+    spacing: Theme.s3;
+    alignment: end;
+    if LibraryUi.focus-game.has-logo && root.large: Image {
+        height: 110px;
+        source: LibraryUi.focus-game.logo;
+        image-fit: contain;
+        horizontal-alignment: left;
+        vertical-alignment: bottom;
+    }
+    if !(LibraryUi.focus-game.has-logo && root.large): Text {
+        text: LibraryUi.focus-game.title;
+        color: Theme.text;
+        font-size: root.large ? Theme.t-display : Theme.t-title;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        overflow: elide;
+    }
+    Text { text: LibraryUi.focus-meta; color: Theme.text-muted; font-size: Theme.t-body; overflow: elide; }
+    if root.large && LibraryUi.focus-game.description != "": Text {
+        text: LibraryUi.focus-game.description;
+        color: Theme.text-muted;
+        font-size: Theme.t-body;
+        wrap: word-wrap;
+        overflow: elide;
+        max-height: 60px;
+    }
+    HorizontalLayout {
+        spacing: Theme.s3;
+        alignment: start;
+        padding-top: 4px;
+        PrimaryButton {
+            text: LibraryUi.focus-game.installed ? "Jouer" : "Non installé";
+            icon: Icons.play;
+            has-icon: LibraryUi.focus-game.installed;
+            enabled: LibraryUi.focus-game.installed;
+            h: 44px;
+            clicked => { Actions.play(LibraryUi.focus-game.id); }
+        }
+        SecondaryButton {
+            text: "Voir la fiche";
+            h: 44px;
+            clicked => { Actions.open-game(LibraryUi.focus-game.id); }
+        }
+        IconButton {
+            y: 4px;
+            icon: LibraryUi.focus-game.favorite ? Icons.star-filled : Icons.star;
+            tint: LibraryUi.focus-game.favorite ? Theme.warm : Theme.text-muted;
+            glass: true;
+            tooltip: LibraryUi.focus-game.favorite ? "Retirer des favoris" : "Ajouter aux favoris";
+            clicked => { Actions.toggle-favorite(LibraryUi.focus-game.id); }
+        }
+        IconButton {
+            y: 4px;
+            icon: Icons.more;
+            glass: true;
+            tooltip: "Plus d'actions (touche Menu)";
+            clicked => { GameMenu.request(LibraryUi.focus-game.id, self.absolute-position.x, self.absolute-position.y + 40px); }
+        }
+    }
+}
+
+/// Illustration plein cadre du jeu sélectionné : bannière, sinon ambiance tirée de la jaquette.
+component Backdrop inherits Rectangle {
+    clip: true;
+    Rectangle { background: @linear-gradient(125deg, LibraryUi.focus-game.color-a 0%, LibraryUi.focus-game.color-b 100%); opacity: 0.5; }
+    if LibraryUi.focus-game.has-banner: Image {
+        width: root.width;
+        height: root.height;
+        source: LibraryUi.focus-game.banner;
+        image-fit: cover;
+    }
+    if !LibraryUi.focus-game.has-banner: Image {
+        width: root.width;
+        height: root.height;
+        source: LibraryUi.focus-ambient;
+        image-fit: cover;
+        image-rendering: smooth;
+        opacity: 0.8;
+    }
+    Rectangle { background: @linear-gradient(90deg, Theme.bg.with-alpha(0.92) 0%, Theme.bg.with-alpha(0.55) 45%, Theme.bg.with-alpha(0.10) 100%); }
+    Rectangle { background: @linear-gradient(180deg, Theme.bg.with-alpha(0.70) 0%, Theme.bg.with-alpha(0.0) 25%, Theme.bg.with-alpha(0.0) 45%, Theme.bg.with-alpha(0.92) 78%, Theme.bg 100%); }
+}
+
+/// Sélecteur de vue (5 icônes).
+component ViewSwitch inherits Rectangle {
+    height: 34px;
+    width: lay.preferred-width;
+    border-radius: 17px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: Theme.border;
+    lay := HorizontalLayout {
+        padding: 2px;
+        for v[i] in [
+            { icon: Icons.grid, tip: "Grille" },
+            { icon: Icons.list, tip: "Liste" },
+            { icon: Icons.carousel, tip: "Carrousel" },
+            { icon: Icons.immersive, tip: "Immersive" },
+            { icon: Icons.compact, tip: "Compacte" },
+        ]: IconButton {
+            size: 30px;
+            icon-size: 16px;
+            icon: v.icon;
+            active: LibraryUi.view-mode == i;
+            tooltip: "Vue " + v.tip;
+            clicked => {
+                LibraryUi.view-mode = i;
+                LibraryUi.view-changed();
+            }
+        }
+    }
+}
+
+export component LibraryPage inherits Rectangle {
+    property <length> gap: LibraryUi.view-mode == 4 ? 12px : 22px;
+    property <length> row-gap: LibraryUi.view-mode == 4 ? 12px : 26px;
+    property <length> card: LibraryUi.view-mode == 4 ? max(96px, LibraryUi.card-width * 0.66) : LibraryUi.card-width;
+    property <length> available: max(1px, root.width - 2 * Theme.page-padding);
+    out property <int> columns: max(1, floor((self.available + self.gap) / (root.card + self.gap)));
+    property <length> tile-width: (self.available - (self.columns - 1) * self.gap) / self.columns;
+    property <bool> grid-like: LibraryUi.view-mode == 0 || LibraryUi.view-mode == 4;
+    property <length> grid-row-h: root.tile-width * 1.5 + (LibraryUi.view-mode == 4 ? 0px : 52px) + root.row-gap;
+    property <bool> immersive: LibraryUi.view-mode == 3;
+
+    changed columns => { LibraryUi.columns-changed(self.grid-like ? self.columns : 1); }
+    changed grid-like => { LibraryUi.columns-changed(self.grid-like ? self.columns : 1); }
+    init => { LibraryUi.columns-changed(self.grid-like ? self.columns : 1); }
+
+    public function focus-search() {
+        search.focus();
+    }
+    public function focus-grid() {
+        keys.focus();
+    }
+
+    // Défilement vers la sélection (grille, liste), seulement si elle sort de l'écran.
+    property <int> tick: LibraryUi.scroll-tick;
+    changed tick => {
+        if (LibraryUi.scroll-row < 0) {
+            return;
+        }
+        if (root.grid-like) {
+            grid.ensure-visible(LibraryUi.scroll-row * root.grid-row-h, root.grid-row-h);
+        } else if (LibraryUi.view-mode == 1) {
+            list.ensure-visible(LibraryUi.scroll-row * 70px, 70px);
+        }
+    }
+
+    // Clavier (et manette, qui envoie des touches) : flèches, Entrée, Espace, Menu.
+    keys := FocusScope {
+        key-pressed(event) => {
+            // Alt+flèches : historique (géré par la fenêtre).
+            if (LibraryUi.result-count == 0 || event.modifiers.alt || event.modifiers.meta) {
+                return reject;
+            }
+            if (event.text == Key.RightArrow) { LibraryUi.move-selection(1, 0); return accept; }
+            if (event.text == Key.LeftArrow) { LibraryUi.move-selection(-1, 0); return accept; }
+            if (event.text == Key.DownArrow) { LibraryUi.move-selection(0, 1); return accept; }
+            if (event.text == Key.UpArrow) { LibraryUi.move-selection(0, -1); return accept; }
+            if (event.text == Key.PageDown) { LibraryUi.move-selection(0, 5); return accept; }
+            if (event.text == Key.PageUp) { LibraryUi.move-selection(0, -5); return accept; }
+            if (event.text == Key.Home && !event.modifiers.control) { LibraryUi.select-index(0); return accept; }
+            if (event.text == Key.End && !event.modifiers.control) { LibraryUi.select-index(LibraryUi.result-count - 1); return accept; }
+            if (event.text == Key.Return && LibraryUi.selected >= 0) { LibraryUi.activate-selection(event.modifiers.control); return accept; }
+            if (event.text == " " && LibraryUi.selected >= 0) { LibraryUi.activate-selection(true); return accept; }
+            if (event.text == Key.Menu && LibraryUi.selected-id >= 0) { GameMenu.request(LibraryUi.selected-id, -1px, -1px); return accept; }
+            reject
+        }
+
+        if root.immersive && LibraryUi.result-count > 0: Backdrop { }
+
+        VerticalLayout {
+            // En-tête
+            HorizontalLayout {
+                padding-left: Theme.page-padding;
+                padding-right: Theme.page-padding;
+                padding-top: root.immersive ? 76px : 28px;
+                padding-bottom: 16px;
+                spacing: 14px;
+                Text {
+                    text: "Bibliothèque";
+                    color: Theme.text;
+                    font-size: Theme.t-title;
+                    font-weight: 800;
+                    letter-spacing: -0.4px;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: LibraryUi.result-count == LibraryUi.total
+                        ? LibraryUi.total + (LibraryUi.total > 1 ? " jeux" : " jeu")
+                        : LibraryUi.result-count + " sur " + LibraryUi.total;
+                    color: Theme.text-dim;
+                    font-size: Theme.t-subheading;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                }
+                if root.grid-like && root.width > 900px: Segmented {
+                    items: ["S", "M", "L"];
+                    selected: LibraryUi.card-width < 150px ? 0 : LibraryUi.card-width < 190px ? 1 : 2;
+                    activated(i) => { LibraryUi.card-size(i == 0 ? 132 : i == 1 ? 168 : 214); }
+                }
+                ViewSwitch { }
+                SecondaryButton {
+                    text: root.width > 1000px ? "Ajouter un jeu" : "";
+                    icon: Icons.plus;
+                    has-icon: true;
+                    clicked => { AppUi.add-dialog-open = true; }
+                }
+            }
+
+            // Barre d'outils : recherche, source, tri
+            HorizontalLayout {
+                padding-left: Theme.page-padding;
+                padding-right: Theme.page-padding;
+                padding-bottom: 12px;
+                spacing: 10px;
+                search := TextField {
+                    min-width: 160px;
+                    max-width: 340px;
+                    horizontal-stretch: 1;
+                    height: 34px;
+                    placeholder: "Rechercher…  (Ctrl+F)";
+                    icon: Icons.search;
+                    has-icon: true;
+                    text <=> LibraryUi.search;
+                    edited => { LibraryUi.query-changed(); }
+                    accepted => { keys.focus(); }
+                }
+                help-btn := IconButton {
+                    y: 0px;
+                    size: 34px;
+                    icon: Icons.info;
+                    tooltip: "Syntaxe de recherche";
+                    clicked => { help.show(); }
+                }
+                help := PopupWindow {
+                    x: help-btn.x - 10px;
+                    y: help-btn.y + 42px;
+                    width: 420px;
+                    height: help-box.preferred-height;
+                    Rectangle {
+                        background: Theme.surface-hover;
+                        border-radius: Theme.radius;
+                        border-width: 1px;
+                        border-color: Theme.border-strong;
+                        drop-shadow-blur: 24px;
+                        drop-shadow-color: #00000099;
+                        help-box := VerticalLayout {
+                            padding: 16px;
+                            spacing: 6px;
+                            Text { text: "Recherche avancée"; color: Theme.text; font-size: Theme.t-body; font-weight: 700; }
+                            Text { text: "Les fautes de frappe et les sigles sont tolérés (« witchr », « gta »). Combinez des filtres :"; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+                            for line in [
+                                "dev:valve   éditeur:\"bandai namco\"   genre:rpg",
+                                "plateforme:snes   source:steam   tag:multijoueur",
+                                "installé:non   favori:oui   maj:oui",
+                                "statut:terminé   statut:\"en cours\"   statut:abandonné",
+                                "temps:>10h   temps:<30m   temps:0",
+                                "succès:complet   succès:manquants   succès:>80",
+                                "-filtre:valeur  exclut (ex. -installé:oui)",
+                            ]: Text { text: line; color: Theme.accent; font-size: Theme.t-caption; font-family: "monospace"; }
+                            Text { text: "Flèches : sélection · Entrée : fiche · Espace : jouer · Menu : actions"; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        }
+                    }
+                }
+                Segmented {
+                    items: root.width > 1150px ? ["Tous", "Steam", "Epic", "Émulation", "Autres", "Minecraft"] : ["Tous", "Steam", "Epic", "Ému.", "Autres", "MC"];
+                    selected <=> LibraryUi.source;
+                    activated => { LibraryUi.query-changed(); }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                Dropdown {
+                    prefix: "Trier :";
+                    options: LibraryUi.sort-labels;
+                    selected <=> LibraryUi.sort;
+                    changed => { LibraryUi.query-changed(); }
+                }
+            }
+            // Filtres : état, collection, genre
+            HorizontalLayout {
+                padding-left: Theme.page-padding;
+                padding-right: Theme.page-padding;
+                padding-bottom: 16px;
+                spacing: 8px;
+                alignment: start;
+                Chip {
+                    text: "Installés";
+                    checked: LibraryUi.installed-only;
+                    toggled => {
+                        LibraryUi.installed-only = !LibraryUi.installed-only;
+                        LibraryUi.query-changed();
+                    }
+                }
+                Chip {
+                    text: "Favoris";
+                    checked: LibraryUi.favorites-only;
+                    toggled => {
+                        LibraryUi.favorites-only = !LibraryUi.favorites-only;
+                        LibraryUi.query-changed();
+                    }
+                }
+                Chip {
+                    text: "Masqués";
+                    checked: LibraryUi.show-hidden;
+                    toggled => {
+                        LibraryUi.show-hidden = !LibraryUi.show-hidden;
+                        LibraryUi.query-changed();
+                    }
+                }
+                if LibraryUi.collection-labels.length > 1: Dropdown {
+                    prefix: "";
+                    popup-width: 280px;
+                    options: LibraryUi.collection-labels;
+                    selected <=> LibraryUi.collection;
+                    changed => { LibraryUi.query-changed(); }
+                }
+                SecondaryButton {
+                    text: root.width > 1000px ? "Collections intelligentes" : "";
+                    icon: Icons.bolt;
+                    has-icon: true;
+                    h: 32px;
+                    clicked => { SmartUi.editing-id = -1; SmartUi.open = true; }
+                }
+                if LibraryUi.genre-labels.length > 1: Dropdown {
+                    prefix: "";
+                    options: LibraryUi.genre-labels;
+                    selected <=> LibraryUi.genre;
+                    changed => { LibraryUi.query-changed(); }
+                }
+            }
+
+            if LibraryUi.search-warning != "": Text {
+                x: Theme.page-padding;
+                text: LibraryUi.search-warning;
+                color: Theme.warm;
+                font-size: Theme.t-caption;
+                height: 26px;
+            }
+
+            // Contenu
+            Rectangle {
+                vertical-stretch: 1;
+
+                if LibraryUi.result-count == 0: VerticalLayout {
+                    alignment: center;
+                    spacing: 10px;
+                    Text {
+                        text: LibraryUi.total == 0 ? "Votre bibliothèque est vide" : "Aucun jeu ne correspond";
+                        color: Theme.text;
+                        font-size: Theme.t-heading;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                    }
+                    Text {
+                        text: LibraryUi.total == 0
+                            ? "Lancez une analyse ou ajoutez un dossier de jeux dans les paramètres."
+                            : "Essayez un autre terme ou retirez des filtres. Champs de recherche : dev:, éditeur:, genre:, plateforme:, tag:, statut:, installé:, temps:, succès:, maj:";
+                        color: Theme.text-muted;
+                        font-size: Theme.t-body;
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                    }
+                }
+
+                // Grille et vue compacte : rangées virtualisées (seules les rangées visibles existent).
+                grid := ListView {
+                    visible: root.grid-like && LibraryUi.result-count > 0;
+                    public function ensure-visible(top: length, h: length) {
+                        if (top + self.content-y < 0) {
+                            self.content-y = -top;
+                        } else if (top + h + self.content-y > self.visible-height) {
+                            self.content-y = -(top + h - self.visible-height);
+                        }
+                    }
+                    for row in LibraryUi.rows: Rectangle {
+                        height: root.grid-row-h;
+                        for card[c] in row.cards: GameTile {
+                            x: Theme.page-padding + c * (root.tile-width + root.gap);
+                            y: 6px;
+                            game: card;
+                            cover-width: root.tile-width;
+                            show-text: LibraryUi.view-mode != 4;
+                            selected: card.id == LibraryUi.selected-id;
+                            open(id) => { Actions.open-game(id); }
+                            play(id) => { Actions.play(id); }
+                            context(id, x, y) => { GameMenu.request(id, x, y); }
+                        }
+                    }
+                }
+
+                VerticalLayout {
+                    visible: LibraryUi.view-mode == 1 && LibraryUi.result-count > 0;
+                    HorizontalLayout {
+                        padding-left: Theme.page-padding + 12px;
+                        padding-right: Theme.page-padding + 12px;
+                        padding-bottom: 8px;
+                        spacing: 16px;
+                        Rectangle { width: 37px; }
+                        Overline { text: "TITRE"; horizontal-stretch: 1; }
+                        Overline { width: 130px; text: "TEMPS DE JEU"; }
+                        Overline { width: 150px; text: "DERNIER LANCEMENT"; }
+                        Rectangle { width: 152px; }
+                    }
+                    list := ListView {
+                        public function ensure-visible(top: length, h: length) {
+                            if (top + self.content-y < 0) {
+                                self.content-y = -top;
+                            } else if (top + h + self.content-y > self.visible-height) {
+                                self.content-y = -(top + h - self.visible-height);
+                            }
+                        }
+                        for item in LibraryUi.items: Rectangle {
+                            height: 70px;
+                            ListRow {
+                                x: Theme.page-padding;
+                                width: parent.width - 2 * Theme.page-padding;
+                                game: item;
+                                selected: item.id == LibraryUi.selected-id;
+                            }
+                        }
+                    }
+                }
+
+                // Carrousel : grandes jaquettes et fiche résumée du jeu sélectionné.
+                if LibraryUi.view-mode == 2 && LibraryUi.result-count > 0: VerticalLayout {
+                    padding-bottom: Theme.s6;
+                    spacing: Theme.s5;
+                    alignment: center;
+                    Strip { tile: min(220px, max(150px, (parent.height - 230px) / 1.62)); }
+                    HorizontalLayout {
+                        padding-left: Theme.page-padding;
+                        padding-right: Theme.page-padding;
+                        alignment: center;
+                        FocusInfo { width: min(760px, root.width - 2 * Theme.page-padding); }
+                    }
+                }
+
+                // Immersive : illustration plein cadre, fiche, bande de jaquettes en bas.
+                if root.immersive && LibraryUi.result-count > 0: VerticalLayout {
+                    padding-bottom: Theme.s5;
+                    spacing: Theme.s5;
+                    HorizontalLayout {
+                        vertical-stretch: 1;
+                        padding-left: Theme.page-padding;
+                        padding-right: Theme.page-padding;
+                        FocusInfo { large: true; width: min(680px, root.width - 2 * Theme.page-padding); }
+                        Rectangle { horizontal-stretch: 1; }
+                    }
+                    Strip { tile: 118px; gap: 14px; show-text: false; anchor: 0.12; }
+                    HorizontalLayout {
+                        padding-left: Theme.page-padding;
+                        spacing: Theme.s5;
+                        alignment: start;
+                        KeyHint { key: "←→"; label: "Parcourir"; }
+                        KeyHint { key: "Entrée"; label: "Fiche"; }
+                        KeyHint { key: "Espace"; label: "Jouer"; }
+                        KeyHint { key: "Menu"; label: "Actions"; }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "binary": "target/release/halcyon",
+  "renderer": "software",
+  "results": [
+    {
+      "run": "1er lancement (base vide, analyse)",
+      "ready_ms": 110,
+      "scan_done_s": 1.61,
+      "rss_home_mb": 68,
+      "idle_cpu_pct": 0.1,
+      "scroll_150_s": 16.1,
+      "rss_after_scroll_mb": 104,
+      "db_mb": 3.34
+    },
+    {
+      "run": "2e lancement (base remplie, miniatures en cache)",
+      "ready_ms": 78,
+      "scan_done_s": 0.8,
+      "rss_home_mb": 69,
+      "idle_cpu_pct": 0.1,
+      "scroll_150_s": 16.0,
+      "rss_after_scroll_mb": 103,
+      "db_mb": 3.34
+    }
+  ]
+}

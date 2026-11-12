@@ -1,0 +1,122 @@
+import { ListView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Actions, JournalUi } from "../state.slint";
+import { Chip, TextField, PageHeader, Icon, SecondaryButton } from "../components.slint";
+
+component Entry inherits Rectangle {
+    in property <string> title;
+    in property <string> detail;
+    in property <string> time;
+    in property <int> category;
+    in property <bool> clickable;
+    callback clicked;
+    height: 56px;
+    border-radius: Theme.radius;
+    background: ta.has-hover && root.clickable ? Theme.surface-hover : Theme.surface;
+    ta := TouchArea {
+        mouse-cursor: root.clickable ? pointer : default;
+        clicked => { if (root.clickable) { root.clicked(); } }
+    }
+    property <image> icon: category == 0 ? Icons.play : category == 1 ? Icons.trophy : category == 2 ? Icons.library
+        : category == 3 ? Icons.download : category == 4 ? Icons.save : category == 5 ? Icons.puzzle : Icons.settings;
+    property <color> tint: category == 1 ? Theme.warm : category == 3 ? Theme.accent : category == 6 ? Theme.text-muted : Theme.accent;
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        spacing: 14px;
+        Rectangle {
+            width: 32px;
+            height: 32px;
+            y: (parent.height - self.height) / 2;
+            border-radius: 16px;
+            background: root.tint.with-alpha(0.12);
+            Icon { source: root.icon; size: 16px; tint: root.tint; }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 2px;
+            horizontal-stretch: 1;
+            Text { text: root.title; color: Theme.text; font-size: Theme.t-small; font-weight: 600; overflow: elide; }
+            if root.detail != "": Text { text: root.detail; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+        }
+        Text { text: root.time; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
+    }
+}
+
+export component JournalPage inherits Rectangle {
+    VerticalLayout {
+        padding: Theme.page-padding;
+        padding-top: 32px;
+        spacing: 18px;
+
+        PageHeader {
+            title: "Journal d'activité";
+            subtitle: "Historique lisible de vos sessions, succès, installations et mises à jour. Les journaux techniques restent dans le dossier des journaux.";
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            TextField {
+                width: 300px;
+                text <=> JournalUi.search;
+                placeholder: "Rechercher dans le journal";
+                icon: Icons.search;
+                has-icon: true;
+                edited => { JournalUi.search-changed(); }
+            }
+            for c[i] in JournalUi.categories: Chip {
+                text: c;
+                checked: JournalUi.selected[i];
+                toggled => { JournalUi.toggle-category(i); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            Text {
+                text: JournalUi.count + (JournalUi.count < JournalUi.total ? " sur " + JournalUi.total : "") + " entrées";
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+                vertical-alignment: center;
+            }
+        }
+
+        if JournalUi.entries.length == 0: VerticalLayout {
+            alignment: center;
+            spacing: 12px;
+            vertical-stretch: 1;
+            Text {
+                text: JournalUi.total == 0 ? "Le journal est vide pour l'instant." : "Aucune entrée ne correspond à ces filtres.";
+                color: Theme.text-muted;
+                font-size: Theme.t-body + 1px;
+                horizontal-alignment: center;
+            }
+            if JournalUi.total > 0: HorizontalLayout {
+                alignment: center;
+                SecondaryButton { text: "Effacer les filtres"; clicked => { JournalUi.clear-filters(); } }
+            }
+        }
+
+        if JournalUi.entries.length > 0: ListView {
+            vertical-stretch: 1;
+            for e in JournalUi.entries: VerticalLayout {
+                padding-bottom: 6px;
+                spacing: 6px;
+                if e.new-day: Text {
+                    text: e.day;
+                    color: Theme.text-muted;
+                    font-size: Theme.t-caption;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                    height: 34px;
+                    vertical-alignment: bottom;
+                }
+                Entry {
+                    title: e.title;
+                    detail: e.detail;
+                    time: e.time;
+                    category: e.category;
+                    clickable: e.game-id > 0;
+                    clicked => { Actions.open-game(e.game-id); }
+                }
+            }
+        }
+    }
+}

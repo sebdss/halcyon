@@ -1,0 +1,26 @@
+{
+  "binary": "/tmp/halcyon-0.3.0",
+  "renderer": "software",
+  "results": [
+    {
+      "run": "1er lancement (base vide, analyse)",
+      "ready_ms": 141,
+      "scan_done_s": 1.11,
+      "rss_home_mb": 70,
+      "idle_cpu_pct": 0.3,
+      "scroll_150_s": 16.89,
+      "rss_after_scroll_mb": 109,
+      "db_mb": 0.0
+    },
+    {
+      "run": "2e lancement (base remplie, miniatures en cache)",
+      "ready_ms": 107,
+      "scan_done_s": 0.91,
+      "rss_home_mb": 70,
+      "idle_cpu_pct": 0.4,
+      "scroll_150_s": 16.21,
+      "rss_after_scroll_mb": 101,
+      "db_mb": 0.0
+    }
+  ]
+}

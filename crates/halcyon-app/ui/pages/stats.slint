@@ -1,0 +1,182 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Actions, StatsUi } from "../state.slint";
+import { BarItem } from "../types.slint";
+import { Panel, SectionTitle, BigStat, BarChart, MeterRow, PageHeader, Notice, GameCover } from "../components.slint";
+
+component ChartPanel inherits Panel {
+    in property <string> title;
+    in property <string> caption;
+    in property <bool> empty;
+    in property <string> empty-text;
+    in property <[BarItem]> items;
+    in property <color> bar-color: Theme.accent;
+    horizontal-stretch: 1;
+    VerticalLayout {
+        padding: 22px;
+        spacing: 12px;
+        HorizontalLayout {
+            SectionTitle { text: root.title; horizontal-stretch: 1; }
+            Text { text: root.caption; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
+        }
+        Rectangle {
+            height: 150px;
+            BarChart { width: parent.width; height: parent.height; items: root.items; bar-color: root.bar-color; }
+            if root.empty: Rectangle {
+                background: Theme.surface;
+                Text { text: root.empty-text; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
+            }
+        }
+    }
+}
+
+export component StatsPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 22px;
+            alignment: start;
+
+            PageHeader {
+                title: "Statistiques";
+                subtitle: "Chaque chiffre indique sa provenance : données des plateformes, sessions suivies par Halcyon ou corrections manuelles.";
+            }
+
+            Panel {
+                VerticalLayout {
+                    padding: 24px;
+                    spacing: 16px;
+                    HorizontalLayout {
+                        spacing: 44px;
+                        alignment: start;
+                        BigStat { value: StatsUi.total; label: "temps de jeu total retenu"; }
+                        BigStat { value: StatsUi.games-played; label: "jeux lancés au moins une fois"; }
+                        BigStat { value: StatsUi.sessions; label: "sessions suivies"; }
+                        BigStat { value: StatsUi.avg-session; label: "durée moyenne d'une session"; }
+                        BigStat { value: StatsUi.week-total; label: "joué cette semaine"; }
+                        BigStat { value: StatsUi.streak + " j"; label: "série de jours joués"; }
+                        BigStat { value: StatsUi.completed; label: "jeux terminés"; }
+                    }
+                    Text { text: StatsUi.total-detail; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                }
+            }
+
+            if !StatsUi.has-local: Notice {
+                text: "Aucune session n'a encore été suivie par Halcyon. Les graphiques hebdomadaires et mensuels se remplissent à mesure que vous lancez vos jeux depuis Halcyon (y compris les jeux Steam et Epic, détectés pendant leur exécution).";
+            }
+
+            HorizontalLayout {
+                spacing: 22px;
+                ChartPanel {
+                    title: "Par semaine";
+                    caption: "suivi local · 12 semaines";
+                    empty: !StatsUi.has-local;
+                    empty-text: "Pas encore de session suivie.";
+                    items: StatsUi.weeks;
+                }
+                ChartPanel {
+                    title: "Par mois";
+                    caption: "suivi local · 12 mois";
+                    empty: !StatsUi.has-local;
+                    empty-text: "Pas encore de session suivie.";
+                    items: StatsUi.months;
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 22px;
+                Panel {
+                    horizontal-stretch: 3;
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 12px;
+                        alignment: start;
+                        SectionTitle { text: "Jeux les plus joués"; }
+                        if StatsUi.top.length == 0: Text { text: "Aucun temps de jeu connu pour l'instant."; color: Theme.text-dim; font-size: Theme.t-small; }
+                        for t in StatsUi.top: Rectangle {
+                            height: 52px;
+                            border-radius: Theme.radius-sm;
+                            background: ta.has-hover ? Theme.surface-hover : transparent;
+                            ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(t.id); } }
+                            HorizontalLayout {
+                                padding: 4px;
+                                spacing: 12px;
+                                GameCover {
+                                    width: 30px;
+                                    height: 44px;
+                                    source: t.card.cover;
+                                    has-image: t.card.has-cover;
+                                    color-a: t.card.color-a;
+                                    color-b: t.card.color-b;
+                                    initials: t.card.initials;
+                                    title: t.title;
+                                    show-title: false;
+                                    corner: 4px;
+                                }
+                                MeterRow {
+                                    y: (parent.height - self.preferred-height) / 2;
+                                    label: t.title;
+                                    value: t.value + "  ·  " + t.origin;
+                                    ratio: t.ratio;
+                                }
+                            }
+                        }
+                    }
+                }
+                Panel {
+                    horizontal-stretch: 2;
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 14px;
+                        alignment: start;
+                        SectionTitle { text: "Par source"; }
+                        for s in StatsUi.sources: MeterRow { label: s.label; value: s.value; ratio: s.ratio; }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 22px;
+                ChartPanel {
+                    title: "Succès débloqués";
+                    caption: "données des plateformes · 12 mois";
+                    items: StatsUi.unlocks;
+                    bar-color: Theme.warm;
+                }
+                ChartPanel {
+                    title: "Jeux terminés";
+                    caption: "statut « Terminé » · 12 mois";
+                    items: StatsUi.completions;
+                    bar-color: Theme.success;
+                }
+            }
+
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 6px;
+                    alignment: start;
+                    SectionTitle { text: "Sessions récentes"; }
+                    if StatsUi.recent.length == 0: Text { text: "Aucune session suivie."; color: Theme.text-dim; font-size: Theme.t-small; }
+                    for r in StatsUi.recent: Rectangle {
+                        height: 36px;
+                        border-radius: Theme.radius-sm;
+                        background: rta.has-hover ? Theme.surface-hover : transparent;
+                        rta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(r.game-id); } }
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+                            spacing: 12px;
+                            Text { text: r.game; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                            Text { text: r.date; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; width: 200px; }
+                            Text { text: r.duration; color: Theme.text-muted; font-size: Theme.t-caption; vertical-alignment: center; width: 90px; horizontal-alignment: right; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

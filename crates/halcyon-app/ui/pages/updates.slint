@@ -1,0 +1,127 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Actions, UpdatesUi } from "../state.slint";
+import { Panel, SectionTitle, PageHeader, Notice, GameCover, SecondaryButton, Toggle, Badge } from "../components.slint";
+
+export component UpdatesPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 20px;
+            alignment: start;
+
+            PageHeader {
+                title: "Mises à jour";
+                subtitle: "Les mises à jour sont téléchargées et installées par la plateforme d'origine ; Halcyon les détecte et suit leur progression.";
+                SecondaryButton {
+                    y: 6px;
+                    text: "Actualiser";
+                    icon: Icons.refresh;
+                    has-icon: true;
+                    clicked => { UpdatesUi.refresh(); }
+                }
+            }
+
+            Panel {
+                HorizontalLayout {
+                    padding: 18px;
+                    spacing: 14px;
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: 3px;
+                        Text { text: "Notifications de mise à jour"; color: Theme.text; font-size: Theme.t-body; font-weight: 600; }
+                        Text { text: "Notification système quand une mise à jour est détectée lors d'une analyse."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    }
+                    Toggle {
+                        y: (parent.height - self.height) / 2;
+                        checked: UpdatesUi.notify;
+                        toggled(v) => { UpdatesUi.set-notify(v); }
+                    }
+                }
+            }
+
+            SectionTitle { text: UpdatesUi.pending.length > 0 ? "En attente (" + UpdatesUi.pending.length + ")" : "En attente"; }
+            if UpdatesUi.pending.length == 0: Text {
+                text: "Tous vos jeux sont à jour, d'après les informations fournies par les plateformes.";
+                color: Theme.text-dim;
+                font-size: Theme.t-small;
+            }
+            for u in UpdatesUi.pending: Panel {
+                height: 88px;
+                HorizontalLayout {
+                    padding: 12px;
+                    spacing: 16px;
+                    GameCover {
+                        width: 44px;
+                        height: 64px;
+                        source: u.card.cover;
+                        has-image: u.card.has-cover;
+                        color-a: u.card.color-a;
+                        color-b: u.card.color-b;
+                        initials: u.card.initials;
+                        title: u.title;
+                        show-title: false;
+                        corner: 6px;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 6px;
+                        horizontal-stretch: 1;
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: u.title; color: Theme.text; font-size: Theme.t-body; font-weight: 650; overflow: elide; }
+                            Badge { text: u.source; }
+                            Badge { text: u.state; tint: u.downloading ? Theme.accent : Theme.warm; solid: u.downloading; }
+                            Rectangle { horizontal-stretch: 1; }
+                        }
+                        if u.downloading: Rectangle {
+                            height: 6px;
+                            border-radius: 3px;
+                            background: Theme.surface-active;
+                            Rectangle { x: 0; width: parent.width * u.progress; border-radius: 3px; background: Theme.accent; }
+                        }
+                        Text { text: u.progress-text != "" ? u.progress-text : u.version; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    }
+                    SecondaryButton {
+                        y: (parent.height - self.height) / 2;
+                        text: u.client;
+                        clicked => { UpdatesUi.open-client(u.id); }
+                    }
+                    SecondaryButton {
+                        y: (parent.height - self.height) / 2;
+                        text: "Fiche";
+                        clicked => { Actions.open-game(u.id); }
+                    }
+                }
+            }
+
+            Notice {
+                text: "Steam : état et progression lus dans les manifestes du client. Heroic / Legendary : comparaison avec la dernière version connue du cache Legendary. Le launcher Epic Games n'indique pas localement les mises à jour en attente : seule la version installée est affichée. Jeux autonomes et émulés : aucune source de mise à jour.";
+            }
+
+            SectionTitle { text: "Historique des versions"; }
+            if UpdatesUi.changes.length == 0: Text {
+                text: "Aucun changement de version observé pour l'instant.";
+                color: Theme.text-dim;
+                font-size: Theme.t-small;
+            }
+            for c in UpdatesUi.changes: Rectangle {
+                height: 40px;
+                border-radius: Theme.radius-sm;
+                background: cta.has-hover ? Theme.surface-hover : Theme.surface;
+                cta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(c.game-id); } }
+                HorizontalLayout {
+                    padding-left: 14px;
+                    padding-right: 14px;
+                    spacing: 12px;
+                    Text { text: c.game; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                    Text { text: c.version; color: Theme.accent; font-size: Theme.t-caption; font-family: "monospace"; vertical-alignment: center; }
+                    Text { text: c.date; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; width: 120px; horizontal-alignment: right; }
+                }
+            }
+        }
+    }
+}

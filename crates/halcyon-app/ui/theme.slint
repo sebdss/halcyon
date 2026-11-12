@@ -1,0 +1,170 @@
+// Design system « Nocturne » de Halcyon 0.4 — voir docs/DESIGN-SYSTEM.md.
+//
+// Toutes les valeurs visuelles passent par ce fichier : couleurs (modifiables depuis Rust
+// pour les thèmes et l'accent), échelle typographique, espacements, rayons, élévations et
+// mouvement. Les noms de la 0.3 sont conservés : les thèmes importés restent compatibles.
+
+export global Theme {
+    // ---------------------------------------------------------------- couleurs
+    // Couches : bg (fond) < sidebar < surface (cartes) < surface-hover < surface-active.
+    in-out property <color> bg: #0a0c10;
+    in-out property <color> sidebar: #0d1015;
+    in-out property <color> surface: #13171f;
+    in-out property <color> surface-hover: #1a1f29;
+    in-out property <color> surface-active: #222835;
+    in-out property <color> border: #ffffff12;
+    in-out property <color> border-strong: #ffffff22;
+    /// Verre : panneaux posés sur une illustration (opacité modérée, sans flou coûteux).
+    out property <color> glass: self.bg.with-alpha(0.72);
+    out property <color> glass-strong: self.bg.with-alpha(0.88);
+    /// Voile pour le texte sur une image.
+    out property <color> scrim: #000000a6;
+
+    in-out property <color> text: #eceff4;
+    in-out property <color> text-muted: #9aa3b3;
+    in-out property <color> text-dim: #5f6777;
+
+    in-out property <color> accent: #2fd4c5;
+    out property <color> accent-hover: self.accent.brighter(0.15);
+    out property <color> accent-pressed: self.accent.darker(0.15);
+    in-out property <color> on-accent: #03201d;
+    out property <color> accent-soft: self.accent.with-alpha(0.12);
+    out property <color> accent-glow: self.accent.with-alpha(0.35);
+    /// Anneau de focus (clavier, manette) : toujours visible, jamais seul indicateur d'état.
+    out property <color> focus: self.accent;
+
+    in-out property <color> warm: #ff9f5a;
+    in-out property <color> danger: #ff6b6b;
+    in-out property <color> success: #5ad48a;
+    /// Fond du mode Big Picture.
+    in-out property <color> bp-bg: #05070a;
+
+    // ---------------------------------------------------------------- forme
+    out property <length> radius-sm: 6px;
+    out property <length> radius: 10px;
+    out property <length> radius-lg: 14px;
+    out property <length> radius-xl: 22px;
+    out property <length> focus-width: 2px;
+
+    // ---------------------------------------------------------------- espacements (grille de 4 px)
+    /// Densité : 0 confortable, 1 compacte.
+    in-out property <int> density: 0;
+    out property <length> s1: 4px;
+    out property <length> s2: 8px;
+    out property <length> s3: 12px;
+    out property <length> s4: self.density == 1 ? 14px : 16px;
+    out property <length> s5: self.density == 1 ? 20px : 24px;
+    out property <length> s6: self.density == 1 ? 26px : 32px;
+    out property <length> s7: self.density == 1 ? 36px : 48px;
+    out property <length> page-padding: self.density == 1 ? 24px : 36px;
+    out property <length> nav-height: self.density == 1 ? 34px : 40px;
+    out property <length> control-height: self.density == 1 ? 34px : 40px;
+
+    // ---------------------------------------------------------------- typographie (Inter)
+    /// Facteur de taille du texte (accessibilité) : 0,9 à 1,3.
+    in-out property <float> text-scale: 1.0;
+    out property <length> t-display: 44px * self.text-scale;
+    out property <length> t-title: 30px * self.text-scale;
+    out property <length> t-heading: 20px * self.text-scale;
+    out property <length> t-subheading: 16px * self.text-scale;
+    out property <length> t-body: 14px * self.text-scale;
+    out property <length> t-small: 13px * self.text-scale;
+    out property <length> t-caption: 12px * self.text-scale;
+    out property <length> t-overline: 11px * self.text-scale;
+
+    // ---------------------------------------------------------------- mouvement
+    /// 0 : complet, 1 : réduit (fondus courts, aucun déplacement), 2 : aucun.
+    in-out property <int> motion: 0;
+    /// Compatibilité 0.3 : vrai sauf en mode « aucun ».
+    in-out property <bool> animations: true;
+    out property <duration> fast: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 70ms : 120ms;
+    out property <duration> normal: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 100ms : 200ms;
+    out property <duration> slow: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 140ms : 320ms;
+    /// Amplitude des déplacements animés (0 en mouvement réduit).
+    out property <length> motion-distance: self.motion == 0 && self.animations ? 12px : 0px;
+    /// Effets coûteux (ombres larges, fond animé) : coupés en mode Performance.
+    in-out property <bool> effects: true;
+
+    // ---------------------------------------------------------------- fond
+    /// Image de fond facultative (assombrie) et fond animé (désactivé par défaut).
+    in-out property <image> background-image;
+    in-out property <bool> has-background: false;
+    in-out property <float> background-opacity: 0.18;
+    in-out property <bool> animated-background: false;
+}
+
+export global Icons {
+    out property <image> home: @image-url("icons/home.svg");
+    out property <image> library: @image-url("icons/library.svg");
+    out property <image> grid: @image-url("icons/grid.svg");
+    out property <image> list: @image-url("icons/list.svg");
+    out property <image> trophy: @image-url("icons/trophy.svg");
+    out property <image> gamepad: @image-url("icons/gamepad.svg");
+    out property <image> settings: @image-url("icons/settings.svg");
+    out property <image> search: @image-url("icons/search.svg");
+    out property <image> play: @image-url("icons/play.svg");
+    out property <image> star: @image-url("icons/star.svg");
+    out property <image> star-filled: @image-url("icons/star-filled.svg");
+    out property <image> folder: @image-url("icons/folder.svg");
+    out property <image> plus: @image-url("icons/plus.svg");
+    out property <image> refresh: @image-url("icons/refresh.svg");
+    out property <image> back: @image-url("icons/arrow-left.svg");
+    out property <image> eye: @image-url("icons/eye.svg");
+    out property <image> eye-off: @image-url("icons/eye-off.svg");
+    out property <image> trash: @image-url("icons/trash.svg");
+    out property <image> check: @image-url("icons/check.svg");
+    out property <image> close: @image-url("icons/close.svg");
+    out property <image> clock: @image-url("icons/clock.svg");
+    out property <image> chevron-down: @image-url("icons/chevron-down.svg");
+    out property <image> chevron-up: @image-url("icons/chevron-up.svg");
+    out property <image> pin: @image-url("icons/pin.svg");
+    out property <image> spinner: @image-url("icons/spinner.svg");
+    out property <image> alert: @image-url("icons/alert.svg");
+    out property <image> logo: @image-url("icons/logo.svg");
+    out property <image> tv: @image-url("icons/tv.svg");
+    out property <image> download: @image-url("icons/download.svg");
+    out property <image> chart: @image-url("icons/chart.svg");
+    out property <image> journal: @image-url("icons/journal.svg");
+    out property <image> bolt: @image-url("icons/bolt.svg");
+    out property <image> save: @image-url("icons/save.svg");
+    out property <image> puzzle: @image-url("icons/puzzle.svg");
+    out property <image> palette: @image-url("icons/palette.svg");
+    out property <image> monitor: @image-url("icons/monitor.svg");
+    out property <image> sparkle: @image-url("icons/sparkle.svg");
+    out property <image> filter: @image-url("icons/filter.svg");
+    out property <image> edit: @image-url("icons/edit.svg");
+    out property <image> layers: @image-url("icons/layers.svg");
+    out property <image> cube: @image-url("icons/cube.svg");
+    out property <image> upload: @image-url("icons/upload.svg");
+    out property <image> keyboard: @image-url("icons/keyboard.svg");
+    out property <image> shield: @image-url("icons/shield.svg");
+    out property <image> compare: @image-url("icons/compare.svg");
+    out property <image> restore: @image-url("icons/restore.svg");
+    out property <image> cloud: @image-url("icons/cloud.svg");
+    out property <image> info: @image-url("icons/info.svg");
+    out property <image> chevron-left: @image-url("icons/chevron-left.svg");
+    out property <image> chevron-right: @image-url("icons/chevron-right.svg");
+    out property <image> arrow-right: @image-url("icons/arrow-right.svg");
+    out property <image> bell: @image-url("icons/bell.svg");
+    out property <image> more: @image-url("icons/more.svg");
+    out property <image> command: @image-url("icons/command.svg");
+    out property <image> sliders: @image-url("icons/sliders.svg");
+    out property <image> film: @image-url("icons/film.svg");
+    out property <image> minimal: @image-url("icons/minimal.svg");
+    out property <image> gauge: @image-url("icons/gauge.svg");
+    out property <image> carousel: @image-url("icons/carousel.svg");
+    out property <image> immersive: @image-url("icons/immersive.svg");
+    out property <image> compact: @image-url("icons/compact.svg");
+    out property <image> image: @image-url("icons/image.svg");
+    out property <image> menu: @image-url("icons/menu.svg");
+    out property <image> sidebar: @image-url("icons/sidebar.svg");
+    out property <image> external: @image-url("icons/external.svg");
+    out property <image> drive: @image-url("icons/drive.svg");
+    out property <image> activity: @image-url("icons/activity.svg");
+    out property <image> tasks: @image-url("icons/tasks.svg");
+    out property <image> resize: @image-url("icons/resize.svg");
+    out property <image> drag: @image-url("icons/drag.svg");
+    out property <image> heart: @image-url("icons/heart.svg");
+    out property <image> user: @image-url("icons/user.svg");
+    out property <image> power: @image-url("icons/power.svg");
+}

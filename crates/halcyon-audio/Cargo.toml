@@ -1,0 +1,12 @@
+[package]
+name = "halcyon-audio"
+description = "Moteur audio de Halcyon : catalogue des sons, mélangeur, sortie cpal"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+log.workspace = true
+cpal = "0.18"

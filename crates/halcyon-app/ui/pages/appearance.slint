@@ -1,0 +1,264 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { ThemeUi, AppUi } from "../state.slint";
+import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Toggle, Segmented, Chip, Icon, Notice, IconButton } from "../components.slint";
+
+component Row inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> description;
+    spacing: 20px;
+    VerticalLayout {
+        horizontal-stretch: 1;
+        spacing: 3px;
+        alignment: center;
+        Text { text: root.title; color: Theme.text; font-size: Theme.t-body; font-weight: 600; }
+        if root.description != "": Text { text: root.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+    }
+    @children
+}
+
+export component AppearancePage inherits Rectangle {
+    in-out property <string> bg-path: ThemeUi.background;
+    in-out property <string> accent-hex: ThemeUi.accent;
+    in-out property <string> import-path;
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 20px;
+            alignment: start;
+
+            PageHeader {
+                title: "Apparence";
+                subtitle: "Thème, couleurs, fond, densité et organisation de l'interface. Les changements s'appliquent immédiatement.";
+                SecondaryButton { y: 6px; text: "Rétablir les réglages d'origine"; clicked => { ThemeUi.reset(); } }
+            }
+
+            SectionTitle { text: "Thème"; }
+            HorizontalLayout {
+                spacing: 14px;
+                alignment: start;
+                for t[i] in ThemeUi.themes: Rectangle {
+                    width: 168px;
+                    height: 118px;
+                    border-radius: Theme.radius-lg;
+                    background: t.bg;
+                    border-width: ThemeUi.selected == i ? 2px : 1px;
+                    border-color: ThemeUi.selected == i ? t.accent : Theme.border;
+                    clip: true;
+                    Rectangle { x: 14px; y: 14px; width: parent.width - 28px; height: 40px; border-radius: 8px; background: t.surface; }
+                    Rectangle { x: 14px; y: 64px; width: 54px; height: 10px; border-radius: 5px; background: t.accent; }
+                    Text { x: 14px; y: t.source != "" ? parent.height - 40px : parent.height - 30px; text: t.name; color: #eceff4; font-size: Theme.t-small; font-weight: 650; }
+                    if t.source != "": Text { x: 14px; y: parent.height - 21px; width: parent.width - 28px; text: t.source; color: #9aa3b3; font-size: Theme.t-overline - 1px; overflow: elide; }
+                    ta := TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.select-theme(i); } }
+                }
+            }
+
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 18px;
+                    Row {
+                        title: "Couleur d'accent";
+                        description: "Boutons, sélection et indicateurs. Une teinte personnalisée s'écrit #RRGGBB.";
+                    }
+                    HorizontalLayout {
+                        spacing: 10px;
+                        alignment: start;
+                        for c[i] in ThemeUi.accents: Rectangle {
+                            width: 34px;
+                            height: 34px;
+                            border-radius: 17px;
+                            background: c;
+                            border-width: Theme.accent == c ? 3px : 0px;
+                            border-color: Theme.text;
+                            TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.set-accent(ThemeUi.accent-hexes[i]); } }
+                        }
+                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: "#2fd4c5"; accepted(t) => { ThemeUi.set-accent(t); } }
+                        SecondaryButton { h: 34px; text: "Appliquer"; clicked => { ThemeUi.set-accent(root.accent-hex); } }
+                    }
+                    Rectangle { height: 1px; background: Theme.border; }
+                    Row {
+                        title: "Densité";
+                        description: "Compacte : marges et éléments de navigation réduits.";
+                        Segmented {
+                            y: (parent.height - self.height) / 2;
+                            items: ["Confortable", "Compacte"];
+                            selected: ThemeUi.density;
+                            activated(i) => { ThemeUi.set-density(i); }
+                        }
+                    }
+                    Row {
+                        title: "Mouvement";
+                        description: "Réduit : fondus courts, sans glissement. Aucun : interface instantanée (recommandé si les animations gênent).";
+                        Segmented {
+                            y: (parent.height - self.height) / 2;
+                            items: ["Complet", "Réduit", "Aucun"];
+                            selected: ThemeUi.motion;
+                            activated(i) => { ThemeUi.set-motion(i); }
+                        }
+                    }
+                    Row {
+                        title: "Taille du texte";
+                        description: "Agrandit tous les textes de l'interface (accessibilité).";
+                        Segmented {
+                            y: (parent.height - self.height) / 2;
+                            items: ["90 %", "100 %", "115 %", "130 %"];
+                            selected: ThemeUi.text-scale < 0.95 ? 0 : ThemeUi.text-scale < 1.07 ? 1 : ThemeUi.text-scale < 1.2 ? 2 : 3;
+                            activated(i) => { ThemeUi.set-text-scale(i == 0 ? 0.9 : i == 1 ? 1.0 : i == 2 ? 1.15 : 1.3); }
+                        }
+                    }
+                }
+            }
+
+            SectionTitle { text: "Interface"; }
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 18px;
+                    Row {
+                        title: "Mode d'affichage";
+                        description: "Minimaliste : barre repliée, accueil réduit aux favoris et récents. Cinéma : sans barre latérale, illustrations plein cadre. Bouton de la barre supérieure pour basculer.";
+                        Segmented {
+                            y: (parent.height - self.height) / 2;
+                            items: ["Standard", "Minimaliste", "Cinéma"];
+                            selected: AppUi.ui-mode;
+                            activated(i) => { AppUi.set-ui-mode(i); }
+                        }
+                    }
+                    Row {
+                        title: "Barre latérale repliée";
+                        description: "Icônes seules (infobulles au survol). Repliée automatiquement dans une fenêtre étroite.";
+                        Toggle {
+                            y: (parent.height - self.height) / 2;
+                            checked: AppUi.sidebar-collapsed;
+                            toggled(v) => { AppUi.sidebar-collapsed = v; AppUi.sidebar-changed(v); }
+                        }
+                    }
+                    Rectangle { height: 1px; background: Theme.border; }
+                    Row {
+                        title: "Mode Performance";
+                        description: "Coupe animations et effets, suspend les téléchargements de visuels et la vérification des mises à jour. Aucun programme ni service n'est fermé.";
+                        Toggle {
+                            y: (parent.height - self.height) / 2;
+                            checked: AppUi.performance && !AppUi.performance-auto;
+                            toggled(v) => { AppUi.set-performance(v); }
+                        }
+                    }
+                    Row {
+                        title: "Automatique pendant les parties";
+                        description: "Active le mode Performance au lancement d'un jeu depuis Halcyon et rétablit tout à la fermeture du jeu.";
+                        Toggle {
+                            y: (parent.height - self.height) / 2;
+                            checked: ThemeUi.performance-auto;
+                            toggled(v) => { ThemeUi.set-performance-auto(v); }
+                        }
+                    }
+                }
+            }
+
+            SectionTitle { text: "Fond d'écran"; }
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 16px;
+                    HorizontalLayout {
+                        spacing: 8px;
+                        TextField { text <=> root.bg-path; mono: true; placeholder: "Image (.jpg, .png, .webp) affichée en fond, assombrie"; }
+                        if AppUi.can-browse: SecondaryButton {
+                            text: "Parcourir…";
+                            h: 38px;
+                            clicked => {
+                                let p = AppUi.browse-file();
+                                if (p != "") { root.bg-path = p; ThemeUi.set-background(root.bg-path); }
+                            }
+                        }
+                        SecondaryButton { h: 38px; text: "Appliquer"; clicked => { ThemeUi.set-background(root.bg-path); } }
+                        if ThemeUi.background != "": SecondaryButton { h: 38px; text: "Retirer"; clicked => { root.bg-path = ""; ThemeUi.set-background(""); } }
+                    }
+                    if ThemeUi.background != "": Row {
+                        title: "Intensité du fond";
+                        description: round(ThemeUi.background-opacity * 100) + " %";
+                        HorizontalLayout {
+                            spacing: 6px;
+                            for v in [0.08, 0.15, 0.25, 0.4]: Chip {
+                                y: (parent.height - self.height) / 2;
+                                text: round(v * 100) + " %";
+                                checked: abs(ThemeUi.background-opacity - v) < 0.01;
+                                toggled => { ThemeUi.set-background-opacity(v); }
+                            }
+                        }
+                    }
+                    Row {
+                        title: "Fond animé";
+                        description: "Lueur colorée lente derrière l'interface. Désactivé par défaut : il redessine l'écran en continu (jamais pendant une partie lancée par Halcyon).";
+                        Toggle { y: (parent.height - self.height) / 2; checked: ThemeUi.animated-background; toggled(v) => { ThemeUi.set-animated(v); } }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 22px;
+                Panel {
+                    horizontal-stretch: 1;
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 10px;
+                        alignment: start;
+                        SectionTitle { text: "Barre latérale"; }
+                        Text { text: "Affichez seulement les sections que vous utilisez."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                        for n in ThemeUi.nav-items: HorizontalLayout {
+                            height: 34px;
+                            Text { text: n.label; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
+                            Toggle { y: (parent.height - self.height) / 2; checked: n.visible; toggled => { ThemeUi.toggle-nav(n.key); } }
+                        }
+                    }
+                }
+                Panel {
+                    horizontal-stretch: 1;
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 10px;
+                        alignment: start;
+                        SectionTitle { text: "Accueil"; }
+                        Text { text: "Widgets de l'accueil : ordre et affichage. Taille et disposition : bouton crayon de l'accueil."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        for sec[i] in ThemeUi.sections: HorizontalLayout {
+                            height: 34px;
+                            spacing: 4px;
+                            Text { text: sec.label; color: sec.visible ? Theme.text : Theme.text-dim; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
+                            IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-up; tooltip: "Monter"; clicked => { ThemeUi.move-section(i, -1); } }
+                            IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-down; tooltip: "Descendre"; clicked => { ThemeUi.move-section(i, 1); } }
+                            Toggle { y: (parent.height - self.height) / 2; checked: sec.visible; toggled => { ThemeUi.toggle-section(i); } }
+                        }
+                    }
+                }
+            }
+
+            SectionTitle { text: "Importer ou exporter un thème"; }
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 14px;
+                    Text { text: "Un thème est un petit fichier JSON (couleurs). Les extensions peuvent aussi en fournir."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        TextField { text <=> root.import-path; mono: true; placeholder: "Fichier de thème .json"; }
+                        if AppUi.can-browse: SecondaryButton {
+                            text: "Parcourir…";
+                            h: 38px;
+                            clicked => {
+                                let p = AppUi.browse-file();
+                                if (p != "") { root.import-path = p; }
+                            }
+                        }
+                        SecondaryButton { h: 38px; text: "Importer"; enabled: root.import-path != ""; clicked => { ThemeUi.import-theme(root.import-path); root.import-path = ""; } }
+                        PrimaryButton { h: 38px; text: "Exporter le thème actuel"; icon: Icons.upload; has-icon: true; clicked => { ThemeUi.export-theme(); } }
+                    }
+                    if ThemeUi.status != "": Text { text: ThemeUi.status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+                }
+            }
+        }
+    }
+}

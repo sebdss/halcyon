@@ -1,0 +1,59 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/halcyon-core",
+    "crates/halcyon-storage",
+    "crates/halcyon-integrations",
+    "crates/halcyon-audio",
+    "crates/halcyon-app",
+    "crates/halcyon-installer",
+    "crates/halcyon-minecraft",
+]
+
+[workspace.package]
+version = "0.5.0"
+edition = "2021"
+rust-version = "1.95"
+license = "MIT"
+authors = ["Sebi"]
+
+[workspace.dependencies]
+halcyon-core = { path = "crates/halcyon-core" }
+halcyon-storage = { path = "crates/halcyon-storage" }
+halcyon-integrations = { path = "crates/halcyon-integrations" }
+halcyon-audio = { path = "crates/halcyon-audio" }
+halcyon-minecraft = { path = "crates/halcyon-minecraft" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = { version = "0.4", features = ["std"] }
+rusqlite = { version = "0.41", features = ["bundled"] }
+base64 = "0.23"
+dirs = "7"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+ureq = { version = "3", default-features = false, features = ["rustls", "gzip"] }
+slint = { version = "1.18", default-features = false, features = ["std", "compat-1-2", "backend-winit", "renderer-femtovg", "renderer-software", "accessibility", "unstable-winit-030"] }
+slint-build = "1.18"
+tempfile = "3"
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+sha2 = "0.11"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "unwind"
+
+# Les dépendances lourdes (décodage d'images, rendu) restent optimisées en debug :
+# l'interface reste fluide pendant le développement.
+[profile.dev.package."*"]
+opt-level = 2
+debug = false
+
+# Informations de débogage limitées : builds plus rapides et dossier target plus léger.
+[profile.dev]
+debug = "line-tables-only"
+# Le code généré par Slint est volumineux : la compilation incrémentale double la
+# mémoire nécessaire (plus de 8 Go). Sans elle, environ 5 Go suffisent.
+incremental = false

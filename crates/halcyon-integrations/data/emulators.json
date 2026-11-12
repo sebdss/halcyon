@@ -1,0 +1,102 @@
+[
+  {
+    "id": "retroarch", "name": "RetroArch",
+    "executables": { "windows": ["retroarch.exe"], "linux": ["retroarch"], "macos": ["RetroArch"] },
+    "search_paths": { "windows": ["%APPDATA%\\RetroArch", "C:\\RetroArch-Win64", "C:\\RetroArch", "%PROGRAMFILES%\\RetroArch", "%USERPROFILE%\\scoop\\apps\\retroarch\\current"], "linux": ["/usr/bin", "/usr/local/bin", "~/.local/bin"], "macos": ["/Applications/RetroArch.app/Contents/MacOS"] },
+    "flatpak": "org.libretro.RetroArch",
+    "cores_dirs": { "windows": ["{emu_dir}\\cores"], "linux": ["~/.config/retroarch/cores", "~/.var/app/org.libretro.RetroArch/config/retroarch/cores", "/usr/lib/x86_64-linux-gnu/libretro", "/usr/lib/libretro", "/usr/lib64/libretro"], "macos": ["~/Library/Application Support/RetroArch/cores"] },
+    "fullscreen_args": ["-f"],
+    "platforms": {
+      "nes": { "args": ["-L", "{core_dir}/mesen_libretro{lib_ext}", "{rom}"] },
+      "snes": { "args": ["-L", "{core_dir}/snes9x_libretro{lib_ext}", "{rom}"] },
+      "n64": { "args": ["-L", "{core_dir}/mupen64plus_next_libretro{lib_ext}", "{rom}"] },
+      "gb": { "args": ["-L", "{core_dir}/gambatte_libretro{lib_ext}", "{rom}"] },
+      "gbc": { "args": ["-L", "{core_dir}/gambatte_libretro{lib_ext}", "{rom}"] },
+      "gba": { "args": ["-L", "{core_dir}/mgba_libretro{lib_ext}", "{rom}"] },
+      "nds": { "args": ["-L", "{core_dir}/melonds_libretro{lib_ext}", "{rom}"] },
+      "megadrive": { "args": ["-L", "{core_dir}/genesis_plus_gx_libretro{lib_ext}", "{rom}"] },
+      "mastersystem": { "args": ["-L", "{core_dir}/genesis_plus_gx_libretro{lib_ext}", "{rom}"] },
+      "gamegear": { "args": ["-L", "{core_dir}/genesis_plus_gx_libretro{lib_ext}", "{rom}"] },
+      "saturn": { "args": ["-L", "{core_dir}/mednafen_saturn_libretro{lib_ext}", "{rom}"] },
+      "dreamcast": { "args": ["-L", "{core_dir}/flycast_libretro{lib_ext}", "{rom}"] },
+      "pcengine": { "args": ["-L", "{core_dir}/mednafen_pce_fast_libretro{lib_ext}", "{rom}"] },
+      "atari2600": { "args": ["-L", "{core_dir}/stella_libretro{lib_ext}", "{rom}"] },
+      "atari7800": { "args": ["-L", "{core_dir}/prosystem_libretro{lib_ext}", "{rom}"] },
+      "lynx": { "args": ["-L", "{core_dir}/handy_libretro{lib_ext}", "{rom}"] },
+      "ps1": { "args": ["-L", "{core_dir}/swanstation_libretro{lib_ext}", "{rom}"] },
+      "psp": { "args": ["-L", "{core_dir}/ppsspp_libretro{lib_ext}", "{rom}"] }
+    }
+  },
+  {
+    "id": "rpcs3", "name": "RPCS3",
+    "executables": { "windows": ["rpcs3.exe"], "linux": ["rpcs3", "rpcs3.AppImage"] },
+    "search_paths": { "windows": ["C:\\RPCS3", "%PROGRAMFILES%\\RPCS3", "%LOCALAPPDATA%\\RPCS3"], "linux": ["/usr/bin", "~/.local/bin", "~/Applications"] },
+    "flatpak": "net.rpcs3.RPCS3",
+    "fullscreen_args": [],
+    "platforms": { "ps3": { "args": ["--no-gui", "{rom}"] } }
+  },
+  {
+    "id": "pcsx2", "name": "PCSX2",
+    "executables": { "windows": ["pcsx2-qt.exe", "pcsx2.exe"], "linux": ["pcsx2-qt", "pcsx2"] },
+    "search_paths": { "windows": ["%PROGRAMFILES%\\PCSX2", "C:\\PCSX2", "%LOCALAPPDATA%\\Programs\\PCSX2"], "linux": ["/usr/bin", "~/.local/bin", "~/Applications"] },
+    "flatpak": "net.pcsx2.PCSX2",
+    "fullscreen_args": ["-fullscreen"],
+    "platforms": { "ps2": { "args": ["-batch", "--", "{rom}"] } }
+  },
+  {
+    "id": "dolphin", "name": "Dolphin",
+    "executables": { "windows": ["Dolphin.exe"], "linux": ["dolphin-emu"] },
+    "search_paths": { "windows": ["%PROGRAMFILES%\\Dolphin", "%PROGRAMFILES%\\Dolphin-x64", "C:\\Dolphin-x64"], "linux": ["/usr/bin", "/usr/games", "~/.local/bin"] },
+    "flatpak": "org.DolphinEmu.dolphin-emu",
+    "fullscreen_args": ["--config=Dolphin.Display.Fullscreen=True"],
+    "platforms": { "gamecube": { "args": ["-b", "-e", "{rom}"] }, "wii": { "args": ["-b", "-e", "{rom}"] } }
+  },
+  {
+    "id": "cemu", "name": "Cemu",
+    "executables": { "windows": ["Cemu.exe"], "linux": ["cemu", "Cemu", "Cemu.AppImage"] },
+    "search_paths": { "windows": ["C:\\Cemu", "%PROGRAMFILES%\\Cemu", "%LOCALAPPDATA%\\Cemu"], "linux": ["/usr/bin", "~/.local/bin", "~/Applications"] },
+    "flatpak": "info.cemu.Cemu",
+    "fullscreen_args": ["-f"],
+    "platforms": { "wiiu": { "args": ["-g", "{rom}"] } }
+  },
+  {
+    "id": "ryujinx", "name": "Ryujinx",
+    "executables": { "windows": ["Ryujinx.exe"], "linux": ["Ryujinx", "ryujinx", "Ryujinx.AppImage"] },
+    "search_paths": { "windows": ["C:\\Ryujinx", "%PROGRAMFILES%\\Ryujinx", "%APPDATA%\\Ryujinx"], "linux": ["/usr/bin", "~/.local/bin", "~/Applications"] },
+    "flatpak": "org.ryujinx.Ryujinx",
+    "fullscreen_args": ["--fullscreen"],
+    "platforms": { "switch": { "args": ["{rom}"] } }
+  },
+  {
+    "id": "duckstation", "name": "DuckStation",
+    "executables": { "windows": ["duckstation-qt-x64-ReleaseLTCG.exe", "duckstation-qt.exe"], "linux": ["duckstation-qt", "DuckStation.AppImage"] },
+    "search_paths": { "windows": ["C:\\DuckStation", "%LOCALAPPDATA%\\DuckStation", "%PROGRAMFILES%\\DuckStation"], "linux": ["/usr/bin", "~/.local/bin", "~/Applications"] },
+    "flatpak": "org.duckstation.DuckStation",
+    "fullscreen_args": ["-fullscreen"],
+    "platforms": { "ps1": { "args": ["-batch", "--", "{rom}"] } }
+  },
+  {
+    "id": "ppsspp", "name": "PPSSPP",
+    "executables": { "windows": ["PPSSPPWindows64.exe", "PPSSPPWindows.exe"], "linux": ["PPSSPPSDL", "ppsspp"] },
+    "search_paths": { "windows": ["%PROGRAMFILES%\\PPSSPP", "C:\\PPSSPP"], "linux": ["/usr/bin", "/usr/games", "~/.local/bin"] },
+    "flatpak": "org.ppsspp.PPSSPP",
+    "fullscreen_args": ["--fullscreen"],
+    "platforms": { "psp": { "args": ["{rom}"] } }
+  },
+  {
+    "id": "melonds", "name": "melonDS",
+    "executables": { "windows": ["melonDS.exe"], "linux": ["melonDS"] },
+    "search_paths": { "windows": ["C:\\melonDS", "%PROGRAMFILES%\\melonDS"], "linux": ["/usr/bin", "~/.local/bin", "~/Applications"] },
+    "flatpak": "net.kuribo64.melonDS",
+    "fullscreen_args": ["-f"],
+    "platforms": { "nds": { "args": ["{rom}"] } }
+  },
+  {
+    "id": "mgba", "name": "mGBA",
+    "executables": { "windows": ["mGBA.exe"], "linux": ["mgba-qt", "mgba"] },
+    "search_paths": { "windows": ["%PROGRAMFILES%\\mGBA", "C:\\mGBA"], "linux": ["/usr/bin", "/usr/games", "~/.local/bin"] },
+    "flatpak": "io.mgba.mGBA",
+    "fullscreen_args": ["-f"],
+    "platforms": { "gba": { "args": ["{rom}"] }, "gb": { "args": ["{rom}"] }, "gbc": { "args": ["{rom}"] } }
+  }
+]

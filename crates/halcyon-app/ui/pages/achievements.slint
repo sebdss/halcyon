@@ -1,0 +1,180 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Nav, Page, Actions, AchUi } from "../state.slint";
+import { Panel, PrimaryButton, SecondaryButton, SectionTitle, Icon, Badge, GameTile, BigStat } from "../components.slint";
+import { AchievementItem } from "game.slint";
+
+export component AchievementsPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 22px;
+            alignment: start;
+
+            HorizontalLayout {
+                spacing: 14px;
+                Text {
+                    text: "Succès";
+                    color: Theme.text;
+                    font-size: Theme.t-title;
+                    font-weight: 800;
+                    letter-spacing: -0.4px;
+                }
+                Rectangle { horizontal-stretch: 1; }
+                Text {
+                    text: AchUi.status;
+                    color: Theme.text-dim;
+                    font-size: Theme.t-caption;
+                    vertical-alignment: center;
+                }
+                PrimaryButton {
+                    text: AchUi.syncing ? "Synchronisation…" : "Synchroniser";
+                    icon: Icons.refresh;
+                    has-icon: true;
+                    enabled: !AchUi.syncing && (AchUi.steam-ready || AchUi.ra-ready);
+                    h: 38px;
+                    font-size: Theme.t-small;
+                    clicked => { AchUi.sync-all(); }
+                }
+            }
+
+            if !AchUi.steam-ready || !AchUi.ra-ready: Panel {
+                HorizontalLayout {
+                    padding: 18px;
+                    spacing: 14px;
+                    Icon { source: Icons.alert; size: 20px; tint: Theme.warm; y: (parent.height - self.height) / 2; }
+                    Text {
+                        text: (!AchUi.steam-ready ? "Steam : ajoutez votre clé Web API pour synchroniser vos succès Steam. " : "")
+                            + (!AchUi.ra-ready ? "RetroAchievements : renseignez votre nom d'utilisateur et votre clé Web API pour les jeux émulés. " : "")
+                            + "Epic Games ne fournit pas d'API publique de succès : ils ne sont pas affichés.";
+                        color: Theme.text-muted;
+                        font-size: Theme.t-small;
+                        wrap: word-wrap;
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                    }
+                    SecondaryButton {
+                        y: (parent.height - self.height) / 2;
+                        text: "Configurer";
+                        h: 36px;
+                        clicked => { Nav.go(Page.settings); }
+                    }
+                }
+            }
+
+            Panel {
+                VerticalLayout {
+                    padding: 24px;
+                    spacing: 18px;
+                    HorizontalLayout {
+                        spacing: 48px;
+                        alignment: start;
+                        BigStat { value: AchUi.unlocked; label: "succès débloqués"; }
+                        BigStat { value: AchUi.total; label: "succès disponibles"; }
+                        BigStat { value: round(AchUi.percent * 1000) / 10 + " %"; label: "complétion globale"; }
+                        BigStat { value: AchUi.completed; label: "jeux terminés à 100 %"; }
+                        BigStat { value: AchUi.games; label: "jeux suivis"; }
+                        if AchUi.points > 0: BigStat { value: AchUi.points; label: "points RetroAchievements"; }
+                    }
+                    Rectangle {
+                        height: 8px;
+                        border-radius: 4px;
+                        background: Theme.surface-active;
+                        Rectangle {
+                            x: 0;
+                            width: parent.width * AchUi.percent;
+                            border-radius: 4px;
+                            background: @linear-gradient(90deg, Theme.accent 0%, #2b7bff 100%);
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 22px;
+                // Progression par plateforme
+                Panel {
+                    horizontal-stretch: 1;
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 14px;
+                        alignment: start;
+                        SectionTitle { text: "Par plateforme"; }
+                        if AchUi.providers.length == 0: Text {
+                            text: "Aucun succès synchronisé pour l'instant.";
+                            color: Theme.text-dim;
+                            font-size: Theme.t-small;
+                        }
+                        for p in AchUi.providers: VerticalLayout {
+                            spacing: 6px;
+                            HorizontalLayout {
+                                Text { text: p.name; color: Theme.text; font-size: Theme.t-small; font-weight: 600; horizontal-stretch: 1; }
+                                Text { text: p.unlocked + " / " + p.total; color: Theme.text-muted; font-size: Theme.t-caption; }
+                            }
+                            Rectangle {
+                                height: 6px;
+                                border-radius: 3px;
+                                background: Theme.surface-active;
+                                Rectangle { x: 0; width: parent.width * p.percent; border-radius: 3px; background: Theme.accent; }
+                            }
+                        }
+                    }
+                }
+                // Chronologie
+                Panel {
+                    horizontal-stretch: 1;
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 14px;
+                        SectionTitle { text: "Déblocages par mois"; }
+                        if AchUi.months.length == 0: Text {
+                            text: "La chronologie apparaîtra après vos premiers déblocages.";
+                            color: Theme.text-dim;
+                            font-size: Theme.t-small;
+                        }
+                        if AchUi.months.length > 0: HorizontalLayout {
+                            height: 140px;
+                            spacing: 8px;
+                            for m in AchUi.months: VerticalLayout {
+                                spacing: 6px;
+                                Text { text: m.count; color: Theme.text-muted; font-size: Theme.t-overline; horizontal-alignment: center; }
+                                Rectangle {
+                                    vertical-stretch: 1;
+                                    Rectangle {
+                                        y: parent.height - self.height;
+                                        height: max(3px, parent.height * m.ratio);
+                                        border-radius: 4px;
+                                        background: Theme.accent;
+                                    }
+                                }
+                                Text { text: m.label; color: Theme.text-dim; font-size: Theme.t-overline - 1px; horizontal-alignment: center; }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if AchUi.recent.length > 0: SectionTitle { text: "Récemment débloqués"; }
+            for a in AchUi.recent: AchievementItem { item: a; reveal: true; show-game: true; }
+
+            if AchUi.rarest.length > 0: SectionTitle { text: "Les plus rares"; }
+            for a in AchUi.rarest: AchievementItem { item: a; reveal: true; show-game: true; }
+
+            if AchUi.completed-games.length > 0: SectionTitle { text: "Terminés à 100 %"; }
+            if AchUi.completed-games.length > 0: Rectangle {
+                height: 140px * 1.5 + 60px;
+                for g[i] in AchUi.completed-games: GameTile {
+                    x: i * 158px;
+                    visible: (i + 1) * 158px <= parent.width + 18px;
+                    game: g;
+                    cover-width: 140px;
+                    open(id) => { Actions.open-game(id); }
+                    play(id) => { Actions.play(id); }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,711 @@
+// Installateur de Halcyon : interface sur mesure (design system « Nocturne » de l'application).
+// Toutes les valeurs affichées (vérifications, progression, fichiers) viennent du moteur
+// d'installation en Rust : rien n'est simulé.
+
+import "../../halcyon-app/ui/fonts/Inter-Regular.ttf";
+import "../../halcyon-app/ui/fonts/Inter-Medium.ttf";
+import "../../halcyon-app/ui/fonts/Inter-SemiBold.ttf";
+import "../../halcyon-app/ui/fonts/Inter-Bold.ttf";
+import { Theme, Icons } from "../../halcyon-app/ui/theme.slint";
+import { PrimaryButton, SecondaryButton, Toggle, TextField, ProgressBar, Icon, Badge } from "../../halcyon-app/ui/components.slint";
+
+export struct CheckRow { label: string, detail: string, level: int }
+export struct StepRow { label: string, state: int }
+export struct CompRow { label: string, ok: bool, detail: string }
+
+export global Setup {
+    in property <string> version;
+    /// 0 accueil, 1 installation existante, 2 configuration, 3 vérifications,
+    /// 4 installation, 5 finalisation, 6 prêt, 7 désinstallation, 8 désinstallation terminée, 9 erreur
+    in-out property <int> screen;
+    in property <string> mode-label: "Installer";
+    in property <string> mode-noun: "Installation";
+    in property <bool> desktop-available: true;
+    // Existant
+    in property <int> found-kind;
+    in property <string> found-title;
+    in property <string> found-detail;
+    in property <bool> can-repair;
+    in property <bool> can-uninstall;
+    in property <bool> dir-locked;
+    in property <bool> skip-config;
+    in property <bool> has-payload: true;
+    // Configuration
+    in-out property <string> dir;
+    in-out property <bool> menu: true;
+    in-out property <bool> desktop: true;
+    in-out property <bool> autostart;
+    in-out property <bool> all-users;
+    in property <bool> all-users-available;
+    in property <string> all-users-note;
+    in property <string> required;
+    in property <string> free;
+    in property <bool> can-browse;
+    // Vérifications
+    in property <[CheckRow]> checks;
+    in property <bool> checks-ok;
+    in property <bool> checking;
+    // Progression (réelle)
+    in property <[StepRow]> steps;
+    in property <float> progress;
+    in property <string> progress-text;
+    in property <string> current-file;
+    in property <[CompRow]> components;
+    in property <string> error;
+    in property <string> warnings;
+    in property <bool> busy;
+    in property <bool> cancellable;
+    // Fin
+    in property <string> done-title;
+    in property <string> done-text;
+    in property <bool> has-docs;
+    in property <string> launch-error;
+    // Désinstallation
+    in-out property <bool> remove-cache;
+    in-out property <bool> remove-data;
+    in-out property <bool> confirm-data;
+    in property <string> data-paths;
+    callback start();
+    callback choose(int);
+    callback browse();
+    callback dir-changed(string);
+    callback check();
+    callback install();
+    callback cancel();
+    callback launch();
+    callback open-docs();
+    callback uninstall();
+    callback close();
+    callback minimize();
+    callback drag();
+}
+
+/// Fond : nuit profonde et deux halos de lumière qui dérivent lentement (accueil et fin).
+component Aurora inherits Rectangle {
+    in property <bool> alive;
+    property <float> t: root.alive && Theme.motion < 2 ? mod(animation-tick() / 1ms, 24000) / 24000 : 0.25;
+    background: @linear-gradient(160deg, #070a10 0%, #0b1018 55%, #060709 100%);
+    Rectangle {
+        x: root.width * (0.10 + 0.08 * sin(root.t * 360deg));
+        y: root.height * (-0.35 + 0.05 * cos(root.t * 360deg));
+        width: root.width * 0.9;
+        height: root.width * 0.9;
+        border-radius: self.width / 2;
+        background: @radial-gradient(circle, Theme.accent.with-alpha(0.16) 0%, transparent 70%);
+    }
+    Rectangle {
+        x: root.width * (0.45 - 0.06 * cos(root.t * 360deg));
+        y: root.height * (0.35 + 0.06 * sin(root.t * 360deg));
+        width: root.width * 0.8;
+        height: root.width * 0.8;
+        border-radius: self.width / 2;
+        background: @radial-gradient(circle, #6a5cff22 0%, transparent 70%);
+    }
+    // Trame fine : profondeur sans image.
+    for i in 24: Rectangle {
+        x: i * root.width / 24;
+        width: 1px;
+        background: #ffffff05;
+    }
+}
+
+component Title inherits Text {
+    color: Theme.text;
+    font-size: Theme.t-display - 6px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    wrap: word-wrap;
+}
+
+component Lead inherits Text {
+    color: Theme.text-muted;
+    font-size: Theme.t-subheading;
+    wrap: word-wrap;
+}
+
+component Kicker inherits Text {
+    color: Theme.accent;
+    font-size: Theme.t-overline;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+}
+
+/// Carte de choix (opération sur une installation existante).
+component Choice inherits Rectangle {
+    in property <string> title;
+    in property <string> text;
+    in property <image> icon;
+    in property <bool> recommended;
+    in property <bool> enabled: true;
+    in property <bool> danger;
+    callback clicked;
+    height: 76px;
+    border-radius: Theme.radius-lg;
+    background: !root.enabled ? Theme.surface.with-alpha(0.4) : ta.has-hover || fs.has-focus ? Theme.surface-hover : Theme.surface.with-alpha(0.75);
+    border-width: root.recommended || fs.has-focus ? 1px : 0px;
+    border-color: fs.has-focus ? Theme.focus : Theme.accent.with-alpha(0.6);
+    HorizontalLayout {
+        padding: 16px;
+        spacing: 16px;
+        Rectangle {
+            width: 44px;
+            height: 44px;
+            y: (parent.height - self.height) / 2 - 16px;
+            border-radius: 12px;
+            background: root.danger ? Theme.danger.with-alpha(0.14) : Theme.accent-soft;
+            Icon { source: root.icon; size: 22px; tint: root.danger ? Theme.danger : Theme.accent; }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 3px;
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                Text { text: root.title; color: root.enabled ? Theme.text : Theme.text-dim; font-size: Theme.t-subheading; font-weight: 700; }
+                if root.recommended: Badge { text: "Recommandé"; tint: Theme.accent; }
+            }
+            Text { text: root.text; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
+        }
+    }
+    ta := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    fs := FocusScope {
+        enabled: root.enabled;
+        focus-on-click: false;
+        key-pressed(e) => {
+            if (e.text == Key.Return || e.text == " ") {
+                root.clicked();
+                return accept;
+            }
+            reject
+        }
+    }
+}
+
+component OptionRow inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> text;
+    in-out property <bool> checked;
+    in property <bool> enabled: true;
+    callback toggled(bool);
+    spacing: 16px;
+    VerticalLayout {
+        horizontal-stretch: 1;
+        alignment: center;
+        spacing: 2px;
+        Text { text: root.title; color: root.enabled ? Theme.text : Theme.text-dim; font-size: Theme.t-body; font-weight: 600; }
+        if root.text != "": Text { text: root.text; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+    }
+    Toggle {
+        y: (parent.height - self.height) / 2;
+        enabled: root.enabled;
+        checked <=> root.checked;
+        toggled(v) => { root.toggled(v); }
+    }
+}
+
+/// Étapes du parcours (colonne de gauche).
+component Rail inherits VerticalLayout {
+    in property <int> active;
+    spacing: 4px;
+    for s[i] in ["Bienvenue", "Configuration", "Vérification", "Installation", "Finalisation", "Prêt à jouer"]: HorizontalLayout {
+        height: 34px;
+        spacing: 12px;
+        Rectangle {
+            width: 22px;
+            height: 22px;
+            y: 6px;
+            border-radius: 11px;
+            background: i < root.active ? Theme.accent : i == root.active ? Theme.accent-soft : transparent;
+            border-width: i == root.active ? 2px : i < root.active ? 0px : 1px;
+            border-color: i == root.active ? Theme.accent : Theme.border-strong;
+            if i < root.active: Icon { source: Icons.check; size: 13px; tint: Theme.on-accent; }
+            if i >= root.active: Text { text: i + 1; color: i == root.active ? Theme.accent : Theme.text-dim; font-size: 11px; font-weight: 700; }
+        }
+        Text {
+            text: s;
+            color: i == root.active ? Theme.text : i < root.active ? Theme.text-muted : Theme.text-dim;
+            font-size: Theme.t-small;
+            font-weight: i == root.active ? 700 : 500;
+            vertical-alignment: center;
+        }
+    }
+}
+
+export component SetupWindow inherits Window {
+    title: "Installation de Halcyon";
+    icon: Icons.logo;
+    preferred-width: 980px;
+    preferred-height: 640px;
+    min-width: 860px;
+    min-height: 600px;
+    no-frame: true;
+    background: #07090d;
+    default-font-family: "Inter";
+
+    property <int> rail: Setup.screen <= 1 ? 0 : Setup.screen == 2 ? 1 : Setup.screen == 3 ? 2 : Setup.screen == 4 ? 3 : Setup.screen == 5 ? 4 : 5;
+    property <bool> uninstall-flow: Setup.screen == 7 || Setup.screen == 8;
+
+    Aurora { alive: Setup.screen == 0 || Setup.screen == 6 || Setup.screen == 8; }
+
+    // Barre de titre personnalisée (déplacement, réduction, fermeture).
+    Rectangle {
+        y: 0;
+        height: 44px;
+        TouchArea {
+            pointer-event(e) => {
+                if (e.button == PointerEventButton.left && e.kind == PointerEventKind.down) {
+                    Setup.drag();
+                }
+            }
+        }
+        HorizontalLayout {
+            padding-left: 20px;
+            padding-right: 8px;
+            spacing: 10px;
+            Image { source: Icons.logo; width: 20px; height: 20px; y: 12px; }
+            Text { text: "Halcyon " + Setup.version; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
+            Rectangle {
+                width: 40px;
+                Text { text: "—"; color: min-ta.has-hover ? Theme.text : Theme.text-dim; font-size: 14px; }
+                min-ta := TouchArea { clicked => { Setup.minimize(); } }
+            }
+            Rectangle {
+                width: 40px;
+                Icon { source: Icons.close; size: 16px; tint: close-ta.has-hover ? Theme.danger : Theme.text-dim; }
+                close-ta := TouchArea {
+                    enabled: !Setup.busy;
+                    clicked => { Setup.close(); }
+                }
+            }
+        }
+    }
+
+    // Colonne d'étapes (hors accueil et désinstallation).
+    if Setup.screen >= 2 && Setup.screen <= 6: Rectangle {
+        x: 0;
+        y: 44px;
+        width: 240px;
+        height: parent.height - 44px;
+        background: #0a0d13cc;
+        Rectangle { x: parent.width - 1px; width: 1px; background: Theme.border; }
+        VerticalLayout {
+            padding: 28px;
+            padding-top: 24px;
+            spacing: 22px;
+            alignment: start;
+            HorizontalLayout {
+                spacing: 12px;
+                Image { source: Icons.logo; width: 34px; height: 34px; }
+                VerticalLayout {
+                    alignment: center;
+                    Text { text: "Halcyon"; color: Theme.text; font-size: Theme.t-heading; font-weight: 800; }
+                    Text { text: Setup.mode-noun + " · " + Setup.version; color: Theme.text-dim; font-size: Theme.t-caption; }
+                }
+            }
+            Rail { active: root.rail; }
+        }
+    }
+
+    // Contenu.
+    content := Rectangle {
+        x: Setup.screen >= 2 && Setup.screen <= 6 ? 240px : 0px;
+        y: 44px;
+        width: parent.width - self.x;
+        height: parent.height - 44px;
+
+        // ---------------------------------------------------------------- 0 · accueil
+        if Setup.screen == 0: VerticalLayout {
+            padding: 64px;
+            padding-top: 40px;
+            spacing: 18px;
+            alignment: center;
+            HorizontalLayout {
+                alignment: start;
+                logo := Rectangle {
+                    width: 92px;
+                    height: 92px;
+                    border-radius: 26px;
+                    background: @linear-gradient(140deg, Theme.accent.with-alpha(0.25) 0%, #6a5cff33 100%);
+                    border-width: 1px;
+                    border-color: #ffffff1a;
+                    drop-shadow-blur: Theme.effects ? 40px : 0px;
+                    drop-shadow-color: Theme.accent-glow;
+                    Image { source: Icons.logo; width: 60px; height: 60px; }
+                }
+            }
+            Rectangle { height: 8px; }
+            Kicker { text: "BIENVENUE"; }
+            Title { text: "Tous vos jeux.\nUn seul endroit."; }
+            Lead {
+                text: "Halcyon réunit vos jeux Steam, Epic Games, standalone et émulés dans une bibliothèque rapide et élégante : succès, sauvegardes, mods et mode Big Picture à la manette.";
+                width: min(560px, parent.width - 128px);
+            }
+            Rectangle { height: 12px; }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 12px;
+                PrimaryButton {
+                    text: Setup.found-kind == 0 ? "Commencer l'installation" : "Continuer";
+                    icon: Icons.arrow-right;
+                    has-icon: true;
+                    h: 50px;
+                    font-size: 16px;
+                    clicked => { Setup.start(); }
+                }
+            }
+            Text {
+                text: "Version " + Setup.version + " · installation pour votre compte, sans droits d'administrateur";
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+            }
+        }
+
+        // ---------------------------------------------------------------- 1 · existant
+        if Setup.screen == 1: VerticalLayout {
+            padding: 56px;
+            padding-top: 36px;
+            spacing: 14px;
+            alignment: start;
+            Kicker { text: "INSTALLATION DÉTECTÉE"; }
+            Title { text: Setup.found-title; }
+            Lead { text: Setup.found-detail; }
+            Rectangle { height: 10px; }
+            if (Setup.found-kind == 2 || Setup.found-kind == 4) && Setup.has-payload: Choice {
+                title: "Mettre à jour";
+                text: "Remplace le programme par la version " + Setup.version + ". Bibliothèque, paramètres et sauvegardes sont conservés.";
+                icon: Icons.download;
+                recommended: true;
+                enabled: Setup.has-payload;
+                clicked => { Setup.choose(1); }
+            }
+            if Setup.can-repair: Choice {
+                title: "Réparer";
+                text: Setup.has-payload ? "Vérifie chaque fichier et ne remplace que ceux qui manquent ou sont endommagés. Raccourcis recréés." : "Vérifie chaque fichier et recrée raccourcis et menu. Un fichier endommagé se rétablit avec le programme d'installation complet.";
+                icon: Icons.shield;
+                recommended: Setup.found-kind == 3 && Setup.has-payload;
+                enabled: Setup.can-repair;
+                clicked => { Setup.choose(3); }
+            }
+            if Setup.found-kind == 1 && Setup.has-payload: Choice {
+                title: "Réinstaller";
+                text: "Réécrit tous les fichiers du programme. Vos données ne sont pas touchées.";
+                icon: Icons.refresh;
+                enabled: Setup.has-payload;
+                clicked => { Setup.choose(2); }
+            }
+            if Setup.can-uninstall: Choice {
+                title: "Désinstaller";
+                text: "Retire Halcyon. Vous choisissez ensuite de garder ou non vos données.";
+                icon: Icons.trash;
+                danger: true;
+                clicked => { Setup.choose(4); }
+            }
+            if !Setup.has-payload: Text {
+                text: "Ce programme de maintenance ne contient pas les fichiers de Halcyon : pour réinstaller ou réparer des fichiers, lancez le programme d'installation de la version voulue.";
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+                wrap: word-wrap;
+            }
+        }
+
+        // ---------------------------------------------------------------- 2 · configuration
+        if Setup.screen == 2: VerticalLayout {
+            padding: 44px;
+            padding-top: 28px;
+            spacing: 16px;
+            alignment: start;
+            Kicker { text: "CONFIGURATION"; }
+            Title { text: "Où installer Halcyon ?"; font-size: Theme.t-title + 2px; }
+            Text { text: "Dossier du programme"; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; }
+            if Setup.dir-locked: Rectangle {
+                height: 38px;
+                border-radius: Theme.radius;
+                background: Theme.surface.with-alpha(0.5);
+                HorizontalLayout {
+                    padding-left: 12px;
+                    Text { text: Setup.dir + "  (emplacement actuel, conservé)"; color: Theme.text-muted; font-family: "monospace"; font-size: Theme.t-small; vertical-alignment: center; overflow: elide; }
+                }
+            }
+            if !Setup.dir-locked: HorizontalLayout {
+                spacing: 8px;
+                dir-field := TextField {
+                    text <=> Setup.dir;
+                    mono: true;
+                    edited(t) => { Setup.dir-changed(t); }
+                }
+                if Setup.can-browse: SecondaryButton {
+                    text: "Parcourir…";
+                    h: 38px;
+                    clicked => { Setup.browse(); }
+                }
+            }
+            Text {
+                text: "Espace nécessaire : " + Setup.required + (Setup.free != "" ? "  ·  disponible : " + Setup.free : "") + "  ·  vos données restent dans votre dossier personnel";
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+            }
+            Rectangle {
+                border-radius: Theme.radius-lg;
+                background: Theme.surface.with-alpha(0.7);
+                border-width: 1px;
+                border-color: Theme.border;
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 14px;
+                    OptionRow { title: "Entrée dans le menu des applications"; text: "Avec « Gérer l'installation de Halcyon » pour réparer ou désinstaller."; checked <=> Setup.menu; }
+                    OptionRow { title: "Raccourci sur le Bureau"; text: Setup.desktop-available ? "" : "Aucun dossier Bureau sur cette session."; enabled: Setup.desktop-available; checked <=> Setup.desktop; }
+                    OptionRow { title: "Démarrer avec la session"; text: "Halcyon s'ouvre réduit dans la zone de notification."; checked <=> Setup.autostart; }
+                    OptionRow {
+                        title: "Pour tous les utilisateurs";
+                        text: Setup.all-users-note;
+                        enabled: Setup.all-users-available;
+                        checked <=> Setup.all-users;
+                        toggled => { Setup.dir-changed(Setup.dir); }
+                    }
+                }
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: end;
+                SecondaryButton { text: "Retour"; clicked => { Setup.screen = Setup.found-kind == 0 ? 0 : 1; } }
+                PrimaryButton { text: "Vérifier le système"; icon: Icons.arrow-right; has-icon: true; clicked => { Setup.check(); } }
+            }
+        }
+
+        // ---------------------------------------------------------------- 3 · vérifications
+        if Setup.screen == 3: VerticalLayout {
+            padding: 44px;
+            padding-top: 28px;
+            spacing: 14px;
+            alignment: start;
+            Kicker { text: "VÉRIFICATION DU SYSTÈME"; }
+            Title { text: Setup.checking ? "Analyse en cours…" : Setup.checks-ok ? "Tout est prêt." : "Un point bloque l'installation."; font-size: Theme.t-title + 2px; }
+            Rectangle {
+                border-radius: Theme.radius-lg;
+                background: Theme.surface.with-alpha(0.7);
+                border-width: 1px;
+                border-color: Theme.border;
+                VerticalLayout {
+                    padding: 8px;
+                    for c in Setup.checks: Rectangle {
+                        height: max(40px, row.preferred-height);
+                        row := HorizontalLayout {
+                            padding: 8px;
+                            spacing: 14px;
+                            Rectangle {
+                                width: 24px;
+                                height: 24px;
+                                y: 2px;
+                                border-radius: 12px;
+                                background: c.level == 3 ? Theme.danger.with-alpha(0.16) : c.level == 2 ? Theme.warm.with-alpha(0.16) : Theme.success.with-alpha(0.14);
+                                Icon {
+                                    source: c.level >= 2 ? Icons.alert : c.level == 1 ? Icons.info : Icons.check;
+                                    size: 14px;
+                                    tint: c.level == 3 ? Theme.danger : c.level == 2 ? Theme.warm : c.level == 1 ? Theme.text-muted : Theme.success;
+                                }
+                            }
+                            Text { text: c.label; color: Theme.text; font-size: Theme.t-small; font-weight: 650; width: 190px; vertical-alignment: center; }
+                            Text { text: c.detail; color: c.level == 3 ? Theme.danger : Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; vertical-alignment: center; horizontal-stretch: 1; }
+                        }
+                    }
+                }
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: end;
+                SecondaryButton { text: "Retour"; enabled: !Setup.checking; clicked => { Setup.screen = Setup.skip-config ? 1 : 2; } }
+                SecondaryButton { text: "Relancer la vérification"; icon: Icons.refresh; has-icon: true; enabled: !Setup.checking; clicked => { Setup.check(); } }
+                PrimaryButton {
+                    text: Setup.mode-label;
+                    icon: Icons.download;
+                    has-icon: true;
+                    enabled: Setup.checks-ok && !Setup.checking;
+                    clicked => { Setup.install(); }
+                }
+            }
+        }
+
+        // ---------------------------------------------------------- 4/5/7 · progression
+        if Setup.screen == 4 || Setup.screen == 5 || Setup.screen == 7: VerticalLayout {
+            padding: 44px;
+            padding-top: 28px;
+            spacing: 16px;
+            alignment: start;
+            Kicker { text: Setup.screen == 7 ? "DÉSINSTALLATION" : Setup.screen == 5 ? "FINALISATION" : Setup.mode-noun.to-uppercase(); }
+            Title {
+                text: Setup.error != "" ? "L'opération n'a pas abouti." : Setup.screen == 7 && !Setup.busy ? "Que faire de vos données ?" : Setup.screen == 5 ? "Dernières touches…" : Setup.mode-noun + " en cours…";
+                font-size: Theme.t-title + 2px;
+            }
+            // Désinstallation : choix avant de commencer.
+            if Setup.screen == 7 && !Setup.busy && Setup.error == "": VerticalLayout {
+                spacing: 14px;
+                Rectangle {
+                    border-radius: Theme.radius-lg;
+                    background: Theme.surface.with-alpha(0.7);
+                    border-width: 1px;
+                    border-color: Theme.border;
+                    VerticalLayout {
+                        padding: 20px;
+                        spacing: 14px;
+                        OptionRow { title: "Supprimer le cache"; text: "Miniatures et images téléchargées (recréées au besoin)."; checked <=> Setup.remove-cache; }
+                        OptionRow {
+                            title: "Supprimer mes données Halcyon";
+                            text: "Bibliothèque, paramètres, statistiques, profils, mods importés et copies de sauvegardes de jeux : " + Setup.data-paths;
+                            checked <=> Setup.remove-data;
+                            toggled(v) => { if (!v) { Setup.confirm-data = false; } }
+                        }
+                        if Setup.remove-data: Rectangle {
+                            border-radius: Theme.radius;
+                            background: Theme.danger.with-alpha(0.10);
+                            border-width: 1px;
+                            border-color: Theme.danger.with-alpha(0.4);
+                            HorizontalLayout {
+                                padding: 14px;
+                                spacing: 12px;
+                                Icon { source: Icons.alert; size: 18px; tint: Theme.danger; y: 2px; }
+                                Text { text: "Suppression définitive. Vos jeux et leurs sauvegardes d'origine ne sont jamais touchés."; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; horizontal-stretch: 1; vertical-alignment: center; }
+                                Toggle { checked <=> Setup.confirm-data; }
+                                Text { text: "Je confirme"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+                            }
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: end;
+                    SecondaryButton { text: "Annuler"; clicked => { Setup.screen = 1; } }
+                    PrimaryButton {
+                        text: "Désinstaller";
+                        icon: Icons.trash;
+                        has-icon: true;
+                        enabled: !Setup.remove-data || Setup.confirm-data;
+                        clicked => { Setup.uninstall(); }
+                    }
+                }
+            }
+            if Setup.busy || Setup.error != "" || Setup.screen != 7: VerticalLayout {
+                spacing: 14px;
+                // Étapes réelles du moteur.
+                HorizontalLayout {
+                    spacing: 6px;
+                    for s in Setup.steps: Rectangle {
+                        height: 4px;
+                        border-radius: 2px;
+                        background: s.state == 2 ? Theme.accent : s.state == 3 ? Theme.danger : s.state == 1 ? Theme.accent.with-alpha(0.45) : Theme.surface-active;
+                        animate background { duration: Theme.normal; }
+                    }
+                }
+                HorizontalLayout {
+                    for s in Setup.steps: Text {
+                        text: s.label;
+                        color: s.state == 1 ? Theme.text : s.state == 2 ? Theme.text-muted : s.state == 3 ? Theme.danger : Theme.text-dim;
+                        font-size: 11px;
+                        font-weight: s.state == 1 ? 700 : 500;
+                        horizontal-stretch: 1;
+                        overflow: elide;
+                    }
+                }
+                Rectangle { height: 6px; }
+                ProgressBar { value: Setup.progress; height: 8px; }
+                HorizontalLayout {
+                    Text { text: Setup.progress-text; color: Theme.text; font-size: Theme.t-body; font-weight: 600; horizontal-stretch: 1; }
+                    Text { text: Setup.current-file; color: Theme.text-dim; font-size: Theme.t-caption; font-family: "monospace"; overflow: elide; horizontal-alignment: right; max-width: 380px; }
+                }
+                Rectangle {
+                    border-radius: Theme.radius-lg;
+                    background: Theme.surface.with-alpha(0.6);
+                    border-width: 1px;
+                    border-color: Theme.border;
+                    min-height: 150px;
+                    VerticalLayout {
+                        padding: 16px;
+                        spacing: 8px;
+                        alignment: start;
+                        for c in Setup.components: HorizontalLayout {
+                            spacing: 12px;
+                            Icon { source: c.ok ? Icons.check : Icons.alert; size: 15px; tint: c.ok ? Theme.success : Theme.warm; y: 1px; }
+                            Text { text: c.label; color: Theme.text; font-size: Theme.t-small; font-weight: 600; }
+                            Text { text: c.detail; color: Theme.text-dim; font-size: Theme.t-small; overflow: elide; horizontal-stretch: 1; }
+                        }
+                        if Setup.components.length == 0 && Setup.busy: Text { text: "Démarrage…"; color: Theme.text-dim; font-size: Theme.t-small; }
+                    }
+                }
+                if Setup.error != "": Rectangle {
+                    border-radius: Theme.radius;
+                    background: Theme.danger.with-alpha(0.10);
+                    border-width: 1px;
+                    border-color: Theme.danger.with-alpha(0.45);
+                    HorizontalLayout {
+                        padding: 14px;
+                        spacing: 12px;
+                        Icon { source: Icons.alert; size: 18px; tint: Theme.danger; }
+                        Text { text: Setup.error; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; horizontal-stretch: 1; }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: end;
+                    if Setup.cancellable && Setup.busy: SecondaryButton { text: "Annuler"; clicked => { Setup.cancel(); } }
+                    if Setup.error != "": SecondaryButton { text: "Retour"; clicked => { Setup.screen = Setup.found-kind == 0 ? 2 : 1; } }
+                    if Setup.error != "": SecondaryButton { text: "Fermer"; clicked => { Setup.close(); } }
+                }
+            }
+        }
+
+        // ---------------------------------------------------------- 6/8 · terminé
+        if Setup.screen == 6 || Setup.screen == 8: VerticalLayout {
+            padding: 56px;
+            padding-top: 36px;
+            spacing: 16px;
+            alignment: center;
+            HorizontalLayout {
+                alignment: start;
+                Rectangle {
+                    width: 72px;
+                    height: 72px;
+                    border-radius: 36px;
+                    background: Theme.accent-soft;
+                    border-width: 1px;
+                    border-color: Theme.accent.with-alpha(0.5);
+                    Icon { source: Icons.check; size: 34px; tint: Theme.accent; }
+                }
+            }
+            Kicker { text: Setup.screen == 6 ? "PRÊT À JOUER" : "DÉSINSTALLATION TERMINÉE"; }
+            Title { text: Setup.done-title; }
+            Lead { text: Setup.done-text; }
+            if Setup.warnings != "": Text { text: Setup.warnings; color: Theme.warm; font-size: Theme.t-small; wrap: word-wrap; }
+            Rectangle { height: 10px; }
+            if Setup.launch-error != "": Text { text: Setup.launch-error; color: Theme.danger; font-size: Theme.t-small; wrap: word-wrap; }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 12px;
+                if Setup.screen == 6: PrimaryButton {
+                    text: "Lancer Halcyon";
+                    icon: Icons.play;
+                    has-icon: true;
+                    h: 52px;
+                    font-size: 17px;
+                    min-width: 200px;
+                    clicked => { Setup.launch(); }
+                }
+                if Setup.screen == 6 && Setup.has-docs: SecondaryButton { text: "Guide d'utilisation"; h: 52px; clicked => { Setup.open-docs(); } }
+                SecondaryButton { text: "Fermer"; h: 52px; clicked => { Setup.close(); } }
+            }
+        }
+
+        // ---------------------------------------------------------- 9 · erreur bloquante
+        if Setup.screen == 9: VerticalLayout {
+            padding: 56px;
+            spacing: 16px;
+            alignment: center;
+            Kicker { text: "IMPOSSIBLE DE CONTINUER"; color: Theme.danger; }
+            Title { text: "Le programme d'installation ne peut pas démarrer."; }
+            Lead { text: Setup.error; }
+            HorizontalLayout { alignment: start; SecondaryButton { text: "Fermer"; clicked => { Setup.close(); } } }
+        }
+    }
+}

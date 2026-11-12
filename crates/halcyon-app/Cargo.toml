@@ -1,0 +1,62 @@
+[package]
+name = "halcyon-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Halcyon — launcher universel de jeux vidéo"
+
+[[bin]]
+name = "halcyon"
+path = "src/main.rs"
+
+# Paquet Debian/Ubuntu : `cargo deb -p halcyon-app` (outil cargo-deb).
+[package.metadata.deb]
+name = "halcyon"
+maintainer = "Sebi"
+copyright = "MIT"
+extended-description = "Launcher universel de jeux vidéo : Steam, Epic (Heroic/Legendary), jeux standalone, émulateurs, succès et mode Big Picture."
+section = "games"
+priority = "optional"
+depends = "$auto"
+assets = [
+    ["target/release/halcyon", "usr/bin/halcyon", "755"],
+    ["../../packaging/linux/halcyon.desktop", "usr/share/applications/halcyon.desktop", "644"],
+    ["../../packaging/linux/halcyon.png", "usr/share/icons/hicolor/256x256/apps/halcyon.png", "644"],
+    ["../../packaging/linux/halcyon-mime.xml", "usr/share/mime/packages/halcyon.xml", "644"],
+]
+
+[dependencies]
+halcyon-core.workspace = true
+halcyon-storage.workspace = true
+halcyon-integrations.workspace = true
+halcyon-audio.workspace = true
+halcyon-minecraft.workspace = true
+slint.workspace = true
+image.workspace = true
+log.workspace = true
+ureq.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+
+rfd = { version = "0.16", default-features = false, features = ["xdg-portal", "async-std"] }
+gilrs = { version = "0.11", default-features = false, features = ["xinput"] }
+notify-rust = "4"
+dirs.workspace = true
+sha2.workspace = true
+global-hotkey = "0.9"
+sysinfo = { version = "0.40", default-features = false, features = ["disk", "system"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ksni = { version = "0.3", default-features = false, features = ["blocking", "async-io"] }
+
+[target.'cfg(windows)'.dependencies]
+tray-icon = { version = "0.26", default-features = false }
+winreg = "0.56"
+
+[build-dependencies]
+slint-build.workspace = true
+winresource = "0.1"
+
+[dev-dependencies]
+tempfile.workspace = true

@@ -1,0 +1,825 @@
+// Singletons partagés entre les pages et accessibles depuis Rust
+// (`app.global::<LibraryUi>()`…). Les `callback` sont implémentés côté Rust,
+// les `function` sont de la pure logique d'interface.
+
+import {
+    GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
+    EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, ThemeRow, ToggleRow,
+    PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
+    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem
+} from "types.slint";
+
+/// Éléments de la barre latérale affichés (personnalisation).
+export struct NavVisibility {
+    big-picture: bool,
+    assistant: bool,
+    achievements: bool,
+    stats: bool,
+    journal: bool,
+    updates: bool,
+    saves: bool,
+    emulators: bool,
+    controllers: bool,
+    remote: bool,
+    plugins: bool,
+}
+
+export enum Page {
+    home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
+    remote, plugins, appearance, minecraft
+}
+
+export global Nav {
+    in-out property <Page> page: Page.home;
+    in-out property <Page> return-page: Page.home;
+    /// Historique (géré en Rust) : précédent / suivant disponibles.
+    in property <bool> can-back;
+    in property <bool> can-forward;
+    /// Nouvelle page visitée (ajoutée à l'historique).
+    callback navigated(Page);
+    /// -1 : précédent, +1 : suivant.
+    callback history(int);
+
+    public function go(p: Page) {
+        if (p != Page.game) {
+            self.return-page = p;
+        }
+        if (p != self.page) {
+            self.page = p;
+            self.navigated(p);
+        }
+    }
+
+    public function back() {
+        self.history(-1);
+    }
+}
+
+export global Actions {
+    callback open-game(int);
+    callback play(int);
+    callback toggle-favorite(int);
+    callback toggle-hidden(int);
+    callback open-folder(string);
+    callback rescan();
+    callback open-url(string);
+    callback enter-big-picture();
+    /// Une page devient visible (rafraîchissement des données affichées).
+    callback page-shown(Page);
+}
+
+export global LibraryUi {
+    in property <[GridRow]> rows;
+    in property <[GameCard]> items;
+    in property <int> result-count;
+    in property <int> total;
+    in-out property <string> search;
+    /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres (standalone + manuels)
+    in-out property <int> source;
+    in property <[string]> collection-labels: ["Toutes les collections"];
+    in-out property <int> collection;
+    in property <[string]> genre-labels: ["Tous les genres"];
+    in-out property <int> genre;
+    in-out property <bool> installed-only;
+    in-out property <bool> favorites-only;
+    in-out property <bool> show-hidden;
+    in-out property <int> sort;
+    in property <[string]> sort-labels: ["Nom", "Dernier lancement", "Ajout récent", "Temps de jeu"];
+    in-out property <bool> list-view;
+    /// Vue : 0 grille, 1 liste, 2 carrousel, 3 immersive, 4 compacte.
+    in-out property <int> view-mode;
+    in-out property <length> card-width: 168px;
+    /// Sélection clavier / manette : position dans la liste filtrée (-1 : aucune).
+    in property <int> selected: -1;
+    in property <int> selected-id: -1;
+    /// Ligne de la grille à rendre visible (changement de sélection).
+    in property <int> scroll-row: -1;
+    in property <int> scroll-tick;
+    /// Bande du carrousel / du mode immersif et fiche du jeu sélectionné.
+    in property <[StripItem]> strip;
+    in property <GameDetail> focus-game;
+    in property <string> focus-meta;
+    in property <image> focus-ambient;
+    callback move-selection(int, int);
+    callback select-index(int);
+    callback activate-selection(bool);
+    /// Filtres de recherche non reconnus (« statut:xyz »), affichés sous la barre.
+    in property <string> search-warning;
+    callback query-changed();
+    callback columns-changed(int);
+    /// Taille des jaquettes (largeur en pixels logiques).
+    callback card-size(int);
+    callback view-changed();
+}
+
+export global HomeUi {
+    /// Tableau de bord : rangées de widgets (disposition calculée en Rust).
+    in property <[WidgetRow]> widget-rows;
+    /// Widgets masqués, par rangées de 6 (pas de débordement horizontal).
+    in property <[WidgetRow]> hidden-widgets;
+    in-out property <bool> editing;
+    /// « Continuer à jouer » en tête : bandeau pleine largeur sous la barre supérieure.
+    in property <bool> hero-first;
+    /// Mode minimaliste : recherche immédiate, favoris et récents seulement.
+    in property <bool> minimal;
+    callback open-capture(int);
+    /// Données des widgets (calculées seulement pour les widgets affichés).
+    in property <[GameCard]> continue-games;
+    in property <[AchievementRow]> recent-achievements;
+    in property <[BarItem]> week-bars;
+    in property <string> week-total;
+    in property <[KeyValue]> library-summary;
+    in property <[KeyValue]> storage;
+    in property <[KeyValue]> emulator-summary;
+    in property <[ActivityRow]> recent-activity;
+    in property <[CaptureItem]> captures;
+    in property <string> captures-note;
+    in property <[KeyValue]> playtime-summary;
+    callback widget-move(int, int);
+    callback widget-resize(int, int);
+    callback widget-toggle(int, bool);
+    callback widgets-reset();
+    in property <bool> has-hero;
+    in property <GameDetail> hero;
+    in property <string> hero-kicker;
+    in property <string> hero-meta;
+    in property <[GameCard]> recent;
+    in property <[GameCard]> favorites;
+    in property <[GameCard]> added;
+    in property <LibraryStats> stats;
+    in property <[GameCard]> playing;
+    in property <[GameCard]> suggested;
+}
+
+export global DetailUi {
+    in property <GameDetail> game;
+    in-out property <int> tab;
+    in property <[image]> screenshots;
+    /// Captures locales du jeu (Steam) et fond d'ambiance (sans bannière).
+    in property <[CaptureItem]> captures;
+    in property <image> ambient;
+    callback open-capture(int);
+    in property <[CollectionItem]> collections;
+    in property <[AchievementRow]> achievements;
+    in property <string> ach-summary;
+    in property <float> ach-percent;
+    /// « steam », « retroachievements », « custom », « epic », « unsupported », « unconfigured »
+    in property <string> ach-mode;
+    in property <string> ach-status;
+    in property <bool> ach-syncing;
+    in-out property <bool> show-hidden-ach;
+    in property <[string]> emulator-options: ["Par défaut"];
+    in-out property <int> emulator-index;
+    callback save-launch(int, string, string, string, string);
+    callback save-metadata(int, string, string, string, string, string, string);
+    callback set-artwork(int, string, string);
+    callback set-emulator(int, int);
+    callback set-ra-id(int, string);
+    callback remove(int);
+    callback toggle-collection(int, int);
+    callback create-collection(int, string);
+    callback sync-achievements(int);
+    callback add-custom-achievement(int, string, string);
+    callback toggle-custom-achievement(int);
+    callback delete-custom-achievement(int);
+    callback browse-image() -> string;
+
+    // Suivi
+    in property <[SessionRow]> sessions;
+    in property <[VersionRow]> versions;
+    in property <[string]> prereqs;
+    in property <string> prereq-dir;
+    in property <string> prereq-note;
+    callback set-status(int, int);
+    callback save-notes(int, string);
+    /// Correction manuelle du temps de jeu (« 12h30 », vide = annuler).
+    callback set-manual-playtime(int, string);
+
+    // Profils de lancement
+    in property <[ProfileRow]> profiles;
+    in property <[string]> profile-labels: ["Sans profil"];
+    in-out property <int> profile-index;
+    in property <string> engine;
+    in property <[string]> profile-notes;
+    in property <bool> is-windows;
+    in-out property <bool> editing-open;
+    in-out property <ProfileRow> editing;
+    in property <[CompanionRow]> edit-companions;
+    callback play-with(int, int);
+    callback new-profile(int);
+    callback edit-profile(int);
+    callback save-profile(int, ProfileRow);
+    callback delete-profile(int);
+    callback add-companion(string, string, bool);
+    callback remove-companion(int);
+
+    // Sauvegardes
+    in property <[SaveLocRow]> save-locs;
+    in property <[SaveCandRow]> save-cands;
+    in property <[SnapshotRow]> snapshots;
+    in-out property <bool> save-auto-before: true;
+    in-out property <bool> save-auto-after: true;
+    /// 0 non configuré, 1 à jour, 2 modifié / jamais sauvegardé, 3 plus récent ailleurs, 4 conflit, 5 erreur
+    in property <int> save-state;
+    in property <string> save-state-text;
+    in property <string> save-root;
+    in property <bool> save-busy;
+    in property <string> save-diff-title;
+    in property <[string]> save-diff;
+    callback save-add-location(int, string);
+    callback save-associate(int, int);
+    callback save-remove-location(int, int);
+    callback save-set-auto(int, bool, bool);
+    callback save-now(int, string);
+    callback save-restore(int, string);
+    callback save-compare(int, string);
+    callback save-delete(int, string);
+    callback save-keep-local(int);
+    callback save-restore-remote(int);
+    /// Onglet Sauvegardes ou Mods affiché : nouvelle analyse.
+    callback tools-refresh();
+
+    // Mods
+    in property <[ModRow]> mods;
+    in-out property <int> mod-adapter;
+    in-out property <string> mod-target;
+    in property <string> mod-hint;
+    in property <[string]> mod-profile-labels: ["Par défaut"];
+    in-out property <int> mod-profile;
+    in property <[string]> mod-launch-labels: ["Ne pas changer les mods"];
+    in property <string> mod-status;
+    in property <[string]> mod-conflicts;
+    in property <[string]> mod-external;
+    in-out property <string> mod-nexus-domain;
+    in property <bool> mod-available;
+    callback mod-toggle(int, string);
+    callback mod-move(int, string, int);
+    callback mod-import(int, string, string);
+    callback mod-delete(int, string);
+    callback mod-save-info(int, string, string, string);
+    callback mod-set-adapter(int, int, string);
+    callback mod-select-profile(int, int);
+    callback mod-new-profile(int, string);
+    callback mod-delete-profile(int);
+    callback mod-deploy(int);
+    callback mod-undeploy(int);
+    callback mod-check(int, string);
+
+    /// Liens fournis par les extensions.
+    in property <[LinkRow]> links;
+    /// Profil de manette associé aux profils de lancement (0 : aucun).
+    in property <[string]> pad-profile-labels: ["Aucun"];
+    // Jeu à distance
+    in property <bool> can-publish;
+    callback publish-sunshine(int);
+}
+
+export global SavesUi {
+    in property <string> root;
+    in property <string> effective-root;
+    in property <bool> root-fallback;
+    in property <[string]> mirrors;
+    in property <int> keep;
+    in property <string> machine;
+    in property <[SaveGameRow]> games;
+    in property <string> summary;
+    in property <bool> busy;
+    callback set-root(string);
+    callback add-mirror(string);
+    callback remove-mirror(int);
+    callback set-keep(string);
+    callback set-machine(string);
+    callback detect-all();
+    callback sync();
+}
+
+export global StatsUi {
+    in property <string> total;
+    in property <string> total-detail;
+    in property <int> games-played;
+    in property <int> sessions;
+    in property <string> avg-session;
+    in property <string> local-total;
+    in property <string> week-total;
+    in property <int> streak;
+    in property <bool> has-local;
+    in property <[BarItem]> weeks;
+    in property <[BarItem]> months;
+    in property <[BarItem]> unlocks;
+    in property <[BarItem]> completions;
+    in property <[BarItem]> sources;
+    in property <[TopGame]> top;
+    in property <[SessionRow]> recent;
+    in property <int> completed;
+}
+
+export global JournalUi {
+    in property <[ActivityRow]> entries;
+    in property <[string]> categories;
+    in property <[bool]> selected;
+    in-out property <string> search;
+    in property <int> count;
+    in property <int> total;
+    callback toggle-category(int);
+    callback search-changed();
+    callback clear-filters();
+}
+
+export global UpdatesUi {
+    in property <[UpdateRow]> pending;
+    in property <[VersionRow]> changes;
+    in property <bool> notify;
+    in property <int> downloading;
+    callback open-client(int);
+    callback set-notify(bool);
+    callback refresh();
+}
+
+export global SmartUi {
+    in property <[SmartRow]> collections;
+    in-out property <bool> open;
+    /// -1 : liste, 0 : nouvelle collection, > 0 : collection en cours d'édition.
+    in-out property <int> editing-id: -1;
+    in-out property <string> name;
+    in-out property <bool> match-all: true;
+    in property <[RuleRow]> rules;
+    in property <[string]> kind-labels;
+    /// Type de paramètre par règle : 0 aucun, 1 nombre, 2 statut, 3 source, 4 texte.
+    in property <[int]> kind-params;
+    in property <[string]> status-labels;
+    in property <[string]> source-labels;
+    in property <int> preview-count;
+    in property <string> error;
+    callback edit(int);
+    callback create();
+    callback set-rule(int, int, string, bool);
+    callback add-rule();
+    callback remove-rule(int);
+    callback set-match-all(bool);
+    callback save();
+    callback remove(int);
+    callback show(int);
+}
+
+export global AchUi {
+    in property <int> unlocked;
+    in property <int> total;
+    in property <float> percent;
+    in property <int> completed;
+    in property <int> games;
+    in property <int> points;
+    in property <[ProviderStat]> providers;
+    in property <[AchievementRow]> recent;
+    in property <[AchievementRow]> rarest;
+    in property <[GameCard]> completed-games;
+    in property <[MonthBar]> months;
+    in property <bool> steam-ready;
+    in property <bool> ra-ready;
+    in property <bool> syncing;
+    in property <string> status;
+    callback sync-all();
+}
+
+export global EmuUi {
+    in property <[EmulatorRow]> emulators;
+    in property <[PlatformRow]> platforms;
+    in property <[string]> platform-labels;
+    in property <int> detected-count;
+    in property <int> rom-count;
+    in property <string> defs-dir;
+    // Formulaire d'ajout / modification d'un émulateur.
+    in-out property <bool> form-open;
+    in property <string> form-id;
+    in-out property <string> form-name;
+    in-out property <string> form-exe;
+    in-out property <string> form-args: "{rom}";
+    in-out property <string> form-fs-args;
+    in property <[PlatformChoice]> form-platforms;
+    in property <string> form-error;
+    callback open-form(string);
+    callback toggle-platform(int, bool);
+    callback save-form();
+    callback delete-emulator(string);
+    callback add-platform(string, string);
+    callback set-path(string, string);
+    callback set-args(string, string);
+    callback set-fullscreen(string, bool);
+    callback set-default(string, int);
+    callback add-folder(int, string);
+    callback remove-folder(string, int);
+    callback redetect();
+    callback open-defs();
+}
+
+/// Onglet Minecraft (0.5.0).
+export global McUi {
+    in-out property <int> tab;
+    // Opération en cours (installation, téléchargement…) : progression réelle.
+    in property <bool> busy;
+    in property <string> task;
+    in property <float> progress: -1;
+    in property <string> progress-text;
+    in property <string> log-line;
+    in property <string> error;
+    in property <string> info;
+    // Compte
+    in property <int> play-mode;
+    in property <bool> official-found;
+    in property <string> official-account;
+    in property <bool> official-consent;
+    in property <string> account-name;
+    in property <bool> client-id-set;
+    in property <bool> logging-in;
+    in property <string> login-code;
+    in property <string> login-url;
+    // Jouer
+    in property <[McProfileRow]> profiles;
+    in-out property <int> selected-profile;
+    in property <bool> playing;
+    in property <string> play-status;
+    in property <string> worlds;
+    // Versions
+    in property <[McVersionRow]> versions;
+    in property <string> latest;
+    in-out property <bool> show-snapshots;
+    in-out property <bool> show-old;
+    in-out property <string> version-filter;
+    // Mods
+    in property <[string]> profile-labels;
+    in property <[McModRow]> mods;
+    in property <[McProjectRow]> results;
+    in property <string> results-info;
+    in-out property <int> source;
+    in property <bool> curseforge-ready;
+    in property <int> updates;
+    // Modpacks
+    in property <[McProjectRow]> packs;
+    in property <string> packs-info;
+    // Loaders
+    in property <[string]> mc-releases;
+    in-out property <int> loader-mc;
+    in-out property <int> loader-kind;
+    in property <[string]> loader-versions;
+    in-out property <int> loader-version;
+    in property <string> loader-info;
+    // Paramètres
+    in property <int> ram-min;
+    in property <int> ram-max;
+    in property <int> ram-total;
+    in property <[string]> java-list;
+    in property <string> java-path;
+    in property <string> jvm-args;
+    in property <string> width;
+    in property <string> height;
+    in property <bool> fullscreen;
+    in property <string> client-id;
+    in property <string> curseforge-key;
+    in property <string> root-dir;
+
+    callback set-tab(int);
+    callback refresh();
+    callback cancel();
+    callback dismiss();
+    callback login();
+    callback logout();
+    callback consent(bool);
+    callback open-official();
+    callback select-profile(int);
+    callback play();
+    callback open-folder(string);
+    callback delete-profile();
+    callback install-version(string);
+    callback remove-version(string);
+    callback verify-version(string);
+    callback filter-versions();
+    callback search(string);
+    callback install-project(int);
+    callback mod-toggle(string, bool);
+    callback mod-remove(string);
+    callback update-mods();
+    callback search-packs(string);
+    callback install-pack(int);
+    callback import-pack();
+    callback export-pack();
+    callback update-pack();
+    callback loader-changed();
+    callback install-loader();
+    callback set-text(string, string);
+    callback set-bool(string, bool);
+    callback set-int(string, int);
+    callback open-url(string);
+}
+
+export global BpUi {
+    in property <bool> active;
+    /// 0 = accueil, 1 = fiche, 2 = recherche
+    in property <int> view;
+    in property <[BpRow]> rows;
+    in property <int> focus-row;
+    in property <GameDetail> focused;
+    in property <string> focused-meta;
+    in property <string> focused-ach;
+    in property <int> game-button;
+    in property <[AchievementRow]> achievements;
+    in property <int> ach-index;
+    in property <string> query;
+    in property <[string]> keys;
+    in property <int> key-index;
+    /// Vrai quand le focus est sur les résultats de recherche.
+    in property <bool> in-results;
+    in property <BpRow> results;
+    in property <string> clock;
+    in property <bool> pad-connected;
+    /// Réglages (vue 3) : libellé, valeur actuelle ; ligne sélectionnée.
+    in property <[KeyValue]> settings;
+    in property <int> setting-index;
+    callback input(string);
+}
+
+export global SettingsUi {
+    /// Sections affichées (recherche, filtre) : Plateformes, Dossiers, Comptes, Comportement,
+    /// Hors ligne, Système, Raccourcis, Configuration, Mises à jour, Stockage, Son.
+    in property <[bool]> shown: [true, true, true, true, true, true, true, true, true, true, true];
+    in property <int> match-count: 11;
+    // Son : général, navigation, interactions, notifications, actions importantes.
+    in property <bool> sound-enabled: true;
+    in property <bool> sound-muted;
+    in property <bool> sound-hover;
+    in property <int> sound-in-game;
+    in property <[float]> sound-volumes: [0.7, 0.8, 0.9, 0.9, 1.0];
+    callback sound-toggle(string, bool);
+    /// (index, valeur) : 0 à 4 volumes ; 5 comportement pendant une partie.
+    callback sound-volume(int, float);
+    callback sound-preview(int);
+    callback sound-reset();
+    /// Section choisie (-1 : toutes).
+    in-out property <int> section: -1;
+    in-out property <string> search;
+    callback search-changed(string);
+    in property <SourceInfo> steam;
+    in property <SourceInfo> epic;
+    in property <[string]> folders;
+    in property <bool> online-artwork;
+    in property <bool> scan-on-startup;
+    in property <bool> minimize-on-launch;
+    in property <string> cache-size;
+    in property <string> data-dir;
+    in property <string> log-dir;
+    in property <string> version;
+    callback set-source-enabled(string, bool);
+    callback set-source-path(string, string);
+    callback add-folder(string);
+    callback remove-folder(int);
+    callback set-option(string, bool);
+    in property <bool> is-linux;
+    in property <string> windows-runner;
+    in property <string> steam-key;
+    in property <string> steam-id;
+    in property <string> steam-id-detected;
+    in property <string> ra-user;
+    in property <string> ra-key;
+    in property <bool> online-metadata;
+    in property <bool> notifications;
+    in property <bool> polling;
+    in property <bool> sync-on-startup;
+    in property <bool> check-updates;
+    in property <string> update-repo;
+    in property <string> update-status;
+    in property <bool> start-big-picture;
+    in property <bool> update-notifications;
+    in property <string> nexus-key;
+    in property <string> steamgriddb-key;
+    in property <bool> offline-forced;
+    in property <string> backup-status;
+    in property <string> backups-dir;
+    callback export-config(bool, bool);
+    callback import-config(string);
+    callback set-text(string, string);
+    callback check-update();
+    callback clear-cache();
+    callback open-logs();
+    callback open-data();
+}
+
+export global AppUi {
+    in property <NavVisibility> nav: {
+        big-picture: true, assistant: true, achievements: true, stats: true, journal: true, updates: true, saves: true,
+        emulators: true, controllers: true, remote: true, plugins: true
+    };
+    in property <bool> scanning;
+    /// Connexion Internet détectée (et mode hors ligne non forcé).
+    in property <bool> online: true;
+    in property <string> scan-status;
+    in-out property <bool> toast-visible;
+    in property <string> toast;
+    in property <bool> toast-error;
+    in property <bool> can-browse;
+    in-out property <bool> add-dialog-open;
+    in property <string> update-version;
+    in property <string> update-url;
+    // Notification de succès dans l'interface.
+    in-out property <bool> ach-toast-visible;
+    in property <AchievementRow> ach-toast;
+    // Confirmation des opérations destructives.
+    in-out property <bool> confirm-open;
+    in property <string> confirm-title;
+    in property <string> confirm-text;
+    in property <string> confirm-button: "Confirmer";
+    callback confirm-accepted();
+    /// Mode d'interface : 0 standard, 1 minimaliste, 2 cinéma.
+    in property <int> ui-mode;
+    /// Page à grande illustration défilée : la barre supérieure redevient opaque.
+    in-out property <bool> top-solid;
+    /// Mode Performance (manuel ou automatique pendant une partie).
+    in property <bool> performance;
+    in property <bool> performance-auto;
+    in-out property <bool> sidebar-collapsed;
+    /// Une partie lancée par Halcyon est en cours (nom du jeu).
+    in property <string> playing;
+    callback set-ui-mode(int);
+    callback set-performance(bool);
+    callback sidebar-changed(bool);
+    callback browse-file() -> string;
+    callback browse-folder() -> string;
+    /// nom, exécutable, arguments, répertoire de travail → true si ajouté
+    callback add-game(string, string, string, string) -> bool;
+}
+
+export global ThemeUi {
+    in property <[ThemeRow]> themes;
+    in property <int> selected;
+    in property <[color]> accents;
+    in property <[string]> accent-hexes;
+    in property <string> accent;
+    in property <int> density;
+    in property <bool> animations;
+    /// 0 complet, 1 réduit, 2 aucun.
+    in property <int> motion;
+    in property <float> text-scale: 1.0;
+    in property <bool> performance-auto;
+    in property <string> background;
+    in property <bool> animated-background;
+    in property <float> background-opacity;
+    in property <[ToggleRow]> nav-items;
+    in property <[ToggleRow]> sections;
+    in property <string> status;
+    callback select-theme(int);
+    callback set-accent(string);
+    callback set-density(int);
+    callback set-animations(bool);
+    callback set-motion(int);
+    callback set-text-scale(float);
+    callback set-performance-auto(bool);
+    callback set-background(string);
+    callback set-background-opacity(float);
+    callback set-animated(bool);
+    callback toggle-nav(string);
+    callback toggle-section(int);
+    callback move-section(int, int);
+    callback import-theme(string);
+    callback export-theme();
+    callback reset();
+}
+
+export global PluginsUi {
+    in property <[PluginRow]> plugins;
+    in property <string> dir;
+    in property <string> status;
+    callback install(string);
+    callback set-enabled(string, bool);
+    callback uninstall(string);
+    callback check-updates();
+    callback open-dir();
+}
+
+export global PadsUi {
+    in property <[PadRow]> pads;
+    in property <[PadProfileRow]> profiles;
+    in property <[string]> profile-labels;
+    in property <int> active;
+    in-out property <int> editing: -1;
+    in-out property <string> edit-name;
+    in property <[MappingRow]> mapping;
+    in property <[EmuArgRow]> emu-args;
+    in property <string> capture;
+    in property <string> last-button;
+    callback set-active(int);
+    callback new-profile();
+    callback edit(int);
+    callback save(string);
+    callback delete(int);
+    callback capture-start(string);
+    callback capture-cancel();
+    callback set-emu-arg(string, string);
+}
+
+export global RemoteUi {
+    in property <bool> sunshine;
+    in property <string> sunshine-via;
+    in property <bool> sunshine-running;
+    in property <string> apps-file;
+    in property <bool> moonlight;
+    in property <string> moonlight-via;
+    in property <[HostRow]> hosts;
+    in property <int> selected-host: -1;
+    in property <[string]> apps;
+    in property <string> status;
+    in property <bool> busy;
+    callback refresh();
+    callback add-host(string, string);
+    callback remove-host(int);
+    callback select-host(int);
+    callback pair(int);
+    callback stream(int, string);
+    callback quit(int);
+    callback open-sunshine();
+    callback set-moonlight-path(string);
+}
+
+export global AssistUi {
+    in-out property <int> minutes: 30;
+    in property <[SuggestRow]> for-time;
+    in property <[SuggestRow]> resume;
+    in property <[SuggestRow]> almost-done;
+    in property <[SuggestRow]> discover;
+    in property <[SuggestRow]> rediscover;
+    in property <string> genres;
+    callback refresh();
+    callback surprise();
+}
+
+/// Lancement rapide (Ctrl+K) : jeux et pages.
+export global QuickUi {
+    in-out property <bool> open;
+    in-out property <string> query;
+    in property <[QuickRow]> rows;
+    in-out property <int> selected;
+    callback query-changed(string);
+    /// (index, ouvrir la fiche plutôt que lancer)
+    callback activate(int, bool);
+}
+
+/// Intégration au système, raccourcis et fenêtres annexes.
+export global SystemUi {
+    in property <bool> autostart;
+    in property <bool> close-to-tray;
+    in property <bool> minimize-to-tray;
+    in property <bool> tray-available;
+    in property <string> tray-status;
+    in property <bool> global-enabled;
+    in property <string> global-hotkey;
+    in property <string> global-status;
+    in property <bool> companion;
+    in property <[ShortcutRow]> shortcuts;
+    in property <string> integrity-status;
+    in property <bool> integrity-running;
+    in property <string> update-asset;
+    in property <string> update-progress;
+    in property <bool> update-ready;
+    in property <bool> update-is-setup;
+    /// Combinaison saisie, transmise à Rust qui l'interprète (texte, Ctrl, Alt, Maj, Méta).
+    pure callback shortcut(string, bool, bool, bool, bool) -> bool;
+    pure callback combo-of(string, bool, bool, bool, bool) -> string;
+    callback set-option(string, bool);
+    callback set-shortcut(string, string);
+    callback reset-shortcuts();
+    callback set-global-hotkey(string);
+    callback check-integrity();
+    callback download-update();
+    callback install-update();
+    callback create-shortcut(int);
+    callback mini-mode();
+    /// Incrémenté par Rust pour donner le focus à la recherche de la bibliothèque.
+    in property <int> focus-search-tick;
+}
+
+/// Centre de commandes : tâches, téléchargements, synchronisations, notifications, erreurs.
+export global CommandUi {
+    in-out property <bool> open;
+    /// Erreurs dans l'historique récent.
+    in property <int> errors;
+    in property <[TaskRow]> active;
+    in property <[TaskRow]> history;
+    in property <int> running;
+    in property <int> unread;
+    callback opened();
+    callback task-action(int);
+    callback clear-history();
+}
+
+/// Menu contextuel d'un jeu, partagé par toutes les vues (souris, clavier, manette).
+/// Les entrées sont construites en Rust d'après l'état réel du jeu.
+export global GameMenu {
+    in-out property <bool> open;
+    in property <int> game-id: -1;
+    in property <string> title;
+    in property <[MenuEntry]> entries;
+    in property <[string]> codes;
+    in-out property <int> selected;
+    in-out property <length> x;
+    in-out property <length> y;
+    /// Demande d'ouverture : (jeu, position x, position y dans la fenêtre).
+    callback request(int, length, length);
+    callback chosen(string);
+}

@@ -1,0 +1,195 @@
+// Éditeur des collections intelligentes (fenêtre modale ouverte depuis la bibliothèque).
+
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { SmartUi } from "../state.slint";
+import {
+    Modal, ModalPanel, PrimaryButton, SecondaryButton, IconButton, TextField, Dropdown, Chip, Segmented, Icon, Badge
+} from "../components.slint";
+
+component RuleEditor inherits Rectangle {
+    in property <int> index;
+    in property <int> kind;
+    in property <string> param;
+    in property <bool> negate;
+    in property <bool> valid;
+    property <int> ptype: SmartUi.kind-params[root.kind];
+    property <string> draft: root.param;
+    height: 52px;
+    border-radius: Theme.radius;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: root.valid ? Theme.border : Theme.danger.with-alpha(0.5);
+
+    HorizontalLayout {
+        padding: 7px;
+        padding-left: 10px;
+        spacing: 8px;
+        Chip {
+            y: (parent.height - self.height) / 2;
+            text: "Sauf";
+            checked: root.negate;
+            toggled => { SmartUi.set-rule(root.index, root.kind, root.param, !root.negate); }
+        }
+        Dropdown {
+            prefix: "";
+            align-left: true;
+            popup-width: 290px;
+            options: SmartUi.kind-labels;
+            selected: root.kind;
+            changed(k) => { SmartUi.set-rule(root.index, k, "", root.negate); }
+        }
+        if root.ptype == 1 || root.ptype == 4: TextField {
+            text <=> root.draft;
+            placeholder: root.ptype == 1 ? "nombre" : "valeur";
+            mono: root.ptype == 1;
+            edited(t) => { SmartUi.set-rule(root.index, root.kind, t, root.negate); }
+        }
+        if root.ptype == 2: Dropdown {
+            prefix: "";
+            align-left: true;
+            options: SmartUi.status-labels;
+            selected: root.param == "backlog" ? 1 : root.param == "playing" ? 2 : root.param == "completed" ? 3 : root.param == "abandoned" ? 4 : 0;
+            changed(i) => {
+                SmartUi.set-rule(root.index, root.kind, i == 1 ? "backlog" : i == 2 ? "playing" : i == 3 ? "completed" : i == 4 ? "abandoned" : "", root.negate);
+            }
+        }
+        if root.ptype == 3: Dropdown {
+            prefix: "";
+            align-left: true;
+            options: SmartUi.source-labels;
+            selected: root.param == "epic" ? 1 : root.param == "standalone" ? 2 : root.param == "manual" ? 3 : root.param == "emulated" ? 4 : root.param == "minecraft" ? 5 : 0;
+            changed(i) => {
+                SmartUi.set-rule(root.index, root.kind, i == 1 ? "epic" : i == 2 ? "standalone" : i == 3 ? "manual" : i == 4 ? "emulated" : i == 5 ? "minecraft" : "steam", root.negate);
+            }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        IconButton {
+            y: (parent.height - self.height) / 2;
+            icon: Icons.trash;
+            active-tint: Theme.danger;
+            tooltip: "Retirer la règle";
+            clicked => { SmartUi.remove-rule(root.index); }
+        }
+    }
+}
+
+export component SmartDialog inherits Modal {
+    dismissed => { SmartUi.open = false; }
+
+    ModalPanel {
+      width: min(760px, root.width - 48px);
+      height: min(620px, root.height - 48px);
+      VerticalLayout {
+        padding: 26px;
+        spacing: 16px;
+
+        HorizontalLayout {
+            spacing: 12px;
+            Icon { source: Icons.bolt; size: 22px; tint: Theme.accent; y: 6px; }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 3px;
+                Text {
+                    text: SmartUi.editing-id < 0 ? "Collections intelligentes" : SmartUi.editing-id == 0 ? "Nouvelle collection intelligente" : "Modifier la collection";
+                    color: Theme.text;
+                    font-size: Theme.t-heading + 2px;
+                    font-weight: 800;
+                }
+                Text {
+                    text: "Mises à jour automatiquement selon vos règles : aucun jeu à ajouter à la main.";
+                    color: Theme.text-dim;
+                    font-size: Theme.t-caption;
+                }
+            }
+            IconButton { icon: Icons.close; tooltip: "Fermer"; clicked => { SmartUi.open = false; } }
+        }
+
+        // Liste
+        if SmartUi.editing-id < 0: ScrollView {
+            vertical-stretch: 1;
+            content-height: list.preferred-height;
+            list := VerticalLayout {
+                width: parent.width;
+                spacing: 8px;
+                alignment: start;
+                for c in SmartUi.collections: Rectangle {
+                    height: 62px;
+                    border-radius: Theme.radius;
+                    background: ta.has-hover ? Theme.surface-active : Theme.surface;
+                    ta := TouchArea { mouse-cursor: pointer; clicked => { SmartUi.show(c.id); } }
+                    HorizontalLayout {
+                        padding-left: 16px;
+                        padding-right: 8px;
+                        spacing: 10px;
+                        VerticalLayout {
+                            alignment: center;
+                            spacing: 3px;
+                            horizontal-stretch: 1;
+                            HorizontalLayout {
+                                spacing: 8px;
+                                Text { text: c.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                                Badge { text: c.count + (c.count > 1 ? " jeux" : " jeu"); }
+                                Rectangle { horizontal-stretch: 1; }
+                            }
+                            Text { text: c.description; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                        }
+                        IconButton { y: (parent.height - self.height) / 2; icon: Icons.edit; tooltip: "Modifier"; clicked => { SmartUi.edit(c.id); } }
+                        IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer"; clicked => { SmartUi.remove(c.id); } }
+                    }
+                }
+                if SmartUi.collections.length == 0: Text {
+                    text: "Aucune collection intelligente.";
+                    color: Theme.text-dim;
+                    font-size: Theme.t-small;
+                }
+            }
+        }
+        if SmartUi.editing-id < 0: HorizontalLayout {
+            alignment: end;
+            PrimaryButton { text: "Nouvelle collection"; icon: Icons.plus; has-icon: true; clicked => { SmartUi.create(); } }
+        }
+
+        // Édition
+        if SmartUi.editing-id >= 0: VerticalLayout {
+            spacing: 14px;
+            vertical-stretch: 1;
+            HorizontalLayout {
+                spacing: 10px;
+                TextField { text <=> SmartUi.name; placeholder: "Nom de la collection"; }
+                Segmented {
+                    items: ["Toutes les règles", "Au moins une"];
+                    selected: SmartUi.match-all ? 0 : 1;
+                    activated(i) => { SmartUi.set-match-all(i == 0); }
+                }
+            }
+            ScrollView {
+                vertical-stretch: 1;
+                content-height: rules.preferred-height;
+                rules := VerticalLayout {
+                    width: parent.width;
+                    spacing: 8px;
+                    alignment: start;
+                    for r[i] in SmartUi.rules: RuleEditor { index: i; kind: r.kind; param: r.param; negate: r.negate; valid: r.valid; }
+                    HorizontalLayout {
+                        alignment: start;
+                        SecondaryButton { text: "Ajouter une règle"; icon: Icons.plus; has-icon: true; clicked => { SmartUi.add-rule(); } }
+                    }
+                }
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                Text {
+                    text: SmartUi.error != "" ? SmartUi.error : SmartUi.preview-count + (SmartUi.preview-count > 1 ? " jeux correspondent" : " jeu correspond");
+                    color: SmartUi.error != "" ? Theme.danger : Theme.text-muted;
+                    font-size: Theme.t-small;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                }
+                SecondaryButton { text: "Annuler"; clicked => { SmartUi.editing-id = -1; } }
+                PrimaryButton { text: "Enregistrer"; icon: Icons.check; has-icon: true; clicked => { SmartUi.save(); } }
+            }
+        }
+    }
+    }
+}

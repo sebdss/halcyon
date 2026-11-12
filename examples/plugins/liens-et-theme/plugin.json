@@ -1,0 +1,40 @@
+{
+  "id": "liens-et-theme",
+  "name": "Liens utiles et thème Nuit polaire",
+  "version": "1.0.0",
+  "author": "Exemple Halcyon",
+  "description": "Ajoute des liens PCGamingWiki et HowLongToBeat dans les fiches, un thème de couleurs et un emplacement de sauvegarde d'exemple.",
+  "homepage": "https://github.com/",
+  "min_halcyon": "0.3.0",
+  "permissions": [],
+  "provides": {
+    "links": [
+      { "label": "PCGamingWiki", "url": "https://www.pcgamingwiki.com/w/index.php?search={name}" },
+      { "label": "HowLongToBeat", "url": "https://howlongtobeat.com/?q={name}" },
+      { "label": "SteamDB", "url": "https://steamdb.info/app/{steam_appid}/" }
+    ],
+    "themes": [
+      {
+        "id": "nuit-polaire",
+        "name": "Nuit polaire",
+        "author": "Exemple Halcyon",
+        "colors": {
+          "bg": "#0e1117",
+          "sidebar": "#11151c",
+          "surface": "#181d26",
+          "surface_hover": "#202633",
+          "surface_active": "#2a3141",
+          "text": "#e5e9f0",
+          "text_muted": "#a3adbf",
+          "text_dim": "#677285",
+          "accent": "#88c0d0",
+          "on_accent": "#0b1a20",
+          "bp_bg": "#080a0f"
+        }
+      }
+    ],
+    "save_locations": [
+      { "game": "Night Owl", "paths": ["{install}/saves"] }
+    ]
+  }
+}

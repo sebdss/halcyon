@@ -1,0 +1,809 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { SourceInfo } from "../types.slint";
+import { SettingsUi, AppUi, Actions, SystemUi } from "../state.slint";
+import { Panel, Toggle, TextField, SecondaryButton, PrimaryButton, IconButton, Badge, Icon, SectionTitle, Chip, Dropdown, ValueSlider, Segmented } from "../components.slint";
+
+component SettingRow inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> description;
+    spacing: 20px;
+    VerticalLayout {
+        horizontal-stretch: 1;
+        spacing: 4px;
+        alignment: center;
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-size: Theme.t-body;
+            font-weight: 600;
+        }
+        if root.description != "": Text {
+            text: root.description;
+            color: Theme.text-dim;
+            font-size: Theme.t-caption;
+            wrap: word-wrap;
+        }
+    }
+    @children
+}
+
+/// Champ texte enregistré à la validation (Entrée ou bouton).
+component TextSetting inherits VerticalLayout {
+    in property <string> key;
+    in property <string> label;
+    in property <string> hint;
+    in property <string> placeholder;
+    in property <bool> secret;
+    in-out property <string> value;
+    spacing: 6px;
+    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+    HorizontalLayout {
+        spacing: 8px;
+        TextField {
+            text <=> root.value;
+            mono: true;
+            placeholder: root.placeholder;
+            accepted(t) => { SettingsUi.set-text(root.key, t); }
+        }
+        SecondaryButton { text: "Enregistrer"; h: 38px; clicked => { SettingsUi.set-text(root.key, root.value); } }
+    }
+    if root.hint != "": Text { text: root.hint; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+}
+
+/// Raccourci modifiable : cliquer puis appuyer sur la nouvelle combinaison.
+component ShortcutEditor inherits HorizontalLayout {
+    in property <string> action;
+    in property <string> label;
+    in property <string> combo;
+    in property <string> default-combo;
+    property <bool> capturing;
+    height: 40px;
+    spacing: 10px;
+    Text { text: root.label; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
+    if root.combo != root.default-combo: Text { text: "défaut : " + root.default-combo; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
+    Rectangle {
+        width: 170px;
+        border-radius: Theme.radius-sm;
+        background: root.capturing ? Theme.accent-soft : Theme.surface-hover;
+        border-width: 1px;
+        border-color: root.capturing ? Theme.accent : Theme.border;
+        Text {
+            text: root.capturing ? "Appuyez sur les touches…" : root.combo == "" ? "Aucun" : root.combo;
+            color: root.capturing ? Theme.accent : Theme.text;
+            font-size: Theme.t-small;
+            font-weight: 600;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+        cap := FocusScope {
+            TouchArea { mouse-cursor: pointer; clicked => { root.capturing = true; cap.focus(); } }
+            focus-changed-event => { if (!self.has-focus) { root.capturing = false; } }
+            key-pressed(event) => {
+                if (!root.capturing) {
+                    return reject;
+                }
+                if (event.text == Key.Escape) {
+                    root.capturing = false;
+                    return accept;
+                }
+                if (event.text == Key.Backspace || event.text == Key.Delete) {
+                    root.capturing = false;
+                    SystemUi.set-shortcut(root.action, "");
+                    return accept;
+                }
+                let c = SystemUi.combo-of(event.text, event.modifiers.control, event.modifiers.alt, event.modifiers.shift, event.modifiers.meta);
+                // Une touche de modification seule : on attend la suite.
+                if (c == "") {
+                    return accept;
+                }
+                root.capturing = false;
+                SystemUi.set-shortcut(root.action, c);
+                accept
+            }
+        }
+    }
+}
+
+component ExportPanel inherits Panel {
+    in-out property <bool> secrets;
+    in-out property <bool> mod-files;
+    in-out property <string> import-path;
+    VerticalLayout {
+        padding: 22px;
+        spacing: 16px;
+        Text {
+            text: "Une archive unique contient la bibliothèque, vos métadonnées et visuels personnalisés, collections, profils de lancement, réglages des émulateurs, paramètres, thèmes, extensions et statistiques. Les fichiers des jeux ne sont jamais inclus. Idéal pour migrer vers un autre PC.";
+            color: Theme.text-dim;
+            font-size: Theme.t-caption;
+            wrap: word-wrap;
+        }
+        SettingRow {
+            title: "Inclure les clés d'API";
+            description: "Désactivé par défaut : l'archive peut alors être partagée sans exposer vos comptes.";
+            Toggle { y: (parent.height - self.height) / 2; checked <=> root.secrets; }
+        }
+        SettingRow {
+            title: "Inclure les fichiers des mods";
+            description: "Sinon, seules les fiches des mods et les profils sont exportés.";
+            Toggle { y: (parent.height - self.height) / 2; checked <=> root.mod-files; }
+        }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            PrimaryButton { text: "Exporter maintenant"; icon: Icons.upload; has-icon: true; clicked => { SettingsUi.export-config(root.secrets, root.mod-files); } }
+            SecondaryButton { text: "Ouvrir le dossier des exports"; clicked => { Actions.open-folder(SettingsUi.backups-dir); } }
+        }
+        Rectangle { height: 1px; background: Theme.border; }
+        Text { text: "Restaurer une archive"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+        HorizontalLayout {
+            spacing: 8px;
+            TextField { text <=> root.import-path; mono: true; placeholder: "Chemin de l'archive .zip"; }
+            if AppUi.can-browse: SecondaryButton {
+                text: "Parcourir…";
+                h: 38px;
+                clicked => {
+                    let p = AppUi.browse-file();
+                    if (p != "") { root.import-path = p; }
+                }
+            }
+            SecondaryButton { text: "Restaurer…"; h: 38px; enabled: root.import-path != ""; clicked => { SettingsUi.import-config(root.import-path); } }
+        }
+        if SettingsUi.backup-status != "": Text { text: SettingsUi.backup-status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+    }
+}
+
+component SourcePanel inherits Panel {
+    in property <SourceInfo> info;
+    in property <string> key;
+    in property <string> path-label;
+    in-out property <string> path: info.path-override;
+
+    VerticalLayout {
+        padding: 22px;
+        spacing: 16px;
+        SettingRow {
+            title: root.info.name;
+            description: !root.info.enabled ? "Désactivé" : root.info.found
+                ? "Détecté : " + root.info.detected + "  ·  " + root.info.count + " jeux"
+                : "Introuvable sur cet ordinateur. Indiquez son dossier ci-dessous si nécessaire.";
+            Toggle {
+                y: (parent.height - self.height) / 2;
+                checked: root.info.enabled;
+                toggled(v) => { SettingsUi.set-source-enabled(root.key, v); }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            TextField {
+                text <=> root.path;
+                mono: true;
+                placeholder: root.path-label;
+                accepted(t) => { SettingsUi.set-source-path(root.key, t); }
+            }
+            if AppUi.can-browse: SecondaryButton {
+                text: "Parcourir…";
+                h: 38px;
+                clicked => {
+                    let p = AppUi.browse-folder();
+                    if (p != "") {
+                        root.path = p;
+                        SettingsUi.set-source-path(root.key, root.path);
+                    }
+                }
+            }
+            SecondaryButton {
+                text: "Appliquer";
+                h: 38px;
+                clicked => { SettingsUi.set-source-path(root.key, root.path); }
+            }
+        }
+    }
+}
+
+export component SettingsPage inherits Rectangle {
+    property <string> new-folder;
+
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 18px;
+            alignment: start;
+
+            Text {
+                text: "Paramètres";
+                color: Theme.text;
+                font-size: Theme.t-title;
+                font-weight: 800;
+                letter-spacing: -0.4px;
+            }
+
+            // Recherche et sections : une section à la fois, ou toutes.
+            HorizontalLayout {
+                spacing: 10px;
+                TextField {
+                    width: min(360px, root.width * 0.35);
+                    height: 36px;
+                    placeholder: "Rechercher un réglage…";
+                    icon: Icons.search;
+                    has-icon: true;
+                    text <=> SettingsUi.search;
+                    edited(t) => { SettingsUi.search-changed(t); }
+                }
+                Rectangle { horizontal-stretch: 1; }
+            }
+            if root.width > 1250px: HorizontalLayout {
+                spacing: 6px;
+                alignment: start;
+                for name[i] in ["Tout", "Plateformes", "Dossiers", "Comptes", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage", "Son"]: Chip {
+                    text: name;
+                    checked: SettingsUi.section == i - 1 && SettingsUi.search == "";
+                    toggled => { SettingsUi.search = ""; SettingsUi.section = i - 1; SettingsUi.search-changed(""); }
+                }
+            }
+            if root.width <= 1250px: HorizontalLayout {
+                alignment: start;
+                Dropdown {
+                    prefix: "Section :";
+                    align-left: true;
+                    options: ["Tout", "Plateformes", "Dossiers", "Comptes", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage", "Son"];
+                    selected: SettingsUi.section + 1;
+                    changed(i) => { SettingsUi.search = ""; SettingsUi.section = i - 1; SettingsUi.search-changed(""); }
+                }
+            }
+            if SettingsUi.search != "" && SettingsUi.match-count == 0: Text {
+                text: "Aucun réglage ne correspond à « " + SettingsUi.search + " ».";
+                color: Theme.text-muted;
+                font-size: Theme.t-body;
+            }
+
+            if SettingsUi.shown[0]: VerticalLayout {
+                spacing: 18px;
+                // --- Sources ---
+                HorizontalLayout {
+                    padding-top: 10px;
+                    spacing: 12px;
+                    SectionTitle { text: "Plateformes"; }
+                    Rectangle { horizontal-stretch: 1; }
+                    PrimaryButton {
+                        text: AppUi.scanning ? "Analyse en cours…" : "Analyser maintenant";
+                        icon: Icons.refresh;
+                        has-icon: true;
+                        enabled: !AppUi.scanning;
+                        h: 36px;
+                        font-size: Theme.t-small;
+                        clicked => { Actions.rescan(); }
+                    }
+                }
+                SourcePanel {
+                    info: SettingsUi.steam;
+                    key: "steam";
+                    path-label: "Dossier Steam (détection automatique si vide)";
+                }
+                SourcePanel {
+                    info: SettingsUi.epic;
+                    key: "epic";
+                    path-label: "Dossier des manifestes Epic (détection automatique si vide)";
+                }
+            }
+
+            if SettingsUi.shown[1]: VerticalLayout {
+                spacing: 18px;
+                // --- Dossiers ---
+                SectionTitle { text: "Dossiers de jeux"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 12px;
+                        Text {
+                            text: "Chaque sous-dossier d'un dossier surveillé est considéré comme un jeu. Halcyon choisit l'exécutable le plus probable ; vous pouvez le corriger depuis la fiche du jeu.";
+                            color: Theme.text-dim;
+                            font-size: Theme.t-caption;
+                            wrap: word-wrap;
+                        }
+                        for folder[i] in SettingsUi.folders: Rectangle {
+                            height: 44px;
+                            border-radius: Theme.radius-sm + 2px;
+                            background: Theme.bg;
+                            HorizontalLayout {
+                                padding-left: 12px;
+                                padding-right: 4px;
+                                spacing: 10px;
+                                Icon { source: Icons.folder; size: 18px; tint: Theme.text-muted; y: (parent.height - self.height) / 2; }
+                                Text {
+                                    text: folder;
+                                    color: Theme.text;
+                                    font-size: Theme.t-small;
+                                    vertical-alignment: center;
+                                    overflow: elide;
+                                    horizontal-stretch: 1;
+                                }
+                                IconButton {
+                                    y: (parent.height - self.height) / 2;
+                                    icon: Icons.trash;
+                                    icon-size: 16px;
+                                    active-tint: Theme.danger;
+                                    tooltip: "Retirer ce dossier";
+                                    clicked => { SettingsUi.remove-folder(i); }
+                                }
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            TextField {
+                                text <=> root.new-folder;
+                                mono: true;
+                                placeholder: "Chemin d'un dossier, ex. D:\\Jeux";
+                                accepted(t) => {
+                                    SettingsUi.add-folder(t);
+                                    root.new-folder = "";
+                                }
+                            }
+                            if AppUi.can-browse: SecondaryButton {
+                                text: "Parcourir…";
+                                h: 38px;
+                                clicked => {
+                                    let p = AppUi.browse-folder();
+                                    if (p != "") { SettingsUi.add-folder(p); }
+                                }
+                            }
+                            SecondaryButton {
+                                text: "Ajouter";
+                                icon: Icons.plus;
+                                has-icon: true;
+                                h: 38px;
+                                clicked => {
+                                    SettingsUi.add-folder(root.new-folder);
+                                    root.new-folder = "";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[2]: VerticalLayout {
+                spacing: 18px;
+                // --- Comptes et succès ---
+                SectionTitle { text: "Comptes et succès"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 18px;
+                        Text {
+                            text: "Clés stockées uniquement sur cet ordinateur (paramètres de Halcyon). Les succès Epic Games ne sont pas disponibles : Epic ne propose pas d'API publique.";
+                            color: Theme.text-dim;
+                            font-size: Theme.t-caption;
+                            wrap: word-wrap;
+                        }
+                        TextSetting {
+                            key: "steam_api_key";
+                            label: "Clé Steam Web API";
+                            hint: "À obtenir sur steamcommunity.com/dev/apikey. Les détails de jeu de votre profil Steam doivent être publics. Ajoute aussi les jeux possédés non installés.";
+                            placeholder: "32 caractères hexadécimaux";
+                            value: SettingsUi.steam-key;
+                        }
+                        TextSetting {
+                            key: "steam_id";
+                            label: "SteamID64";
+                            hint: SettingsUi.steam-id-detected != "" ? "Détecté sur cet ordinateur : " + SettingsUi.steam-id-detected + " (laisser vide pour l'utiliser)." : "Aucun compte Steam détecté sur cet ordinateur.";
+                            placeholder: "7656119…";
+                            value: SettingsUi.steam-id;
+                        }
+                        HorizontalLayout {
+                            spacing: 12px;
+                            TextSetting { key: "ra_user"; label: "Utilisateur RetroAchievements"; placeholder: "Pseudo"; value: SettingsUi.ra-user; }
+                            TextSetting {
+                                key: "ra_api_key";
+                                label: "Clé Web API RetroAchievements";
+                                hint: "retroachievements.org › Paramètres › Clé Web API.";
+                                placeholder: "Clé";
+                                value: SettingsUi.ra-key;
+                            }
+                        }
+                        TextSetting {
+                            key: "nexus_api_key";
+                            label: "Clé d'API Nexus Mods (facultative)";
+                            hint: "nexusmods.com › Mon compte › Accès à l'API. Sert uniquement à vérifier les versions de vos mods.";
+                            placeholder: "Clé personnelle";
+                            value: SettingsUi.nexus-key;
+                        }
+                        TextSetting {
+                            key: "steamgriddb_api_key";
+                            label: "Clé d'API SteamGridDB (facultative)";
+                            hint: "steamgriddb.com › Préférences › API. Jaquettes, bannières et logos des jeux standalone et ajoutés à la main (avec « Télécharger les visuels manquants »).";
+                            placeholder: "Clé personnelle";
+                            value: SettingsUi.steamgriddb-key;
+                        }
+                        SettingRow {
+                            title: "Synchroniser les succès au démarrage";
+                            description: "Incrémentale : seuls les jeux non synchronisés depuis 12 h sont interrogés.";
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.sync-on-startup;
+                                toggled(v) => { SettingsUi.set-option("sync_achievements_on_startup", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Surveiller les succès pendant une partie";
+                            description: "Vérifie périodiquement le jeu lancé (Steam : 2 min, RetroAchievements : 90 s) pour vous notifier.";
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.polling;
+                                toggled(v) => { SettingsUi.set-option("achievement_polling", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Notifications de succès";
+                            description: "Notification système discrète : elle ne prend jamais le focus et n'interrompt pas le jeu.";
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.notifications;
+                                toggled(v) => { SettingsUi.set-option("achievement_notifications", v); }
+                            }
+                        }
+                    }
+                }
+
+                if SettingsUi.is-linux: SectionTitle { text: "Linux"; }
+                if SettingsUi.is-linux: Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        TextSetting {
+                            key: "windows_runner";
+                            label: "Commande pour les jeux Windows (.exe)";
+                            hint: "Exemples : wine · umu-run · flatpak run org.winehq.Wine. Les jeux Steam utilisent Proton via Steam, les jeux Epic via Heroic.";
+                            placeholder: "wine";
+                            value: SettingsUi.windows-runner;
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[3]: VerticalLayout {
+                spacing: 18px;
+                // --- Comportement ---
+                SectionTitle { text: "Comportement"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 20px;
+                        SettingRow {
+                            title: "Analyser les sources au démarrage";
+                            description: "En arrière-plan : l'interface reste utilisable pendant l'analyse.";
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.scan-on-startup;
+                                toggled(v) => { SettingsUi.set-option("scan_on_startup", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Réduire Halcyon pendant le jeu";
+                            description: "Libère le GPU : l'interface ne se redessine pas tant qu'elle est réduite.";
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.minimize-on-launch;
+                                toggled(v) => { SettingsUi.set-option("minimize_on_launch", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Démarrer en mode Big Picture";
+                            description: "Plein écran, navigation à la manette. Start ou F11 pour en sortir.";
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.start-big-picture;
+                                toggled(v) => { SettingsUi.set-option("start_in_big_picture", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Métadonnées en ligne";
+                            description: "Descriptions, genres et captures d'écran depuis la boutique Steam (vos modifications restent prioritaires).";
+                            Badge { y: (parent.height - self.height) / 2; text: "EN LIGNE"; tint: Theme.warm; solid: true; }
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.online-metadata;
+                                toggled(v) => { SettingsUi.set-option("online_metadata", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Télécharger les visuels manquants";
+                            description: "Nécessite Internet. Jaquettes et bannières sont ensuite conservées hors ligne.";
+                            Badge { y: (parent.height - self.height) / 2; text: "EN LIGNE"; tint: Theme.warm; solid: true; }
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.online-artwork;
+                                toggled(v) => { SettingsUi.set-option("online_artwork", v); }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[10]: VerticalLayout {
+                spacing: 18px;
+                // --- Son ---
+                SectionTitle { text: "Son"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 18px;
+                        SettingRow {
+                            title: "Effets sonores";
+                            description: "Identité sonore de Halcyon : navigation, actions, notifications. Indépendant du volume du système.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SettingsUi.sound-enabled; toggled(v) => { SettingsUi.sound-toggle("enabled", v); } }
+                        }
+                        SettingRow {
+                            title: "Mode silencieux";
+                            description: "Coupe tous les sons sans modifier les réglages ci-dessous.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SettingsUi.sound-muted; toggled(v) => { SettingsUi.sound-toggle("muted", v); } }
+                        }
+                        Rectangle { height: 1px; background: Theme.border; }
+                        for row[i] in [
+                            { label: "Volume général", hint: "Appliqué à tous les sons." },
+                            { label: "Navigation", hint: "Sélection, sections, panneaux, menus, retour." },
+                            { label: "Interactions", hint: "Validation, favoris, collections, fiche d'un jeu, réglages." },
+                            { label: "Notifications", hint: "Réussite, avertissement, erreur, téléchargements, mises à jour." },
+                            { label: "Actions importantes", hint: "Lancement d'un jeu, grandes réussites." },
+                        ]: HorizontalLayout {
+                            spacing: 16px;
+                            VerticalLayout {
+                                horizontal-stretch: 1;
+                                spacing: 3px;
+                                alignment: center;
+                                Text { text: row.label; color: Theme.text; font-size: Theme.t-body; font-weight: 600; }
+                                Text { text: row.hint; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                            }
+                            ValueSlider {
+                                width: 220px;
+                                y: 6px;
+                                label: row.label;
+                                enabled: SettingsUi.sound-enabled;
+                                value: SettingsUi.sound-volumes[i];
+                                committed(v) => { SettingsUi.sound-volume(i, v); }
+                            }
+                            Text {
+                                width: 48px;
+                                text: round(SettingsUi.sound-volumes[i] * 100) + " %";
+                                color: Theme.text-muted;
+                                font-size: Theme.t-small;
+                                vertical-alignment: center;
+                                horizontal-alignment: right;
+                            }
+                            SecondaryButton {
+                                y: 2px;
+                                h: 34px;
+                                text: "Écouter";
+                                icon: Icons.play;
+                                has-icon: true;
+                                clicked => { SettingsUi.sound-preview(i); }
+                            }
+                        }
+                        Rectangle { height: 1px; background: Theme.border; }
+                        SettingRow {
+                            title: "Sons de survol";
+                            description: "Très discrets, au passage de la souris sur une jaquette.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SettingsUi.sound-hover; toggled(v) => { SettingsUi.sound-toggle("hover", v); } }
+                        }
+                        SettingRow {
+                            title: "Pendant une partie";
+                            description: "Sons de Halcyon pendant un jeu lancé depuis Halcyon.";
+                            Segmented {
+                                y: (parent.height - self.height) / 2;
+                                items: ["Silencieux", "Réduits", "Normaux"];
+                                selected: SettingsUi.sound-in-game;
+                                activated(i) => { SettingsUi.sound-volume(5, i); }
+                            }
+                        }
+                        HorizontalLayout {
+                            alignment: end;
+                            SecondaryButton {
+                                text: "Rétablir les réglages du son";
+                                icon: Icons.restore;
+                                has-icon: true;
+                                clicked => { SettingsUi.sound-reset(); }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[4]: VerticalLayout {
+                spacing: 18px;
+                // --- Hors ligne ---
+                SectionTitle { text: "Connexion"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 18px;
+                        SettingRow {
+                            title: "Mode hors ligne forcé";
+                            description: AppUi.online
+                                ? "Connexion disponible. Activez pour qu'Halcyon n'effectue plus aucune requête réseau (bibliothèque, lancement, sauvegardes et mods restent disponibles)."
+                                : "Hors ligne : la bibliothèque reste entièrement utilisable. Succès, visuels et métadonnées seront synchronisés automatiquement au retour de la connexion.";
+                            Badge { y: (parent.height - self.height) / 2; text: AppUi.online ? "EN LIGNE" : "HORS LIGNE"; tint: AppUi.online ? Theme.success : Theme.warm; solid: true; }
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.offline-forced;
+                                toggled(v) => { SettingsUi.set-option("offline_forced", v); }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[5]: VerticalLayout {
+                spacing: 18px;
+                // --- Système ---
+                SectionTitle { text: "Système"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 18px;
+                        SettingRow {
+                            title: "Démarrer avec la session";
+                            description: "Halcyon s'ouvre réduit dans la zone de notification à la connexion.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.autostart; toggled(v) => { SystemUi.set-option("autostart", v); } }
+                        }
+                        SettingRow {
+                            title: "Fermer dans la zone de notification";
+                            description: "Fermer la fenêtre garde Halcyon actif (raccourcis, lancements depuis Sunshine). « Quitter » depuis l'icône pour l'arrêter.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.close-to-tray; toggled(v) => { SystemUi.set-option("close_to_tray", v); } }
+                        }
+                        SettingRow {
+                            title: "Réduire dans la zone de notification";
+                            description: "Une fenêtre réduite disparaît de la barre des tâches.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.minimize-to-tray; toggled(v) => { SystemUi.set-option("minimize_to_tray", v); } }
+                        }
+                        if SystemUi.tray-status != "": Text { text: SystemUi.tray-status; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        SettingRow {
+                            title: "Fenêtre compagnon pendant les parties";
+                            description: "Petite fenêtre au premier plan : temps de session, succès, notes. Aucune injection dans le jeu : visible en mode fenêtré sans bordure ou sur un second écran. Pour les performances (i/s, températures), utilisez MangoHud (Linux) ou RTSS / la Xbox Game Bar (Windows).";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.companion; toggled(v) => { SystemUi.set-option("companion", v); } }
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[6]: VerticalLayout {
+                spacing: 18px;
+                // --- Raccourcis ---
+                SectionTitle { text: "Raccourcis clavier"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 6px;
+                        for sc in SystemUi.shortcuts: ShortcutEditor { action: sc.action; label: sc.label; combo: sc.combo; default-combo: sc.default-combo; }
+                        HorizontalLayout {
+                            height: 40px;
+                            Text { text: "Aller aux pages (Accueil, Bibliothèque, Que jouer ?, Succès, Statistiques, Journal, Mises à jour, Sauvegardes, Paramètres)"; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                            Text { text: "Ctrl+1 … Ctrl+9"; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; }
+                        }
+                        Text { text: "Cliquez sur une combinaison puis appuyez sur les nouvelles touches. Retour arrière : aucun raccourci. Échap : annuler."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        Rectangle { height: 1px; background: Theme.border; }
+                        SettingRow {
+                            title: "Raccourci global";
+                            description: SystemUi.global-status != "" ? SystemUi.global-status : "Ouvre le lancement rapide même quand Halcyon est en arrière-plan.";
+                            Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.global-enabled; toggled(v) => { SystemUi.set-option("global", v); } }
+                        }
+                        if SystemUi.global-enabled: HorizontalLayout {
+                            spacing: 8px;
+                            gtf := TextField { text: SystemUi.global-hotkey; mono: true; placeholder: "Ctrl+Alt+H"; accepted(t) => { SystemUi.set-global-hotkey(t); } }
+                            SecondaryButton { h: 38px; text: "Appliquer"; clicked => { SystemUi.set-global-hotkey(gtf.text); } }
+                        }
+                        HorizontalLayout {
+                            alignment: start;
+                            padding-top: 6px;
+                            SecondaryButton { h: 34px; text: "Rétablir les raccourcis par défaut"; clicked => { SystemUi.reset-shortcuts(); } }
+                        }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[7]: VerticalLayout {
+                spacing: 18px;
+                // --- Export / restauration ---
+                SectionTitle { text: "Exporter ou restaurer la configuration"; }
+                ExportPanel { }
+            }
+
+            if SettingsUi.shown[8]: VerticalLayout {
+                spacing: 18px;
+                // --- Mises à jour ---
+                SectionTitle { text: "Mises à jour"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 18px;
+                        SettingRow {
+                            title: "Vérifier les mises à jour au démarrage";
+                            description: SettingsUi.update-status;
+                            Badge { y: (parent.height - self.height) / 2; text: "EN LIGNE"; tint: Theme.warm; solid: true; }
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.check-updates;
+                                toggled(v) => { SettingsUi.set-option("check_updates", v); }
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            TextSetting {
+                                key: "update_repo";
+                                label: "Dépôt GitHub des versions";
+                                hint: "Format propriétaire/nom : le dépôt où la CI publie Halcyon. Halcyon signale la nouvelle version et ouvre sa page de téléchargement.";
+                                placeholder: "ex. sebi/halcyon";
+                                value: SettingsUi.update-repo;
+                            }
+                        }
+                        HorizontalLayout {
+                            alignment: start;
+                            spacing: 8px;
+                            SecondaryButton { text: "Vérifier maintenant"; icon: Icons.refresh; has-icon: true; clicked => { SettingsUi.check-update(); } }
+                            if AppUi.update-version != "": PrimaryButton { text: "Télécharger la version " + AppUi.update-version; icon: Icons.download; has-icon: true; clicked => { SystemUi.download-update(); } }
+                            if SystemUi.update-ready: PrimaryButton { text: SystemUi.update-is-setup ? "Installer" : "Ouvrir le paquet vérifié"; icon: Icons.check; has-icon: true; clicked => { SystemUi.install-update(); } }
+                        }
+                        if SystemUi.update-progress != "": Text { text: SystemUi.update-progress; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+                        Text { text: "Le paquet n'est installé que si son empreinte SHA-256 correspond au fichier SHA256SUMS publié avec la version."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    }
+                }
+            }
+
+            if SettingsUi.shown[9]: VerticalLayout {
+                spacing: 18px;
+                // --- Stockage & diagnostic ---
+                SectionTitle { text: "Stockage et diagnostic"; }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 20px;
+                        SettingRow {
+                            title: "Cache des miniatures";
+                            description: SettingsUi.cache-size + " — reconstruit automatiquement si vidé.";
+                            SecondaryButton {
+                                y: (parent.height - self.height) / 2;
+                                text: "Vider";
+                                h: 34px;
+                                clicked => { SettingsUi.clear-cache(); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Données de l'application";
+                            description: SettingsUi.data-dir;
+                            SecondaryButton {
+                                y: (parent.height - self.height) / 2;
+                                text: "Ouvrir";
+                                h: 34px;
+                                clicked => { SettingsUi.open-data(); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Vérification d'intégrité";
+                            description: "Base de données, paramètres, dossier des données, jeux installés, jaquettes et extensions.";
+                            SecondaryButton { y: (parent.height - self.height) / 2; text: SystemUi.integrity-running ? "Vérification…" : "Vérifier"; icon: Icons.shield; has-icon: true; h: 34px; clicked => { SystemUi.check-integrity(); } }
+                        }
+                        if SystemUi.integrity-status != "": Text { text: SystemUi.integrity-status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+                        SettingRow {
+                            title: "Journaux";
+                            description: SettingsUi.log-dir;
+                            SecondaryButton {
+                                y: (parent.height - self.height) / 2;
+                                text: "Ouvrir";
+                                h: 34px;
+                                clicked => { SettingsUi.open-logs(); }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Text {
+                text: "Halcyon " + SettingsUi.version + "  ·  Made with Slint  ·  Police Inter (SIL OFL)";
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+                horizontal-alignment: center;
+            }
+        }
+    }
+}

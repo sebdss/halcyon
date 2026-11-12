@@ -1,0 +1,519 @@
+// Structures échangées entre Rust et l'interface.
+
+export struct GameCard {
+    id: int,
+    title: string,
+    source: string,
+    cover: image,
+    has-cover: bool,
+    color-a: color,
+    color-b: color,
+    initials: string,
+    installed: bool,
+    favorite: bool,
+    playtime: string,
+    last-played: string,
+    /// Plateforme émulée (« SNES ») ou vide.
+    badge: string,
+}
+
+/// Une ligne de la grille virtualisée (n jaquettes).
+export struct GridRow {
+    cards: [GameCard],
+}
+
+export struct GameDetail {
+    id: int,
+    title: string,
+    source: string,
+    description: string,
+    developer: string,
+    publisher: string,
+    release: string,
+    playtime: string,
+    last-played: string,
+    sessions: string,
+    installed: bool,
+    install-state: string,
+    size: string,
+    install-dir: string,
+    launch-mode: string,
+    platform-client: bool,
+    executable: string,
+    arguments: string,
+    working-dir: string,
+    can-remove: bool,
+    favorite: bool,
+    hidden: bool,
+    cover: image,
+    has-cover: bool,
+    banner: image,
+    has-banner: bool,
+    logo: image,
+    has-logo: bool,
+    color-a: color,
+    color-b: color,
+    initials: string,
+    genres: string,
+    platform: string,
+    is-emulated: bool,
+    /// Jeu Steam possédé mais non installé : installation via Steam.
+    can-install: bool,
+    ra-id: string,
+    // Suivi personnel
+    status: int,
+    notes: string,
+    tags: string,
+    playtime-origin: string,
+    playtime-platform: string,
+    playtime-local: string,
+    playtime-manual: string,
+    has-manual: bool,
+    first-session: string,
+    avg-session: string,
+    // Version et mise à jour
+    version: string,
+    update-pending: bool,
+    update-state: string,
+    update-progress: float,
+}
+
+export struct SourceInfo {
+    name: string,
+    enabled: bool,
+    found: bool,
+    detected: string,
+    path-override: string,
+    count: int,
+}
+
+export struct LibraryStats {
+    total: int,
+    installed: int,
+    steam: int,
+    epic: int,
+    others: int,
+    playtime: string,
+}
+
+export struct AchievementRow {
+    id: int,
+    game-id: int,
+    name: string,
+    description: string,
+    game: string,
+    icon: image,
+    has-icon: bool,
+    unlocked: bool,
+    date: string,
+    rarity: string,
+    rarity-pct: float,
+    has-rarity: bool,
+    points: string,
+    hardcore: bool,
+    hidden: bool,
+    progress: float,
+    has-progress: bool,
+    progress-text: string,
+    custom: bool,
+    provider: string,
+}
+
+export struct ProviderStat {
+    name: string,
+    unlocked: int,
+    total: int,
+    percent: float,
+}
+
+export struct MonthBar {
+    label: string,
+    count: int,
+    ratio: float,
+}
+
+export struct CollectionItem {
+    id: int,
+    name: string,
+    member: bool,
+    count: int,
+}
+
+export struct EmulatorRow {
+    id: string,
+    name: string,
+    detected: bool,
+    path: string,
+    via: string,
+    platforms: string,
+    extra-args: string,
+    fullscreen: bool,
+    path-override: string,
+    /// Ajouté dans Halcyon (modifiable, supprimable).
+    custom: bool,
+}
+
+export struct McProfileRow {
+    id: string,
+    name: string,
+    version: string,
+    loader: string,
+    detail: string,
+    modpack: bool,
+}
+
+export struct McVersionRow {
+    id: string,
+    kind: string,
+    date: string,
+    installed: bool,
+}
+
+export struct McModRow {
+    file: string,
+    name: string,
+    version: string,
+    source: string,
+    enabled: bool,
+    dependency: bool,
+    update: string,
+}
+
+export struct McProjectRow {
+    id: string,
+    title: string,
+    description: string,
+    author: string,
+    downloads: string,
+    icon: image,
+    has-icon: bool,
+    source: int,
+    url: string,
+    installed: bool,
+}
+
+export struct PlatformChoice {
+    id: string,
+    name: string,
+    checked: bool,
+}
+
+export struct PlatformRow {
+    id: string,
+    name: string,
+    short: string,
+    emulators: [string],
+    selected: int,
+    folders: [string],
+    games: int,
+    ra: bool,
+}
+
+/// Rangée du mode Big Picture : fenêtre de jaquettes autour de l'élément actif.
+export struct BpRow {
+    title: string,
+    items: [GameCard],
+    /// Position de l'élément actif dans `items` (-1 : rangée inactive).
+    focus: int,
+    count: int,
+}
+
+export struct SessionRow {
+    game-id: int,
+    game: string,
+    date: string,
+    duration: string,
+}
+
+export struct VersionRow {
+    game-id: int,
+    game: string,
+    version: string,
+    date: string,
+}
+
+export struct CompanionRow {
+    path: string,
+    args: string,
+    close-after: bool,
+}
+
+/// Profil de lancement (édition).
+export struct ProfileRow {
+    id: int,
+    name: string,
+    summary: string,
+    is-default: bool,
+    args: string,
+    replace-args: bool,
+    resolution: string,
+    display: int,
+    fps: string,
+    gpu: int,
+    allow-gpu-registry: bool,
+    priority: int,
+    working-dir: string,
+    env: string,
+    pre: string,
+    post: string,
+    /// Profil de mods appliqué avant le lancement (0 : ne pas changer).
+    mod-profile: int,
+    /// Profil de manette (0 : profil actif).
+    pad-profile: int,
+}
+
+export struct ActivityRow {
+    id: int,
+    game-id: int,
+    category: int,
+    title: string,
+    detail: string,
+    day: string,
+    time: string,
+    /// Première entrée d'une nouvelle journée (affiche l'en-tête de date).
+    new-day: bool,
+}
+
+/// Barre d'histogramme générique.
+export struct BarItem {
+    label: string,
+    value: string,
+    ratio: float,
+}
+
+export struct TopGame {
+    id: int,
+    title: string,
+    value: string,
+    origin: string,
+    ratio: float,
+    card: GameCard,
+}
+
+export struct UpdateRow {
+    id: int,
+    title: string,
+    source: string,
+    state: string,
+    downloading: bool,
+    progress: float,
+    progress-text: string,
+    version: string,
+    client: string,
+    card: GameCard,
+}
+
+export struct SmartRow {
+    id: int,
+    name: string,
+    description: string,
+    count: int,
+}
+
+export struct RuleRow {
+    kind: int,
+    param: string,
+    negate: bool,
+    valid: bool,
+}
+
+export struct SaveLocRow {
+    token: string,
+    path: string,
+    exists: bool,
+}
+
+export struct SaveCandRow {
+    path: string,
+    reason: string,
+    confident: bool,
+}
+
+export struct SnapshotRow {
+    id: string,
+    date: string,
+    reason: string,
+    machine: string,
+    other-machine: bool,
+    size: string,
+    files: int,
+    note: string,
+}
+
+export struct SaveGameRow {
+    id: int,
+    title: string,
+    count: int,
+    last: string,
+    size: string,
+    other-machine: bool,
+    card: GameCard,
+}
+
+export struct ModRow {
+    id: string,
+    name: string,
+    version: string,
+    /// Version plus récente connue (Nexus Mods), vide sinon.
+    latest: string,
+    enabled: bool,
+    conflicts: int,
+    files: int,
+    size: string,
+    deployed: bool,
+    nexus-id: string,
+}
+
+export struct ThemeRow {
+    id: string,
+    name: string,
+    bg: color,
+    surface: color,
+    accent: color,
+    source: string,
+}
+
+export struct ToggleRow {
+    key: string,
+    label: string,
+    visible: bool,
+}
+
+export struct PluginRow {
+    id: string,
+    name: string,
+    version: string,
+    author: string,
+    description: string,
+    enabled: bool,
+    usable: bool,
+    errors: string,
+    warnings: string,
+    permissions: [string],
+    update: string,
+    homepage: string,
+}
+
+export struct PadRow {
+    name: string,
+    brand: string,
+    power: string,
+    last-used: bool,
+}
+
+export struct PadProfileRow {
+    id: int,
+    name: string,
+    summary: string,
+    active: bool,
+}
+
+export struct MappingRow {
+    action: string,
+    label: string,
+    button: string,
+}
+
+export struct EmuArgRow {
+    id: string,
+    name: string,
+    args: string,
+}
+
+export struct HostRow {
+    name: string,
+    address: string,
+    online: bool,
+}
+
+export struct SuggestRow {
+    id: int,
+    reason: string,
+    card: GameCard,
+}
+
+export struct LinkRow {
+    label: string,
+    url: string,
+}
+
+/// Résultat du lancement rapide : jeu (0) ou page (1).
+export struct QuickRow {
+    kind: int,
+    id: int,
+    title: string,
+    subtitle: string,
+    card: GameCard,
+}
+
+export struct ShortcutRow {
+    action: string,
+    label: string,
+    combo: string,
+    default-combo: string,
+}
+
+/// Jeu affiché dans le mode compact.
+export struct MiniRow {
+    id: int,
+    title: string,
+    subtitle: string,
+    installed: bool,
+}
+
+/// Élément de la bande horizontale (carrousel, mode immersif) : position absolue dans la liste filtrée.
+export struct StripItem {
+    index: int,
+    card: GameCard,
+}
+
+/// Tâche ou évènement du centre de commandes.
+/// state : 0 en cours, 1 terminée, 2 erreur, 3 information.
+export struct TaskRow {
+    id: int,
+    kind: string,
+    title: string,
+    detail: string,
+    /// 0..1, ou -1 si la progression n'est pas connue.
+    progress: float,
+    state: int,
+    time: string,
+    action: string,
+}
+
+/// Emplacement d'un widget de l'accueil. span : 1 à 3 colonnes (sur 3).
+export struct WidgetSlot {
+    kind: int,
+    span: int,
+    title: string,
+}
+
+/// Rangée de widgets (disposition calculée en Rust).
+export struct WidgetRow {
+    slots: [WidgetSlot],
+}
+
+/// Valeur clé (widgets, statistiques).
+export struct KeyValue {
+    label: string,
+    value: string,
+    ratio: float,
+}
+
+/// Entrée de menu contextuel.
+export struct MenuEntry {
+    label: string,
+    icon: image,
+    danger: bool,
+    enabled: bool,
+    separator-before: bool,
+}
+
+/// Capture d'écran locale (Steam, dossier de captures).
+export struct CaptureItem {
+    image: image,
+    game-id: int,
+    title: string,
+    date: string,
+    path: string,
+}

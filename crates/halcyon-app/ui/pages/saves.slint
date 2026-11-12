@@ -1,0 +1,144 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Actions, SavesUi, AppUi } from "../state.slint";
+import { Panel, SectionTitle, PageHeader, Notice, GameCover, SecondaryButton, PrimaryButton, TextField, IconButton, Badge } from "../components.slint";
+
+component FolderField inherits HorizontalLayout {
+    in-out property <string> value;
+    in property <string> placeholder;
+    in property <string> button;
+    callback submit(string);
+    spacing: 8px;
+    TextField { text <=> root.value; mono: true; placeholder: root.placeholder; accepted(t) => { root.submit(t); } }
+    if AppUi.can-browse: SecondaryButton {
+        text: "Parcourir…";
+        h: 38px;
+        clicked => {
+            let p = AppUi.browse-folder();
+            if (p != "") { root.value = p; }
+        }
+    }
+    SecondaryButton { text: root.button; h: 38px; clicked => { root.submit(root.value); } }
+}
+
+export component SavesPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 20px;
+            alignment: start;
+
+            PageHeader {
+                title: "Sauvegardes";
+                subtitle: "Copies versionnées de vos parties, avant et après chaque session, sur ce PC, un autre disque ou un NAS.";
+                SecondaryButton {
+                    y: 6px;
+                    text: SavesUi.busy ? "Analyse…" : "Détecter dans la bibliothèque";
+                    icon: Icons.search;
+                    has-icon: true;
+                    enabled: !SavesUi.busy;
+                    clicked => { SavesUi.detect-all(); }
+                }
+            }
+
+            if SavesUi.root-fallback: Notice {
+                warning: true;
+                text: "Le dépôt choisi est inaccessible (NAS éteint, disque débranché ?). Les nouvelles sauvegardes sont conservées sur ce PC et y seront recopiées automatiquement à son retour.";
+            }
+
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 16px;
+                    Text { text: "Dépôt principal"; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                    Text { text: "Actuellement : " + SavesUi.effective-root; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    FolderField {
+                        value: SavesUi.root;
+                        placeholder: "Dossier local, autre disque ou partage réseau (vide : données de Halcyon)";
+                        button: "Utiliser";
+                        submit(p) => { SavesUi.set-root(p); }
+                    }
+                    Text { text: "Plusieurs PC peuvent partager le même dépôt (dossier réseau ou synchronisé) : Halcyon détecte les versions plus récentes et les conflits."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    Rectangle { height: 1px; background: Theme.border; }
+                    Text { text: "Copies supplémentaires"; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                    for m[i] in SavesUi.mirrors: HorizontalLayout {
+                        height: 34px;
+                        spacing: 8px;
+                        Text { text: m; color: Theme.text-muted; font-size: Theme.t-caption; font-family: "monospace"; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                        IconButton { size: 32px; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Retirer (les copies existantes sont conservées)"; clicked => { SavesUi.remove-mirror(i); } }
+                    }
+                    FolderField { placeholder: "Autre disque où recopier chaque sauvegarde"; button: "Ajouter"; submit(p) => { SavesUi.add-mirror(p); } }
+                    Rectangle { height: 1px; background: Theme.border; }
+                    HorizontalLayout {
+                        spacing: 22px;
+                        VerticalLayout {
+                            spacing: 6px;
+                            Text { text: "Sauvegardes automatiques conservées par jeu (0 = toutes)"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                            keep := TextField { text: SavesUi.keep; mono: true; accepted(t) => { SavesUi.set-keep(t); } }
+                        }
+                        VerticalLayout {
+                            spacing: 6px;
+                            Text { text: "Nom de ce PC"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                            machine := TextField { text: SavesUi.machine; accepted(t) => { SavesUi.set-machine(t); } }
+                        }
+                        VerticalLayout {
+                            alignment: end;
+                            SecondaryButton { text: "Enregistrer"; h: 38px; clicked => { SavesUi.set-keep(keep.text); SavesUi.set-machine(machine.text); } }
+                        }
+                    }
+                    Text { text: "Les sauvegardes manuelles ne sont jamais supprimées automatiquement."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                }
+            }
+
+            HorizontalLayout {
+                SectionTitle { text: "Jeux suivis"; horizontal-stretch: 1; }
+                Text { text: SavesUi.summary; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
+                SecondaryButton { text: "Synchroniser les dépôts"; icon: Icons.refresh; has-icon: true; h: 34px; clicked => { SavesUi.sync(); } }
+            }
+            if SavesUi.games.length == 0: Text {
+                text: "Aucun jeu n'a encore d'emplacement de sauvegarde. Lancez la détection, ou ouvrez une fiche de jeu › Sauvegardes.";
+                color: Theme.text-dim;
+                font-size: Theme.t-small;
+                wrap: word-wrap;
+            }
+            for g in SavesUi.games: Rectangle {
+                height: 64px;
+                border-radius: Theme.radius;
+                background: ta.has-hover ? Theme.surface-hover : Theme.surface;
+                ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(g.id); } }
+                HorizontalLayout {
+                    padding: 8px;
+                    padding-left: 10px;
+                    spacing: 14px;
+                    GameCover {
+                        width: 33px;
+                        height: 48px;
+                        source: g.card.cover;
+                        has-image: g.card.has-cover;
+                        color-a: g.card.color-a;
+                        color-b: g.card.color-b;
+                        initials: g.card.initials;
+                        title: g.title;
+                        show-title: false;
+                        corner: 4px;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 2px;
+                        horizontal-stretch: 1;
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: g.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
+                            if g.other-machine: Badge { text: "dernière sauvegarde : autre PC"; tint: Theme.warm; }
+                            Rectangle { horizontal-stretch: 1; }
+                        }
+                        Text { text: g.count + " sauvegarde(s) · " + g.size + " · dernière : " + g.last; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    }
+                }
+            }
+        }
+    }
+}

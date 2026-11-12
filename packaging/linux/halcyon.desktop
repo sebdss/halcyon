@@ -1,0 +1,21 @@
+[Desktop Entry]
+Type=Application
+Name=Halcyon
+GenericName=Launcher de jeux
+Comment=Tous vos jeux Steam, Epic, standalone et émulés au même endroit
+Exec=halcyon %f
+Icon=halcyon
+Terminal=false
+Categories=Game;
+Keywords=jeux;games;steam;epic;emulateur;launcher;
+MimeType=application/x-halcyon-theme;application/x-halcyon-plugin;
+StartupWMClass=halcyon
+Actions=quick;bigpicture;
+
+[Desktop Action quick]
+Name=Lancement rapide
+Exec=halcyon --quick
+
+[Desktop Action bigpicture]
+Name=Big Picture
+Exec=halcyon --big-picture

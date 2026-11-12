@@ -1,0 +1,843 @@
+// Fenêtre principale de Halcyon.
+
+import "fonts/Inter-Regular.ttf";
+import "fonts/Inter-Medium.ttf";
+import "fonts/Inter-SemiBold.ttf";
+import "fonts/Inter-Bold.ttf";
+
+import { Theme, Icons } from "theme.slint";
+import { Sound } from "sound.slint";
+import {
+    GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
+    EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow,
+    ThemeRow, ToggleRow, PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow, MiniRow,
+    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue
+} from "types.slint";
+import {
+    Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
+    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu
+} from "state.slint";
+import { Icon, PrimaryButton, SecondaryButton, TextField, TextArea, Badge, Panel, GameCover, IconButton } from "components.slint";
+import { HomePage } from "pages/home.slint";
+import { LibraryPage } from "pages/library.slint";
+import { GamePage } from "pages/game.slint";
+import { MinecraftPage } from "pages/minecraft.slint";
+import { SettingsPage } from "pages/settings.slint";
+import { AchievementsPage } from "pages/achievements.slint";
+import { EmulatorsPage } from "pages/emulators.slint";
+import { BigPicturePage } from "pages/bigpicture.slint";
+import { StatsPage } from "pages/stats.slint";
+import { JournalPage } from "pages/journal.slint";
+import { UpdatesPage } from "pages/updates.slint";
+import { SmartDialog } from "pages/smart.slint";
+import { SavesPage } from "pages/saves.slint";
+import { AppearancePage } from "pages/appearance.slint";
+import { PluginsPage } from "pages/plugins.slint";
+import { ControllersPage } from "pages/controllers.slint";
+import { RemotePage } from "pages/remote.slint";
+import { AssistantPage } from "pages/assistant.slint";
+import { Sidebar, TopBar, CommandCenter } from "shell.slint";
+import { ScrollView } from "std-widgets.slint";
+
+export {
+    GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
+    EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow,
+    ThemeRow, ToggleRow, PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow, MiniRow,
+    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue
+}
+export { MenuEntry, CaptureItem } from "types.slint";
+export { Theme, Icons, Sound }
+export {
+    Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
+    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu
+}
+
+/// Menu contextuel d'un jeu : superposition (pas de fenêtre surgissante) pour rester
+/// pilotable aux flèches et à la manette. Échap ou clic à l'extérieur : fermeture.
+component GameMenuOverlay inherits Rectangle {
+    TouchArea {
+        clicked => { GameMenu.open = false; }
+        pointer-event(e) => {
+            if (e.button == PointerEventButton.right && e.kind == PointerEventKind.down) {
+                GameMenu.open = false;
+            }
+        }
+    }
+    init => { scope.focus(); }
+    panel := Rectangle {
+        width: 260px;
+        height: col.preferred-height;
+        x: max(8px, min(GameMenu.x, root.width - self.width - 8px));
+        y: max(8px, min(GameMenu.y, root.height - self.height - 8px));
+        background: Theme.surface-hover;
+        border-radius: Theme.radius;
+        border-width: 1px;
+        border-color: Theme.border-strong;
+        drop-shadow-blur: Theme.effects ? 28px : 0px;
+        drop-shadow-color: #000000a8;
+        drop-shadow-offset-y: 10px;
+        TouchArea { }
+        scope := FocusScope {
+            capture-key-pressed(event) => {
+                if (event.text == Key.DownArrow || (event.text == Key.Tab && !event.modifiers.shift)) {
+                    GameMenu.selected = mod(GameMenu.selected + 1, GameMenu.entries.length);
+                    return accept;
+                }
+                if (event.text == Key.UpArrow || event.text == Key.Backtab) {
+                    GameMenu.selected = mod(GameMenu.selected - 1 + GameMenu.entries.length, GameMenu.entries.length);
+                    return accept;
+                }
+                if (event.text == Key.Escape || event.text == Key.Back || event.text == Key.Menu) {
+                    GameMenu.open = false;
+                    return accept;
+                }
+                if (event.text == Key.Return || event.text == " ") {
+                    if (GameMenu.entries[GameMenu.selected].enabled) {
+                        GameMenu.open = false;
+                        GameMenu.chosen(GameMenu.codes[GameMenu.selected]);
+                    }
+                    return accept;
+                }
+                accept
+            }
+        }
+        col := VerticalLayout {
+            padding: 6px;
+            spacing: 1px;
+            Text {
+                text: GameMenu.title;
+                color: Theme.text-dim;
+                font-size: Theme.t-overline;
+                font-weight: 700;
+                letter-spacing: 0.8px;
+                overflow: elide;
+                height: 26px;
+                vertical-alignment: center;
+                x: 10px;
+                width: parent.width - 20px;
+            }
+            for e[i] in GameMenu.entries: VerticalLayout {
+                if e.separator-before: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.border; } }
+                Rectangle {
+                    height: 34px;
+                    border-radius: Theme.radius-sm;
+                    background: !e.enabled ? transparent : GameMenu.selected == i ? (e.danger ? Theme.danger.with-alpha(0.18) : Theme.accent-soft) : m-ta.has-hover ? Theme.surface-active : transparent;
+                    border-width: GameMenu.selected == i && e.enabled ? 1px : 0px;
+                    border-color: e.danger ? Theme.danger.with-alpha(0.5) : Theme.focus.with-alpha(0.6);
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        spacing: 10px;
+                        Icon { y: 9px; source: e.icon; size: 16px; tint: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text-muted; }
+                        Text {
+                            text: e.label;
+                            color: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text;
+                            font-size: Theme.t-small;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+                    }
+                    m-ta := TouchArea {
+                        enabled: e.enabled;
+                        mouse-cursor: pointer;
+                        moved => { GameMenu.selected = i; }
+                        clicked => {
+                            GameMenu.open = false;
+                            GameMenu.chosen(GameMenu.codes[i]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+component AddGameDialog inherits Rectangle {
+    in-out property <string> exe;
+    in-out property <string> name;
+    in-out property <string> args;
+    in-out property <string> wd;
+
+    background: #000000b0;
+    // Bloque les clics vers l'arrière-plan.
+    TouchArea { }
+
+    Panel {
+        width: 560px;
+        height: form.preferred-height;
+        background: Theme.surface-hover;
+        drop-shadow-blur: 60px;
+        drop-shadow-color: #000000cc;
+        form := VerticalLayout {
+            padding: 28px;
+            spacing: 16px;
+            Text {
+                text: "Ajouter un jeu";
+                color: Theme.text;
+                font-size: Theme.t-heading + 2px;
+                font-weight: 800;
+            }
+            Text {
+                text: "Exécutable (.exe), script (.bat) ou raccourci (.lnk, .url).";
+                color: Theme.text-dim;
+                font-size: Theme.t-small;
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Text { text: "Exécutable *"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                HorizontalLayout {
+                    spacing: 8px;
+                    exe-field := TextField { text <=> root.exe; mono: true; placeholder: "C:\\Jeux\\MonJeu\\MonJeu.exe"; }
+                    if AppUi.can-browse: SecondaryButton {
+                        text: "Parcourir…";
+                        h: 38px;
+                        clicked => {
+                            let p = AppUi.browse-file();
+                            if (p != "") { root.exe = p; }
+                        }
+                    }
+                }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Text { text: "Nom"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                TextField { text <=> root.name; placeholder: "Déduit du nom de l'exécutable si vide"; }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Text { text: "Arguments"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                TextField { text <=> root.args; mono: true; placeholder: "Optionnel"; }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Text { text: "Répertoire de travail"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                HorizontalLayout {
+                    spacing: 8px;
+                    TextField { text <=> root.wd; mono: true; placeholder: "Dossier de l'exécutable par défaut"; }
+                    if AppUi.can-browse: SecondaryButton {
+                        text: "Parcourir…";
+                        h: 38px;
+                        clicked => {
+                            let p = AppUi.browse-folder();
+                            if (p != "") { root.wd = p; }
+                        }
+                    }
+                }
+            }
+            HorizontalLayout {
+                padding-top: 8px;
+                spacing: 10px;
+                alignment: end;
+                SecondaryButton {
+                    text: "Annuler";
+                    clicked => { AppUi.add-dialog-open = false; }
+                }
+                PrimaryButton {
+                    text: "Ajouter";
+                    enabled: root.exe != "";
+                    clicked => {
+                        if (AppUi.add-game(root.name, root.exe, root.args, root.wd)) {
+                            AppUi.add-dialog-open = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    init => { exe-field.focus(); }
+}
+
+component ConfirmDialog inherits Rectangle {
+    background: #000000b0;
+    TouchArea { }
+    Panel {
+        width: 480px;
+        height: box.preferred-height;
+        background: Theme.surface-hover;
+        drop-shadow-blur: 60px;
+        drop-shadow-color: #000000cc;
+        box := VerticalLayout {
+            padding: 26px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                Icon { source: Icons.alert; size: 22px; tint: Theme.warm; y: 3px; }
+                Text { text: AppUi.confirm-title; color: Theme.text; font-size: 19px; font-weight: 800; wrap: word-wrap; horizontal-stretch: 1; }
+            }
+            Text { text: AppUi.confirm-text; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+            HorizontalLayout {
+                padding-top: 6px;
+                spacing: 10px;
+                alignment: end;
+                SecondaryButton { text: "Annuler"; clicked => { AppUi.confirm-open = false; } }
+                PrimaryButton {
+                    text: AppUi.confirm-button;
+                    clicked => {
+                        AppUi.confirm-open = false;
+                        AppUi.confirm-accepted();
+                    }
+                }
+            }
+        }
+    }
+}
+
+component Toast inherits Rectangle {
+    height: 46px;
+    width: min(row.preferred-width, 720px);
+    border-radius: 23px;
+    background: #1f2530f2;
+    border-width: 1px;
+    border-color: AppUi.toast-error ? Theme.danger.with-alpha(0.5) : Theme.border-strong;
+    drop-shadow-blur: 30px;
+    drop-shadow-color: #00000099;
+    row := HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 20px;
+        spacing: 10px;
+        Icon {
+            source: AppUi.toast-error ? Icons.alert : Icons.check;
+            size: 18px;
+            tint: AppUi.toast-error ? Theme.danger : Theme.accent;
+            y: (parent.height - self.height) / 2;
+        }
+        Text {
+            text: AppUi.toast;
+            color: Theme.text;
+            font-size: Theme.t-small;
+            font-weight: 550;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+    Timer {
+        interval: 4500ms;
+        running: AppUi.toast-visible;
+        triggered => { AppUi.toast-visible = false; }
+    }
+}
+
+/// Lancement rapide (Ctrl+K) : recherche approximative dans les jeux et les pages.
+component QuickLaunch inherits Rectangle {
+    background: #000000a0;
+    TouchArea { clicked => { QuickUi.open = false; } }
+    init => { field.focus(); }
+    panel := Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: 90px;
+        width: min(680px, parent.width - 80px);
+        height: col.preferred-height;
+        border-radius: Theme.radius-lg;
+        background: Theme.surface-hover;
+        border-width: 1px;
+        border-color: Theme.border-strong;
+        drop-shadow-blur: 30px;
+        drop-shadow-color: #00000090;
+        TouchArea { }
+        scope := FocusScope {
+            // Intercepté avant le champ de saisie (qui consommerait flèches et Entrée).
+            capture-key-pressed(event) => {
+                if (event.text == Key.DownArrow) {
+                    QuickUi.selected = min(QuickUi.selected + 1, QuickUi.rows.length - 1);
+                    return accept;
+                }
+                if (event.text == Key.UpArrow) {
+                    QuickUi.selected = max(QuickUi.selected - 1, 0);
+                    return accept;
+                }
+                if (event.text == Key.Escape) {
+                    QuickUi.open = false;
+                    return accept;
+                }
+                if (event.text == Key.Return && QuickUi.rows.length > 0) {
+                    QuickUi.activate(QuickUi.selected, event.modifiers.control);
+                    return accept;
+                }
+                reject
+            }
+            col := VerticalLayout {
+                padding: 12px;
+                spacing: 8px;
+                field := TextField {
+                    height: 46px;
+                    text <=> QuickUi.query;
+                    placeholder: "Jouer à…, aller à une page, un réglage, une collection ou une commande";
+                    icon: Icons.search;
+                    has-icon: true;
+                    edited(t) => { QuickUi.selected = 0; QuickUi.query-changed(t); }
+                }
+                for r[i] in QuickUi.rows: Rectangle {
+                    height: 52px;
+                    border-radius: Theme.radius;
+                    background: QuickUi.selected == i ? Theme.accent-soft : rta.has-hover ? Theme.surface-active : transparent;
+                    rta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { QuickUi.activate(i, false); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        padding-right: 12px;
+                        spacing: 12px;
+                        if r.kind == 0: GameCover {
+                            y: 6px;
+                            width: 27px;
+                            height: 40px;
+                            source: r.card.cover;
+                            has-image: r.card.has-cover;
+                            color-a: r.card.color-a;
+                            color-b: r.card.color-b;
+                            initials: r.card.initials;
+                            title: r.card.title;
+                            show-title: false;
+                            corner: 4px;
+                        }
+                        if r.kind >= 1: Rectangle {
+                            width: 27px;
+                            Icon {
+                                source: r.kind == 1 ? Icons.layers : r.kind == 2 ? Icons.library : r.kind == 3 ? Icons.sliders : Icons.command;
+                                size: 18px;
+                                tint: Theme.text-muted;
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 1;
+                            Text { text: r.title; color: Theme.text; font-size: Theme.t-body; font-weight: 600; overflow: elide; }
+                            Text { text: r.subtitle; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                        }
+                        if QuickUi.selected == i: Text {
+                            text: r.kind == 0 ? "Entrée : jouer · Ctrl+Entrée : fiche" : "Entrée : ouvrir";
+                            color: Theme.text-dim;
+                            font-size: Theme.t-overline;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                if QuickUi.rows.length == 0 && QuickUi.query != "": Text {
+                    text: "Aucun résultat";
+                    color: Theme.text-dim;
+                    font-size: Theme.t-small;
+                    horizontal-alignment: center;
+                }
+            }
+        }
+    }
+}
+
+export component AppWindow inherits Window {
+    title: "Halcyon";
+    icon: Icons.logo;
+    // Petites fenêtres prises en charge : la barre latérale se replie, les pages s'adaptent.
+    min-width: 800px;
+    min-height: 560px;
+    preferred-width: 1440px;
+    preferred-height: 900px;
+    background: Theme.bg;
+    default-font-family: "Inter";
+    default-font-size: Theme.t-body;
+    forward-focus: keys;
+
+    // À chaque changement de page, le clavier revient au gestionnaire de raccourcis
+    // (sinon un champ masqué garderait le focus et avalerait Échap).
+    property <Page> current-page: Nav.page;
+    /// Pages à grande illustration : la barre supérieure se pose dessus.
+    property <bool> overlay-top: Nav.page == Page.home || Nav.page == Page.game || (Nav.page == Page.library && LibraryUi.view-mode == 3);
+    /// Barre latérale repliée : choix de l'utilisateur, mode minimaliste ou fenêtre étroite.
+    property <bool> sidebar-collapsed: AppUi.sidebar-collapsed || AppUi.ui-mode == 1 || root.width < 1100px;
+    property <length> sidebar-width: AppUi.ui-mode == 2 ? 0px : root.sidebar-collapsed ? 72px : 236px;
+    /// Apparition de la page : masquée une image, puis fondu et glissement courts.
+    property <bool> revealing: false;
+    reveal := Timer {
+        interval: 16ms;
+        running: false;
+        triggered => {
+            self.running = false;
+            root.revealing = false;
+        }
+    }
+    // Ctrl+F depuis une autre page : la recherche doit garder le focus après le changement de page.
+    property <bool> want-search;
+    changed current-page => {
+        AppUi.top-solid = false;
+        if (Theme.motion < 2 && Theme.animations) {
+            self.revealing = true;
+            reveal.running = true;
+        }
+        if (self.want-search) {
+            self.want-search = false;
+            library.focus-search();
+        } else {
+            root.restore-focus();
+        }
+        Actions.page-shown(self.current-page);
+    }
+    // Fermeture de la boîte de dialogue : son champ actif disparaît, on récupère le clavier.
+    property <bool> dialog-open: AppUi.add-dialog-open || SmartUi.open || AppUi.confirm-open || QuickUi.open || GameMenu.open;
+    // Demande de focus de la recherche (raccourci) depuis Rust.
+    property <int> search-tick: SystemUi.focus-search-tick;
+    changed search-tick => {
+        if (Nav.page == Page.library) {
+            library.focus-search();
+        } else {
+            self.want-search = true;
+            Nav.go(Page.library);
+        }
+    }
+    changed dialog-open => {
+        if (!self.dialog-open) {
+            root.restore-focus();
+        }
+    }
+    property <bool> big-picture: BpUi.active;
+    changed big-picture => {
+        if (!self.big-picture) {
+            root.restore-focus();
+        }
+    }
+
+    /// Clavier rendu à la page : la bibliothèque prend les flèches, sinon les raccourcis globaux.
+    function restore-focus() {
+        if (Nav.page == Page.library) {
+            library.focus-grid();
+        } else {
+            keys.focus();
+        }
+    }
+
+    // Sons des panneaux et menus (le moteur audio en Rust décide s'ils sont joués).
+    property <bool> quick-open: QuickUi.open;
+    changed quick-open => { Sound.play(self.quick-open ? "ui.panel-open" : "ui.panel-close"); }
+    property <bool> cc-open: CommandUi.open;
+    changed cc-open => { Sound.play(self.cc-open ? "ui.command-center" : "ui.panel-close"); }
+    property <bool> menu-open: GameMenu.open;
+    changed menu-open => { Sound.play(self.menu-open ? "ui.menu-open" : "ui.menu-close"); }
+    property <bool> confirm-open: AppUi.confirm-open || AppUi.add-dialog-open || SmartUi.open;
+    changed confirm-open => {
+        if (self.confirm-open) {
+            Sound.play("ui.window");
+        }
+    }
+
+    keys := FocusScope {
+        key-pressed(event) => {
+            if (event.modifiers.alt && event.text == Key.LeftArrow) {
+                Nav.history(-1);
+                return accept;
+            }
+            if (event.modifiers.alt && event.text == Key.RightArrow) {
+                Nav.history(1);
+                return accept;
+            }
+            if (event.text == Key.Back) {
+                Nav.history(-1);
+                return accept;
+            }
+            if (event.text == Key.Escape) {
+                if (QuickUi.open) {
+                    QuickUi.open = false;
+                    return accept;
+                }
+                if (CommandUi.open) {
+                    CommandUi.open = false;
+                    return accept;
+                }
+                if (AppUi.add-dialog-open) {
+                    AppUi.add-dialog-open = false;
+                    return accept;
+                }
+                if (AppUi.confirm-open) {
+                    AppUi.confirm-open = false;
+                    return accept;
+                }
+                if (SmartUi.open) {
+                    SmartUi.open = false;
+                    return accept;
+                }
+                if (Nav.can-back) {
+                    Nav.history(-1);
+                    return accept;
+                }
+                return reject;
+            }
+            // Raccourcis personnalisables, interprétés côté Rust.
+            if (SystemUi.shortcut(event.text, event.modifiers.control, event.modifiers.alt, event.modifiers.shift, event.modifiers.meta)) {
+                return accept;
+            }
+            reject
+        }
+
+        // Positionnement absolu : la largeur de la barre latérale dépend de celle de la
+        // fenêtre, une mise en page automatique créerait une dépendance circulaire.
+        Rectangle {
+            // Barre latérale : repliée en mode minimaliste, masquée en mode cinéma, repliée
+            // automatiquement dans une fenêtre étroite.
+            if AppUi.ui-mode != 2: Sidebar {
+                x: 0px;
+                collapsed: root.sidebar-collapsed;
+                width: root.sidebar-width;
+                height: parent.height;
+            }
+            Rectangle {
+                x: root.sidebar-width;
+                width: parent.width - root.sidebar-width;
+                // Fond d'écran personnalisé (facultatif), atténué pour garder le texte lisible.
+                if Theme.has-background: bgimg := Image {
+                    width: parent.width;
+                    height: parent.height;
+                    source: Theme.background-image;
+                    image-fit: cover;
+                    opacity: Theme.background-opacity;
+                }
+                if Theme.has-background && Theme.animated-background && Theme.animations: Rectangle {
+                    // Léger voile mouvant : animation calculée par Slint, sans vidéo ni GPU dédié.
+                    property <float> phase: 0;
+                    width: parent.width;
+                    height: parent.height;
+                    background: @linear-gradient((90deg + self.phase * 360deg), Theme.accent.with-alpha(0.07) 0%, transparent 55%, Theme.accent.with-alpha(0.05) 100%);
+                    Timer {
+                        interval: 50ms;
+                        running: true;
+                        triggered => { parent.phase = mod(parent.phase + 0.0015, 1.0); }
+                    }
+                }
+                // Pages : sous la barre supérieure, sauf les pages à grande illustration (accueil,
+                // fiche) qui passent dessous. Apparition progressive à chaque changement de page.
+                pages := Rectangle {
+                    y: root.overlay-top ? 0px : 60px;
+                    height: parent.height - self.y;
+                    states [
+                        // Masquage instantané, apparition animée (états Slint : seule la sortie anime).
+                        hidden when root.revealing: {
+                            pages.opacity: 0;
+                            page-slide.y: Theme.motion-distance;
+                            out {
+                                animate pages.opacity { duration: Theme.normal; easing: ease-out; }
+                                animate page-slide.y { duration: Theme.normal; easing: ease-out; }
+                            }
+                        }
+                    ]
+                    page-slide := Rectangle {
+                    // La bibliothèque reste instanciée : position de défilement conservée.
+                    library := LibraryPage {
+                        visible: Nav.page == Page.library;
+                    }
+                    if Nav.page == Page.home: HomePage { }
+                    if Nav.page == Page.game: GamePage { }
+                    if Nav.page == Page.settings: SettingsPage { }
+                    if Nav.page == Page.achievements: AchievementsPage { }
+                    if Nav.page == Page.emulators: EmulatorsPage { }
+                    if Nav.page == Page.minecraft: MinecraftPage { }
+                    if Nav.page == Page.stats: StatsPage { }
+                    if Nav.page == Page.journal: JournalPage { }
+                    if Nav.page == Page.updates: UpdatesPage { }
+                    if Nav.page == Page.saves: SavesPage { }
+                    if Nav.page == Page.appearance: AppearancePage { }
+                    if Nav.page == Page.plugins: PluginsPage { }
+                    if Nav.page == Page.controllers: ControllersPage { }
+                    if Nav.page == Page.remote: RemotePage { }
+                    if Nav.page == Page.assistant: AssistantPage { }
+                    }
+                }
+                TopBar {
+                    width: parent.width;
+                    y: 0px;
+                    transparent-bg: root.overlay-top && !AppUi.top-solid;
+                    narrow: parent.width < 760px;
+                }
+                // Centre de commandes : panneau à droite, sous la barre supérieure.
+                if CommandUi.open: Rectangle {
+                    TouchArea { clicked => { CommandUi.open = false; } }
+                }
+                cc := CommandCenter {
+                    x: CommandUi.open ? parent.width - self.width - 12px : parent.width + 20px;
+                    y: 68px;
+                    height: parent.height - 80px;
+                    border-radius: Theme.radius-lg;
+                    visible: self.x < parent.width;
+                    animate x { duration: Theme.normal; easing: ease-out; }
+                }
+            }
+        }
+    }
+
+    if AppUi.add-dialog-open: AddGameDialog { }
+    if SmartUi.open: SmartDialog { }
+    if QuickUi.open: QuickLaunch { }
+    if AppUi.confirm-open: ConfirmDialog { }
+    if GameMenu.open: GameMenuOverlay { }
+
+    // Notification de succès (coin supérieur droit).
+    Rectangle {
+        x: parent.width - self.width - 24px;
+        y: AppUi.ach-toast-visible ? 24px : -self.height - 20px;
+        width: 380px;
+        height: 84px;
+        border-radius: Theme.radius-lg;
+        background: #1a1f29f5;
+        border-width: 1px;
+        border-color: Theme.accent.with-alpha(0.45);
+        drop-shadow-blur: 30px;
+        drop-shadow-color: #000000a0;
+        animate y { duration: Theme.animations ? 320ms : 0ms; easing: ease-out; }
+        HorizontalLayout {
+            padding: 14px;
+            spacing: 14px;
+            Rectangle {
+                width: 56px;
+                height: 56px;
+                border-radius: 10px;
+                clip: true;
+                background: Theme.accent-soft;
+                if AppUi.ach-toast.has-icon: Image { width: parent.width; height: parent.height; source: AppUi.ach-toast.icon; }
+                if !AppUi.ach-toast.has-icon: Icon { source: Icons.trophy; size: 26px; tint: Theme.accent; }
+            }
+            VerticalLayout {
+                alignment: center;
+                spacing: 2px;
+                Text { text: "Succès débloqué" + (AppUi.ach-toast.has-rarity ? "  ·  " + AppUi.ach-toast.rarity : ""); color: Theme.accent; font-size: Theme.t-overline; font-weight: 700; letter-spacing: 0.6px; }
+                Text { text: AppUi.ach-toast.name; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; }
+                Text { text: AppUi.ach-toast.game; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+            }
+        }
+        Timer {
+            interval: 6s;
+            running: AppUi.ach-toast-visible;
+            triggered => { AppUi.ach-toast-visible = false; }
+        }
+    }
+
+    if BpUi.active: BigPicturePage {
+        width: root.width;
+        height: root.height;
+    }
+
+    toast := Toast {
+        x: (parent.width - self.width) / 2 + 116px;
+        y: AppUi.toast-visible ? parent.height - self.height - 28px : parent.height + 20px;
+        opacity: AppUi.toast-visible ? 1 : 0;
+        animate y, opacity { duration: Theme.animations ? 260ms : 0ms; easing: ease-out; }
+    }
+}
+
+component MiniList inherits VerticalLayout {
+    in property <string> title;
+    in property <[MiniRow]> items;
+    callback launch(int);
+    spacing: 2px;
+    if root.items.length > 0: Text { text: root.title; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; letter-spacing: 0.6px; }
+    for g in root.items: Rectangle {
+        height: 40px;
+        border-radius: Theme.radius-sm;
+        background: mta.has-hover ? Theme.surface-hover : transparent;
+        mta := TouchArea { mouse-cursor: pointer; clicked => { root.launch(g.id); } }
+        HorizontalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            spacing: 10px;
+            Icon { y: 11px; source: Icons.play; size: 16px; tint: g.installed ? Theme.accent : Theme.text-dim; }
+            VerticalLayout {
+                alignment: center;
+                Text { text: g.title; color: Theme.text; font-size: Theme.t-small; font-weight: 600; overflow: elide; }
+                if g.subtitle != "": Text { text: g.subtitle; color: Theme.text-dim; font-size: Theme.t-overline; overflow: elide; }
+            }
+        }
+    }
+}
+
+/// Mode compact : petite fenêtre au premier plan (recherche, favoris, récents).
+export component MiniWindow inherits Window {
+    title: "Halcyon — compact";
+    icon: Icons.logo;
+    always-on-top: root.on-top;
+    width: 340px;
+    height: 520px;
+    background: Theme.bg;
+    default-font-family: "Inter";
+    in property <bool> on-top: true;
+    in-out property <string> query;
+    in property <[MiniRow]> favorites;
+    in property <[MiniRow]> recent;
+    in property <[MiniRow]> results;
+    callback search(string);
+    callback launch(int);
+    callback open-main();
+    callback toggle-on-top();
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 12px;
+        HorizontalLayout {
+            spacing: 6px;
+            TextField {
+                text <=> root.query;
+                placeholder: "Rechercher un jeu…";
+                icon: Icons.search;
+                has-icon: true;
+                edited(t) => { root.search(t); }
+                accepted => { if (root.results.length > 0) { root.launch(root.results[0].id); } }
+            }
+            IconButton { icon: Icons.pin; active: root.on-top; active-tint: Theme.accent; tooltip: "Toujours au premier plan"; clicked => { root.toggle-on-top(); } }
+            IconButton { icon: Icons.library; tooltip: "Fenêtre complète"; clicked => { root.open-main(); } }
+        }
+        Flickable {
+            vertical-stretch: 1;
+            content-height: lists.preferred-height;
+            lists := VerticalLayout {
+                width: parent.width;
+                spacing: 14px;
+                alignment: start;
+                if root.query != "": MiniList { title: "RÉSULTATS"; items: root.results; launch(id) => { root.launch(id); } }
+                if root.query != "" && root.results.length == 0: Text { text: "Aucun jeu trouvé"; color: Theme.text-dim; font-size: Theme.t-caption; }
+                if root.query == "": MiniList { title: "FAVORIS"; items: root.favorites; launch(id) => { root.launch(id); } }
+                if root.query == "": MiniList { title: "RÉCEMMENT JOUÉS"; items: root.recent; launch(id) => { root.launch(id); } }
+                if root.query == "" && root.favorites.length == 0 && root.recent.length == 0: Text {
+                    text: "Vos favoris et jeux récents apparaîtront ici.";
+                    color: Theme.text-dim;
+                    font-size: Theme.t-caption;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}
+
+/// Fenêtre compagnon pendant une partie : temps de session, succès, notes.
+/// Fenêtre séparée au premier plan (aucune injection dans le jeu) : visible en mode
+/// fenêtré sans bordure ou sur un second écran.
+export component CompanionWindow inherits Window {
+    title: "Halcyon — session";
+    icon: Icons.logo;
+    always-on-top: true;
+    width: 300px;
+    height: 340px;
+    background: Theme.bg;
+    default-font-family: "Inter";
+    in property <string> game;
+    in property <string> elapsed;
+    in property <string> achievements;
+    in-out property <string> notes;
+    in property <string> status;
+    callback save-notes(string);
+    callback hide-window();
+    VerticalLayout {
+        padding: 14px;
+        spacing: 10px;
+        HorizontalLayout {
+            Text { text: root.game; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; horizontal-stretch: 1; vertical-alignment: center; }
+            IconButton { size: 30px; icon-size: 15px; icon: Icons.eye-off; tooltip: "Masquer jusqu'à la prochaine partie"; clicked => { root.hide-window(); } }
+        }
+        Text { text: root.elapsed; color: Theme.accent; font-size: Theme.t-title; font-weight: 800; }
+        Text { text: "Session en cours"; color: Theme.text-dim; font-size: Theme.t-overline; }
+        if root.achievements != "": Text { text: root.achievements; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+        Text { text: "Notes"; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }
+        TextArea { vertical-stretch: 1; text <=> root.notes; }
+        HorizontalLayout {
+            spacing: 8px;
+            Text { text: root.status; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; horizontal-stretch: 1; }
+            SecondaryButton { h: 32px; text: "Enregistrer"; clicked => { root.save-notes(root.notes); } }
+        }
+    }
+}

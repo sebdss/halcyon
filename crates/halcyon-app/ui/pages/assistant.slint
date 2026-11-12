@@ -1,0 +1,92 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { AssistUi, Actions } from "../state.slint";
+import { SuggestRow } from "../types.slint";
+import { SectionTitle, PageHeader, SecondaryButton, PrimaryButton, Chip, GameCover, Notice } from "../components.slint";
+
+component SuggestList inherits VerticalLayout {
+    in property <string> title;
+    in property <string> empty;
+    in property <[SuggestRow]> items;
+    spacing: 10px;
+    SectionTitle { text: root.title; }
+    if root.items.length == 0: Text { text: root.empty; color: Theme.text-dim; font-size: Theme.t-small; }
+    if root.items.length > 0: Flickable {
+        height: 112px;
+        content-width: row.preferred-width;
+        row := HorizontalLayout {
+        spacing: 14px;
+        alignment: start;
+        for s in root.items: Rectangle {
+            width: 230px;
+            height: 112px;
+            border-radius: Theme.radius-lg;
+            background: ta.has-hover ? Theme.surface-hover : Theme.surface;
+            ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(s.id); } double-clicked => { Actions.play(s.id); } }
+            HorizontalLayout {
+                padding: 10px;
+                spacing: 12px;
+                GameCover {
+                    width: 61px;
+                    height: 92px;
+                    source: s.card.cover;
+                    has-image: s.card.has-cover;
+                    color-a: s.card.color-a;
+                    color-b: s.card.color-b;
+                    initials: s.card.initials;
+                    title: s.card.title;
+                    show-title: false;
+                    corner: 6px;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 6px;
+                    Text { text: s.card.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; wrap: word-wrap; max-height: 36px; overflow: elide; }
+                    Text { text: s.reason; color: Theme.text-dim; font-size: Theme.t-overline; wrap: word-wrap; }
+                }
+            }
+        }
+    }
+    }
+
+}
+
+export component AssistantPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 24px;
+            alignment: start;
+
+            PageHeader {
+                title: "Que jouer ?";
+                subtitle: "Suggestions calculées sur ce PC à partir de vos données réelles : sessions, temps de jeu, statut, succès et genres préférés. Aucun service distant.";
+                PrimaryButton { y: 6px; text: "Surprends-moi"; icon: Icons.sparkle; has-icon: true; clicked => { AssistUi.surprise(); } }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                Text { text: "J'ai :"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+                for m[i] in [15, 30, 60, 120, 0]: Chip {
+                    text: m == 0 ? "Toute la soirée" : m < 60 ? m + " min" : (m / 60) + " h";
+                    checked: AssistUi.minutes == m;
+                    toggled => { AssistUi.minutes = m; AssistUi.refresh(); }
+                }
+            }
+            if AssistUi.genres != "": Text { text: "Vos genres les plus joués : " + AssistUi.genres; color: Theme.text-dim; font-size: Theme.t-caption; }
+
+            if AssistUi.minutes > 0: SuggestList {
+                title: "Pour " + (AssistUi.minutes < 60 ? AssistUi.minutes + " minutes" : (AssistUi.minutes / 60) + " heure(s)");
+                empty: "Pas assez de sessions suivies pour estimer la durée de vos parties : lancez vos jeux depuis Halcyon pour affiner.";
+                items: AssistUi.for-time;
+            }
+            SuggestList { title: "À reprendre"; empty: "Aucune partie en cours."; items: AssistUi.resume; }
+            SuggestList { title: "Presque terminés"; empty: "Aucun jeu à plus de 70 % de ses succès."; items: AssistUi.almost-done; }
+            SuggestList { title: "À découvrir"; empty: "Vous avez lancé tous vos jeux installés !"; items: AssistUi.discover; }
+            SuggestList { title: "À redécouvrir"; empty: "Aucun jeu longuement joué puis délaissé."; items: AssistUi.rediscover; }
+        }
+    }
+}

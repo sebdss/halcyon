@@ -1,0 +1,572 @@
+// Onglet Minecraft (0.5.0) : jouer, versions, mods, modpacks, loaders, paramètres.
+// Toutes les données viennent du moteur `halcyon-minecraft` (Mojang, Modrinth, CurseForge…).
+
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { McProfileRow, McVersionRow, McModRow, McProjectRow } from "../types.slint";
+import { McUi, AppUi } from "../state.slint";
+import { Panel, PrimaryButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown, Tabs, ProgressBar, Notice, EmptyState, Segmented } from "../components.slint";
+
+component Caption inherits Text {
+    color: Theme.text-muted;
+    font-size: Theme.t-caption;
+    font-weight: 600;
+}
+
+component Hint inherits Text {
+    color: Theme.text-dim;
+    font-size: Theme.t-caption;
+    wrap: word-wrap;
+}
+
+/// Bandeau d'opération en cours (progression réelle) ou d'erreur.
+component TaskBar inherits VerticalLayout {
+    spacing: 10px;
+    if McUi.busy: Panel {
+        VerticalLayout {
+            padding: 16px;
+            spacing: 8px;
+            HorizontalLayout {
+                spacing: 10px;
+                Text { text: McUi.task; color: Theme.text; font-size: Theme.t-body; font-weight: 700; horizontal-stretch: 1; overflow: elide; }
+                Text { text: McUi.progress-text; color: Theme.text-muted; font-size: Theme.t-small; }
+                SecondaryButton { text: "Annuler"; h: 32px; clicked => { McUi.cancel(); } }
+            }
+            ProgressBar { value: McUi.progress; height: 6px; }
+            if McUi.log-line != "": Text { text: McUi.log-line; color: Theme.text-dim; font-size: Theme.t-caption; font-family: "monospace"; overflow: elide; }
+        }
+    }
+    if McUi.error != "": Rectangle {
+        border-radius: Theme.radius;
+        background: Theme.danger.with-alpha(0.10);
+        border-width: 1px;
+        border-color: Theme.danger.with-alpha(0.45);
+        HorizontalLayout {
+            padding: 12px;
+            spacing: 10px;
+            Icon { source: Icons.alert; size: 16px; tint: Theme.danger; y: 2px; }
+            Text { text: McUi.error; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; horizontal-stretch: 1; }
+            IconButton { size: 28px; icon: Icons.close; icon-size: 14px; clicked => { McUi.dismiss(); } }
+        }
+    }
+    if McUi.info != "": Notice { text: McUi.info; }
+}
+
+component ProjectCard inherits Panel {
+    in property <McProjectRow> p;
+    in property <int> index;
+    in property <bool> pack;
+    HorizontalLayout {
+        padding: 14px;
+        spacing: 14px;
+        Rectangle {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            background: Theme.surface-active;
+            clip: true;
+            if root.p.has-icon: Image { source: root.p.icon; width: parent.width; height: parent.height; image-fit: cover; }
+            if !root.p.has-icon: Icon { source: root.pack ? Icons.layers : Icons.puzzle; size: 22px; tint: Theme.text-dim; }
+        }
+        VerticalLayout {
+            spacing: 3px;
+            horizontal-stretch: 1;
+            alignment: center;
+            HorizontalLayout {
+                spacing: 8px;
+                Text { text: root.p.title; color: Theme.text; font-size: Theme.t-body; font-weight: 700; overflow: elide; }
+                Text { text: root.p.author != "" ? "par " + root.p.author : ""; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
+                Rectangle { horizontal-stretch: 1; }
+            }
+            Text { text: root.p.description; color: Theme.text-muted; font-size: Theme.t-small; overflow: elide; }
+            Text { text: root.p.downloads + " téléchargements · " + (root.p.source == 0 ? "Modrinth" : "CurseForge"); color: Theme.text-dim; font-size: Theme.t-caption; }
+        }
+        IconButton { y: (parent.height - self.height) / 2; icon: Icons.external; icon-size: 15px; tooltip: "Page du projet"; clicked => { McUi.open-url(root.p.url); } }
+        if root.p.installed: Badge { y: (parent.height - self.height) / 2; text: "Installé"; tint: Theme.success; }
+        if !root.p.installed: PrimaryButton {
+            y: (parent.height - self.height) / 2;
+            text: "Installer";
+            icon: Icons.download;
+            has-icon: true;
+            h: 36px;
+            enabled: !McUi.busy;
+            clicked => {
+                if (root.pack) { McUi.install-pack(root.index); } else { McUi.install-project(root.index); }
+            }
+        }
+    }
+}
+
+component SourcePicker inherits HorizontalLayout {
+    spacing: 8px;
+    Segmented {
+        items: ["Modrinth", "CurseForge"];
+        selected <=> McUi.source;
+        activated(i) => { McUi.set-int("source", i); }
+    }
+    if McUi.source == 1 && !McUi.curseforge-ready: Text {
+        text: "Clé d'API CurseForge requise (onglet Paramètres)";
+        color: Theme.warm;
+        font-size: Theme.t-caption;
+        vertical-alignment: center;
+    }
+}
+
+component ProfilePicker inherits Dropdown {
+    prefix: "Installation :";
+    options: McUi.profile-labels;
+    selected: McUi.selected-profile;
+    popup-width: 320px;
+    changed(i) => { McUi.select-profile(i); }
+}
+
+// ---------------------------------------------------------------------------------- Jouer
+
+component PlayTab inherits VerticalLayout {
+    spacing: 16px;
+    Panel {
+        VerticalLayout {
+            padding: 22px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 16px;
+                Rectangle {
+                    width: 64px;
+                    height: 64px;
+                    border-radius: 16px;
+                    background: @linear-gradient(140deg, #3f8f3a 0%, #2b6326 60%, #6b4a2b 100%);
+                    Icon { source: Icons.cube; size: 30px; tint: white; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 4px;
+                    horizontal-stretch: 1;
+                    Text {
+                        text: McUi.profiles.length > 0 ? McUi.profiles[McUi.selected-profile].name : "Aucune installation";
+                        color: Theme.text;
+                        font-size: Theme.t-title;
+                        font-weight: 800;
+                        overflow: elide;
+                    }
+                    Text {
+                        text: McUi.profiles.length > 0 ? McUi.profiles[McUi.selected-profile].version + " · " + McUi.profiles[McUi.selected-profile].loader + " · " + McUi.profiles[McUi.selected-profile].detail : "Installez une version, un loader ou un modpack pour commencer.";
+                        color: Theme.text-muted;
+                        font-size: Theme.t-small;
+                        overflow: elide;
+                    }
+                }
+                PrimaryButton {
+                    y: (parent.height - self.height) / 2;
+                    text: McUi.playing ? "En cours…" : "Jouer";
+                    icon: Icons.play;
+                    has-icon: true;
+                    h: 52px;
+                    font-size: 17px;
+                    enabled: McUi.profiles.length > 0 && !McUi.busy && !McUi.playing;
+                    clicked => { McUi.play(); }
+                }
+            }
+            if McUi.play-status != "": Text { text: McUi.play-status; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+            HorizontalLayout {
+                spacing: 10px;
+                if McUi.profiles.length > 0: ProfilePicker { }
+                Rectangle { horizontal-stretch: 1; }
+                if McUi.profiles.length > 0: SecondaryButton { text: "Dossier"; icon: Icons.folder; has-icon: true; h: 36px; clicked => { McUi.open-folder("game"); } }
+                if McUi.profiles.length > 0: SecondaryButton { text: "Mods"; icon: Icons.puzzle; has-icon: true; h: 36px; clicked => { McUi.set-tab(2); } }
+            }
+            if McUi.worlds != "": Text { text: "Mondes : " + McUi.worlds; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+        }
+    }
+
+    SectionTitle { text: "Compte"; }
+    Panel {
+        VerticalLayout {
+            padding: 18px;
+            spacing: 12px;
+            if McUi.play-mode == 0: VerticalLayout {
+                spacing: 10px;
+                HorizontalLayout {
+                    spacing: 12px;
+                    Icon { source: Icons.user; size: 20px; tint: McUi.official-account != "" ? Theme.success : Theme.text-dim; y: 2px; }
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: 2px;
+                        Text {
+                            text: !McUi.official-found ? "Launcher officiel de Minecraft introuvable" : McUi.official-account != "" ? "Connecté au launcher officiel : " + McUi.official-account : "Launcher officiel installé, aucun compte connecté";
+                            color: Theme.text;
+                            font-size: Theme.t-body;
+                            font-weight: 700;
+                            wrap: word-wrap;
+                        }
+                        Hint { text: "Mode « launcher officiel » : Halcyon prépare la version, le loader, les mods et le dossier de jeu, puis ajoute l'installation au launcher officiel. La connexion et le lancement sont faits par lui ; Halcyon ne lit aucun jeton."; }
+                    }
+                    if McUi.official-found: SecondaryButton { y: (parent.height - self.height) / 2; text: "Ouvrir le launcher"; icon: Icons.external; has-icon: true; h: 36px; clicked => { McUi.open-official(); } }
+                }
+                if McUi.official-found && !McUi.official-consent: Rectangle {
+                    border-radius: Theme.radius;
+                    background: Theme.warm.with-alpha(0.10);
+                    border-width: 1px;
+                    border-color: Theme.warm.with-alpha(0.4);
+                    HorizontalLayout {
+                        padding: 12px;
+                        spacing: 12px;
+                        Text {
+                            text: "Autoriser Halcyon à ajouter ses installations (profils « Halcyon · … ») au launcher officiel ? Une copie de launcher_profiles.json est faite avant la première modification ; vos autres profils ne sont pas touchés.";
+                            color: Theme.text;
+                            font-size: Theme.t-small;
+                            wrap: word-wrap;
+                            horizontal-stretch: 1;
+                        }
+                        PrimaryButton { y: (parent.height - self.height) / 2; text: "Autoriser"; h: 36px; clicked => { McUi.consent(true); } }
+                    }
+                }
+            }
+            if McUi.play-mode == 1: HorizontalLayout {
+                spacing: 12px;
+                Icon { source: Icons.user; size: 20px; tint: McUi.account-name != "" ? Theme.success : Theme.text-dim; y: 2px; }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 2px;
+                    Text { text: McUi.account-name != "" ? "Compte Microsoft : " + McUi.account-name : "Aucun compte connecté"; color: Theme.text; font-size: Theme.t-body; font-weight: 700; }
+                    Hint { text: McUi.client-id-set ? "Connexion officielle de Microsoft : vous saisissez un code sur microsoft.com, Halcyon ne voit jamais votre mot de passe." : "La connexion directe demande un identifiant d'application Azure autorisé par Mojang (Paramètres)."; }
+                }
+                if McUi.account-name == "" && !McUi.logging-in: PrimaryButton { y: (parent.height - self.height) / 2; text: "Se connecter"; enabled: McUi.client-id-set && !McUi.busy; h: 36px; clicked => { McUi.login(); } }
+                if McUi.account-name != "": SecondaryButton { y: (parent.height - self.height) / 2; text: "Se déconnecter"; h: 36px; clicked => { McUi.logout(); } }
+            }
+            if McUi.logging-in: Rectangle {
+                border-radius: Theme.radius-lg;
+                background: Theme.accent-soft;
+                HorizontalLayout {
+                    padding: 16px;
+                    spacing: 16px;
+                    VerticalLayout {
+                        spacing: 4px;
+                        horizontal-stretch: 1;
+                        Text { text: "Ouvrez " + McUi.login-url + " et saisissez ce code :"; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; }
+                        Text { text: McUi.login-code; color: Theme.text; font-size: 28px; font-weight: 800; letter-spacing: 3px; font-family: "monospace"; }
+                    }
+                    SecondaryButton { y: (parent.height - self.height) / 2; text: "Ouvrir la page"; h: 36px; clicked => { McUi.open-url(McUi.login-url); } }
+                    SecondaryButton { y: (parent.height - self.height) / 2; text: "Annuler"; h: 36px; clicked => { McUi.cancel(); } }
+                }
+            }
+        }
+    }
+
+    SectionTitle { text: "Installations"; }
+    if McUi.profiles.length == 0: EmptyState {
+        icon: Icons.cube;
+        title: "Aucune installation";
+        text: "Installez une version (Versions), un mod loader (Loaders) ou un modpack (Modpacks). Chaque installation a son propre dossier : mods, mondes et réglages ne se mélangent pas.";
+        action: "Choisir une version";
+        action-clicked => { McUi.set-tab(1); }
+    }
+    for p[i] in McUi.profiles: Rectangle {
+        height: 56px;
+        border-radius: Theme.radius;
+        background: i == McUi.selected-profile ? Theme.accent-soft : pta.has-hover ? Theme.surface-hover : Theme.surface;
+        border-width: i == McUi.selected-profile ? 1px : 0px;
+        border-color: Theme.accent.with-alpha(0.5);
+        HorizontalLayout {
+            padding-left: 16px;
+            padding-right: 16px;
+            spacing: 12px;
+            Icon { source: p.modpack ? Icons.layers : Icons.cube; size: 18px; tint: Theme.text-muted; y: (parent.height - self.height) / 2; }
+            Text { text: p.name; color: Theme.text; font-size: Theme.t-body; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+            Text { text: p.version + " · " + p.loader; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+            Text { text: p.detail; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
+        }
+        pta := TouchArea { clicked => { McUi.select-profile(i); } }
+    }
+    if McUi.profiles.length > 0: HorizontalLayout {
+        alignment: end;
+        SecondaryButton { text: "Supprimer l'installation sélectionnée"; icon: Icons.trash; has-icon: true; danger: true; h: 34px; enabled: !McUi.busy && !McUi.playing; clicked => { McUi.delete-profile(); } }
+    }
+}
+
+// ------------------------------------------------------------------------------- Versions
+
+component VersionsTab inherits VerticalLayout {
+    spacing: 14px;
+    HorizontalLayout {
+        spacing: 10px;
+        TextField { text <=> McUi.version-filter; placeholder: "Filtrer (ex. 1.20)"; edited => { McUi.filter-versions(); } }
+        HorizontalLayout {
+            spacing: 6px;
+            Toggle { y: (parent.height - self.height) / 2; checked <=> McUi.show-snapshots; toggled(v) => { McUi.set-bool("show_snapshots", v); } }
+            Text { text: "Snapshots"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+        }
+        HorizontalLayout {
+            spacing: 6px;
+            Toggle { y: (parent.height - self.height) / 2; checked <=> McUi.show-old; toggled(v) => { McUi.set-bool("show_old", v); } }
+            Text { text: "Anciennes (alpha, bêta)"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+        }
+        SecondaryButton { text: "Actualiser"; icon: Icons.refresh; has-icon: true; h: 38px; clicked => { McUi.refresh(); } }
+    }
+    Hint { text: McUi.latest; }
+    for v in McUi.versions: Rectangle {
+        height: 48px;
+        border-radius: Theme.radius;
+        background: vta.has-hover ? Theme.surface-hover : Theme.surface;
+        vta := TouchArea { }
+        HorizontalLayout {
+            padding-left: 16px;
+            padding-right: 10px;
+            spacing: 12px;
+            Text { text: v.id; color: Theme.text; font-size: Theme.t-body; font-weight: 700; vertical-alignment: center; width: 200px; overflow: elide; }
+            Badge { y: (parent.height - self.height) / 2; text: v.kind; tint: v.kind == "Release" ? Theme.accent : Theme.warm; }
+            Text { text: v.date; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; horizontal-stretch: 1; }
+            if v.installed: Badge { y: (parent.height - self.height) / 2; text: "Installée"; tint: Theme.success; }
+            if v.installed: IconButton { y: (parent.height - self.height) / 2; icon: Icons.shield; icon-size: 15px; tooltip: "Vérifier les fichiers"; enabled: !McUi.busy; clicked => { McUi.verify-version(v.id); } }
+            if v.installed: IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; icon-size: 15px; active-tint: Theme.danger; tooltip: "Supprimer la version"; enabled: !McUi.busy; clicked => { McUi.remove-version(v.id); } }
+            SecondaryButton {
+                y: (parent.height - self.height) / 2;
+                text: v.installed ? "Réparer" : "Installer";
+                icon: Icons.download;
+                has-icon: true;
+                h: 34px;
+                enabled: !McUi.busy;
+                clicked => { McUi.install-version(v.id); }
+            }
+        }
+    }
+    if McUi.versions.length == 0: Hint { text: "Aucune version : vérifiez la connexion, puis « Actualiser »."; }
+}
+
+// ------------------------------------------------------------------------------------ Mods
+
+component ModsTab inherits VerticalLayout {
+    property <string> query;
+    spacing: 14px;
+    if McUi.profiles.length == 0: EmptyState {
+        icon: Icons.puzzle;
+        title: "Aucune installation avec mod loader";
+        text: "Les mods s'installent dans une installation Fabric, Quilt, Forge ou NeoForge (onglet Loaders).";
+        action: "Installer un loader";
+        action-clicked => { McUi.set-tab(4); }
+    }
+    if McUi.profiles.length > 0: VerticalLayout {
+        spacing: 14px;
+        HorizontalLayout {
+            spacing: 10px;
+            ProfilePicker { }
+            Rectangle { horizontal-stretch: 1; }
+            if McUi.updates > 0: PrimaryButton { text: "Mettre à jour " + McUi.updates + " mod(s)"; icon: Icons.refresh; has-icon: true; h: 36px; enabled: !McUi.busy; clicked => { McUi.update-mods(); } }
+            SecondaryButton { text: "Dossier des mods"; icon: Icons.folder; has-icon: true; h: 36px; clicked => { McUi.open-folder("mods"); } }
+        }
+        SectionTitle { text: "Mods installés (" + McUi.mods.length + ")"; }
+        if McUi.mods.length == 0: Hint { text: "Aucun mod dans cette installation."; }
+        for m in McUi.mods: Rectangle {
+            height: 50px;
+            border-radius: Theme.radius;
+            background: Theme.surface;
+            HorizontalLayout {
+                padding-left: 14px;
+                padding-right: 10px;
+                spacing: 12px;
+                Toggle { y: (parent.height - self.height) / 2; checked: m.enabled; toggled(v) => { McUi.mod-toggle(m.file, v); } }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    Text { text: m.name; color: m.enabled ? Theme.text : Theme.text-dim; font-size: Theme.t-small; font-weight: 700; overflow: elide; }
+                    Text { text: m.file + (m.version != "" ? " · " + m.version : ""); color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                }
+                if m.dependency: Badge { y: (parent.height - self.height) / 2; text: "Dépendance"; }
+                if m.update != "": Badge { y: (parent.height - self.height) / 2; text: "Mise à jour : " + m.update; tint: Theme.accent; }
+                Badge { y: (parent.height - self.height) / 2; text: m.source; }
+                IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; icon-size: 15px; active-tint: Theme.danger; tooltip: "Supprimer"; enabled: !McUi.busy; clicked => { McUi.mod-remove(m.file); } }
+            }
+        }
+        SectionTitle { text: "Ajouter des mods"; }
+        HorizontalLayout {
+            spacing: 10px;
+            SourcePicker { }
+            TextField {
+                text <=> root.query;
+                placeholder: "Rechercher un mod compatible (ex. sodium, jei)";
+                has-icon: true;
+                icon: Icons.search;
+                accepted(t) => { McUi.search(t); }
+            }
+            SecondaryButton { text: "Rechercher"; h: 38px; clicked => { McUi.search(root.query); } }
+        }
+        Hint { text: McUi.results-info; }
+        for r[i] in McUi.results: ProjectCard { p: r; index: i; }
+    }
+}
+
+// -------------------------------------------------------------------------------- Modpacks
+
+component PacksTab inherits VerticalLayout {
+    property <string> query;
+    spacing: 14px;
+    HorizontalLayout {
+        spacing: 10px;
+        SourcePicker { }
+        TextField { text <=> root.query; placeholder: "Rechercher un modpack"; has-icon: true; icon: Icons.search; accepted(t) => { McUi.search-packs(t); } }
+        SecondaryButton { text: "Rechercher"; h: 38px; clicked => { McUi.search-packs(root.query); } }
+    }
+    HorizontalLayout {
+        spacing: 10px;
+        if AppUi.can-browse: SecondaryButton { text: "Importer un fichier (.mrpack, .zip CurseForge)"; icon: Icons.upload; has-icon: true; h: 36px; enabled: !McUi.busy; clicked => { McUi.import-pack(); } }
+        if McUi.profiles.length > 0: SecondaryButton { text: "Exporter l'installation sélectionnée (.mrpack)"; icon: Icons.download; has-icon: true; h: 36px; enabled: !McUi.busy; clicked => { McUi.export-pack(); } }
+        if McUi.profiles.length > 0 && McUi.profiles[McUi.selected-profile].modpack: SecondaryButton { text: "Mettre à jour le modpack"; icon: Icons.refresh; has-icon: true; h: 36px; enabled: !McUi.busy; clicked => { McUi.update-pack(); } }
+    }
+    Hint { text: "Les modpacks sont installés tels que leurs auteurs les publient. Les mondes et réglages sont conservés lors d'une mise à jour. " + McUi.packs-info; }
+    for r[i] in McUi.packs: ProjectCard { p: r; index: i; pack: true; }
+}
+
+// --------------------------------------------------------------------------------- Loaders
+
+component LoadersTab inherits VerticalLayout {
+    spacing: 14px;
+    Panel {
+        VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            Caption { text: "Mod loader"; }
+            Segmented {
+                items: ["Fabric", "Quilt", "Forge", "NeoForge"];
+                selected <=> McUi.loader-kind;
+                activated => { McUi.loader-changed(); }
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                Dropdown { prefix: "Minecraft :"; options: McUi.mc-releases; selected <=> McUi.loader-mc; popup-width: 200px; changed => { McUi.loader-changed(); } }
+                Dropdown { prefix: "Version :"; options: McUi.loader-versions; selected <=> McUi.loader-version; popup-width: 260px; }
+                Rectangle { horizontal-stretch: 1; }
+                PrimaryButton {
+                    text: "Installer";
+                    icon: Icons.download;
+                    has-icon: true;
+                    enabled: !McUi.busy && McUi.loader-versions.length > 0;
+                    clicked => { McUi.install-loader(); }
+                }
+            }
+            Hint { text: McUi.loader-info; }
+            Hint { text: "Fabric et Quilt : profils officiels de leurs serveurs. Forge et NeoForge : l'installateur officiel, vérifié par son empreinte, est exécuté avec Java en mode client. Une installation séparée est créée pour chaque version de Minecraft et chaque loader."; }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------ Paramètres
+
+component SettingField inherits VerticalLayout {
+    in property <string> label;
+    in property <string> key;
+    in property <string> value;
+    in property <string> placeholder;
+    in property <string> hint;
+    in property <bool> mono;
+    property <string> edit: value;
+    spacing: 6px;
+    Caption { text: root.label; }
+    HorizontalLayout {
+        spacing: 8px;
+        TextField { text <=> root.edit; placeholder: root.placeholder; mono: root.mono; accepted(t) => { McUi.set-text(root.key, t); } }
+        SecondaryButton { text: "Enregistrer"; h: 38px; clicked => { McUi.set-text(root.key, root.edit); } }
+    }
+    if root.hint != "": Hint { text: root.hint; }
+}
+
+component SettingsTab inherits VerticalLayout {
+    spacing: 14px;
+    Panel {
+        VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            Caption { text: "Lancement et connexion"; }
+            Segmented {
+                items: ["Par le launcher officiel", "Directement par Halcyon (compte Microsoft)"];
+                selected: McUi.play-mode;
+                activated(i) => { McUi.set-int("play_mode", i); }
+            }
+            Hint { text: "Le mode direct demande un identifiant d'application Azure à votre nom, autorisé par Mojang (aka.ms/mce-reviewappid). Sans lui, le launcher officiel se charge de la connexion."; }
+            SettingField { label: "Identifiant d'application Azure (client)"; key: "client_id"; value: McUi.client-id; placeholder: "00000000-0000-0000-0000-000000000000"; mono: true; }
+        }
+    }
+    Panel {
+        VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            Caption { text: "Mémoire (Mo) · " + McUi.ram-total + " Mo installés"; }
+            HorizontalLayout {
+                spacing: 10px;
+                SettingField { label: "Minimum"; key: "ram_min"; value: McUi.ram-min; mono: true; }
+                SettingField { label: "Maximum"; key: "ram_max"; value: McUi.ram-max; mono: true; }
+            }
+            Hint { text: "4 096 Mo conviennent à la plupart des installations ; les gros modpacks demandent 6 à 8 Go. Ne dépassez pas la moitié de la mémoire de l'ordinateur."; }
+        }
+    }
+    Panel {
+        VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            Caption { text: "Java"; }
+            Text { text: McUi.java-path == "" ? "Automatique : Java officiel de Mojang adapté à chaque version (téléchargé au besoin)." : "Java choisi : " + McUi.java-path; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; }
+            for j in McUi.java-list: Text { text: j; color: Theme.text-dim; font-size: Theme.t-caption; font-family: "monospace"; overflow: elide; }
+            SettingField { label: "Exécutable Java (vide : automatique)"; key: "java_path"; value: McUi.java-path; mono: true; placeholder: "Chemin de java ou javaw"; }
+            SettingField { label: "Arguments JVM supplémentaires"; key: "jvm_args"; value: McUi.jvm-args; mono: true; placeholder: "Ex. -XX:+UseG1GC"; }
+        }
+    }
+    Panel {
+        VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            Caption { text: "Fenêtre du jeu"; }
+            HorizontalLayout {
+                spacing: 10px;
+                SettingField { label: "Largeur (vide : par défaut)"; key: "width"; value: McUi.width; mono: true; }
+                SettingField { label: "Hauteur"; key: "height"; value: McUi.height; mono: true; }
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                Text { text: "Plein écran"; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
+                Toggle { checked: McUi.fullscreen; toggled(v) => { McUi.set-bool("fullscreen", v); } }
+            }
+        }
+    }
+    Panel {
+        VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            Caption { text: "CurseForge et stockage"; }
+            SettingField { label: "Clé d'API CurseForge (facultative)"; key: "curseforge_key"; value: McUi.curseforge-key; mono: true; hint: "console.curseforge.com › clé d'API. Sans elle, mods et modpacks viennent de Modrinth."; }
+            Text { text: "Dossier de Minecraft dans Halcyon : " + McUi.root-dir; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+            HorizontalLayout {
+                alignment: start;
+                SecondaryButton { text: "Ouvrir le dossier"; icon: Icons.folder; has-icon: true; h: 34px; clicked => { McUi.open-folder("root"); } }
+            }
+            Hint { text: "Le .minecraft du launcher officiel n'est jamais modifié, sauf l'ajout des profils Halcyon si vous l'autorisez (mode launcher officiel)."; }
+        }
+    }
+}
+
+export component MinecraftPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 18px;
+            alignment: start;
+            HorizontalLayout {
+                spacing: 14px;
+                Text { text: "Minecraft"; color: Theme.text; font-size: Theme.t-title; font-weight: 800; letter-spacing: -0.4px; }
+                Text { text: "Java Edition"; color: Theme.text-dim; font-size: Theme.t-body + 1px; vertical-alignment: bottom; horizontal-stretch: 1; }
+            }
+            Tabs {
+                items: ["Jouer", "Versions", "Mods", "Modpacks", "Loaders", "Paramètres"];
+                selected: McUi.tab;
+                activated(i) => { McUi.set-tab(i); }
+            }
+            TaskBar { }
+            if McUi.tab == 0: PlayTab { }
+            if McUi.tab == 1: VersionsTab { }
+            if McUi.tab == 2: ModsTab { }
+            if McUi.tab == 3: PacksTab { }
+            if McUi.tab == 4: LoadersTab { }
+            if McUi.tab == 5: SettingsTab { }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+// Point d'entrée unique des sons déclenchés par l'interface (menus, panneaux, survol,
+// réglages). La lecture est faite par le moteur audio en Rust (`halcyon-audio`) : aucun
+// composant ne lit de son lui-même. Identifiants : voir `halcyon_audio::Cue`.
+export global Sound {
+    callback play(string);
+}

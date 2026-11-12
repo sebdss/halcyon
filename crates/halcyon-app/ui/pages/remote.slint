@@ -1,0 +1,126 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { RemoteUi } from "../state.slint";
+import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Badge, Notice, IconButton, Icon } from "../components.slint";
+
+component ToolCard inherits Rectangle {
+    background: Theme.surface;
+    border-radius: Theme.radius-lg;
+    border-width: 1px;
+    border-color: Theme.border;
+    in property <string> title;
+    in property <string> description;
+    in property <bool> found;
+    in property <string> via;
+    horizontal-stretch: 1;
+    VerticalLayout {
+        padding: 20px;
+        spacing: 8px;
+        HorizontalLayout {
+            spacing: 8px;
+            Text { text: root.title; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; }
+            Badge { text: root.found ? "DÉTECTÉ" : "ABSENT"; tint: root.found ? Theme.success : Theme.text-muted; solid: root.found; }
+            Rectangle { horizontal-stretch: 1; }
+        }
+        Text { text: root.found ? root.via : root.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+        @children
+    }
+}
+
+export component RemotePage inherits Rectangle {
+    in-out property <string> host-name;
+    in-out property <string> host-address;
+    in-out property <string> ml-path;
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 18px;
+            alignment: start;
+
+            PageHeader {
+                title: "Jeu à distance";
+                subtitle: "Diffusez vos jeux vers un autre appareil avec Sunshine (sur la machine qui exécute le jeu) et Moonlight (sur l'appareil qui affiche).";
+                SecondaryButton { y: 6px; text: RemoteUi.busy ? "Vérification…" : "Actualiser"; icon: Icons.refresh; has-icon: true; clicked => { RemoteUi.refresh(); } }
+            }
+
+            HorizontalLayout {
+                spacing: 18px;
+                ToolCard {
+                    title: "Sunshine (serveur)";
+                    description: "Non détecté sur ce PC. Installez Sunshine (LizardByte) pour diffuser les jeux de cette machine.";
+                    found: RemoteUi.sunshine;
+                    via: RemoteUi.sunshine-via + (RemoteUi.sunshine-running ? " · en cours d'exécution" : " · arrêté");
+                    if RemoteUi.sunshine: HorizontalLayout {
+                        alignment: start;
+                        SecondaryButton { h: 34px; text: "Ouvrir la configuration"; clicked => { RemoteUi.open-sunshine(); } }
+                    }
+                    if RemoteUi.apps-file != "": Text { text: "Jeux publiés : " + RemoteUi.apps-file + " — publiez un jeu depuis sa fiche."; color: Theme.text-dim; font-size: Theme.t-overline; wrap: word-wrap; }
+                }
+                ToolCard {
+                    title: "Moonlight (client)";
+                    description: "Non détecté. Installez Moonlight, ou indiquez son exécutable ci-dessous.";
+                    found: RemoteUi.moonlight;
+                    via: RemoteUi.moonlight-via;
+                    HorizontalLayout {
+                        spacing: 8px;
+                        TextField { text <=> root.ml-path; mono: true; placeholder: "Chemin de Moonlight (facultatif)"; }
+                        SecondaryButton { h: 38px; text: "Utiliser"; clicked => { RemoteUi.set-moonlight-path(root.ml-path); } }
+                    }
+                }
+            }
+
+            SectionTitle { text: "Machines"; }
+            for h[i] in RemoteUi.hosts: Rectangle {
+                height: 58px;
+                border-radius: Theme.radius;
+                background: RemoteUi.selected-host == i ? Theme.surface-active : Theme.surface;
+                TouchArea { mouse-cursor: pointer; clicked => { RemoteUi.select-host(i); } }
+                HorizontalLayout {
+                    padding-left: 16px;
+                    padding-right: 8px;
+                    spacing: 10px;
+                    Icon { source: Icons.monitor; size: 20px; tint: h.online ? Theme.success : Theme.text-dim; y: (parent.height - self.height) / 2; }
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 1;
+                        Text { text: h.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                        Text { text: h.address + (h.online ? " · disponible" : " · injoignable"); color: Theme.text-dim; font-size: Theme.t-caption; }
+                    }
+                    SecondaryButton { y: (parent.height - self.height) / 2; h: 34px; text: "Appairer"; enabled: RemoteUi.moonlight; clicked => { RemoteUi.pair(i); } }
+                    SecondaryButton { y: (parent.height - self.height) / 2; h: 34px; text: "Jeux"; enabled: RemoteUi.moonlight; clicked => { RemoteUi.select-host(i); } }
+                    SecondaryButton { y: (parent.height - self.height) / 2; h: 34px; text: "Arrêter la session"; enabled: RemoteUi.moonlight; clicked => { RemoteUi.quit(i); } }
+                    IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Retirer"; clicked => { RemoteUi.remove-host(i); } }
+                }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                TextField { width: 220px; text <=> root.host-name; placeholder: "Nom (ex. PC du salon)"; }
+                TextField { text <=> root.host-address; mono: true; placeholder: "Adresse IP ou nom réseau"; }
+                SecondaryButton { h: 38px; text: "Ajouter"; icon: Icons.plus; has-icon: true; enabled: root.host-address != ""; clicked => { RemoteUi.add-host(root.host-name, root.host-address); root.host-name = ""; root.host-address = ""; } }
+            }
+
+            if RemoteUi.selected-host >= 0: SectionTitle { text: "Jeux disponibles sur " + RemoteUi.hosts[RemoteUi.selected-host].name; }
+            if RemoteUi.selected-host >= 0 && RemoteUi.apps.length == 0: Text {
+                text: RemoteUi.busy ? "Chargement…" : "Aucun jeu listé : vérifiez que la machine est appairée et que Sunshine est lancé.";
+                color: Theme.text-dim;
+                font-size: Theme.t-small;
+            }
+            for a in RemoteUi.apps: Rectangle {
+                height: 48px;
+                border-radius: Theme.radius;
+                background: Theme.surface;
+                HorizontalLayout {
+                    padding-left: 16px;
+                    padding-right: 8px;
+                    Text { text: a; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
+                    PrimaryButton { y: (parent.height - self.height) / 2; h: 34px; text: "Diffuser"; icon: Icons.play; has-icon: true; clicked => { RemoteUi.stream(RemoteUi.selected-host, a); } }
+                }
+            }
+            if RemoteUi.status != "": Text { text: RemoteUi.status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+            Notice { text: "L'appairage affiche un code PIN dans Moonlight : saisissez-le dans l'interface web de Sunshine sur la machine distante. La diffusion utilise le protocole éprouvé de Sunshine/Moonlight ; Halcyon ne fait que les piloter."; }
+        }
+    }
+}
