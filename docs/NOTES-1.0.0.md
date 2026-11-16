@@ -11,6 +11,12 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
 
 ## Ce qui change pour vous
 
+### Nouvelle apparence « Alcyon »
+- Halcyon change de visage : bleu d'eau profonde, accent cobalt, orange pour ce qui est en
+  cours, et une « ligne d'horizon » qui montre où vous êtes. Plus de capitales partout,
+  titres plus lisibles, contrastes vérifiés. L'ancienne apparence reste disponible
+  (Apparence › Thème › « Nocturne (0.5) »).
+
 ### Performance Center (nouveau)
 - Nouvelle entrée **Performances** dans le menu (et dans le lancement rapide, Ctrl+K).
 - Processeur, mémoire, carte(s) graphique(s), stockage en direct, mesurés uniquement
@@ -59,7 +65,8 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
 
 ## Ce qui n'est pas fait
 
-- Refonte visuelle des écrans existants (les nouveaux écrans suivent le design system).
+- Retouches écran par écran au-delà du socle commun (la refonte passe par les jetons, les
+  composants et le menu, partagés par toutes les pages, Big Picture et l'installateur compris).
 - Validation sur un vrai PC Windows et sous Linux avec réseau (voir
   [`TESTS-1.0.0.md`](TESTS-1.0.0.md)).
 - Succès GOG : pas d'API publique sans connexion au compte (succès personnalisés seulement).

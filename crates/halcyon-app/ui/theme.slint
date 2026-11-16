@@ -1,4 +1,7 @@
-// Design system « Nocturne » de Halcyon 0.4 — voir docs/DESIGN-SYSTEM.md.
+// Design system « Alcyon » de Halcyon 1.0 (successeur de « Nocturne », 0.4) — voir
+// docs/DESIGN-SYSTEM.md. Halcyon est le martin-pêcheur ; les « jours alcyoniens » sont la mer
+// calme d'hiver : fonds bleu d'eau profonde, accent cobalt (plumes), orange (poitrail) réservé
+// à ce qui est vivant, et une seule signature, la ligne d'horizon cobalt → orange.
 //
 // Toutes les valeurs visuelles passent par ce fichier : couleurs (modifiables depuis Rust
 // pour les thèmes et l'accent), échelle typographique, espacements, rayons, élévations et
@@ -7,43 +10,46 @@
 export global Theme {
     // ---------------------------------------------------------------- couleurs
     // Couches : bg (fond) < sidebar < surface (cartes) < surface-hover < surface-active.
-    in-out property <color> bg: #0a0c10;
-    in-out property <color> sidebar: #0d1015;
-    in-out property <color> surface: #13171f;
-    in-out property <color> surface-hover: #1a1f29;
-    in-out property <color> surface-active: #222835;
-    in-out property <color> border: #ffffff12;
-    in-out property <color> border-strong: #ffffff22;
+    in-out property <color> bg: #0c1726;
+    in-out property <color> sidebar: #091220;
+    in-out property <color> surface: #13223a;
+    in-out property <color> surface-hover: #1a2d4a;
+    in-out property <color> surface-active: #22395c;
+    in-out property <color> border: #9cc3ff12;
+    in-out property <color> border-strong: #9cc3ff26;
     /// Verre : panneaux posés sur une illustration (opacité modérée, sans flou coûteux).
     out property <color> glass: self.bg.with-alpha(0.72);
     out property <color> glass-strong: self.bg.with-alpha(0.88);
     /// Voile pour le texte sur une image.
     out property <color> scrim: #000000a6;
 
-    in-out property <color> text: #eceff4;
-    in-out property <color> text-muted: #9aa3b3;
-    in-out property <color> text-dim: #5f6777;
+    in-out property <color> text: #e9f0f8;
+    in-out property <color> text-muted: #9fb3cc;
+    in-out property <color> text-dim: #7b93b3;
 
-    in-out property <color> accent: #2fd4c5;
+    in-out property <color> accent: #32b4ff;
     out property <color> accent-hover: self.accent.brighter(0.15);
     out property <color> accent-pressed: self.accent.darker(0.15);
-    in-out property <color> on-accent: #03201d;
+    in-out property <color> on-accent: #04203a;
     out property <color> accent-soft: self.accent.with-alpha(0.12);
     out property <color> accent-glow: self.accent.with-alpha(0.35);
+    /// Ligne d'horizon : la signature visuelle (sélection active, progression).
+    out property <brush> horizon: @linear-gradient(90deg, self.accent 0%, self.warm 100%);
+    out property <brush> horizon-v: @linear-gradient(180deg, self.accent 0%, self.warm 100%);
     /// Anneau de focus (clavier, manette) : toujours visible, jamais seul indicateur d'état.
     out property <color> focus: self.accent;
 
-    in-out property <color> warm: #ff9f5a;
-    in-out property <color> danger: #ff6b6b;
-    in-out property <color> success: #5ad48a;
+    in-out property <color> warm: #ff8b3d;
+    in-out property <color> danger: #ff6b78;
+    in-out property <color> success: #4fd6a0;
     /// Fond du mode Big Picture.
-    in-out property <color> bp-bg: #05070a;
+    in-out property <color> bp-bg: #070f1b;
 
     // ---------------------------------------------------------------- forme
     out property <length> radius-sm: 6px;
     out property <length> radius: 10px;
-    out property <length> radius-lg: 14px;
-    out property <length> radius-xl: 22px;
+    out property <length> radius-lg: 18px;
+    out property <length> radius-xl: 26px;
     out property <length> focus-width: 2px;
 
     // ---------------------------------------------------------------- espacements (grille de 4 px)
@@ -63,8 +69,8 @@ export global Theme {
     // ---------------------------------------------------------------- typographie (Inter)
     /// Facteur de taille du texte (accessibilité) : 0,9 à 1,3.
     in-out property <float> text-scale: 1.0;
-    out property <length> t-display: 44px * self.text-scale;
-    out property <length> t-title: 30px * self.text-scale;
+    out property <length> t-display: 48px * self.text-scale;
+    out property <length> t-title: 34px * self.text-scale;
     out property <length> t-heading: 20px * self.text-scale;
     out property <length> t-subheading: 16px * self.text-scale;
     out property <length> t-body: 14px * self.text-scale;

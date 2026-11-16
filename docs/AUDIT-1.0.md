@@ -83,7 +83,7 @@ Minecraft vérifiés SHA-1, chemins de modpack contrôlés.
 | 3 | Performance Center : monitoring, applications, recommandations réversibles, historique par partie, FPS par journaux | ✅ |
 | 4 | Downloads unifié (file, pause/reprise, débit, reprise après coupure) | ✅ |
 | 5 | GOG (Heroic, GOG Galaxy), export des statistiques, vérification et signature des extensions, actualités des jeux, profils d'interface | ✅ |
-| 6 | Refonte visuelle complète écran par écran | partielle : nouveaux écrans dans le design system ; refonte des écrans existants non faite |
+| 6 | Refonte visuelle « Alcyon » (palette, signature, typographie, formes, composants, menu, logo) appliquée à toutes les pages, Big Picture et installateur | ✅ |
 | 7 | Validation Windows sur machine réelle | à faire (par Sebi) |
 
 ## 5. Risques

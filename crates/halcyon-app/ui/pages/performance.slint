@@ -57,13 +57,13 @@ export component PerformancePage inherits Rectangle {
             PageHeader {
                 title: "Performances";
                 subtitle: "Processeur, mémoire, carte graphique et stockage de ce PC, mesurés pendant que cette page est ouverte. Halcyon ne ferme aucun programme et ne modifie aucun réglage du système.";
-                Badge { y: 10px; text: PerfUi.sampling ? "MESURE EN DIRECT" : "EN PAUSE"; tint: PerfUi.sampling ? Theme.success : Theme.text-muted; solid: PerfUi.sampling; }
+                Badge { y: 10px; text: PerfUi.sampling ? "Mesure en direct" : "En pause"; tint: PerfUi.sampling ? Theme.success : Theme.text-muted; solid: PerfUi.sampling; }
             }
 
             HorizontalLayout {
                 spacing: 18px;
                 MeasureCard {
-                    title: "PROCESSEUR";
+                    title: "Processeur";
                     value: PerfUi.cpu-text;
                     caption: PerfUi.cpu-name;
                     Curve { values: PerfUi.cpu-curve; }
@@ -85,13 +85,13 @@ export component PerformancePage inherits Rectangle {
                     }
                 }
                 MeasureCard {
-                    title: "MÉMOIRE";
+                    title: "Mémoire";
                     value: Math.round(PerfUi.ram * 100) + " %";
                     MeterRow { label: "Utilisée"; value: PerfUi.ram-text; ratio: PerfUi.ram; bar-color: PerfUi.ram > 0.85 ? Theme.warm : Theme.accent; }
                     if PerfUi.swap-text != "": Text { text: PerfUi.swap-text; color: Theme.text-dim; font-size: Theme.t-caption; }
                 }
                 MeasureCard {
-                    title: "CARTE GRAPHIQUE";
+                    title: "Carte graphique";
                     value: PerfUi.gpus.length == 0 ? "—" : PerfUi.gpus[0].usage < 0 ? "n/d" : Math.round(PerfUi.gpus[0].usage * 100) + " %";
                     caption: PerfUi.gpus.length == 0 ? "Aucune carte graphique mesurable" : PerfUi.gpus[0].name;
                     if PerfUi.gpu-curve.length > 0: Curve { values: PerfUi.gpu-curve; tint: Theme.success; }
@@ -134,7 +134,7 @@ export component PerformancePage inherits Rectangle {
                     apps := VerticalLayout {
                         padding: 18px;
                         spacing: 8px;
-                        Overline { text: "APPLICATIONS LES PLUS GOURMANDES"; }
+                        Overline { text: "Applications les plus gourmandes"; }
                         HorizontalLayout {
                             Text { text: "Application"; color: Theme.text-dim; font-size: Theme.t-overline; horizontal-stretch: 1; }
                             Text { text: "Processeur"; color: Theme.text-dim; font-size: Theme.t-overline; width: 90px; horizontal-alignment: right; }
@@ -162,7 +162,7 @@ export component PerformancePage inherits Rectangle {
                         padding: 18px;
                         spacing: 12px;
                         alignment: start;
-                        Overline { text: "STOCKAGE"; }
+                        Overline { text: "Stockage"; }
                         if PerfUi.disks.length == 0: Text { text: "Lecture des disques…"; color: Theme.text-dim; font-size: Theme.t-small; }
                         for d in PerfUi.disks: MeterRow { label: d.mount; value: d.free; ratio: d.used; bar-color: d.warn ? Theme.warm : Theme.accent; }
                     }

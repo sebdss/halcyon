@@ -329,7 +329,7 @@ impl Controller {
                     category: a.kind.category() as i32,
                     title: a.title.as_str().into(),
                     detail: a.detail.as_str().into(),
-                    day: util::format_relative(a.at + tz, now + tz).to_uppercase().into(),
+                    day: util::format_relative(a.at + tz, now + tz).into(),
                     time: format!("{:02}:{:02}", s / 3600, s / 60 % 60).into(),
                     new_day,
                 }

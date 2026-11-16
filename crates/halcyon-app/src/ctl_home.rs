@@ -227,7 +227,7 @@ impl Controller {
             home.set_has_hero(hero.is_some());
             if let Some(g) = hero {
                 home.set_hero(detail_for(g, &self.images, Tracking::default(), now));
-                home.set_hero_kicker(if g.last_played.is_some() { "REPRENDRE" } else { "À DÉCOUVRIR" }.into());
+                home.set_hero_kicker(if g.last_played.is_some() { "Reprendre" } else { "À découvrir" }.into());
                 home.set_hero_meta(self.meta_line(g, now).into());
             }
         } else {
@@ -661,7 +661,7 @@ impl Controller {
         let ui = app.global::<GameMenu>();
         let size = app.window().size().to_logical(app.window().scale_factor());
         ui.set_game_id(id as i32);
-        ui.set_title(g.name.to_uppercase().into());
+        ui.set_title(g.name.clone().into());
         ui.set_entries(ModelRc::new(VecModel::from(entries)));
         ui.set_codes(ModelRc::new(VecModel::from(codes)));
         ui.set_selected(0);

@@ -360,7 +360,7 @@ export component Tabs inherits HorizontalLayout {
             x: (parent.width - self.width) / 2;
             width: root.selected == i ? parent.width - 20px : 0px;
             border-radius: 2px;
-            background: Theme.accent;
+            background: Theme.horizon;
             animate width { duration: Theme.normal; easing: ease-out; }
         }
         if tab-fs.has-focus: Rectangle { border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
@@ -533,17 +533,14 @@ export component Badge inherits Rectangle {
     in property <bool> solid: false;
 
     height: 22px;
-    min-width: lbl.preferred-width + 16px;
-    border-radius: 6px;
-    background: solid ? tint.with-alpha(0.18) : Theme.text.with-alpha(0.05);
-    border-width: 1px;
-    border-color: solid ? tint.with-alpha(0.35) : Theme.border;
+    min-width: lbl.preferred-width + 18px;
+    border-radius: 11px;
+    background: solid ? tint.with-alpha(0.16) : Theme.text.with-alpha(0.06);
     lbl := Text {
         text: root.text;
         color: root.tint;
         font-size: Theme.t-overline;
-        font-weight: 650;
-        letter-spacing: 0.3px;
+        font-weight: 600;
     }
 }
 
@@ -606,7 +603,8 @@ export component ProgressBar inherits Rectangle {
         x: 0;
         width: root.width * min(1, max(0, root.value));
         border-radius: 3px;
-        background: root.tint;
+        // Couleur d'accent par défaut : ligne d'horizon ; teinte explicite (alerte) sinon.
+        background: root.tint == Theme.accent ? Theme.horizon : root.tint;
         animate width { duration: Theme.normal; }
     }
     if root.value < 0: Rectangle {
@@ -776,7 +774,7 @@ export component GameTile inherits Rectangle {
                 color: Theme.accent;
                 font-size: Theme.t-overline - 1px;
                 font-weight: 700;
-                letter-spacing: 0.5px;
+                letter-spacing: 0px;
             }
         }
         if root.game.favorite: Rectangle {
@@ -855,15 +853,15 @@ export component SectionTitle inherits Text {
     font-weight: 700;
 }
 
-/// Petit titre en capitales (groupes, widgets).
+/// Petit titre de groupe (widgets, cartes). 1.0 : casse normale, plus de capitales espacées.
 export component Overline inherits Text {
-    color: Theme.text-dim;
-    font-size: Theme.t-overline;
-    font-weight: 700;
-    letter-spacing: 0.9px;
+    color: Theme.text-muted;
+    font-size: Theme.t-caption;
+    font-weight: 600;
 }
 
 /// Carte de contenu (paramètres, informations).
+/// 1.0 : la profondeur vient de la teinte ; la bordure, très légère, ne fait que détacher.
 export component Panel inherits Rectangle {
     background: Theme.surface;
     border-radius: Theme.radius-lg;
@@ -1138,8 +1136,8 @@ export component PageHeader inherits HorizontalLayout {
     VerticalLayout {
         spacing: 4px;
         horizontal-stretch: 1;
-        Text { text: root.title; color: Theme.text; font-size: Theme.t-title; font-weight: 800; letter-spacing: -0.4px; overflow: elide; }
-        if root.subtitle != "": Text { text: root.subtitle; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
+        Text { text: root.title; color: Theme.text; font-size: Theme.t-title; font-weight: 800; letter-spacing: -0.9px; overflow: elide; }
+        if root.subtitle != "": Text { text: root.subtitle; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
     }
     @children
 }

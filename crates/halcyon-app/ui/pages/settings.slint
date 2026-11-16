@@ -506,7 +506,7 @@ export component SettingsPage inherits Rectangle {
                         SettingRow {
                             title: "Métadonnées en ligne";
                             description: "Descriptions, genres et captures d'écran depuis la boutique Steam (vos modifications restent prioritaires).";
-                            Badge { y: (parent.height - self.height) / 2; text: "EN LIGNE"; tint: Theme.warm; solid: true; }
+                            Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.online-metadata;
@@ -516,7 +516,7 @@ export component SettingsPage inherits Rectangle {
                         SettingRow {
                             title: "Télécharger les visuels manquants";
                             description: "Nécessite Internet. Jaquettes et bannières sont ensuite conservées hors ligne.";
-                            Badge { y: (parent.height - self.height) / 2; text: "EN LIGNE"; tint: Theme.warm; solid: true; }
+                            Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.online-artwork;
@@ -628,7 +628,7 @@ export component SettingsPage inherits Rectangle {
                             description: AppUi.online
                                 ? "Connexion disponible. Activez pour qu'Halcyon n'effectue plus aucune requête réseau (bibliothèque, lancement, sauvegardes et mods restent disponibles)."
                                 : "Hors ligne : la bibliothèque reste entièrement utilisable. Succès, visuels et métadonnées seront synchronisés automatiquement au retour de la connexion.";
-                            Badge { y: (parent.height - self.height) / 2; text: AppUi.online ? "EN LIGNE" : "HORS LIGNE"; tint: AppUi.online ? Theme.success : Theme.warm; solid: true; }
+                            Badge { y: (parent.height - self.height) / 2; text: AppUi.online ? "En ligne" : "Hors ligne"; tint: AppUi.online ? Theme.success : Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.offline-forced;
@@ -725,7 +725,7 @@ export component SettingsPage inherits Rectangle {
                         SettingRow {
                             title: "Vérifier les mises à jour au démarrage";
                             description: SettingsUi.update-status;
-                            Badge { y: (parent.height - self.height) / 2; text: "EN LIGNE"; tint: Theme.warm; solid: true; }
+                            Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.check-updates;

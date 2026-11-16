@@ -77,7 +77,7 @@ export component AppearancePage inherits Rectangle {
                             border-color: Theme.text;
                             TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.set-accent(ThemeUi.accent-hexes[i]); } }
                         }
-                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: "#2fd4c5"; accepted(t) => { ThemeUi.set-accent(t); } }
+                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: "#32b4ff"; accepted(t) => { ThemeUi.set-accent(t); } }
                         SecondaryButton { h: 34px; text: "Appliquer"; clicked => { ThemeUi.set-accent(root.accent-hex); } }
                     }
                     Rectangle { height: 1px; background: Theme.border; }

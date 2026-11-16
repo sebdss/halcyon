@@ -19,7 +19,7 @@ component ToolCard inherits Rectangle {
         HorizontalLayout {
             spacing: 8px;
             Text { text: root.title; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; }
-            Badge { text: root.found ? "DÉTECTÉ" : "ABSENT"; tint: root.found ? Theme.success : Theme.text-muted; solid: root.found; }
+            Badge { text: root.found ? "Détecté" : "Absent"; tint: root.found ? Theme.success : Theme.text-muted; solid: root.found; }
             Rectangle { horizontal-stretch: 1; }
         }
         Text { text: root.found ? root.via : root.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }

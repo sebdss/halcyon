@@ -65,6 +65,18 @@ pub fn builtin_themes() -> Vec<ThemeDef> {
     let t = |id: &str, name: &str, colors: Palette| ThemeDef { id: id.into(), name: name.into(), author: "Halcyon".into(), colors, source: String::new() };
     vec![
         t("halcyon", "Halcyon", Palette::default()),
+        // Apparence des versions 0.4 et 0.5, conservée telle quelle.
+        t("nocturne", "Nocturne (0.5)", Palette {
+            border: "#9cc3ff12".into(),
+            border_strong: "#9cc3ff26".into(),
+            text: "#eceff4".into(),
+            text_muted: "#9aa3b3".into(),
+            text_dim: "#5f6777".into(),
+            warm: "#ff9f5a".into(),
+            danger: "#ff6b6b".into(),
+            success: "#5ad48a".into(),
+            ..palette("#0a0c10", "#0d1015", "#13171f", "#1a1f29", "#222835", "#2fd4c5", "#03201d", "#05070a")
+        }),
         t("minuit", "Minuit", palette("#0b0e1a", "#0e1220", "#151a2c", "#1c2238", "#252c46", "#6c8cff", "#0a1033", "#060812")),
         t("braise", "Braise", Palette { warm: "#ffc46b".into(), ..palette("#110c0a", "#150f0c", "#1d1512", "#261c18", "#30231e", "#ff7a45", "#2a0f03", "#0a0706") }),
         t("foret", "Forêt", palette("#0a100c", "#0c140f", "#121c16", "#18251d", "#1f2f25", "#5fd48a", "#04210f", "#060a07")),
@@ -73,7 +85,8 @@ pub fn builtin_themes() -> Vec<ThemeDef> {
 }
 
 /// Couleurs d'accent proposées (nom, valeur).
-pub const ACCENTS: [(&str, &str); 8] = [
+pub const ACCENTS: [(&str, &str); 9] = [
+    ("Martin-pêcheur", "#32b4ff"),
     ("Turquoise", "#2fd4c5"),
     ("Bleu", "#5b8cff"),
     ("Violet", "#a77bff"),
@@ -207,22 +220,22 @@ impl Controller {
         let themes = self.all_themes();
         let def = themes.iter().find(|t| t.id == a.theme).cloned().unwrap_or_else(|| themes[0].clone());
         let base = Palette {
-            bg: "#0a0c10".into(),
-            sidebar: "#0d1015".into(),
-            surface: "#13171f".into(),
-            surface_hover: "#1a1f29".into(),
-            surface_active: "#222835".into(),
+            bg: "#0c1726".into(),
+            sidebar: "#091220".into(),
+            surface: "#13223a".into(),
+            surface_hover: "#1a2d4a".into(),
+            surface_active: "#22395c".into(),
             border: "#ffffff12".into(),
             border_strong: "#ffffff22".into(),
-            text: "#eceff4".into(),
-            text_muted: "#9aa3b3".into(),
-            text_dim: "#5f6777".into(),
-            accent: "#2fd4c5".into(),
-            on_accent: "#03201d".into(),
-            warm: "#ff9f5a".into(),
-            danger: "#ff6b6b".into(),
-            success: "#5ad48a".into(),
-            bp_bg: "#05070a".into(),
+            text: "#e9f0f8".into(),
+            text_muted: "#9fb3cc".into(),
+            text_dim: "#7b93b3".into(),
+            accent: "#32b4ff".into(),
+            on_accent: "#04203a".into(),
+            warm: "#ff8b3d".into(),
+            danger: "#ff6b78".into(),
+            success: "#4fd6a0".into(),
+            bp_bg: "#070f1b".into(),
         };
         let c = &def.colors;
         let pick = |v: &str, fallback: &str| parse_hex(v).or_else(|| parse_hex(fallback)).unwrap_or_default();
@@ -313,14 +326,14 @@ impl Controller {
         app.global::<ThemeUi>().set_ui_profiles(ModelRc::new(VecModel::from(names)));
         let a = self.settings.borrow().appearance.clone();
         let ui = app.global::<ThemeUi>();
-        let base_accent = parse_hex("#2fd4c5").unwrap_or_default();
+        let base_accent = parse_hex("#32b4ff").unwrap_or_default();
         let rows: Vec<ThemeRow> = themes
             .iter()
             .map(|t| ThemeRow {
                 id: t.id.clone().into(),
                 name: t.name.clone().into(),
-                bg: parse_hex(&t.colors.bg).unwrap_or_else(|| parse_hex("#0a0c10").unwrap_or_default()),
-                surface: parse_hex(&t.colors.surface).unwrap_or_else(|| parse_hex("#13171f").unwrap_or_default()),
+                bg: parse_hex(&t.colors.bg).unwrap_or_else(|| parse_hex("#0c1726").unwrap_or_default()),
+                surface: parse_hex(&t.colors.surface).unwrap_or_else(|| parse_hex("#13223a").unwrap_or_default()),
                 accent: parse_hex(&t.colors.accent).unwrap_or(base_accent),
                 source: t.source.clone().into(),
             })

@@ -6,6 +6,20 @@
 une table ajoutée). Détails : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · audit :
 [`docs/AUDIT-1.0.md`](docs/AUDIT-1.0.md) · sécurité : [`docs/SECURITE.md`](docs/SECURITE.md).
 
+### Refonte graphique « Alcyon »
+- Nouvelle identité tirée du martin-pêcheur : fonds bleu d'eau profonde, accent cobalt,
+  orange réservé à ce qui est vivant (en jeu, hors ligne, alertes, mises à jour).
+- Signature unique, la **ligne d'horizon** (dégradé cobalt → orange) : page active du menu,
+  onglet actif, barres de progression, marque.
+- Plus aucune étiquette en capitales espacées (badges, groupes du menu, cartes, installateur) ;
+  titres de page plus grands ; panneaux plus arrondis, bordures teintées plus légères ;
+  menu en pilules ; contrastes vérifiés (texte discret porté à 5,1:1).
+- Logo et icônes Windows/Linux aux nouvelles couleurs.
+- L'ancienne apparence reste disponible : thème « Nocturne (0.5) » ; accent « Martin-pêcheur »
+  ajouté aux couleurs proposées.
+- Aucun coût : ni ombre, ni flou, ni animation ajoutés ; code d'interface généré légèrement
+  réduit. Détails : [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md).
+
 ### Performance Center (nouveau)
 - Page **Performances** : processeur (total, par unité de calcul, courbe), mémoire et
   mémoire d'échange, cartes graphiques (utilisation, mémoire vidéo), stockage, mesurés par

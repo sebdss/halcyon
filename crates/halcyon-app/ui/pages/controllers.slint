@@ -39,7 +39,7 @@ export component ControllersPage inherits Rectangle {
                             spacing: 8px;
                             Text { text: p.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; overflow: elide; }
                             Badge { text: p.brand; }
-                            if p.last-used: Badge { text: "UTILISÉE"; tint: Theme.accent; }
+                            if p.last-used: Badge { text: "Utilisée"; tint: Theme.accent; }
                             Rectangle { horizontal-stretch: 1; }
                         }
                         Text { text: p.power; color: Theme.text-dim; font-size: Theme.t-caption; }
@@ -79,7 +79,7 @@ export component ControllersPage inherits Rectangle {
                         HorizontalLayout {
                             spacing: 8px;
                             Text { text: pr.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
-                            if pr.active: Badge { text: "NAVIGATION"; tint: Theme.accent; }
+                            if pr.active: Badge { text: "Navigation"; tint: Theme.accent; }
                             Rectangle { horizontal-stretch: 1; }
                         }
                         Text { text: pr.summary; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }

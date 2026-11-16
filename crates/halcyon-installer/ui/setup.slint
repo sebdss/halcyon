@@ -127,7 +127,7 @@ component Kicker inherits Text {
     color: Theme.accent;
     font-size: Theme.t-overline;
     font-weight: 700;
-    letter-spacing: 1.6px;
+    letter-spacing: 0px;
 }
 
 /// Carte de choix (opération sur une installation existante).
@@ -338,7 +338,7 @@ export component SetupWindow inherits Window {
                 }
             }
             Rectangle { height: 8px; }
-            Kicker { text: "BIENVENUE"; }
+            Kicker { text: "Bienvenue"; }
             Title { text: "Tous vos jeux.\nUn seul endroit."; }
             Lead {
                 text: "Halcyon réunit vos jeux Steam, Epic Games, standalone et émulés dans une bibliothèque rapide et élégante : succès, sauvegardes, mods et mode Big Picture à la manette.";
@@ -370,7 +370,7 @@ export component SetupWindow inherits Window {
             padding-top: 36px;
             spacing: 14px;
             alignment: start;
-            Kicker { text: "INSTALLATION DÉTECTÉE"; }
+            Kicker { text: "Installation détectée"; }
             Title { text: Setup.found-title; }
             Lead { text: Setup.found-detail; }
             Rectangle { height: 10px; }
@@ -418,7 +418,7 @@ export component SetupWindow inherits Window {
             padding-top: 28px;
             spacing: 16px;
             alignment: start;
-            Kicker { text: "CONFIGURATION"; }
+            Kicker { text: "Configuration"; }
             Title { text: "Où installer Halcyon ?"; font-size: Theme.t-title + 2px; }
             Text { text: "Dossier du programme"; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; }
             if Setup.dir-locked: Rectangle {
@@ -482,7 +482,7 @@ export component SetupWindow inherits Window {
             padding-top: 28px;
             spacing: 14px;
             alignment: start;
-            Kicker { text: "VÉRIFICATION DU SYSTÈME"; }
+            Kicker { text: "Vérification du système"; }
             Title { text: Setup.checking ? "Analyse en cours…" : Setup.checks-ok ? "Tout est prêt." : "Un point bloque l'installation."; font-size: Theme.t-title + 2px; }
             Rectangle {
                 border-radius: Theme.radius-lg;
@@ -535,7 +535,7 @@ export component SetupWindow inherits Window {
             padding-top: 28px;
             spacing: 16px;
             alignment: start;
-            Kicker { text: Setup.screen == 7 ? "DÉSINSTALLATION" : Setup.screen == 5 ? "FINALISATION" : Setup.mode-noun.to-uppercase(); }
+            Kicker { text: Setup.screen == 7 ? "Désinstallation" : Setup.screen == 5 ? "Finalisation" : Setup.mode-noun; }
             Title {
                 text: Setup.error != "" ? "L'opération n'a pas abouti." : Setup.screen == 7 && !Setup.busy ? "Que faire de vos données ?" : Setup.screen == 5 ? "Dernières touches…" : Setup.mode-noun + " en cours…";
                 font-size: Theme.t-title + 2px;
@@ -674,7 +674,7 @@ export component SetupWindow inherits Window {
                     Icon { source: Icons.check; size: 34px; tint: Theme.accent; }
                 }
             }
-            Kicker { text: Setup.screen == 6 ? "PRÊT À JOUER" : "DÉSINSTALLATION TERMINÉE"; }
+            Kicker { text: Setup.screen == 6 ? "Prêt à jouer" : "Désinstallation terminée"; }
             Title { text: Setup.done-title; }
             Lead { text: Setup.done-text; }
             if Setup.warnings != "": Text { text: Setup.warnings; color: Theme.warm; font-size: Theme.t-small; wrap: word-wrap; }
@@ -702,7 +702,7 @@ export component SetupWindow inherits Window {
             padding: 56px;
             spacing: 16px;
             alignment: center;
-            Kicker { text: "IMPOSSIBLE DE CONTINUER"; color: Theme.danger; }
+            Kicker { text: "Impossible de continuer"; color: Theme.danger; }
             Title { text: "Le programme d'installation ne peut pas démarrer."; }
             Lead { text: Setup.error; }
             HorizontalLayout { alignment: start; SecondaryButton { text: "Fermer"; clicked => { Setup.close(); } } }

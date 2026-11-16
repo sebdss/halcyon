@@ -79,7 +79,7 @@ export component PluginsPage inherits Rectangle {
                                 Text { text: p.name; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; }
                                 Badge { text: "v" + p.version; }
                                 if p.update != "": Badge { text: "v" + p.update + " disponible"; tint: Theme.accent; solid: true; }
-                                if !p.usable: Badge { text: "INUTILISABLE"; tint: Theme.danger; }
+                                if !p.usable: Badge { text: "Inutilisable"; tint: Theme.danger; }
                                 Rectangle { horizontal-stretch: 1; }
                             }
                             Text { text: (p.author != "" ? "par " + p.author + " · " : "") + p.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }

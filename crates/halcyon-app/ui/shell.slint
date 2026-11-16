@@ -24,19 +24,20 @@ component NavItem inherits Rectangle {
     forward-focus: fs;
 
     bg := Rectangle {
-        border-radius: Theme.radius;
-        background: root.active ? Theme.surface-active : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
+        border-radius: root.height / 2;
+        background: root.active ? Theme.accent.with-alpha(0.13) : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
         border-width: fs.has-focus ? Theme.focus-width : 0px;
         border-color: Theme.focus;
         animate background { duration: Theme.fast; }
     }
+    // Signature 1.0 : la ligne d'horizon marque la page active.
     pill := Rectangle {
         x: 0;
         y: (parent.height - self.height) / 2;
         width: 3px;
-        height: root.active ? 20px : 0px;
+        height: root.active ? root.height - 14px : 0px;
         border-radius: 2px;
-        background: Theme.accent;
+        background: Theme.horizon-v;
         animate height { duration: Theme.normal; easing: ease-out; }
     }
     HorizontalLayout {
@@ -107,7 +108,7 @@ component NavGroup inherits Rectangle {
     in property <bool> collapsed;
     height: root.collapsed ? 14px : 30px;
     if root.collapsed: Rectangle { x: 18px; y: 7px; width: root.width - 36px; height: 1px; background: Theme.border; }
-    if !root.collapsed: Overline { x: 14px; y: 12px; text: root.text; }
+    if !root.collapsed: Text { x: 14px; y: 12px; text: root.text; color: Theme.text-dim; font-size: Theme.t-caption; font-weight: 600; }
 }
 
 export component Sidebar inherits Rectangle {
@@ -135,14 +136,19 @@ export component Sidebar inherits Rectangle {
                 width: 32px;
                 height: 32px;
             }
-            if !root.collapsed: Text {
-                text: "Halcyon";
-                color: Theme.text;
-                font-size: Theme.t-heading;
-                font-weight: 800;
-                letter-spacing: -0.3px;
-                vertical-alignment: center;
+            if !root.collapsed: VerticalLayout {
+                alignment: center;
                 horizontal-stretch: 1;
+                spacing: 3px;
+                Text {
+                    text: "Halcyon";
+                    color: Theme.text;
+                    font-size: Theme.t-heading + 1px;
+                    font-weight: 800;
+                    letter-spacing: -0.6px;
+                }
+                // Ligne d'horizon : signature de la 1.0.
+                Rectangle { width: 46px; height: 2px; border-radius: 1px; background: Theme.horizon; }
             }
         }
 
@@ -205,7 +211,7 @@ export component Sidebar inherits Rectangle {
                     trailing: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : "";
                     clicked => { Nav.go(Page.downloads); }
                 }
-                if AppUi.nav.achievements || AppUi.nav.stats || AppUi.nav.journal: NavGroup { collapsed: root.collapsed; text: "SUIVI"; }
+                if AppUi.nav.achievements || AppUi.nav.stats || AppUi.nav.journal: NavGroup { collapsed: root.collapsed; text: "Suivi"; }
                 if AppUi.nav.achievements: NavItem {
                     collapsed: root.collapsed;
                     text: "Succès";
@@ -228,7 +234,7 @@ export component Sidebar inherits Rectangle {
                     active: Nav.page == Page.journal;
                     clicked => { Nav.go(Page.journal); }
                 }
-                NavGroup { collapsed: root.collapsed; text: "OUTILS"; }
+                NavGroup { collapsed: root.collapsed; text: "Outils"; }
                 if AppUi.nav.updates: NavItem {
                     collapsed: root.collapsed;
                     text: "Mises à jour";
@@ -282,7 +288,7 @@ export component Sidebar inherits Rectangle {
             collapsed: root.collapsed;
             text: "Version " + AppUi.update-version;
             icon: Icons.download;
-            trailing: "NOUVEAU";
+            trailing: "Nouveau";
             muted-trailing: false;
             clicked => { Nav.go(Page.settings); }
         }
@@ -412,11 +418,11 @@ export component TopBar inherits Rectangle {
         }
         if AppUi.performance: Badge {
             y: 19px;
-            text: AppUi.performance-auto ? "PERFORMANCE · AUTO" : "PERFORMANCE";
+            text: AppUi.performance-auto ? "Performance · auto" : "Performance";
             tint: Theme.warm;
             solid: true;
         }
-        if !AppUi.online: Badge { y: 19px; text: "HORS LIGNE"; tint: Theme.warm; }
+        if !AppUi.online: Badge { y: 19px; text: "Hors ligne"; tint: Theme.warm; }
         IconButton {
             y: 12px;
             icon: Icons.gauge;
@@ -518,13 +524,13 @@ export component CommandCenter inherits Rectangle {
                 padding-right: 6px;
                 padding-bottom: 18px;
                 alignment: start;
-                if CommandUi.active.length > 0: HorizontalLayout { padding-left: 12px; height: 28px; Overline { vertical-alignment: center; text: "EN COURS"; } }
+                if CommandUi.active.length > 0: HorizontalLayout { padding-left: 12px; height: 28px; Overline { vertical-alignment: center; text: "En cours"; } }
                 for t in CommandUi.active: TaskItem { task: t; }
                 HorizontalLayout {
                     padding-left: 12px;
                     padding-right: 12px;
                     height: 40px;
-                    Overline { text: "RÉCENT"; vertical-alignment: center; horizontal-stretch: 1; }
+                    Overline { text: "Récent"; vertical-alignment: center; horizontal-stretch: 1; }
                     if CommandUi.history.length > 0: SecondaryButton { y: 6px; h: 28px; text: "Effacer"; clicked => { CommandUi.clear-history(); } }
                 }
                 if CommandUi.history.length == 0: HorizontalLayout { padding-left: 12px; padding-right: 12px; Text {

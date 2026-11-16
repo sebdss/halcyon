@@ -115,7 +115,7 @@ component GameMenuOverlay inherits Rectangle {
                 color: Theme.text-dim;
                 font-size: Theme.t-overline;
                 font-weight: 700;
-                letter-spacing: 0.8px;
+                letter-spacing: 0px;
                 overflow: elide;
                 height: 26px;
                 vertical-alignment: center;
@@ -703,7 +703,7 @@ export component AppWindow inherits Window {
             VerticalLayout {
                 alignment: center;
                 spacing: 2px;
-                Text { text: "Succès débloqué" + (AppUi.ach-toast.has-rarity ? "  ·  " + AppUi.ach-toast.rarity : ""); color: Theme.accent; font-size: Theme.t-overline; font-weight: 700; letter-spacing: 0.6px; }
+                Text { text: "Succès débloqué" + (AppUi.ach-toast.has-rarity ? "  ·  " + AppUi.ach-toast.rarity : ""); color: Theme.accent; font-size: Theme.t-overline; font-weight: 700; }
                 Text { text: AppUi.ach-toast.name; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; }
                 Text { text: AppUi.ach-toast.game; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
             }
@@ -733,7 +733,7 @@ component MiniList inherits VerticalLayout {
     in property <[MiniRow]> items;
     callback launch(int);
     spacing: 2px;
-    if root.items.length > 0: Text { text: root.title; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; letter-spacing: 0.6px; }
+    if root.items.length > 0: Text { text: root.title; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }
     for g in root.items: Rectangle {
         height: 40px;
         border-radius: Theme.radius-sm;
@@ -795,10 +795,10 @@ export component MiniWindow inherits Window {
                 width: parent.width;
                 spacing: 14px;
                 alignment: start;
-                if root.query != "": MiniList { title: "RÉSULTATS"; items: root.results; launch(id) => { root.launch(id); } }
+                if root.query != "": MiniList { title: "Résultats"; items: root.results; launch(id) => { root.launch(id); } }
                 if root.query != "" && root.results.length == 0: Text { text: "Aucun jeu trouvé"; color: Theme.text-dim; font-size: Theme.t-caption; }
-                if root.query == "": MiniList { title: "FAVORIS"; items: root.favorites; launch(id) => { root.launch(id); } }
-                if root.query == "": MiniList { title: "RÉCEMMENT JOUÉS"; items: root.recent; launch(id) => { root.launch(id); } }
+                if root.query == "": MiniList { title: "Favoris"; items: root.favorites; launch(id) => { root.launch(id); } }
+                if root.query == "": MiniList { title: "Récemment joués"; items: root.recent; launch(id) => { root.launch(id); } }
                 if root.query == "" && root.favorites.length == 0 && root.recent.length == 0: Text {
                     text: "Vos favoris et jeux récents apparaîtront ici.";
                     color: Theme.text-dim;

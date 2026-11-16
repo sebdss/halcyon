@@ -28,10 +28,10 @@ component Tab inherits Rectangle {
         }
     }
     Rectangle {
-        y: root.height - 2px;
-        height: 2px;
-        border-radius: 1px;
-        background: root.selected ? Theme.accent : transparent;
+        y: root.height - 3px;
+        height: 3px;
+        border-radius: 2px;
+        background: root.selected ? Theme.horizon : transparent;
     }
     ta := TouchArea {
         mouse-cursor: pointer;
@@ -276,8 +276,8 @@ export component AchievementItem inherits Rectangle {
                     font-weight: 650;
                     overflow: elide;
                 }
-                if root.item.hardcore: Badge { text: "HARDCORE"; tint: Theme.warm; solid: true; }
-                if root.item.custom: Badge { text: "PERSONNALISÉ · NON VÉRIFIÉ"; }
+                if root.item.hardcore: Badge { text: "Hardcore"; tint: Theme.warm; solid: true; }
+                if root.item.custom: Badge { text: "Personnalisé · non vérifié"; }
                 Rectangle { horizontal-stretch: 1; }
             }
             Text {
@@ -775,7 +775,7 @@ component ProfilesTab inherits VerticalLayout {
                     HorizontalLayout {
                         spacing: 8px;
                         Text { text: p.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
-                        if p.is-default: Badge { text: "PAR DÉFAUT"; tint: Theme.accent; }
+                        if p.is-default: Badge { text: "Par défaut"; tint: Theme.accent; }
                         Rectangle { horizontal-stretch: 1; }
                     }
                     Text { text: p.summary; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
@@ -1019,7 +1019,7 @@ component ModsTab inherits VerticalLayout {
                             Text { text: (i + 1) + ". " + m.name; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
                             if m.version != "": Badge { text: "v" + m.version; }
                             if m.latest != "": Badge { text: "v" + m.latest + " disponible"; tint: Theme.accent; solid: true; }
-                            if m.deployed: Badge { text: "INSTALLÉ"; tint: Theme.success; }
+                            if m.deployed: Badge { text: "Installé"; tint: Theme.success; }
                             if m.conflicts > 0 && m.enabled: Badge { text: m.conflicts + " conflit(s)"; tint: Theme.warm; }
                             Rectangle { horizontal-stretch: 1; }
                         }
@@ -1235,7 +1235,7 @@ component HeroStat inherits VerticalLayout {
     in property <string> label;
     in property <string> value;
     spacing: 2px;
-    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; letter-spacing: 0.8px; }
+    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }
     Text { text: root.value; color: Theme.text; font-size: Theme.t-subheading; font-weight: 650; overflow: elide; }
 }
 
@@ -1346,12 +1346,12 @@ export component GamePage inherits Rectangle {
                         spacing: Theme.s6;
                         alignment: start;
                         padding-top: 4px;
-                        HeroStat { label: "TEMPS DE JEU"; value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
-                        HeroStat { label: "DERNIÈRE SESSION"; value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : "Jamais"; }
+                        HeroStat { label: "Temps de jeu"; value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
+                        HeroStat { label: "Dernière session"; value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : "Jamais"; }
                         if DetailUi.ach-percent >= 0: VerticalLayout {
                             spacing: 6px;
                             width: 170px;
-                            HeroStat { label: "SUCCÈS"; value: DetailUi.ach-summary; }
+                            HeroStat { label: "Succès"; value: DetailUi.ach-summary; }
                             Rectangle {
                                 height: 4px;
                                 border-radius: 2px;

@@ -1,4 +1,42 @@
-# Design system « Nocturne » — Halcyon 0.4
+# Design system « Alcyon » — Halcyon 1.0
+
+> Successeur de « Nocturne » (0.4–0.5), toujours disponible comme thème « Nocturne (0.5) ».
+
+## Identité 1.0
+
+Halcyon est le **martin-pêcheur** ; les « jours alcyoniens » désignent la mer calme d'hiver.
+L'interface en tire tout son vocabulaire :
+
+| Jeton | Valeur | Origine | Usage |
+|---|---|---|---|
+| `bg` | `#0c1726` | eau profonde | fond des pages |
+| `sidebar` | `#091220` | rive | barre latérale |
+| `surface` / `-hover` / `-active` | `#13223a` / `#1a2d4a` / `#22395c` | couches d'eau | cartes, survol, sélection |
+| `accent` | `#32b4ff` | plumes cobalt | actions, sélection, focus |
+| `warm` | `#ff8b3d` | poitrail orangé | **réservé à ce qui est vivant** : en jeu, hors ligne, alerte, mise à jour |
+| `text` / `text-muted` / `text-dim` | `#e9f0f8` / `#9fb3cc` / `#7b93b3` | — | texte |
+| `horizon` | dégradé `accent → warm` | ligne d'horizon | **signature unique** : page active du menu, onglet actif, barres de progression, marque |
+
+Contrastes mesurés (WCAG) sur `surface` : texte 13,9:1, texte secondaire 7,4:1, texte discret
+5,1:1, accent 6,9:1, orange 6,8:1 ; texte sur bouton accent 7,2:1.
+
+Règles 1.0 :
+
+1. **Une seule signature** : la ligne d'horizon, et nulle part ailleurs. Pas de dégradés décoratifs.
+2. **Pas de capitales espacées** : étiquettes, badges et titres de groupes en casse normale
+   (`Overline` n'impose plus de majuscules). Les sigles (GOG, GPU, RAM…) restent en capitales.
+3. **La profondeur par la teinte** : bordures très légères teintées de bleu (`#9cc3ff` à 7 %),
+   hiérarchie portée par les couches de surface.
+4. **Hiérarchie des formes** : contrôles en pilule ; panneaux `radius-lg` 18 px ; lignes et
+   vignettes plus serrées.
+5. **Titres de page** : 34 px, graisse 800, approche −0,9 px ; sous-titres en `text-muted`.
+6. **Coût nul** : la refonte n'ajoute ni ombre large, ni flou, ni fond animé ; le code d'interface
+   généré a diminué (35,60 → 35,55 Mo). Un dégradé de fond « profondeur » a été essayé puis retiré :
+   avec le rendu logiciel, les zones redessinées ne raccordaient pas.
+
+---
+
+## Historique : « Nocturne » (0.4)
 
 Toutes les valeurs visuelles sont centralisées dans `crates/halcyon-app/ui/theme.slint`
 (global `Theme`) et les composants réutilisables dans `ui/components.slint` et `ui/shell.slint`.
@@ -37,8 +75,8 @@ les nouveaux jetons sont dérivés (`glass` dérive de `bg`, `accent-glow` de `a
 
 | Jeton | Taille de base | Usage |
 |---|---|---|
-| `t-display` | 44 px | Nom du jeu sur la fiche, titres Big Picture |
-| `t-title` | 30 px | Titre de page |
+| `t-display` | 48 px (44 en 0.4) | Nom du jeu sur la fiche, titres Big Picture |
+| `t-title` | 34 px (30 en 0.4) | Titre de page |
 | `t-heading` | 20 px | Titre de section |
 | `t-subheading` | 16 px | Titre de carte |
 | `t-body` | 14 px | Texte courant |
