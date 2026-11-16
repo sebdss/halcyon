@@ -13,8 +13,12 @@
 //! `halcyon-updater`, lancé depuis une copie pour ne jamais se remplacer lui-même.
 
 pub mod core;
+pub mod download;
 pub mod manifest;
+pub mod network;
 pub mod security;
+#[cfg(feature = "fault-injection")]
+pub mod testkit;
 pub mod version;
 
 pub use crate::core::{Channel, PackageFormat, Platform, State};
