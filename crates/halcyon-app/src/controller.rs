@@ -23,7 +23,7 @@ use halcyon_core::{
 use halcyon_integrations::artwork::{url_candidates, Downloader, FetchError};
 use halcyon_integrations::emulators::{Detected, Registry};
 use halcyon_integrations::launcher::{self, LaunchOptions};
-use halcyon_integrations::{epic, roms, standalone, steam, steam_web, update};
+use halcyon_integrations::{epic, roms, standalone, steam, steam_web};
 use halcyon_storage::{now_unix, AppPaths, ArtworkKind, Database, MergeStats, Settings};
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
 use std::cell::{Cell, RefCell};
@@ -121,8 +121,7 @@ pub struct Controller {
     pub(crate) companion: RefCell<Option<crate::CompanionWindow>>,
     pub(crate) companion_timer: RefCell<Option<slint::Timer>>,
     pub(crate) companion_game: Cell<Option<GameId>>,
-    pub(crate) latest_release: RefCell<Option<halcyon_integrations::update::Release>>,
-    pub(crate) update_file: RefCell<Option<PathBuf>>,
+    pub(crate) hus: RefCell<crate::ctl_update::Hus>,
     pub(crate) history: RefCell<crate::nav::History<Page>>,
     pub(crate) tasks: RefCell<crate::tasks::TaskCenter>,
     /// Mode Performance automatique (partie en cours).
@@ -202,8 +201,7 @@ impl Controller {
             companion: RefCell::new(None),
             companion_timer: RefCell::new(None),
             companion_game: Cell::new(None),
-            latest_release: RefCell::new(None),
-            update_file: RefCell::new(None),
+            hus: RefCell::new(Default::default()),
             history: RefCell::new(crate::nav::History::new(Page::Home, 60)),
             tasks: RefCell::new(crate::tasks::TaskCenter::default()),
             perf_auto_active: Cell::new(false),
@@ -280,9 +278,6 @@ impl Controller {
             self.start_scan();
         } else if s.sync_achievements_on_startup {
             self.start_ach_sync(None, false);
-        }
-        if s.check_updates && !s.update_repo.trim().is_empty() {
-            self.check_update(false);
         }
     }
 
@@ -487,7 +482,6 @@ impl Controller {
         sui.on_remove_folder(with!(|c, i| c.remove_folder(i as usize)));
         sui.on_set_option(with!(|c, name, v| c.set_option(&name, v)));
         sui.on_set_text(with!(|c, key, value| c.set_text(&key, &value)));
-        sui.on_check_update(with!(|c| c.check_update(true)));
         sui.on_clear_cache(with!(|c| c.clear_cache()));
         sui.on_open_logs(with!(|c| c.open_folder(&c.paths.logs_dir.to_string_lossy())));
         sui.on_open_data(with!(|c| c.open_folder(&c.paths.data_dir.to_string_lossy())));
@@ -576,6 +570,7 @@ impl Controller {
             None => slint::CloseRequestResponse::HideWindow,
         });
         self.wire_system(app);
+        self.wire_hus(app);
         self.wire_shell(app);
         self.wire_home(app);
         self.wire_sound(app);
@@ -1901,46 +1896,6 @@ impl Controller {
         }
         self.refresh_settings_ui();
         self.toast(format!("{} libérés", util::format_size(removed)), false);
-    }
-
-    pub(crate) fn check_update(&self, manual: bool) {
-        if !self.net_allowed() {
-            if manual {
-                self.toast("Hors ligne : vérification impossible pour l'instant", true);
-            }
-            return;
-        }
-        let repo = self.settings.borrow().update_repo.clone();
-        if repo.trim().is_empty() {
-            if manual {
-                self.toast("Indiquez d'abord le dépôt GitHub des versions", true);
-            }
-            return;
-        }
-        if let Some(app) = self.app() {
-            app.global::<SettingsUi>().set_update_status("Vérification…".into());
-        }
-        std::thread::spawn(move || {
-            let result = update::check(&Downloader::new(), &repo, env!("CARGO_PKG_VERSION"));
-            post(move |c| {
-                let Some(app) = c.app() else { return };
-                let (status, release) = match result {
-                    Ok(Some(r)) => (format!("Version {} disponible", r.version), Some(r)),
-                    Ok(None) => (format!("Halcyon {} est à jour", env!("CARGO_PKG_VERSION")), None),
-                    Err(e) => (format!("Vérification impossible : {e}"), None),
-                };
-                app.global::<SettingsUi>().set_update_status(status.as_str().into());
-                *c.latest_release.borrow_mut() = release.clone();
-                if let Some(r) = release {
-                    let ui = app.global::<AppUi>();
-                    ui.set_update_version(r.version.as_str().into());
-                    ui.set_update_url(r.url.as_str().into());
-                }
-                if manual {
-                    c.toast(status, false);
-                }
-            });
-        });
     }
 
     pub(crate) fn save_window_state(&self) {

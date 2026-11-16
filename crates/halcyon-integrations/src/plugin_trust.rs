@@ -78,7 +78,7 @@ pub fn verify(dir: &Path) -> Result<Trust, String> {
     let v: serde_json::Value = serde_json::from_str(&text).map_err(|e| format!("{SIGNATURE_FILE} invalide : {e}"))?;
     let key = v["key"].as_str().ok_or(format!("{SIGNATURE_FILE} : clé absente"))?.trim().to_string();
     let sig = v["signature"].as_str().ok_or(format!("{SIGNATURE_FILE} : signature absente"))?;
-    crate::update::verify_signature(&key, digest.as_bytes(), sig).map_err(|_| "signature de l'extension incorrecte : contenu modifié depuis sa publication".to_string())?;
+    halcyon_update::security::verify_signature_b64(&key, digest.as_bytes(), sig).map_err(|_| "signature de l'extension incorrecte : contenu modifié depuis sa publication".to_string())?;
     Ok(Trust::Signed { key, digest })
 }
 

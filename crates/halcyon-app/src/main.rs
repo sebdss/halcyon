@@ -26,6 +26,7 @@ mod ctl_sound;
 mod ctl_system;
 mod ctl_themes;
 mod ctl_tracking;
+mod ctl_update;
 mod desktop;
 mod dialogs;
 mod gamepad;
@@ -62,6 +63,13 @@ fn main() {
     log::info!("Halcyon {} — données : {}", env!("CARGO_PKG_VERSION"), paths.data_dir.display());
 
     let settings = Settings::load(&paths.settings_path());
+    // Mise à jour : reprise d'une installation interrompue, ou installation de la version en
+    // attente ; l'updater prend alors le relais et relance Halcyon.
+    if ctl_update::early_start(&settings, args.hus_health.as_deref(), args.hus_rolled_back) {
+        instance::release(&paths.data_dir);
+        log::logger().flush();
+        return;
+    }
     let db = open_database(&paths);
     let t_db = Instant::now();
     let games = db.load_games().unwrap_or_else(|e| {
@@ -97,6 +105,7 @@ fn main() {
     slint::Timer::single_shot(Duration::from_millis(400), move || {
         if let Some(c) = weak.upgrade() {
             c.startup();
+            c.hus_init(args.hus_health.clone());
             // `--minimized` (démarrage avec la session) : dans la zone de notification si possible.
             if args.minimized {
                 if c.tray.borrow().is_some() {
@@ -153,6 +162,10 @@ struct Args {
     quick: bool,
     big_picture: bool,
     minimized: bool,
+    /// Contrôle de santé demandé par l'updater (identifiant de transaction).
+    hus_health: Option<String>,
+    /// Relancé par l'updater après un retour arrière.
+    hus_rolled_back: bool,
 }
 
 impl Args {
@@ -165,6 +178,8 @@ impl Args {
                 "--quick" => a.quick = true,
                 "--big-picture" => a.big_picture = true,
                 "--minimized" => a.minimized = true,
+                "--hus-health" => a.hus_health = it.next(),
+                "--hus-rolled-back" => a.hus_rolled_back = true,
                 other if !other.starts_with("--") && std::path::Path::new(other).is_file() => {
                     a.open = Some(std::path::PathBuf::from(other));
                 }

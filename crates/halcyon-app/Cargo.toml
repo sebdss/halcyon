@@ -32,6 +32,7 @@ halcyon-storage.workspace = true
 halcyon-integrations.workspace = true
 halcyon-audio.workspace = true
 halcyon-minecraft.workspace = true
+halcyon-update.workspace = true
 slint.workspace = true
 image.workspace = true
 log.workspace = true

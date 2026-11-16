@@ -12,6 +12,7 @@
 //! préparer ; l'installation elle-même est faite par l'exécutable indépendant
 //! `halcyon-updater`, lancé depuis une copie pour ne jamais se remplacer lui-même.
 
+pub mod client;
 pub mod core;
 pub mod download;
 pub mod install;

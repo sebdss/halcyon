@@ -56,7 +56,7 @@ fn main() -> ExitCode {
         ["verify", pk, sums] => {
             let msg = std::fs::read(sums).map_err(|e| format!("{sums} : {e}"));
             let sig = std::fs::read_to_string(format!("{sums}.sig")).map_err(|e| format!("{sums}.sig : {e}"));
-            msg.and_then(|m| sig.and_then(|s| halcyon_integrations::update::verify_signature(pk, &m, &s))).map(|_| println!("signature valide"))
+            msg.and_then(|m| sig.and_then(|s| halcyon_update::security::verify_signature_b64(pk, &m, &s))).map(|_| println!("signature valide"))
         }
         _ => Err("usage : release_sign keygen <clé> | sign <clé|-> <SHA256SUMS> | verify <clé-publique> <SHA256SUMS> | sign-plugin <clé|-> <dossier>".into()),
     };

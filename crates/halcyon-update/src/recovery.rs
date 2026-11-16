@@ -22,7 +22,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 /// Emplacements d'une installation.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Layout {
     pub root: PathBuf,
 }

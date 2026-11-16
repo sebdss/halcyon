@@ -615,7 +615,6 @@ export global SettingsUi {
     in property <bool> sync-on-startup;
     in property <bool> check-updates;
     in property <string> update-repo;
-    in property <string> update-status;
     in property <bool> start-big-picture;
     in property <bool> update-notifications;
     in property <string> nexus-key;
@@ -626,7 +625,6 @@ export global SettingsUi {
     callback export-config(bool, bool);
     callback import-config(string);
     callback set-text(string, string);
-    callback check-update();
     callback clear-cache();
     callback open-logs();
     callback open-data();
@@ -809,12 +807,7 @@ export global SystemUi {
     in property <[ShortcutRow]> shortcuts;
     in property <string> integrity-status;
     /// Niveau de vérification des mises à jour de cette compilation.
-    in property <string> update-verification;
     in property <bool> integrity-running;
-    in property <string> update-asset;
-    in property <string> update-progress;
-    in property <bool> update-ready;
-    in property <bool> update-is-setup;
     /// Combinaison saisie, transmise à Rust qui l'interprète (texte, Ctrl, Alt, Maj, Méta).
     pure callback shortcut(string, bool, bool, bool, bool) -> bool;
     pure callback combo-of(string, bool, bool, bool, bool) -> string;
@@ -823,8 +816,6 @@ export global SystemUi {
     callback reset-shortcuts();
     callback set-global-hotkey(string);
     callback check-integrity();
-    callback download-update();
-    callback install-update();
     callback create-shortcut(int);
     callback mini-mode();
     /// Incrémenté par Rust pour donner le focus à la recherche de la bibliothèque.

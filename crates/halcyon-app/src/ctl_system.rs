@@ -12,7 +12,6 @@ use halcyon_core::model::GameId;
 use halcyon_core::search::{MatchTier, SearchQuery};
 use halcyon_storage::now_unix;
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
-use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -221,7 +220,6 @@ impl Controller {
         ui.set_global_enabled(s.global_hotkey_enabled);
         ui.set_global_hotkey(s.global_hotkey.clone().into());
         ui.set_companion(s.companion_window);
-        ui.set_update_verification(halcyon_integrations::update::verification_level().into());
         let rows: Vec<ShortcutRow> = SHORTCUTS
             .iter()
             .map(|(a, l, d)| ShortcutRow { action: (*a).into(), label: (*l).into(), combo: self.shortcut_combo(a).into(), default_combo: (*d).into() })
@@ -822,86 +820,6 @@ impl Controller {
         let _ = self.db().log_activity(halcyon_storage::ActivityKind::Settings, None, "Vérification d'intégrité", &summary);
     }
 
-    // ------------------------------------------------------------------ mise à jour de Halcyon
-
-    /// Télécharge le paquet de la version disponible et vérifie son empreinte SHA-256.
-    pub(crate) fn download_update(&self) {
-        if !self.net_allowed() {
-            return self.toast("Hors ligne : téléchargement impossible", true);
-        }
-        let Some(release) = self.latest_release.borrow().clone() else {
-            return self.toast("Vérifiez d'abord les mises à jour", true);
-        };
-        let has_dpkg = std::path::Path::new("/usr/bin/dpkg").exists();
-        let Some(asset) = halcyon_integrations::update::pick_asset(&release.assets, cfg!(windows), has_dpkg, managed_install()).cloned() else {
-            return self.toast("Aucun paquet pour ce système dans cette version : ouvrez la page de téléchargement", true);
-        };
-        let dir = self.paths.cache_dir.join("updates");
-        if let Some(app) = self.app() {
-            let ui = app.global::<SystemUi>();
-            ui.set_update_asset(asset.name.clone().into());
-            ui.set_update_progress("Téléchargement et vérification…".into());
-        }
-        let task = self.task_start("update", format!("Mise à jour de Halcyon {}", release.version));
-        self.task_update(task, Some(-1.0), Some("Téléchargement et vérification de l'empreinte…"));
-        std::thread::Builder::new()
-            .name("halcyon-update".into())
-            .spawn(move || {
-                let result = halcyon_integrations::update::download_verified(&release, &asset, &dir);
-                post(move |c| {
-                    let Some(app) = c.app() else { return };
-                    let ui = app.global::<SystemUi>();
-                    match result {
-                        Ok(path) => {
-                            c.task_finish(task, true, "Paquet téléchargé, empreinte SHA-256 vérifiée", crate::tasks::Action::OpenPage("settings"));
-                            c.sound(halcyon_audio::Cue::Download);
-                            ui.set_update_progress(format!("Empreinte SHA-256 vérifiée : {}", path.display()).into());
-                            ui.set_update_ready(true);
-                            ui.set_update_is_setup(cfg!(windows) || path.file_name().is_some_and(|n| n.to_string_lossy().ends_with("-setup")));
-                            *c.update_file.borrow_mut() = Some(path);
-                        }
-                        Err(e) => {
-                            c.task_finish(task, false, e.clone(), crate::tasks::Action::OpenPage("settings"));
-                            ui.set_update_progress(e.into());
-                            ui.set_update_ready(false);
-                        }
-                    }
-                });
-            })
-            .ok();
-    }
-
-    /// Lance l'installateur vérifié puis ferme Halcyon (Windows, et Linux quand Halcyon a été
-    /// installé par son installateur) ; sinon ouvre le dossier du paquet.
-    pub(crate) fn install_update(self: &Rc<Self>) {
-        let Some(path) = self.update_file.borrow().clone() else { return };
-        // Linux : seul l'installateur de Halcyon se lance directement ; un .deb ou une
-        // archive passent par le gestionnaire de paquets du système.
-        let is_setup = cfg!(windows) || path.file_name().is_some_and(|n| n.to_string_lossy().ends_with("-setup"));
-        if !is_setup {
-            let dir: PathBuf = path.parent().map(|p| p.to_path_buf()).unwrap_or_default();
-            self.open_folder(&dir.display().to_string());
-            self.toast("Installez le paquet avec votre gestionnaire (ex. sudo apt install ./fichier.deb)", false);
-            return;
-        }
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            if let Err(e) = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)) {
-                return self.toast(format!("Installateur non exécutable : {e}"), true);
-            }
-        }
-        self.confirm(
-            "Installer la mise à jour ?",
-            "Halcyon va se fermer et l'installateur vérifié va démarrer. Vos données (bibliothèque, sauvegardes, paramètres) sont conservées.",
-            "Installer",
-            move |c| match std::process::Command::new(&path).spawn() {
-                Ok(_) => c.quit(),
-                Err(e) => c.toast(format!("Installateur non lancé : {e}"), true),
-            },
-        );
-    }
-
     pub(crate) fn wire_system(self: &Rc<Self>, app: &crate::AppWindow) {
         let weak = Rc::downgrade(self);
         macro_rules! with {
@@ -923,8 +841,6 @@ impl Controller {
         ui.on_reset_shortcuts(with!(|c| c.reset_shortcuts()));
         ui.on_set_global_hotkey(with!(|c, combo| c.set_global_hotkey(&combo)));
         ui.on_check_integrity(with!(|c| c.check_integrity()));
-        ui.on_download_update(with!(|c| c.download_update()));
-        ui.on_install_update(with!(|c| c.install_update()));
         ui.on_create_shortcut(with!(|c, id| c.create_game_shortcut(id as GameId)));
         ui.on_mini_mode(with!(|c| c.show_mini()));
         let q = app.global::<QuickUi>();
@@ -932,11 +848,6 @@ impl Controller {
         q.on_activate(with!(|c, i, d| c.quick_activate(i.max(0) as usize, d)));
         let _ = (app.global::<DetailUi>(), app.global::<AppUi>(), app.global::<SettingsUi>());
     }
-}
-
-/// Halcyon a été installé par son installateur (fiche `install.json` à côté de l'exécutable).
-fn managed_install() -> bool {
-    std::env::current_exe().ok().and_then(|e| e.parent().map(|d| d.join("install.json").is_file())).unwrap_or(false)
 }
 
 #[cfg(test)]

@@ -89,8 +89,16 @@ pub struct Settings {
     pub online_metadata: bool,
 
     pub check_updates: bool,
-    /// Dépôt GitHub « propriétaire/nom » publiant les versions.
+    /// Dépôt GitHub « propriétaire/nom » publiant les versions (vide : dépôt officiel).
     pub update_repo: String,
+    /// Canal de mise à jour choisi (`stable` ou `beta`) ; `None` tant que l'utilisateur n'a
+    /// pas choisi : canal par défaut de la version installée. Jamais modifié sans action de
+    /// l'utilisateur.
+    pub update_channel: Option<String>,
+    /// Téléchargement en arrière-plan et installation au démarrage suivant.
+    pub update_auto: bool,
+    /// Dernière recherche de mise à jour (horodatage Unix).
+    pub update_last_check: i64,
     pub start_in_big_picture: bool,
     /// Notification système quand une mise à jour de jeu est détectée.
     pub update_notifications: bool,
@@ -452,6 +460,9 @@ impl Default for Settings {
             online_metadata: true,
             check_updates: true,
             update_repo: String::new(),
+            update_channel: None,
+            update_auto: true,
+            update_last_check: 0,
             start_in_big_picture: false,
             update_notifications: true,
             save_root: None,

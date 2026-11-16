@@ -30,7 +30,6 @@ pub mod steam;
 pub mod steam_web;
 pub mod steamgriddb;
 pub mod sysmon;
-pub mod update;
 pub mod vdf;
 
 use std::path::Path;

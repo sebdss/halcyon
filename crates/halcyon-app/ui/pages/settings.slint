@@ -2,7 +2,8 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { SourceInfo } from "../types.slint";
 import { SettingsUi, AppUi, Actions, SystemUi } from "../state.slint";
-import { Panel, Toggle, TextField, SecondaryButton, PrimaryButton, IconButton, Badge, Icon, SectionTitle, Chip, Dropdown, ValueSlider, Segmented } from "../components.slint";
+import { Panel, Toggle, TextField, SecondaryButton, PrimaryButton, IconButton, Badge, Icon, SectionTitle, Chip, Dropdown, ValueSlider, Segmented, ProgressBar } from "../components.slint";
+import { HusUi } from "../hus_state.slint";
 
 component SettingRow inherits HorizontalLayout {
     in property <string> title;
@@ -198,6 +199,81 @@ component SourcePanel inherits Panel {
                 clicked => { SettingsUi.set-source-path(root.key, root.path); }
             }
         }
+    }
+}
+
+/// État des mises à jour : version installée et disponible, progression réelle, actions.
+component UpdateStatusPanel inherits Panel {
+    property <bool> busy: HusUi.checking || HusUi.downloading || HusUi.state == 5;
+    VerticalLayout {
+        padding: 22px;
+        spacing: 16px;
+        HorizontalLayout {
+            spacing: 14px;
+            Rectangle {
+                width: 44px;
+                height: 44px;
+                border-radius: 22px;
+                background: HusUi.error ? Theme.danger.with-alpha(0.14) : HusUi.latest != "" ? Theme.warm.with-alpha(0.14) : Theme.accent.with-alpha(0.14);
+                Icon {
+                    x: (parent.width - self.width) / 2;
+                    y: (parent.height - self.height) / 2;
+                    source: HusUi.error ? Icons.alert : HusUi.latest != "" ? Icons.download : Icons.check;
+                    size: 20px;
+                    tint: HusUi.error ? Theme.danger : HusUi.latest != "" ? Theme.warm : Theme.accent;
+                }
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                spacing: 3px;
+                Text { text: HusUi.status; color: Theme.text; font-family: Theme.display; font-size: 20px; font-weight: 650; wrap: word-wrap; }
+                if HusUi.detail != "": Text { text: HusUi.detail; color: HusUi.error ? Theme.danger : Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+            }
+            if HusUi.security: Badge { y: 12px; text: "Sécurité"; tint: Theme.warm; solid: true; }
+        }
+        HorizontalLayout {
+            spacing: 32px;
+            alignment: start;
+            for kv in [
+                { label: "Version installée", value: HusUi.installed },
+                { label: "Dernière version", value: HusUi.latest != "" ? HusUi.latest : HusUi.state == 2 ? HusUi.installed : "—" },
+                { label: "Canal", value: HusUi.channel == 1 ? "Beta" : "Stable" },
+                { label: "Dernière recherche", value: HusUi.last-check },
+            ]: VerticalLayout {
+                spacing: 2px;
+                Text { text: kv.value; color: Theme.text; font-size: Theme.t-body; font-weight: 600; }
+                Text { text: kv.label; color: Theme.text-muted; font-size: Theme.t-caption; }
+            }
+        }
+        if HusUi.downloading || HusUi.state == 5: VerticalLayout {
+            spacing: 8px;
+            ProgressBar { value: HusUi.state == 5 ? -1 : HusUi.progress; }
+            Text {
+                text: HusUi.state == 5
+                    ? "Vérification de la signature, de l'empreinte SHA-256 et du paquet…"
+                    : HusUi.progress-text + (HusUi.size-text != "" ? "  ·  " + HusUi.size-text : "") + (HusUi.speed != "" ? "  ·  " + HusUi.speed : "") + (HusUi.eta != "" ? "  ·  " + HusUi.eta : "");
+                color: Theme.text-muted;
+                font-size: Theme.t-small;
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            SecondaryButton {
+                text: HusUi.checking ? "Recherche…" : "Rechercher des mises à jour";
+                icon: Icons.refresh;
+                has-icon: true;
+                enabled: !root.busy;
+                clicked => { HusUi.check(); }
+            }
+            if HusUi.can-download: PrimaryButton { text: "Télécharger " + HusUi.latest; icon: Icons.download; has-icon: true; clicked => { HusUi.download(); } }
+            if HusUi.downloading: SecondaryButton { text: "Annuler"; icon: Icons.close; has-icon: true; clicked => { HusUi.cancel(); } }
+            if HusUi.staged: PrimaryButton { text: "Installer et redémarrer"; icon: Icons.check; has-icon: true; clicked => { HusUi.install-now(); } }
+            if HusUi.staged && !HusUi.at-restart: SecondaryButton { text: "Installer au prochain démarrage"; icon: Icons.clock; has-icon: true; clicked => { HusUi.install-at-restart(); } }
+            if HusUi.release-url != "": SecondaryButton { text: "Page de la version"; icon: Icons.external; has-icon: true; clicked => { HusUi.open-release(); } }
+        }
+        if HusUi.staged && HusUi.at-restart: Text { text: "Installation prévue au prochain démarrage de Halcyon."; color: Theme.text-muted; font-size: Theme.t-caption; }
     }
 }
 
@@ -778,15 +854,28 @@ export component SettingsPage inherits Rectangle {
 
             if SettingsUi.shown[8]: VerticalLayout {
                 spacing: 18px;
-                // --- Mises à jour ---
+                // --- Mises à jour (Halcyon Update System) ---
                 SectionTitle { text: "Mises à jour"; }
+                UpdateStatusPanel { }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
                         SettingRow {
-                            title: "Vérifier les mises à jour au démarrage";
-                            description: SettingsUi.update-status;
+                            title: "Canal";
+                            description: HusUi.channel == 1
+                                ? "Beta : prépublications pour tester les nouveautés, et versions stables plus récentes."
+                                : "Stable : versions finales uniquement." + (HusUi.channel-default ? " Canal par défaut de la version installée." : "");
+                            Segmented {
+                                y: (parent.height - self.height) / 2;
+                                items: ["Stable", "Beta"];
+                                selected: HusUi.channel;
+                                activated(i) => { HusUi.set-channel(i); }
+                            }
+                        }
+                        SettingRow {
+                            title: "Rechercher automatiquement";
+                            description: "Au démarrage puis toutes les 6 heures. Requête conditionnelle à GitHub : rien n'est retéléchargé si rien n'a changé.";
                             Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
@@ -794,27 +883,43 @@ export component SettingsPage inherits Rectangle {
                                 toggled(v) => { SettingsUi.set-option("check_updates", v); }
                             }
                         }
+                        SettingRow {
+                            title: "Mises à jour automatiques";
+                            description: HusUi.managed
+                                ? "Télécharge et vérifie les nouvelles versions en arrière-plan, puis les installe au démarrage suivant de Halcyon."
+                                : "Indisponible pour cette installation : " + HusUi.kind;
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                enabled: HusUi.managed;
+                                checked: HusUi.auto && HusUi.managed;
+                                toggled(v) => { HusUi.set-auto(v); }
+                            }
+                        }
+                        if HusUi.can-install-user: SettingRow {
+                            title: "Installer Halcyon pour mon compte";
+                            description: "Copie cette AppImage dans ~/.local/opt/halcyon, ajoute Halcyon au menu des applications et à ~/.local/bin. Les mises à jour remplaceront ensuite ce fichier, sans toucher aux raccourcis.";
+                            SecondaryButton { y: (parent.height - self.height) / 2; text: "Installer"; icon: Icons.download; has-icon: true; clicked => { HusUi.install-user(); } }
+                        }
                         HorizontalLayout {
-                            spacing: 8px;
                             TextSetting {
                                 key: "update_repo";
-                                label: "Dépôt GitHub des versions";
-                                hint: "Format propriétaire/nom : le dépôt où la CI publie Halcyon. Halcyon signale la nouvelle version et ouvre sa page de téléchargement.";
-                                placeholder: "ex. sebi/halcyon";
+                                label: "Dépôt des versions";
+                                hint: "Vide : dépôt officiel (sebdss/halycon). Un autre dépôt n'est utile que pour une version dérivée : ses manifestes doivent être signés par une clé intégrée à cette compilation.";
+                                placeholder: "sebdss/halycon";
                                 value: SettingsUi.update-repo;
                             }
                         }
-                        HorizontalLayout {
-                            alignment: start;
-                            spacing: 8px;
-                            SecondaryButton { text: "Vérifier maintenant"; icon: Icons.refresh; has-icon: true; clicked => { SettingsUi.check-update(); } }
-                            if AppUi.update-version != "": PrimaryButton { text: "Télécharger la version " + AppUi.update-version; icon: Icons.download; has-icon: true; clicked => { SystemUi.download-update(); } }
-                            if SystemUi.update-ready: PrimaryButton { text: SystemUi.update-is-setup ? "Installer" : "Ouvrir le paquet vérifié"; icon: Icons.check; has-icon: true; clicked => { SystemUi.install-update(); } }
-                        }
-                        if SystemUi.update-progress != "": Text { text: SystemUi.update-progress; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
-                        Text { text: "Le paquet n'est installé que si son empreinte SHA-256 correspond au fichier SHA256SUMS publié avec la version, et, pour les versions officielles, si ce fichier porte la signature Ed25519 de l'auteur. Cette compilation vérifie : " + SystemUi.update-verification + "."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                     }
                 }
+                if HusUi.notes != "": Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 10px;
+                        Text { text: "Nouveautés de la version " + HusUi.latest; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                        Text { text: HusUi.notes; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+                    }
+                }
+                Text { text: HusUi.kind + ". " + HusUi.verification; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
             }
 
             if SettingsUi.shown[9]: VerticalLayout {

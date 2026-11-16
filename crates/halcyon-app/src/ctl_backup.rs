@@ -255,8 +255,8 @@ impl Controller {
         if s.sync_achievements_on_startup {
             self.start_ach_sync(None, false);
         }
-        if s.check_updates && !s.update_repo.trim().is_empty() {
-            self.check_update(false);
+        if s.check_updates {
+            crate::controller::post(|c| c.hus_check(false));
         }
         self.sync_pending_saves();
     }
