@@ -138,7 +138,7 @@ component GameMenuOverlay inherits Rectangle {
                         padding-left: 10px;
                         padding-right: 10px;
                         spacing: 10px;
-                        Icon { y: 9px; source: e.icon; size: 16px; tint: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text-muted; }
+                        Icon { source: e.icon; size: 16px; tint: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text-muted; }
                         Text {
                             text: e.label;
                             color: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text;
@@ -272,7 +272,7 @@ component ConfirmDialog inherits Rectangle {
             spacing: 14px;
             HorizontalLayout {
                 spacing: 12px;
-                Icon { source: Icons.alert; size: 22px; tint: Theme.warm; y: 3px; }
+                Icon { source: Icons.alert; size: 22px; tint: Theme.warm; }
                 Text { text: AppUi.confirm-title; color: Theme.text; font-size: 19px; font-weight: 800; wrap: word-wrap; horizontal-stretch: 1; }
             }
             Text { text: AppUi.confirm-text; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
@@ -760,7 +760,7 @@ component MiniList inherits VerticalLayout {
             padding-left: 8px;
             padding-right: 8px;
             spacing: 10px;
-            Icon { y: 11px; source: Icons.play; size: 16px; tint: g.installed ? Theme.accent : Theme.text-dim; }
+            Icon { source: Icons.play; size: 16px; tint: g.installed ? Theme.accent : Theme.text-dim; }
             VerticalLayout {
                 alignment: center;
                 Text { text: g.title; color: Theme.text; font-size: Theme.t-small; font-weight: 600; overflow: elide; }

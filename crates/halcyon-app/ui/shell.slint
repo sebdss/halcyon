@@ -173,8 +173,11 @@ component SpaceTab inherits Rectangle {
     in property <bool> active;
     in property <string> count;
     callback clicked;
+    // Positions calculées (pas de mise en page automatique) : la pastille du compteur
+    // reste dans le bouton quelle que soit la mise à l'échelle de l'écran ou la police.
+    property <length> count-w: root.count == "" ? 0px : max(20px, cm.preferred-width + 12px);
     height: 36px;
-    width: row.preferred-width + 28px;
+    width: 14px + tt.preferred-width + (root.count == "" ? 0px : 7px + root.count-w) + 14px;
     border-radius: 18px;
     background: root.active ? Theme.surface-active : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
     border-width: fs.has-focus ? Theme.focus-width : 0px;
@@ -183,17 +186,36 @@ component SpaceTab inherits Rectangle {
     accessible-label: text;
     accessible-action-default => { root.clicked(); }
     forward-focus: fs;
-    row := HorizontalLayout {
+    cm := Text { visible: false; text: root.count; font-size: 11px; font-weight: 650; }
+    tt := Text {
         x: 14px;
-        spacing: 7px;
-        Text { text: root.text; color: root.active ? Theme.text : Theme.text-muted; font-size: Theme.t-small; font-weight: root.active ? 650 : 500; vertical-alignment: center; }
-        if root.count != "": Rectangle {
-            y: (parent.height - self.height) / 2;
-            height: 20px;
-            width: ct.preferred-width + 12px;
-            border-radius: 10px;
-            background: root.active ? Theme.accent.with-alpha(0.22) : Theme.surface-active;
-            ct := Text { text: root.count; color: root.active ? Theme.accent : Theme.text-muted; font-size: 11px; font-weight: 650; vertical-alignment: center; horizontal-alignment: center; }
+        y: 0px;
+        width: self.preferred-width;
+        height: root.height;
+        text: root.text;
+        color: root.active ? Theme.text : Theme.text-muted;
+        font-size: Theme.t-small;
+        font-weight: root.active ? 650 : 500;
+        vertical-alignment: center;
+    }
+    if root.count != "": Rectangle {
+        x: tt.x + tt.width + 7px;
+        y: (root.height - self.height) / 2;
+        width: root.count-w;
+        height: 20px;
+        border-radius: 10px;
+        background: root.active ? Theme.accent.with-alpha(0.22) : Theme.surface-active;
+        Text {
+            x: 0px;
+            y: 0px;
+            width: parent.width;
+            height: parent.height;
+            text: root.count;
+            color: root.active ? Theme.accent : Theme.text-muted;
+            font-size: 11px;
+            font-weight: 650;
+            vertical-alignment: center;
+            horizontal-alignment: center;
         }
     }
     ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
@@ -267,7 +289,7 @@ component SearchPill inherits Rectangle {
         padding-left: 14px;
         padding-right: 10px;
         spacing: 10px;
-        Icon { y: 10px; source: Icons.search; size: 18px; tint: Theme.text-muted; }
+        Icon { source: Icons.search; size: 18px; tint: Theme.text-muted; }
         if !root.compact: Text {
             text: "Rechercher un jeu, une page, un réglage…";
             color: Theme.text-dim;

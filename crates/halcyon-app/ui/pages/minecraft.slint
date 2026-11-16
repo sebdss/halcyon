@@ -44,7 +44,7 @@ component TaskBar inherits VerticalLayout {
         HorizontalLayout {
             padding: 12px;
             spacing: 10px;
-            Icon { source: Icons.alert; size: 16px; tint: Theme.danger; y: 2px; }
+            Icon { source: Icons.alert; size: 16px; tint: Theme.danger; }
             Text { text: McUi.error; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; horizontal-stretch: 1; }
             IconButton { size: 28px; icon: Icons.close; icon-size: 14px; clicked => { McUi.dismiss(); } }
         }
@@ -188,7 +188,7 @@ component PlayTab inherits VerticalLayout {
                 spacing: 10px;
                 HorizontalLayout {
                     spacing: 12px;
-                    Icon { source: Icons.user; size: 20px; tint: McUi.official-account != "" ? Theme.success : Theme.text-dim; y: 2px; }
+                    Icon { source: Icons.user; size: 20px; tint: McUi.official-account != "" ? Theme.success : Theme.text-dim; }
                     VerticalLayout {
                         horizontal-stretch: 1;
                         spacing: 2px;
@@ -224,7 +224,7 @@ component PlayTab inherits VerticalLayout {
             }
             if McUi.play-mode == 1: HorizontalLayout {
                 spacing: 12px;
-                Icon { source: Icons.user; size: 20px; tint: McUi.account-name != "" ? Theme.success : Theme.text-dim; y: 2px; }
+                Icon { source: Icons.user; size: 20px; tint: McUi.account-name != "" ? Theme.success : Theme.text-dim; }
                 VerticalLayout {
                     horizontal-stretch: 1;
                     spacing: 2px;

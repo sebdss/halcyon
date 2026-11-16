@@ -22,7 +22,7 @@ component TaskLine inherits Rectangle {
         spacing: 8px;
         HorizontalLayout {
             spacing: 10px;
-            Icon { source: root.state == 0 ? Icons.download : root.state == 1 ? Icons.check : Icons.alert; size: 18px; tint: root.state == 2 ? Theme.danger : root.state == 1 ? Theme.success : Theme.accent; y: 2px; }
+            Icon { source: root.state == 0 ? Icons.download : root.state == 1 ? Icons.check : Icons.alert; size: 18px; tint: root.state == 2 ? Theme.danger : root.state == 1 ? Theme.success : Theme.accent; }
             VerticalLayout {
                 horizontal-stretch: 1;
                 spacing: 2px;
@@ -108,7 +108,7 @@ export component DownloadsPage inherits Rectangle {
                 plat := HorizontalLayout {
                     padding: 16px;
                     spacing: 12px;
-                    Icon { source: Icons.layers; size: 20px; tint: Theme.accent; y: 2px; }
+                    Icon { source: Icons.layers; size: 20px; tint: Theme.accent; }
                     Text {
                         horizontal-stretch: 1;
                         vertical-alignment: center;
