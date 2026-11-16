@@ -136,7 +136,7 @@ fn modified_package_is_rejected_and_deleted() {
     let x = found(&f, "0.5.1");
     let net = Net::for_local_tests(&f.server.base);
     let path = format!("/dl/1.0.0/{}", x.package.name);
-    let mut tampered = format!("paquet 1.0.0").repeat(2000).into_bytes();
+    let mut tampered = "paquet 1.0.0".repeat(2000).into_bytes();
     tampered[100] ^= 0xff;
     f.server.set(&path, Route::ok(tampered));
     let out = f.dir.path().join("dl");
@@ -151,7 +151,7 @@ fn interrupted_download_resumes_with_range() {
     let x = found(&f, "0.5.1");
     let net = Net::for_local_tests(&f.server.base);
     let path = format!("/dl/1.0.0/{}", x.package.name);
-    let body = format!("paquet 1.0.0").repeat(2000).into_bytes();
+    let body = "paquet 1.0.0".repeat(2000).into_bytes();
     f.server.set(&path, Route { cut_after: Some(5000), cuts: 1, ..Route::ok(body.clone()) });
     let out = f.dir.path().join("dl");
     let mut events = Vec::new();
@@ -171,7 +171,7 @@ fn resume_after_process_restart_and_server_without_range() {
     let x = found(&f, "0.5.1");
     let net = Net::for_local_tests(&f.server.base);
     let path = format!("/dl/1.0.0/{}", x.package.name);
-    let body = format!("paquet 1.0.0").repeat(2000).into_bytes();
+    let body = "paquet 1.0.0".repeat(2000).into_bytes();
     let out = f.dir.path().join("dl");
     // Premier lancement : toutes les tentatives sont coupées (réseau perdu).
     f.server.set(&path, Route { cut_after: Some(3000), cuts: 10, ..Route::ok(body.clone()) });

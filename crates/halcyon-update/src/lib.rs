@@ -14,8 +14,11 @@
 
 pub mod core;
 pub mod download;
+pub mod install;
 pub mod manifest;
 pub mod network;
+pub mod recovery;
+pub mod runner;
 pub mod security;
 #[cfg(feature = "fault-injection")]
 pub mod testkit;
