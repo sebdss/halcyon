@@ -166,6 +166,8 @@ pub struct Installed {
     /// Fichier illisible ou incompatible.
     pub errors: Vec<String>,
     pub warnings: Vec<String>,
+    /// Empreinte et signature (1.0.0) ; `None` si le contenu n'a pas pu être lu.
+    pub trust: Option<crate::plugin_trust::Trust>,
 }
 
 impl Installed {
@@ -193,10 +195,18 @@ pub fn list(root: &Path, current_version: &str) -> Vec<Installed> {
             let dir = e.path();
             match read_manifest(&dir.join(MANIFEST)) {
                 Ok(m) => {
-                    let (errors, warnings) = m.validate(current_version);
-                    Installed { dir, manifest: Some(m), errors, warnings }
+                    let (mut errors, warnings) = m.validate(current_version);
+                    // Une extension signée dont le contenu a changé est inutilisable.
+                    let trust = match crate::plugin_trust::verify(&dir) {
+                        Ok(t) => Some(t),
+                        Err(e) => {
+                            errors.push(e);
+                            None
+                        }
+                    };
+                    Installed { dir, manifest: Some(m), errors, warnings, trust }
                 }
-                Err(err) => Installed { dir, manifest: None, errors: vec![err], warnings: vec![] },
+                Err(err) => Installed { dir, manifest: None, errors: vec![err], warnings: vec![], trust: None },
             }
         })
         .collect();

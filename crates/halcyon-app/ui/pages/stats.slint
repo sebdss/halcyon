@@ -2,7 +2,7 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { Actions, StatsUi } from "../state.slint";
 import { BarItem } from "../types.slint";
-import { Panel, SectionTitle, BigStat, BarChart, MeterRow, PageHeader, Notice, GameCover } from "../components.slint";
+import { Panel, SectionTitle, BigStat, BarChart, MeterRow, PageHeader, Notice, GameCover, SecondaryButton } from "../components.slint";
 
 component ChartPanel inherits Panel {
     in property <string> title;
@@ -43,6 +43,9 @@ export component StatsPage inherits Rectangle {
             PageHeader {
                 title: "Statistiques";
                 subtitle: "Chaque chiffre indique sa provenance : données des plateformes, sessions suivies par Halcyon ou corrections manuelles.";
+                SecondaryButton { y: 6px; h: 34px; text: "Temps par jeu (CSV)"; icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("csv-games"); } }
+                SecondaryButton { y: 6px; h: 34px; text: "Sessions (CSV)"; icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("csv-sessions"); } }
+                SecondaryButton { y: 6px; h: 34px; text: "Tout (JSON)"; icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("json"); } }
             }
 
             Panel {

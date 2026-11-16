@@ -112,6 +112,7 @@ pub struct Controller {
     pub(crate) remote_state: RefCell<crate::ctl_remote::RemoteState>,
     pub(crate) mc: RefCell<crate::ctl_minecraft::McState>,
     pub(crate) perfc: RefCell<crate::ctl_perf::PerfState>,
+    pub(crate) downloads_timer: RefCell<Option<slint::Timer>>,
     pub(crate) tray: RefCell<Option<crate::tray::Tray>>,
     pub(crate) hotkey: RefCell<Option<(global_hotkey::GlobalHotKeyManager, global_hotkey::hotkey::HotKey)>>,
     pub(crate) system_timer: RefCell<Option<slint::Timer>>,
@@ -206,6 +207,7 @@ impl Controller {
             tasks: RefCell::new(crate::tasks::TaskCenter::default()),
             perf_auto_active: Cell::new(false),
             perfc: RefCell::new(Default::default()),
+            downloads_timer: RefCell::new(None),
             audio,
             shell_timer: RefCell::new(None),
             paths,
@@ -249,6 +251,7 @@ impl Controller {
 
     /// Tâches de démarrage, une fois la première image affichée.
     pub fn startup(self: &Rc<Self>) {
+        self.apply_download_settings();
         // Badge « Mises à jour » et compteurs des collections intelligentes : différés après
         // l'affichage de la première image.
         self.refresh_updates();
@@ -542,6 +545,14 @@ impl Controller {
         rui.on_open_sunshine(with!(|c| c.open_sunshine()));
         rui.on_set_moonlight_path(with!(|c, p| c.set_moonlight_path(&p)));
 
+        app.global::<crate::StatsUi>().on_export(with!(|c, f| c.export_stats(&f)));
+
+        let dl = app.global::<crate::DownloadsUi>();
+        dl.on_set_paused(with!(|c, on| c.set_downloads_paused(on)));
+        dl.on_set_limit(with!(|c, k| c.set_download_limit(k)));
+        dl.on_set_concurrency(with!(|c, n| c.set_download_concurrency(n)));
+        dl.on_cancel_minecraft(with!(|c| c.mc.borrow().cancel.store(true, Ordering::SeqCst)));
+
         let perf = app.global::<crate::PerfUi>();
         perf.on_reco_action(with!(|c, a| c.perf_reco_action(&a)));
         perf.on_set_history(with!(|c, on| c.set_perf_history(on)));
@@ -611,6 +622,7 @@ impl Controller {
                 3 => SourceFilter::Only(GameSource::Emulated),
                 4 => SourceFilter::Only(GameSource::Standalone),
                 5 => SourceFilter::Only(GameSource::Minecraft),
+                6 => SourceFilter::Only(GameSource::Gog),
                 _ => SourceFilter::All,
             },
             installed_only: lui.get_installed_only(),
@@ -863,7 +875,11 @@ impl Controller {
         if page != Page::Performance {
             self.perf_close();
         }
+        if page != Page::Downloads {
+            self.downloads_close();
+        }
         match page {
+            Page::Downloads => self.downloads_open(),
             Page::Performance => self.perf_open(),
             Page::Achievements => self.refresh_ach_page(),
             Page::Emulators => self.refresh_emulators_ui(),
@@ -1219,6 +1235,8 @@ impl Controller {
         let mut found = self.found.borrow_mut();
         found.insert(GameSource::Steam, (steam.is_some(), steam.map(|p| p.display().to_string()).unwrap_or_default()));
         found.insert(GameSource::Epic, (epic.is_some(), epic.map(|p| p.display().to_string()).unwrap_or_default()));
+        let gog = halcyon_integrations::gog::GogScanner::new(s.gog_heroic_path.clone()).location();
+        found.insert(GameSource::Gog, (gog.is_some(), gog.map(|p| p.display().to_string()).unwrap_or_default()));
     }
 
     pub(crate) fn start_scan(&self) {
@@ -1263,6 +1281,9 @@ impl Controller {
                 }
                 if settings.epic_enabled {
                     scanners.push(Box::new(epic::EpicScanner::new(settings.epic_manifests_path.clone())));
+                }
+                if settings.gog_enabled {
+                    scanners.push(Box::new(halcyon_integrations::gog::GogScanner::new(settings.gog_heroic_path.clone())));
                 }
                 // Toujours exécutés : retirer un dossier rend ses jeux « non installés ».
                 scanners.push(Box::new(standalone::StandaloneScanner::new(settings.scan_folders.clone())));
@@ -1680,6 +1701,7 @@ impl Controller {
         let sui = app.global::<SettingsUi>();
         sui.set_steam(info(GameSource::Steam, "Steam", s.steam_enabled, &s.steam_path));
         sui.set_epic(info(GameSource::Epic, "Epic Games (launcher Epic, Heroic ou Legendary)", s.epic_enabled, &s.epic_manifests_path));
+        sui.set_gog(info(GameSource::Gog, "GOG (Heroic ou GOG Galaxy)", s.gog_enabled, &s.gog_heroic_path));
         let folders: Vec<SharedString> = s.scan_folders.iter().map(|p| p.display().to_string().into()).collect();
         sui.set_folders(ModelRc::new(VecModel::from(folders)));
         sui.set_online_artwork(s.online_artwork);
@@ -1722,6 +1744,7 @@ impl Controller {
             match key {
                 "steam" => s.steam_enabled = enabled,
                 "epic" => s.epic_enabled = enabled,
+                "gog" => s.gog_enabled = enabled,
                 _ => return,
             }
         }
@@ -1742,6 +1765,7 @@ impl Controller {
             match key {
                 "steam" => s.steam_path = path,
                 "epic" => s.epic_manifests_path = path,
+                "gog" => s.gog_heroic_path = path,
                 _ => return,
             }
         }

@@ -58,9 +58,9 @@ component RuleEditor inherits Rectangle {
             prefix: "";
             align-left: true;
             options: SmartUi.source-labels;
-            selected: root.param == "epic" ? 1 : root.param == "standalone" ? 2 : root.param == "manual" ? 3 : root.param == "emulated" ? 4 : root.param == "minecraft" ? 5 : 0;
+            selected: root.param == "epic" ? 1 : root.param == "standalone" ? 2 : root.param == "manual" ? 3 : root.param == "emulated" ? 4 : root.param == "minecraft" ? 5 : root.param == "gog" ? 6 : 0;
             changed(i) => {
-                SmartUi.set-rule(root.index, root.kind, i == 1 ? "epic" : i == 2 ? "standalone" : i == 3 ? "manual" : i == 4 ? "emulated" : i == 5 ? "minecraft" : "steam", root.negate);
+                SmartUi.set-rule(root.index, root.kind, i == 1 ? "epic" : i == 2 ? "standalone" : i == 3 ? "manual" : i == 4 ? "emulated" : i == 5 ? "minecraft" : i == 6 ? "gog" : "steam", root.negate);
             }
         }
         Rectangle { horizontal-stretch: 1; }

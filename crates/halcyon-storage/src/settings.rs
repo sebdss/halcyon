@@ -44,6 +44,10 @@ pub struct Settings {
     /// Dossier Steam forcé (sinon détection automatique).
     pub steam_path: Option<PathBuf>,
     pub epic_enabled: bool,
+    /// GOG (Heroic, GOG Galaxy), 1.0.0.
+    pub gog_enabled: bool,
+    /// Dossier de configuration Heroic forcé (sinon détection automatique).
+    pub gog_heroic_path: Option<PathBuf>,
     /// Dossier des manifestes Epic forcé (sinon détection automatique).
     pub epic_manifests_path: Option<PathBuf>,
     /// Dossiers parcourus à la recherche de jeux standalone.
@@ -109,6 +113,10 @@ pub struct Settings {
     /// Performance Center : résumé processeur / mémoire / carte graphique de chaque partie
     /// (un échantillon toutes les 10 s pendant le jeu).
     pub perf_history: bool,
+    /// Gestionnaire de téléchargements : limite en Kio/s (0 : illimitée).
+    pub download_limit_kib: u64,
+    /// Téléchargements simultanés (les suivants attendent).
+    pub download_concurrency: u32,
     /// Dossier des journaux de temps d'image (MangoHud `output_folder`, PresentMon).
     pub frametime_dir: Option<PathBuf>,
 
@@ -406,6 +414,8 @@ impl Default for Settings {
             steam_enabled: true,
             steam_path: None,
             epic_enabled: true,
+            gog_enabled: true,
+            gog_heroic_path: None,
             epic_manifests_path: None,
             scan_folders: Vec::new(),
             online_artwork: true,
@@ -457,6 +467,8 @@ impl Default for Settings {
             minecraft: MinecraftSettings::default(),
             curseforge_api_key: String::new(),
             perf_history: true,
+            download_limit_kib: 0,
+            download_concurrency: 2,
             frametime_dir: None,
         }
     }

@@ -32,7 +32,7 @@ const NAV_PAGES: [Page; 9] =
     [Page::Home, Page::Library, Page::Assistant, Page::Achievements, Page::Stats, Page::Journal, Page::Updates, Page::Saves, Page::Settings];
 
 /// Pages proposées par le lancement rapide (libellé, mots-clés, page).
-const QUICK_PAGES: [(&str, &str, Page); 18] = [
+const QUICK_PAGES: [(&str, &str, Page); 19] = [
     ("Accueil", "home debut", Page::Home),
     ("Bibliothèque", "jeux library", Page::Library),
     ("Que jouer ?", "assistant suggestions recommandations", Page::Assistant),
@@ -46,6 +46,7 @@ const QUICK_PAGES: [(&str, &str, Page); 18] = [
     ("Jeu à distance", "streaming sunshine moonlight remote", Page::Remote),
     ("Performances", "performance center fps cpu gpu ram processeur memoire carte graphique monitoring", Page::Performance),
     ("Minecraft", "java mods modpacks fabric forge neoforge", Page::Minecraft),
+    ("Téléchargements", "downloads file attente pause debit vitesse", Page::Downloads),
     ("Extensions", "plugins", Page::Plugins),
     ("Apparence", "theme couleurs fond", Page::Appearance),
     ("Paramètres", "settings options reglages raccourcis", Page::Settings),

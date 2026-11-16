@@ -1,0 +1,136 @@
+// Gestionnaire de téléchargements (1.0.0).
+
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Nav, Page, McUi } from "../state.slint";
+import { DownloadsUi } from "../downloads_state.slint";
+import { Panel, SectionTitle, Overline, PageHeader, SecondaryButton, PrimaryButton, Badge, Notice, Dropdown, ProgressBar, BigStat, Icon } from "../components.slint";
+
+component TaskLine inherits Rectangle {
+    in property <string> title;
+    in property <string> detail;
+    in property <float> progress;
+    in property <int> state;
+    in property <string> time;
+    in property <bool> cancellable;
+    callback cancel();
+    height: col.preferred-height;
+    Panel { }
+    col := VerticalLayout {
+        padding: 14px;
+        padding-left: 16px;
+        spacing: 8px;
+        HorizontalLayout {
+            spacing: 10px;
+            Icon { source: root.state == 0 ? Icons.download : root.state == 1 ? Icons.check : Icons.alert; size: 18px; tint: root.state == 2 ? Theme.danger : root.state == 1 ? Theme.success : Theme.accent; y: 2px; }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 2px;
+                Text { text: root.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
+                Text { text: root.detail; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+            }
+            Text { text: root.time; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
+            if root.cancellable: SecondaryButton { h: 32px; text: "Annuler"; clicked => { root.cancel(); } }
+        }
+        if root.state == 0: ProgressBar { value: root.progress; }
+    }
+}
+
+export component DownloadsPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 18px;
+            alignment: start;
+
+            PageHeader {
+                title: "Téléchargements";
+                subtitle: "Tout ce que Halcyon télécharge lui-même (Minecraft, mods, modpacks, Java, mises à jour de Halcyon) passe par cette file. Les jeux Steam, Epic et GOG sont téléchargés par leur client officiel.";
+                if !DownloadsUi.paused: SecondaryButton { y: 8px; text: "Tout mettre en pause"; icon: Icons.clock; has-icon: true; clicked => { DownloadsUi.set-paused(true); } }
+                if DownloadsUi.paused: PrimaryButton { y: 8px; text: "Reprendre"; icon: Icons.play; has-icon: true; clicked => { DownloadsUi.set-paused(false); } }
+            }
+
+            Rectangle {
+                height: stats.preferred-height;
+                Panel { }
+                stats := HorizontalLayout {
+                    padding: 18px;
+                    spacing: 36px;
+                    BigStat { value: DownloadsUi.speed; label: "vitesse actuelle"; }
+                    BigStat { value: DownloadsUi.running; label: "en cours"; }
+                    BigStat { value: DownloadsUi.received; label: "reçus depuis l'ouverture"; }
+                    Rectangle { horizontal-stretch: 1; }
+                    VerticalLayout {
+                        spacing: 6px;
+                        alignment: center;
+                        Overline { text: "LIMITE DE DÉBIT"; }
+                        Dropdown {
+                            align-left: true;
+                            options: ["Illimitée", "1 Mio/s", "5 Mio/s", "10 Mio/s", "25 Mio/s", "50 Mio/s"];
+                            selected: DownloadsUi.limit-kib == 1024 ? 1 : DownloadsUi.limit-kib == 5120 ? 2 : DownloadsUi.limit-kib == 10240 ? 3 : DownloadsUi.limit-kib == 25600 ? 4 : DownloadsUi.limit-kib == 51200 ? 5 : 0;
+                            changed(i) => { DownloadsUi.set-limit(i == 1 ? 1024 : i == 2 ? 5120 : i == 3 ? 10240 : i == 4 ? 25600 : i == 5 ? 51200 : 0); }
+                        }
+                    }
+                    VerticalLayout {
+                        spacing: 6px;
+                        alignment: center;
+                        Overline { text: "SIMULTANÉS"; }
+                        Dropdown {
+                            align-left: true;
+                            options: ["1", "2", "3", "4"];
+                            selected: DownloadsUi.concurrency - 1;
+                            changed(i) => { DownloadsUi.set-concurrency(i + 1); }
+                        }
+                    }
+                }
+            }
+            if DownloadsUi.paused: Notice { warning: true; text: "En pause : les transferts en cours attendent sans rien perdre et reprennent là où ils se sont arrêtés."; }
+
+            SectionTitle { text: "En cours et en attente"; }
+            if DownloadsUi.active.length == 0: Text { text: "Aucun téléchargement en cours."; color: Theme.text-dim; font-size: Theme.t-small; }
+            for t in DownloadsUi.active: TaskLine {
+                title: t.title;
+                detail: t.detail;
+                progress: t.progress;
+                state: t.state;
+                time: t.time;
+                cancellable: t.kind == "minecraft" && McUi.busy;
+                cancel => { DownloadsUi.cancel-minecraft(); }
+            }
+
+            SectionTitle { text: "Jeux des plateformes"; }
+            Rectangle {
+                height: plat.preferred-height;
+                Panel { }
+                plat := HorizontalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Icon { source: Icons.layers; size: 20px; tint: Theme.accent; y: 2px; }
+                    Text {
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                        wrap: word-wrap;
+                        color: Theme.text-muted;
+                        font-size: Theme.t-small;
+                        text: DownloadsUi.platform-pending == 0 ? "Aucune mise à jour de jeu en attente dans Steam, Epic ou GOG." : DownloadsUi.platform-pending + " mise(s) à jour de jeux en attente, dont " + DownloadsUi.platform-downloading + " en cours de téléchargement dans le client de la plateforme.";
+                    }
+                    SecondaryButton { h: 34px; text: "Mises à jour des jeux"; clicked => { Nav.go(Page.updates); } }
+                }
+            }
+
+            if DownloadsUi.history.length > 0: SectionTitle { text: "Terminés récemment"; }
+            for t in DownloadsUi.history: TaskLine {
+                title: t.title;
+                detail: t.detail;
+                progress: t.progress;
+                state: t.state;
+                time: t.time;
+            }
+
+            Notice { text: "Chaque fichier est vérifié par son empreinte (SHA-1 Mojang et Modrinth, SHA-256 et signature pour Halcyon) avant d'être gardé. Après une coupure réseau, un fichier partiel reprend où il s'était arrêté si le serveur le permet."; }
+        }
+    }
+}

@@ -83,6 +83,7 @@ export component PluginsPage inherits Rectangle {
                                 Rectangle { horizontal-stretch: 1; }
                             }
                             Text { text: (p.author != "" ? "par " + p.author + " · " : "") + p.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                            if p.trust != "": Text { text: p.trust; color: p.signed ? Theme.success : Theme.text-dim; font-size: Theme.t-overline; overflow: elide; }
                         }
                         Toggle { y: 4px; enabled: p.usable; checked: p.enabled; toggled(v) => { PluginsUi.set-enabled(p.id, v); } }
                         if p.homepage != "": IconButton { icon: Icons.info; tooltip: "Page de l'extension"; clicked => { Actions.open-url(p.homepage); } }

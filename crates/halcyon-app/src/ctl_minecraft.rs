@@ -328,7 +328,18 @@ impl Controller {
         std::thread::Builder::new()
             .name("halcyon-minecraft".into())
             .spawn(move || {
-                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(&ctx))).unwrap_or_else(|_| Err(Error::Invalid("erreur interne".into())));
+                // File d'attente commune du gestionnaire de téléchargements.
+                let transfers = halcyon_core::transfer::global();
+                if transfers.active() >= transfers.max_concurrent() {
+                    post(move |c| c.task_update(task, Some(-1.0), Some("En attente dans la file des téléchargements…")));
+                }
+                let slot = transfers.acquire(&ctx.cancel);
+                let result = if slot.is_none() {
+                    Err(Error::Cancelled)
+                } else {
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(&ctx))).unwrap_or_else(|_| Err(Error::Invalid("erreur interne".into())))
+                };
+                drop(slot);
                 post(move |c| {
                     c.mc.borrow_mut().busy = false;
                     match result {

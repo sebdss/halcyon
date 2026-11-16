@@ -558,7 +558,7 @@ impl Controller {
             PlayStatus::ALL.iter().map(|s| SharedString::from(s.label())).collect::<Vec<_>>(),
         )));
         ui.set_source_labels(ModelRc::new(VecModel::from(
-            ["Steam", "Epic Games", "Standalone", "Ajout manuel", "Émulation", "Minecraft"].map(SharedString::from).to_vec(),
+            GameSource::ALL.map(|s| SharedString::from(s.label())).to_vec(),
         )));
         ui.set_rules(ModelRc::from(self.smart_rules.clone()));
     }
@@ -759,5 +759,35 @@ fn client_label(g: &Game) -> &'static str {
         Some("heroic://") => "Ouvrir Heroic",
         Some(_) => "Ouvrir Epic Games",
         None => "Client indisponible",
+    }
+}
+
+impl Controller {
+    /// Export des statistiques (1.0.0) : fichier choisi par l'utilisateur.
+    pub(crate) fn export_stats(&self, format: &str) {
+        use halcyon_core::export;
+        let (name, ext) = match format {
+            "csv-games" => ("halcyon-temps-de-jeu.csv", "csv"),
+            "csv-sessions" => ("halcyon-sessions.csv", "csv"),
+            _ => ("halcyon-statistiques.json", "json"),
+        };
+        let Some(path) = crate::dialogs::save_file(name, ext) else { return };
+        let sessions: Vec<export::SessionRow> = match self.db().sessions() {
+            Ok(v) => v.into_iter().map(|s| export::SessionRow { game_id: s.game_id, started_at: s.started_at, duration_secs: s.duration_secs }).collect(),
+            Err(e) => return self.toast(format!("Lecture des sessions impossible : {e}"), true),
+        };
+        let lib = self.lib.borrow();
+        let data = match format {
+            "csv-games" => export::games_csv(&lib.games),
+            "csv-sessions" => export::sessions_csv(&sessions, &lib.games),
+            _ => serde_json::to_string_pretty(&export::to_json(&sessions, &lib.games, now_unix(), env!("CARGO_PKG_VERSION"))).unwrap_or_default(),
+        };
+        drop(lib);
+        // BOM UTF-8 pour les CSV : Excel affiche correctement les accents.
+        let bytes = if ext == "csv" { [&[0xEF, 0xBB, 0xBF][..], data.as_bytes()].concat() } else { data.into_bytes() };
+        match std::fs::write(&path, bytes) {
+            Ok(()) => self.toast(format!("Statistiques exportées : {}", path.display()), false),
+            Err(e) => self.toast(format!("Export impossible : {e}"), true),
+        }
     }
 }

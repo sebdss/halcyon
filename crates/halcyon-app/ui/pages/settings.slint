@@ -288,6 +288,11 @@ export component SettingsPage inherits Rectangle {
                     key: "epic";
                     path-label: "Dossier des manifestes Epic (détection automatique si vide)";
                 }
+                SourcePanel {
+                    info: SettingsUi.gog;
+                    key: "gog";
+                    path-label: "Dossier de configuration Heroic (détection automatique si vide)";
+                }
             }
 
             if SettingsUi.shown[1]: VerticalLayout {

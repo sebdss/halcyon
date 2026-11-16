@@ -24,6 +24,7 @@ fn page_from_name(name: &str) -> Option<Page> {
         "emulators" => Page::Emulators,
         "minecraft" => Page::Minecraft,
         "performance" => Page::Performance,
+        "downloads" => Page::Downloads,
         _ => return None,
     })
 }
@@ -312,6 +313,7 @@ impl Controller {
         ui.set_running(active.len() as i32);
         ui.set_errors(errors as i32);
         ui.set_unread(if ui.get_open() { 0 } else { unread as i32 });
+        self.publish_download_rows(&active, &history);
         ui.set_active(ModelRc::new(VecModel::from(active)));
         ui.set_history(ModelRc::new(VecModel::from(history)));
     }

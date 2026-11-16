@@ -139,6 +139,8 @@ impl Controller {
                     permissions: ModelRc::new(VecModel::from(perms)),
                     update: updates.get(&id).cloned().unwrap_or_default().into(),
                     homepage: if m.homepage.starts_with("https://") { m.homepage.clone().into() } else { SharedString::new() },
+                    trust: p.trust.as_ref().map(|t| t.label()).unwrap_or_default().into(),
+                    signed: p.trust.as_ref().is_some_and(|t| t.key().is_some()),
                 }
             })
             .collect();
@@ -164,7 +166,24 @@ impl Controller {
             }
         };
         let existing = plugins::list(&self.plugins_dir(), VERSION).into_iter().find(|p| p.id() == manifest.id);
-        let mut text = manifest.permission_summary().join("\n");
+        // Empreinte, signature de l'auteur et épinglage (1.0.0).
+        let trust = match halcyon_integrations::plugin_trust::verify(&staging) {
+            Ok(t) => t,
+            Err(e) => {
+                let _ = std::fs::remove_dir_all(&staging);
+                halcyon_storage::audit::event("plugin.rejected", &format!("{} : {e}", manifest.id));
+                self.plugins_status(format!("Extension refusée : {e}"));
+                return;
+            }
+        };
+        if let Err(e) = halcyon_integrations::plugin_trust::check_replacement(existing.as_ref().and_then(|p| p.trust.as_ref()), &trust) {
+            let _ = std::fs::remove_dir_all(&staging);
+            halcyon_storage::audit::event("plugin.rejected", &format!("{} : {e}", manifest.id));
+            self.plugins_status(format!("Extension refusée : {e}"));
+            return;
+        }
+        let trust_label = trust.label();
+        let mut text = format!("{trust_label}\n{}", manifest.permission_summary().join("\n"));
         if let Some(old) = existing.as_ref().and_then(|p| p.manifest.as_ref()) {
             text = format!("Remplace la version {} installée.\n{text}", old.version);
         }
@@ -183,7 +202,7 @@ impl Controller {
                     }
                     c.plugin_updates.borrow_mut().remove(&id);
                     c.log_plugin(&format!("Extension « {name} » installée"));
-                    halcyon_storage::audit::event("plugin.installed", &format!("{id} permissions=[{}]", perms.join(", ")));
+                    halcyon_storage::audit::event("plugin.installed", &format!("{id} permissions=[{}] {trust_label}", perms.join(", ")));
                     c.plugins_status(format!("« {name} » installée"));
                     c.apply_plugins();
                 }

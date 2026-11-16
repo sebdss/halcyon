@@ -108,7 +108,8 @@ impl Controller {
                     (true, false) => "unconfigured",
                 }
             }
-            GameSource::Standalone | GameSource::Manual | GameSource::Minecraft => "custom",
+            // GOG : pas d'API publique sans connexion au compte ; succès personnalisés seulement.
+            GameSource::Standalone | GameSource::Manual | GameSource::Minecraft | GameSource::Gog => "custom",
         }
     }
 

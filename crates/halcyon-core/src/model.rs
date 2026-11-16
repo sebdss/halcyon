@@ -21,10 +21,13 @@ pub enum GameSource {
     Emulated,
     /// Minecraft Java Edition, géré par l'onglet Minecraft (0.5.0).
     Minecraft,
+    /// GOG : jeux installés par Heroic ou GOG Galaxy (1.0.0).
+    Gog,
 }
 
 impl GameSource {
-    pub const ALL: [GameSource; 6] = [Self::Steam, Self::Epic, Self::Standalone, Self::Manual, Self::Emulated, Self::Minecraft];
+    /// Ordre stable (indices utilisés par les filtres de l'interface) : nouvelles sources à la fin.
+    pub const ALL: [GameSource; 7] = [Self::Steam, Self::Epic, Self::Standalone, Self::Manual, Self::Emulated, Self::Minecraft, Self::Gog];
 
     /// Identifiant stable stocké en base.
     pub fn as_str(self) -> &'static str {
@@ -35,6 +38,7 @@ impl GameSource {
             Self::Manual => "manual",
             Self::Emulated => "emulated",
             Self::Minecraft => "minecraft",
+            Self::Gog => "gog",
         }
     }
 
@@ -51,12 +55,15 @@ impl GameSource {
             Self::Manual => "Ajout manuel",
             Self::Emulated => "Émulation",
             Self::Minecraft => "Minecraft",
+            Self::Gog => "GOG",
         }
     }
 
     /// Les jeux de cette source se lancent-ils via le client de la plateforme ?
+    /// GOG : vrai pour Heroic (URI) ; un jeu GOG Galaxy sans URI se lance par son exécutable
+    /// (jeux sans DRM), voir [`Game::launch_target`].
     pub fn uses_platform_client(self) -> bool {
-        matches!(self, Self::Steam | Self::Epic)
+        matches!(self, Self::Steam | Self::Epic | Self::Gog)
     }
 }
 
@@ -320,7 +327,8 @@ impl Game {
             return None;
         }
         // Un exécutable défini par l'utilisateur prime sur l'URI de plateforme.
-        if self.overrides & overrides::LAUNCH != 0 || !self.source.uses_platform_client() {
+        let direct = self.source == GameSource::Gog && self.launch_uri.is_none();
+        if self.overrides & overrides::LAUNCH != 0 || !self.source.uses_platform_client() || direct {
             if let Some(path) = &self.executable {
                 return Some(LaunchTarget::Executable {
                     path: path.clone(),

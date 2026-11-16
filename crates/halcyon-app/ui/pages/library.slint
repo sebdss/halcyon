@@ -404,7 +404,7 @@ export component LibraryPage inherits Rectangle {
                     }
                 }
                 Segmented {
-                    items: root.width > 1150px ? ["Tous", "Steam", "Epic", "Émulation", "Autres", "Minecraft"] : ["Tous", "Steam", "Epic", "Ému.", "Autres", "MC"];
+                    items: root.width > 1150px ? ["Tous", "Steam", "Epic", "Émulation", "Autres", "Minecraft", "GOG"] : ["Tous", "Steam", "Epic", "Ému.", "Autres", "MC", "GOG"];
                     selected <=> LibraryUi.source;
                     activated => { LibraryUi.query-changed(); }
                 }

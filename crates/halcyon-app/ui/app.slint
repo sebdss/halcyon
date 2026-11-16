@@ -37,6 +37,7 @@ import { PluginsPage } from "pages/plugins.slint";
 import { ControllersPage } from "pages/controllers.slint";
 import { RemotePage } from "pages/remote.slint";
 import { PerformancePage } from "pages/performance.slint";
+import { DownloadsPage } from "pages/downloads.slint";
 import { AssistantPage } from "pages/assistant.slint";
 import { Sidebar, TopBar, CommandCenter } from "shell.slint";
 import { ScrollView } from "std-widgets.slint";
@@ -49,6 +50,7 @@ export {
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue
 }
 export { MenuEntry, CaptureItem } from "types.slint";
+export { DownloadsUi } from "downloads_state.slint";
 export { PerfUi, PerfGpuRow, PerfDiskRow, PerfAppRow, PerfRecoRow, PerfSessionRow } from "perf_state.slint";
 export { Theme, Icons, Sound }
 export {
@@ -641,6 +643,7 @@ export component AppWindow inherits Window {
                     if Nav.page == Page.controllers: ControllersPage { }
                     if Nav.page == Page.remote: RemotePage { }
                     if Nav.page == Page.performance: PerformancePage { }
+                    if Nav.page == Page.downloads: DownloadsPage { }
                     if Nav.page == Page.assistant: AssistantPage { }
                     }
                 }

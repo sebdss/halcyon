@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft, performance
+    remote, plugins, appearance, minecraft, performance, downloads
 }
 
 export global Nav {
@@ -295,6 +295,8 @@ export global SavesUi {
 }
 
 export global StatsUi {
+    /// Export des statistiques : « csv-games », « csv-sessions » ou « json » (1.0.0).
+    callback export(string);
     in property <string> total;
     in property <string> total-detail;
     in property <int> games-played;
@@ -559,6 +561,7 @@ export global SettingsUi {
     callback search-changed(string);
     in property <SourceInfo> steam;
     in property <SourceInfo> epic;
+    in property <SourceInfo> gog;
     in property <[string]> folders;
     in property <bool> online-artwork;
     in property <bool> scan-on-startup;

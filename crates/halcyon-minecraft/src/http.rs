@@ -135,21 +135,54 @@ impl Http {
 
     /// Télécharge `url` vers `dest`. `sha1` : empreinte attendue (vérifiée avant de garder le
     /// fichier). `progress` reçoit les octets reçus au fil de l'eau.
+    ///
+    /// 1.0.0 : respecte la pause et la limite de débit communes
+    /// ([`halcyon_core::transfer::global`]) et **reprend** un fichier partiel (`.part`
+    /// laissé par une coupure réseau) par une requête `Range` ; si le serveur ne le permet
+    /// pas, le fichier repart de zéro. L'empreinte porte toujours sur le fichier entier.
     pub fn download(&self, url: &str, dest: &Path, sha1: Option<&str>, cancel: &AtomicBool, progress: &mut dyn FnMut(u64)) -> Result<()> {
         if !url.starts_with("https://") {
             return Err(Error::Invalid(format!("adresse non sécurisée refusée : {url}")));
-        }
-        let resp = self.agent.get(url).call().map_err(classify)?;
-        let status = resp.status().as_u16();
-        if status >= 400 {
-            return Err(Error::Http(status, String::new()));
         }
         if let Some(d) = dest.parent() {
             std::fs::create_dir_all(d).map_err(|e| Error::Disk(format!("{} : {e}", d.display())))?;
         }
         let tmp = dest.with_extension(format!("{}.part", dest.extension().and_then(|e| e.to_str()).unwrap_or("")));
-        let mut file = std::fs::File::create(&tmp).map_err(|e| Error::Disk(format!("{} : {e}", tmp.display())))?;
         let mut hasher = sha1::Sha1::new();
+        let mut have = partial_len(&tmp);
+        if have > 0 && hash_into(&tmp, &mut hasher).is_err() {
+            have = 0;
+            hasher = sha1::Sha1::new();
+        }
+        let mut req = self.agent.get(url);
+        if have > 0 {
+            req = req.header("Range", format!("bytes={have}-"));
+        }
+        let resp = req.call().map_err(classify)?;
+        let status = resp.status().as_u16();
+        let resumed = have > 0 && status == 206;
+        if have > 0 && !resumed {
+            // Reprise refusée (200 : fichier entier renvoyé ; 416 : plage invalide).
+            let _ = std::fs::remove_file(&tmp);
+            if status == 416 {
+                return self.download(url, dest, sha1, cancel, progress);
+            }
+            have = 0;
+            hasher = sha1::Sha1::new();
+        }
+        if status >= 400 {
+            return Err(Error::Http(status, String::new()));
+        }
+        let mut file = if resumed {
+            std::fs::OpenOptions::new().append(true).open(&tmp)
+        } else {
+            std::fs::File::create(&tmp)
+        }
+        .map_err(|e| Error::Disk(format!("{} : {e}", tmp.display())))?;
+        if have > 0 {
+            progress(have);
+        }
+        let transfers = halcyon_core::transfer::global();
         let mut body = resp.into_body();
         let mut reader = body.with_config().limit(MAX_FILE).reader();
         let mut buf = vec![0u8; 64 * 1024];
@@ -165,13 +198,19 @@ impl Http {
                 hasher.update(&buf[..n]);
                 file.write_all(&buf[..n]).map_err(|e| Error::Disk(e.to_string()))?;
                 progress(n as u64);
+                if !transfers.throttle(n as u64, cancel) {
+                    return Err(Error::Cancelled);
+                }
             }
             file.flush().map_err(|e| Error::Disk(e.to_string()))?;
             Ok(())
         })();
         drop(file);
         if let Err(e) = result {
-            let _ = std::fs::remove_file(&tmp);
+            // Coupure réseau : le début du fichier est gardé pour une reprise.
+            if !matches!(e, Error::Network(_)) {
+                let _ = std::fs::remove_file(&tmp);
+            }
             return Err(e);
         }
         let got = hex(&hasher.finalize());
@@ -182,6 +221,22 @@ impl Http {
             }
         }
         std::fs::rename(&tmp, dest).map_err(|e| Error::Disk(format!("{} : {e}", dest.display())))
+    }
+}
+
+fn partial_len(p: &Path) -> u64 {
+    std::fs::metadata(p).map(|m| if m.is_file() { m.len() } else { 0 }).unwrap_or(0)
+}
+
+fn hash_into(p: &Path, h: &mut sha1::Sha1) -> std::io::Result<()> {
+    let mut f = std::fs::File::open(p)?;
+    let mut buf = vec![0u8; 64 * 1024];
+    loop {
+        let n = f.read(&mut buf)?;
+        if n == 0 {
+            return Ok(());
+        }
+        h.update(&buf[..n]);
     }
 }
 

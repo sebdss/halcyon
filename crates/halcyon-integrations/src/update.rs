@@ -150,10 +150,26 @@ pub fn download_verified(release: &Release, asset: &Asset, dir: &std::path::Path
     let mut resp = agent.get(&asset.url).call().map_err(|e| format!("téléchargement : {e}"))?;
     let mut reader = resp.body_mut().with_config().limit(MAX_PACKAGE).reader();
     let mut file = std::fs::File::create(&part).map_err(|e| e.to_string())?;
-    std::io::copy(&mut reader, &mut file).map_err(|e| {
+    // Pause et limite de débit communes au gestionnaire de téléchargements.
+    let transfers = halcyon_core::transfer::global();
+    let never = std::sync::atomic::AtomicBool::new(false);
+    let _slot = transfers.acquire(&never);
+    let copied = (|| -> std::io::Result<()> {
+        use std::io::{Read, Write};
+        let mut buf = vec![0u8; 64 * 1024];
+        loop {
+            let n = reader.read(&mut buf)?;
+            if n == 0 {
+                return file.flush();
+            }
+            file.write_all(&buf[..n])?;
+            transfers.throttle(n as u64, &never);
+        }
+    })();
+    if let Err(e) = copied {
         let _ = std::fs::remove_file(&part);
-        format!("téléchargement interrompu : {e}")
-    })?;
+        return Err(format!("téléchargement interrompu : {e}"));
+    }
     drop(file);
     let actual = crate::archive::sha256_file(&part).map_err(|e| e.to_string())?;
     if actual != expected {

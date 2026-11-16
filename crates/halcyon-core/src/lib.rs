@@ -6,6 +6,7 @@
 
 pub mod achievements;
 pub mod desktop;
+pub mod export;
 pub mod launch_args;
 pub mod model;
 pub mod profiles;
@@ -15,6 +16,7 @@ pub mod rules;
 pub mod scanner;
 pub mod search;
 pub mod stats;
+pub mod transfer;
 pub mod util;
 
 pub use model::*;

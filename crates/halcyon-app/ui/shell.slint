@@ -5,6 +5,7 @@ import { Theme, Icons } from "theme.slint";
 import { TaskRow } from "types.slint";
 import { Nav, Page, Actions, AppUi, LibraryUi, AchUi, EmuUi, UpdatesUi, PadsUi, QuickUi, CommandUi, SystemUi, McUi } from "state.slint";
 import { Icon, IconButton, Overline, ProgressBar, Spinner, SecondaryButton, Badge } from "components.slint";
+import { DownloadsUi } from "downloads_state.slint";
 
 /// Entrée de navigation. Repliée : icône seule, libellé en infobulle.
 component NavItem inherits Rectangle {
@@ -195,6 +196,14 @@ export component Sidebar inherits Rectangle {
                     icon: Icons.gauge;
                     active: Nav.page == Page.performance;
                     clicked => { Nav.go(Page.performance); }
+                }
+                NavItem {
+                    collapsed: root.collapsed;
+                    text: "Téléchargements";
+                    icon: Icons.download;
+                    active: Nav.page == Page.downloads;
+                    trailing: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : "";
+                    clicked => { Nav.go(Page.downloads); }
                 }
                 if AppUi.nav.achievements || AppUi.nav.stats || AppUi.nav.journal: NavGroup { collapsed: root.collapsed; text: "SUIVI"; }
                 if AppUi.nav.achievements: NavItem {

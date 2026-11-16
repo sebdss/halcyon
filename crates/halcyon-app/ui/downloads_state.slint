@@ -1,0 +1,22 @@
+// Gestionnaire de téléchargements (1.0.0) : données publiées par `src/ctl_downloads.rs`.
+
+import { TaskRow } from "types.slint";
+
+export global DownloadsUi {
+    in property <bool> paused;
+    /// Limite en Kio/s (0 : illimitée).
+    in property <int> limit-kib;
+    in property <int> concurrency: 2;
+    in property <string> speed;
+    in property <string> received;
+    in property <int> running;
+    in property <[TaskRow]> active;
+    in property <[TaskRow]> history;
+    /// Jeux des plateformes en cours de mise à jour (téléchargés par leur client).
+    in property <int> platform-pending;
+    in property <int> platform-downloading;
+    callback set-paused(bool);
+    callback set-limit(int);
+    callback set-concurrency(int);
+    callback cancel-minecraft();
+}
