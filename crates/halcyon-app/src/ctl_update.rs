@@ -177,9 +177,22 @@ impl Controller {
                 slint::Timer::single_shot(Duration::from_secs(3), move || {
                     let result = runner::on_launcher_start(&layout, Some(&tx));
                     log::info!("contrôle de santé de la mise à jour : {result:?}");
-                    if let Some(c) = weak.upgrade() {
-                        c.hus_report();
-                    }
+                    // L'updater conclut la transaction juste après : compte rendu dès que
+                    // l'état final est écrit (au plus 15 s).
+                    let polls = std::cell::Cell::new(0u32);
+                    let timer = Rc::new(slint::Timer::default());
+                    let keep = timer.clone();
+                    let weak = weak.clone();
+                    timer.start(slint::TimerMode::Repeated, Duration::from_millis(500), move || {
+                        polls.set(polls.get() + 1);
+                        let done = matches!(recovery::load(&layout).state, State::Completed | State::RolledBack | State::Failed);
+                        if done || polls.get() > 30 {
+                            keep.stop();
+                            if let Some(c) = weak.upgrade() {
+                                c.hus_report();
+                            }
+                        }
+                    });
                 });
             } else {
                 self.hus_report();
@@ -254,7 +267,7 @@ impl Controller {
             .into(),
         );
         ui.set_last_check(if s.update_last_check > 0 { format!("{}, {}", util::format_relative(s.update_last_check, halcyon_storage::now_unix()), util::format_date(s.update_last_check)).into() } else { "Jamais".into() });
-        let latest = h.found.as_ref().map(|f| f.checked.version.to_string()).or_else(|| h.unverified.as_ref().map(|u| u.0.clone())).or_else(|| pending.as_ref().map(|p| p.version.clone())).unwrap_or_default();
+        let latest = h.found.as_ref().map(|f| f.checked.version.to_string()).or_else(|| h.unverified.as_ref().map(|u| u.0.clone())).or_else(|| pending.as_ref().filter(|_| staged).map(|p| p.version.clone())).unwrap_or_default();
         ui.set_latest(latest.as_str().into());
         ui.set_notes(h.found.as_ref().map(|f| f.checked.manifest.notes.clone()).unwrap_or_default().into());
         ui.set_release_url(h.found.as_ref().map(|f| f.release_url.clone()).or_else(|| h.unverified.as_ref().map(|u| u.1.clone())).unwrap_or_default().into());

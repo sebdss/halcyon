@@ -225,11 +225,16 @@ mod tests {
             std::fs::write(d.join("x"), "x").unwrap();
         }
         std::fs::write(env.default_dir.join("notes-perso.txt"), "à moi").unwrap();
+        // État des mises à jour automatiques (HUS) : retiré avec l'installation.
+        std::fs::create_dir_all(env.default_dir.join(".hus/previous/0.4.0")).unwrap();
+        std::fs::write(env.default_dir.join(".hus/state.json"), "{}").unwrap();
+        std::fs::write(env.default_dir.join(".hus-installed.json"), "{}").unwrap();
         let (rec, _) = installed(&env);
         let r = uninstall(&rec, &env, &UninstallOptions { remove_cache: true, remove_data: false }, &mut |_| {}).unwrap();
         assert!(r.written >= 2);
         assert!(!env.default_dir.join(platform::main_exe_name()).exists());
         assert!(env.default_dir.join("notes-perso.txt").exists(), "fichier inconnu conservé");
+        assert!(!env.default_dir.join(".hus").exists() && !env.default_dir.join(".hus-installed.json").exists(), "état HUS retiré");
         assert!(!r.warnings.is_empty());
         assert!(env.user_data[0].join("x").exists(), "données conservées");
         assert!(!env.user_cache[0].exists(), "cache supprimé sur demande");

@@ -801,6 +801,10 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
         on(Event::Bytes(done, total));
     }
     let _ = std::fs::remove_file(dir.join(RECORD));
+    // État des mises à jour automatiques (HUS) : journal, paquets en attente, version
+    // précédente conservée, liste des fichiers posés. Propre à cette installation.
+    let _ = std::fs::remove_dir_all(dir.join(".hus"));
+    let _ = std::fs::remove_file(dir.join(".hus-installed.json"));
     // Programme de maintenance : sous Windows, il peut être celui en cours d'exécution
     // (la copie temporaire lancée par `--uninstall` le supprime ensuite).
     let _ = std::fs::remove_file(dir.join(platform::maintenance_exe_name()));

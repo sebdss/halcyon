@@ -10,6 +10,11 @@ use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 
+/// Première version de l'updater compatible avec le protocole actuel (format des paquets,
+/// `pending/`, journal) : valeur par défaut de `min_updater` dans les manifestes. À relever
+/// seulement quand un changement exige le nouvel updater (Halcyon l'extrait alors du paquet).
+pub const PROTOCOL_MIN: &str = "1.0.0-alpha.1";
+
 /// Version de l'updater (comparée à `min_updater` des manifestes).
 pub fn updater_version() -> Version {
     Version::current()
