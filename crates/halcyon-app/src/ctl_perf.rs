@@ -30,6 +30,9 @@ pub(crate) struct PerfState {
     session: Option<Worker>,
     history: History,
     samples: u64,
+    /// Derniers disques lus (relus une fois sur dix) : les recommandations en tiennent compte
+    /// à chaque échantillon.
+    disks: Vec<sysmon::DiskStat>,
 }
 
 /// Fil de mesure : arrêté par son drapeau, réveillé pour s'arrêter sans attendre.
@@ -71,7 +74,7 @@ impl Controller {
             let mut n: u64 = 0;
             while !stop.load(Ordering::Relaxed) {
                 // Disques : une fois sur dix (leur taille change lentement).
-                let snap = m.sample(true, n % 10 == 0);
+                let snap = m.sample(true, n.is_multiple_of(10));
                 n += 1;
                 post(move |c| c.perf_publish(snap));
                 std::thread::park_timeout(LIVE_INTERVAL);
@@ -93,7 +96,7 @@ impl Controller {
         }
     }
 
-    fn perf_publish(&self, snap: Snapshot) {
+    fn perf_publish(&self, mut snap: Snapshot) {
         let Some(app) = self.app() else { return };
         // Échantillon arrivé après la fermeture de la page.
         if self.perfc.borrow().live.is_none() {
@@ -104,8 +107,16 @@ impl Controller {
             let mut st = self.perfc.borrow_mut();
             st.history.push(&snap);
             st.samples += 1;
+            let fresh = !snap.disks.is_empty();
+            if fresh {
+                st.disks = snap.disks.clone();
+            }
             let curve = |v: &[f32]| -> Vec<f32> { v.iter().map(|x| x / 100.0).collect() };
-            (curve(st.history.cpu()), curve(st.history.gpu()), st.samples >= 5, snap.disks.is_empty())
+            let r = (curve(st.history.cpu()), curve(st.history.gpu()), st.samples >= 5, !fresh);
+            if !fresh {
+                snap.disks = st.disks.clone();
+            }
+            r
         };
         ui.set_cpu_name(if snap.cpu_name.is_empty() { "Processeur".into() } else { snap.cpu_name.as_str().into() });
         ui.set_cpu(snap.cpu / 100.0);

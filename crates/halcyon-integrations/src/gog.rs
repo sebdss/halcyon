@@ -121,7 +121,6 @@ pub fn scan_heroic(root: &Path) -> Result<Vec<DiscoveredGame>, String> {
         g.install_dir = install;
         g.version = s("version");
         g.size_bytes = item.get("install_size").and_then(parse_size);
-        g.platform = s("platform");
         g.launch_uri = Some(format!("heroic://launch?appName={app}&runner=gog"));
         g.artwork.cover_url = m("art_square");
         g.artwork.banner_url = m("art_cover").or_else(|| m("art_background"));

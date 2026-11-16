@@ -87,7 +87,6 @@ export component PerformancePage inherits Rectangle {
                 MeasureCard {
                     title: "MÉMOIRE";
                     value: Math.round(PerfUi.ram * 100) + " %";
-                    caption: PerfUi.ram-text;
                     MeterRow { label: "Utilisée"; value: PerfUi.ram-text; ratio: PerfUi.ram; bar-color: PerfUi.ram > 0.85 ? Theme.warm : Theme.accent; }
                     if PerfUi.swap-text != "": Text { text: PerfUi.swap-text; color: Theme.text-dim; font-size: Theme.t-caption; }
                 }

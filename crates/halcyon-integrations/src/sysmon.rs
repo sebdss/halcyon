@@ -356,7 +356,7 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
 
 fn top_by_ram(apps: &[AppUsage], n: usize) -> Vec<&AppUsage> {
     let mut v: Vec<&AppUsage> = apps.iter().collect();
-    v.sort_by(|a, b| b.ram_mb.cmp(&a.ram_mb));
+    v.sort_by_key(|a| std::cmp::Reverse(a.ram_mb));
     v.truncate(n);
     v
 }
