@@ -63,7 +63,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace
       - run: cargo test -p halcyon-update --features fault-injection
-      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater --bin hus-release
+      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update
       - name: Signature Authenticode (si un certificat est configuré)
         if: ${{ env.WINDOWS_CERT_PFX != '' }}
         env:
@@ -122,7 +122,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libfontconfig1-dev libudev-dev libdbus-1-dev libasound2-dev pkg-config squashfs-tools
       - run: cargo test --workspace -j 2
       - run: cargo test -p halcyon-update --features fault-injection
-      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater --bin hus-release
+      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update
       - name: AppImage (HUS), installateur, .deb, archive
         run: |
           sh tools/package_appimage.sh

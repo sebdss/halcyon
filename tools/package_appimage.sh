@@ -1,7 +1,7 @@
 #!/bin/sh
 # AppImage de Halcyon (Linux x86-64), mise à jour par HUS.
 # Usage : tools/package_appimage.sh   (depuis la racine du dépôt, après
-#         cargo build --release -p halcyon-app -p halcyon-update --bin halcyon-updater)
+#         cargo build --release -p halcyon-app -p halcyon-update)
 # Sortie : dist/<version>/Halcyon-<version>-x86_64.AppImage
 set -eu
 VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
@@ -9,7 +9,7 @@ BIN=${HALCYON_BIN:-target/release/halcyon}
 UPDATER=${HALCYON_UPDATER_BIN:-target/release/halcyon-updater}
 OUT=dist/$VERSION
 RUNTIME=packaging/appimage/runtime-x86_64
-[ -x "$BIN" ] && [ -x "$UPDATER" ] || { echo "Compilez d'abord : cargo build --release -p halcyon-app -p halcyon-update --bin halcyon-updater" >&2; exit 1; }
+[ -x "$BIN" ] && [ -x "$UPDATER" ] || { echo "Compilez d'abord : cargo build --release -p halcyon-app -p halcyon-update" >&2; exit 1; }
 command -v mksquashfs >/dev/null || { echo "mksquashfs absent (paquet squashfs-tools)" >&2; exit 1; }
 # Moteur versionné dans le dépôt, empreinte contrôlée.
 (cd packaging/appimage && sha256sum -c runtime-x86_64.sha256 >/dev/null) || { echo "empreinte du moteur AppImage incorrecte" >&2; exit 1; }

@@ -32,7 +32,7 @@ jobs:
         # -j 1 : le code généré par Slint demande ~5 Go par compilation.
         run: cargo clippy --workspace --all-targets -j 1
       - name: Compilation release
-        run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater --bin hus-release
+        run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update
 
   linux:
     name: Linux — tests, compilation, AppImage
@@ -46,7 +46,7 @@ jobs:
       - run: cargo test --workspace -j 2
       - name: Tests HUS (serveur local, processus réels, pannes simulées)
         run: cargo test -p halcyon-update --features fault-injection
-      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater --bin hus-release
+      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update
       - name: AppImage (contrôle de structure)
         run: |
           sh tools/package_appimage.sh

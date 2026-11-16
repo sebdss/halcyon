@@ -8,7 +8,7 @@ BIN=target/release/halcyon
 OUT=dist/$VERSION
 SETUP=target/release/halcyon-setup
 UPDATER=target/release/halcyon-updater
-[ -x "$BIN" ] && [ -x "$SETUP" ] && [ -x "$UPDATER" ] || { echo "Compilez d'abord : cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater" >&2; exit 1; }
+[ -x "$BIN" ] && [ -x "$SETUP" ] && [ -x "$UPDATER" ] || { echo "Compilez d'abord : cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update" >&2; exit 1; }
 mkdir -p "$OUT"
 # glibc de la machine de compilation : version minimale requise par les binaires.
 GLIBC=$(getconf GNU_LIBC_VERSION | cut -d' ' -f2)
