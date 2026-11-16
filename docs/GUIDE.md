@@ -24,6 +24,9 @@ confidentialité, dépannage · 25 Désinstallation
   fichier `portable.txt` fourni place les données dans le dossier `data\` voisin.
 
 ### Linux
+- **AppImage** (recommandé, mises à jour automatiques) : `Halcyon-<version>-x86_64.AppImage`.
+  `chmod +x`, puis lancez-la ; *Paramètres › Mises à jour › Installer Halcyon pour mon compte*
+  la place dans `~/.local/opt/halcyon` avec son entrée de menu.
 - **Programme d'installation** (toutes distributions) : `chmod +x halcyon-<version>-linux-x86_64-setup`
   puis lancez-le. Installation dans `~/.local/opt/halcyon`, sans droits administrateur, avec
   entrée de menu, raccourci et « Gérer l'installation de Halcyon » (réparer, désinstaller).
@@ -534,21 +537,30 @@ archive de sécurité de l'état actuel, puis redémarre Halcyon.
 
 ## 23. Mise à jour de Halcyon
 
-Dans **Paramètres › Mises à jour**, indiquez le dépôt GitHub qui publie Halcyon
-(`propriétaire/nom`). Une nouvelle version est signalée par une pastille sur l'espace Système et dans l'onglet Paramètres.
+Depuis la 1.0, Halcyon se met à jour tout seul (**Halcyon Update System**, détails :
+[`HUS.md`](HUS.md)). Dans **Paramètres › Mises à jour** :
 
-*Télécharger* récupère le paquet adapté au système : programme d'installation Windows ;
-sous Linux, le programme d'installation si Halcyon a été installé par lui, sinon le `.deb`.
-Le paquet n'est conservé que si son **empreinte SHA-256** correspond au fichier
-`SHA256SUMS` publié avec la version ; sinon il est supprimé. *Installer* ferme Halcyon et
-lance le programme d'installation vérifié. Pour un `.deb`, le dossier du paquet s'ouvre pour
-une installation par votre gestionnaire (`sudo apt install ./halcyon_….deb`). Vos données
-sont conservées.
+- **Canal** : *Stable* (versions finales) ou *Beta* (prépublications et versions stables plus
+  récentes). Le choix est conservé ; passer de Beta à Stable ne fait jamais redescendre de
+  version : la prochaine version stable plus récente sera proposée.
+- **Rechercher automatiquement** : au démarrage puis toutes les 6 heures.
+- **Mises à jour automatiques** : la nouvelle version est téléchargée et vérifiée en
+  arrière-plan, puis installée au démarrage suivant de Halcyon.
+- **Rechercher des mises à jour**, **Télécharger**, **Annuler** (le téléchargement reprendra
+  où il s'est arrêté), **Installer et redémarrer**, **Installer au prochain démarrage**.
+  La progression montre les octets reçus, la vitesse et le temps restant réels.
 
-Depuis la 1.0, les versions officielles sont aussi **signées** : `SHA256SUMS` doit porter la
-signature Ed25519 de l'auteur (`SHA256SUMS.sig`), sinon rien n'est installé. Le niveau de
-vérification de votre exemplaire est affiché sous les boutons. Détails :
-[`SECURITE.md`](SECURITE.md).
+Une version n'est installée que si son manifeste porte la **signature Ed25519** de l'auteur
+et si le paquet a la bonne **empreinte SHA-256** ; jamais une version plus ancienne. Pendant
+l'installation, Halcyon se ferme, un programme séparé (`halcyon-updater`) remplace les
+fichiers, relance Halcyon et vérifie qu'il démarre ; sinon l'ancienne version est restaurée
+et relancée, et vous en êtes averti. Une coupure de courant pendant l'installation est
+réparée au démarrage suivant. Vos jeux, paramètres et sauvegardes ne sont jamais touchés.
+
+Linux : l'AppImage peut être installée pour votre compte depuis cette page (*Installer
+Halcyon pour mon compte*). Une installation faite par le programme d'installation Linux passe
+à l'AppImage à sa première mise à jour, raccourcis conservés. Le paquet `.deb` reste mis à
+jour par votre gestionnaire de paquets.
 
 **Clés d'API** (Steam, RetroAchievements, Nexus Mods, SteamGridDB, CurseForge) : depuis la
 1.0, elles sont rangées dans un coffre (`<données>/secrets`, chiffré par Windows ; réservé à

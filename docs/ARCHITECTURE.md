@@ -349,6 +349,19 @@ système (le Performance Center demandé n'existait pas).
 
 **Version** : `version_newer` suit semver pour les pré-versions (`1.0.0-alpha.1` < `1.0.0`).
 
+## 5 quinquies. Halcyon Update System (1.0)
+
+Crate `halcyon-update` (bibliothèque sans interface, plus deux exécutables) : `version`
+(SemVer strict), `core` (canaux, états, sélection sans retour arrière), `manifest`,
+`security` (Ed25519, SHA-256, anti-retour, structure des paquets), `network` (GitHub
+Releases, ETag), `download` (HTTP Range), `install` (transaction ZIP / AppImage / migration),
+`recovery` (état, journal, verrou, santé), `runner` (déroulement de l'updater, décisions au
+démarrage), `client` (nature de l'installation, lancement de l'updater). Exécutables :
+`halcyon-updater` (installe Halcyon fermé, contrôle de santé, retour arrière, reprise) et
+`hus-release` (publication). Lanceur : `src/ctl_update.rs`, `ui/hus_state.slint`. Pas de
+runtime asynchrone : un fil de fond par opération, comme le reste de l'application.
+Détails : [`HUS.md`](HUS.md).
+
 ## 6. Arborescence
 
 ```
@@ -363,16 +376,17 @@ halcyon/
 │   │   └── src/{achievements,activity,audit,db,lib,logging,migrations,paths,perf,repo,saves_mods,secrets,settings,tracking}.rs
 │   ├── halcyon-integrations/     # plateformes, émulation, succès, lancement, sauvegardes, mods, extensions
 │   │   ├── data/{platforms,emulators}.json
-│   │   └── src/{archive,artwork,config_archive,emulators,engines,epic,frametimes,gpu,launcher,lib,mods,plugins,process,rahash,remote_play,retro,roms,saves,standalone,steam,steam_web,steamgriddb,sysmon,update,vdf}.rs
+│   │   └── src/{archive,artwork,config_archive,emulators,engines,epic,frametimes,gpu,launcher,lib,mods,plugins,process,rahash,remote_play,retro,roms,saves,standalone,steam,steam_web,steamgriddb,sysmon,vdf}.rs
 │   ├── halcyon-audio/            # 0.4.1 : catalogue des sons, mélangeur, sortie cpal ; sounds/*.wav
 │   ├── halcyon-installer/        # 0.4.1 : programme d'installation (payload, engine, platform, ui/setup.slint)
+│   ├── halcyon-update/           # 1.0 : HUS (bibliothèque, halcyon-updater, hus-release, keys/release.pub, tests/)
 │   └── halcyon-app/              # binaire : UI Slint + contrôleurs
 │       ├── build.rs              # compilation de l'UI, icône Windows
 │       ├── ui/                   # app, theme, types, state, components, shell, pages/, icons/, fonts/
 │       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
 ├── packaging/                    # windows/ (icône ; halcyon.iss, Inno Setup, hors CI), linux/ (.desktop, MIME, install/uninstall de l'archive)
 ├── tools/                        # make_demo_fixture.py, make_big_library.py, bench.py, package_linux.sh, sound/make_sounds.py
-└── .github/workflows/build.yml   # tests Windows + Linux, installeurs, SHA256SUMS, publication sur tag
+└── .github/workflows/            # build.yml (tests, compilation), release.yml (publication signée sur tag v*)
 ```
 
 ## 7. Feuille de route

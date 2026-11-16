@@ -1,4 +1,4 @@
-# Installateur de Halcyon (0.4.1)
+# Installateur de Halcyon (0.4.1, mis à jour pour la 1.0)
 
 La 0.4.1 remplace l'installateur Inno Setup (Windows) et le script `install.sh` (Linux) par
 un programme d'installation écrit pour Halcyon, avec la même interface que l'application.
@@ -10,27 +10,31 @@ Il installe, met à jour, répare et désinstalle, sous Windows et sous Linux.
 |---|---|---|
 | Windows | `Halcyon-<version>-windows-x86_64-setup.exe` | **Recommandé.** Installation pour votre compte (sans droits d'administrateur) ou pour tous (lancé en administrateur) |
 | Windows | `Halcyon-<version>-windows-portable.zip` | Sans installation (données à côté de l'exécutable) |
-| Linux | `halcyon-<version>-linux-x86_64-setup` | **Recommandé.** Installation pour votre compte, toutes distributions avec glibc suffisante |
+| Linux | `halcyon-<version>-linux-x86_64-setup` | Installation pour votre compte, toutes distributions avec glibc suffisante ; passe à l'AppImage à la première mise à jour automatique |
 | Linux | `halcyon_<version>_amd64.deb` | Installation système (Debian, Ubuntu et dérivées), mise à jour par `apt` |
 | Linux | `halcyon-<version>-linux-x86_64.tar.gz` | Archive de la 0.4.0 (scripts `install.sh` / `uninstall.sh`), conservée en attendant votre validation de son retrait |
-| Tous | `SHA256SUMS` | Empreintes, vérifiées par la mise à jour intégrée |
+| Windows | `Halcyon-<version>-Windows-x64.zip` | Paquet de mise à jour automatique (HUS) ; aussi utilisable sans installation |
+| Linux | `Halcyon-<version>-x86_64.AppImage` | **Recommandé depuis la 1.0** : un seul fichier, mises à jour automatiques |
+| Tous | `halcyon-manifest.json`, `.sig` | Manifeste signé des mises à jour automatiques (HUS) |
+| Tous | `SHA256SUMS`, `SHA256SUMS.sig` | Empreintes signées (mise à jour des installations 0.5) |
 
 Sous Linux, après téléchargement : `chmod +x halcyon-*-setup && ./halcyon-*-setup`.
 
-### Pourquoi pas AppImage ni Flatpak
+### AppImage (1.0) et Flatpak
 
-- **AppImage** : demande FUSE 2, absent par défaut des distributions récentes (Ubuntu 22.04
-  et suivantes) ; n'apporte ni entrée de menu, ni désinstallation, ni réparation sans un
-  outil supplémentaire. Le programme d'installation fait déjà tout cela, avec un seul
-  fichier lui aussi.
+- **AppImage** : écartée en 0.4.1 parce que l'ancien moteur demandait FUSE 2, absent des
+  distributions récentes. Le moteur type 2 actuel est statique et utilise FUSE 3, présent par
+  défaut ; depuis la 1.0, l'AppImage est le format Linux mis à jour automatiquement par HUS
+  ([`HUS.md`](HUS.md)). Le programme d'installation et le `.deb` restent publiés : une
+  installation faite par le programme d'installation passe à l'AppImage à sa première mise à
+  jour automatique (raccourcis conservés). Leur retrait éventuel attend votre décision.
 - **Flatpak** : le bac à sable va à l'encontre du rôle de Halcyon (lancer n'importe quel jeu
   ou émulateur, lire les dossiers de Steam, Heroic et des sauvegardes, suivre les processus,
   lire les manettes par evdev). Il faudrait ouvrir tout le système
-  (`--filesystem=host`, `flatpak-spawn --host`), ce qui retire l'intérêt du format et
-  complique chaque lancement. Non retenu.
-- Formats : un programme d'installation par système, plus le `.deb` pour qui préfère le
-  gestionnaire de paquets. L'archive de la 0.4.0 est le seul format en double ; son retrait
-  attend votre décision.
+  (`--filesystem=host`, `flatpak-spawn --host`), ce qui retire l'intérêt du format. Non retenu.
+- Windows : le programme d'installation reste la première installation ; les mises à jour
+  passent ensuite par `Halcyon-<version>-Windows-x64.zip` et `halcyon-updater.exe`, installé
+  avec Halcyon.
 
 ## Parcours
 

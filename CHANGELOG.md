@@ -6,6 +6,31 @@
 une table ajoutée). Détails : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · audit :
 [`docs/AUDIT-1.0.md`](docs/AUDIT-1.0.md) · sécurité : [`docs/SECURITE.md`](docs/SECURITE.md).
 
+### Halcyon Update System (nouveau)
+- **Mises à jour automatiques** : recherche au démarrage puis toutes les 6 heures (requêtes
+  conditionnelles ETag), téléchargement en arrière-plan reprenable (HTTP Range), installation
+  au démarrage suivant ou tout de suite, redémarrage automatique.
+- **Canaux Stable et Beta** (SemVer strict), choisis dans *Paramètres › Mises à jour*, jamais
+  modifiés sans vous ; pas de retour vers une version plus ancienne.
+- **Sécurité** : manifeste signé Ed25519 (version, canal, paquets, SHA-256), vérifié avant le
+  téléchargement puis à nouveau par l'updater ; contrôle de structure des paquets avant
+  extraction ; anti-retour et plancher de sécurité ; HTTPS obligatoire ; aucun script exécuté.
+- **Updater indépendant** (`halcyon-updater`, sans interface) : attend la fermeture de
+  Halcyon, installe de façon transactionnelle, relance Halcyon et attend la preuve qu'il
+  démarre ; sinon restaure l'ancienne version et la relance. Coupure de courant ou arrêt
+  brutal : reprise au démarrage suivant. Version précédente conservée.
+- **Windows** : paquet `Halcyon-<version>-Windows-x64.zip`, installation utilisateur sans
+  droits administrateur (installateur et version portable mis à jour sur place).
+- **Linux** : `Halcyon-<version>-x86_64.AppImage` (moteur type 2, sans FUSE 2), installation
+  pour le compte dans `~/.local/opt/halcyon` depuis les paramètres ; une installation par le
+  programme d'installation Linux passe à l'AppImage à sa première mise à jour, raccourcis
+  conservés. Le `.deb` reste mis à jour par apt.
+- **Publication** : workflow `release.yml` (tag `vX.Y.Z` → Stable avec validation humaine,
+  `vX.Y.Z-beta.N` → Beta), permissions minimales, manifeste signé, vérification des fichiers
+  publiés ; outil `hus-release`. Les anciens fichiers restent publiés pour les clients 0.5.
+- Remplace l'ancienne mise à jour (vérification de `SHA256SUMS`, lancement de
+  l'installateur). Détails : [`docs/HUS.md`](docs/HUS.md) · tests : [`docs/TESTS-HUS.md`](docs/TESTS-HUS.md).
+
 ### Nouvelle expérience (UI/UX 1.0)
 - **Bureau, nouvelle navigation** : le menu de 19 entrées devient un **rail de six espaces**
   (Accueil, Bibliothèque, Minecraft, Activité, Outils, Système), avec pastilles réelles

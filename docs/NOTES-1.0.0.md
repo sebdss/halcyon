@@ -28,6 +28,15 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
 - **Accueil, fiche de jeu, bibliothèque et paramètres** repris : grandes illustrations sans
   raccord, titres en Sora, paramètres classés par catégorie dans une colonne à gauche.
 
+### Mises à jour automatiques (nouveau)
+- Halcyon se met à jour tout seul : la nouvelle version est téléchargée et vérifiée en
+  arrière-plan, installée au démarrage suivant, puis Halcyon redémarre. Si elle ne démarre pas
+  correctement, l'ancienne version revient automatiquement.
+- Canal **Stable** ou **Beta** dans *Paramètres › Mises à jour*, avec la progression réelle,
+  l'annulation et les notes de version.
+- Linux : nouveau format **AppImage**, installable pour votre compte depuis les paramètres.
+- Détails : [`HUS.md`](HUS.md).
+
 ### Performance Center (nouveau)
 - Nouvel onglet **Performances** dans l'espace Système (et dans le lancement rapide, Ctrl+K).
 - Processeur, mémoire, carte(s) graphique(s), stockage en direct, mesurés uniquement
@@ -87,6 +96,13 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
 - Succès GOG : pas d'API publique sans connexion au compte (succès personnalisés seulement).
 
 ## À faire une fois (auteur)
+
+**Mises à jour automatiques** : sans clé de signature, Halcyon signale les nouvelles versions
+mais ne les installe pas. Créez la paire de clés, ajoutez la clé publique à
+`crates/halcyon-update/keys/release.pub`, puis créez les environnements GitHub
+`release-stable` (avec relecteurs) et `release-beta` contenant le secret
+`HALCYON_SIGNING_KEY` : [`HUS.md`](HUS.md#5-mise-en-place-des-clés-une-seule-fois).
+
 
 Créer la paire de clés de signature et les deux réglages GitHub décrits dans
 [`SECURITE.md`](SECURITE.md#mise-en-place-une-seule-fois-par-lauteur). Sans eux, la

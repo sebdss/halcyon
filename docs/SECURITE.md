@@ -28,42 +28,28 @@ peut pas être garantie est présentée comme telle.
 - Le jeton Microsoft (Minecraft, mode direct) gardait déjà sa propre protection (DPAPI /
   `0600`) ; il n'a pas été déplacé pour ne pas toucher aux sessions existantes.
 
-## 2. Mises à jour signées
+## 2. Mises à jour signées (Halcyon Update System)
 
-`SHA256SUMS` prouve qu'un paquet n'est pas abîmé, pas qu'il vient de l'auteur : un compte
-GitHub compromis peut publier un paquet **et** des empreintes valides. Depuis la 1.0 :
+Depuis HUS (1.0), la décision d'installer repose sur un **manifeste signé Ed25519**
+(`halcyon-manifest.json` + `.sig`) : version, canal, plateformes, tailles et **SHA-256** des
+paquets. Les informations de GitHub ne prouvent rien ; seule la signature fait foi.
 
-1. La CI embarque une **clé publique Ed25519** dans l'application (variable de dépôt
-   `HALCYON_UPDATE_PUBKEY`, non secrète).
-2. À la publication, la CI signe `SHA256SUMS` avec la **clé privée** (secret de dépôt
-   `HALCYON_SIGNING_KEY`) et publie `SHA256SUMS.sig`, puis vérifie la signature.
-3. Halcyon refuse une mise à jour si la signature est absente ou fausse, et l'inscrit dans
-   `security.log` (`update.rejected`).
+- Clés publiques intégrées : `crates/halcyon-update/keys/release.pub` (et, en complément,
+  la variable `HALCYON_UPDATE_PUBKEY` fixée à la compilation). Sans clé, aucune installation
+  automatique : les versions sont seulement signalées.
+- Clé privée : secret `HALCYON_SIGNING_KEY` des environnements GitHub `release-stable` /
+  `release-beta`, exposé à la seule étape de signature ; copie hors ligne. Jamais commitée.
+- Contrôles : signature, cohérence du manifeste, système, version minimale de l'updater,
+  anti-retour (jamais de version inférieure ou égale ni sous le plancher de sécurité),
+  SHA-256, structure du paquet avant extraction (ZIP : chemins sûrs, ni lien, ni dossier
+  réservé, archive piège refusée ; AppImage : ELF x86-64, type 2, SquashFS). L'updater les
+  refait tous avant de modifier un fichier. Aucun script de publication n'est exécuté.
+- HTTPS obligatoire, redirections comprises.
+- `SHA256SUMS` + `SHA256SUMS.sig` restent publiés et signés par la même clé pour les
+  installations 0.5, qui se mettent à jour par l'ancien mécanisme jusqu'à la 1.0.
 
-Une compilation locale sans clé publique reste limitée à la vérification d'intégrité et
-l'affiche dans Paramètres → Mise à jour (« intégrité seule »).
-
-### Mise en place (une seule fois, par l'auteur)
-
-```sh
-cargo run -p halcyon-integrations --example release_sign -- keygen halcyon-signing.key
-# → affiche la clé publique
-```
-
-- GitHub → Settings → Secrets and variables → Actions :
-  - **Variables** : `HALCYON_UPDATE_PUBKEY` = la clé publique affichée ;
-  - **Secrets** : `HALCYON_SIGNING_KEY` = le contenu de `halcyon-signing.key`.
-- Conservez `halcyon-signing.key` hors ligne (clé USB, gestionnaire de mots de passe) et
-  supprimez-la du disque. Elle ne doit jamais être commitée.
-- Si la variable est définie sans le secret, la publication **échoue** (sinon les clients
-  refuseraient la version).
-
-Vérification manuelle d'une version :
-`cargo run -p halcyon-integrations --example release_sign -- verify <clé-publique> SHA256SUMS`
-
-> Transition : les installations 0.5.0 n'ont pas de clé embarquée et continuent de vérifier
-> l'intégrité seule. La signature protège à partir de la première version installée qui
-> contient la clé.
+Procédure complète (clés, rotation, clé compromise, publication Stable avec validation
+humaine) : [`HUS.md`](HUS.md), sections 4 à 6.
 
 ## 3. Journal de sécurité
 
