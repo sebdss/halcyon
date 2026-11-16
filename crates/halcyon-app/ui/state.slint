@@ -583,7 +583,7 @@ export global SettingsUi {
     callback sound-preview(int);
     callback sound-reset();
     /// Section choisie (-1 : toutes).
-    in-out property <int> section: -1;
+    in-out property <int> section: 0;
     in-out property <string> search;
     callback search-changed(string);
     in property <SourceInfo> steam;

@@ -201,58 +201,120 @@ component SourcePanel inherits Panel {
     }
 }
 
+/// Catégorie de la colonne de navigation des paramètres.
+component CategoryItem inherits Rectangle {
+    in property <string> text;
+    in property <image> icon;
+    in property <bool> active;
+    callback clicked;
+    height: 40px;
+    border-radius: 20px;
+    background: root.active ? Theme.surface-active : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
+    border-width: fs.has-focus ? Theme.focus-width : 0px;
+    border-color: Theme.focus;
+    accessible-role: tab;
+    accessible-label: text;
+    accessible-action-default => { root.clicked(); }
+    forward-focus: fs;
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 12px;
+        spacing: 12px;
+        Icon { y: 11px; source: root.icon; size: 18px; tint: root.active ? Theme.accent : Theme.text-muted; }
+        Text { text: root.text; color: root.active ? Theme.text : Theme.text-muted; font-size: Theme.t-small; font-weight: root.active ? 650 : 500; vertical-alignment: center; overflow: elide; }
+    }
+    ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+    fs := FocusScope {
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == " ") { root.clicked(); return accept; }
+            reject
+        }
+    }
+}
+
 export component SettingsPage inherits Rectangle {
     property <string> new-folder;
+    property <bool> two-pane: root.width > 940px;
+    property <length> nav-width: root.two-pane ? 264px : 0px;
+    // Index de catégorie (-1 : tous les réglages), dans l'ordre de `SettingsUi.shown`.
+    property <[string]> names: ["Plateformes", "Dossiers", "Comptes et succès", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage et diagnostic", "Son"];
+    property <[image]> icons: [Icons.gamepad, Icons.folder, Icons.user, Icons.sliders, Icons.cloud, Icons.monitor, Icons.keyboard, Icons.save, Icons.download, Icons.drive, Icons.bell];
+    init => { SettingsUi.search-changed(SettingsUi.search); }
 
-    ScrollView {
+    // Colonne des catégories : recherche, puis une catégorie à la fois.
+    if root.two-pane: Rectangle {
+        x: 0;
+        y: 0;
+        width: root.nav-width;
+        height: root.height;
+        VerticalLayout {
+            padding-left: Theme.page-padding;
+            padding-right: 16px;
+            padding-top: 24px;
+            spacing: 4px;
+            alignment: start;
+            TextField {
+                height: 38px;
+                placeholder: "Rechercher un réglage";
+                icon: Icons.search;
+                has-icon: true;
+                text <=> SettingsUi.search;
+                edited(t) => { SettingsUi.search-changed(t); }
+            }
+            Rectangle { height: 12px; }
+            for name[i] in root.names: CategoryItem {
+                text: name;
+                icon: root.icons[i];
+                active: SettingsUi.search == "" && SettingsUi.section == i;
+                clicked => { SettingsUi.search = ""; SettingsUi.section = i; SettingsUi.search-changed(""); sv.content-y = 0; }
+            }
+            Rectangle { height: 8px; }
+            CategoryItem {
+                text: "Tous les réglages";
+                icon: Icons.list;
+                active: SettingsUi.search == "" && SettingsUi.section == -1;
+                clicked => { SettingsUi.search = ""; SettingsUi.section = -1; SettingsUi.search-changed(""); sv.content-y = 0; }
+            }
+        }
+    }
+
+    sv := ScrollView {
+        x: root.nav-width;
+        width: root.width - root.nav-width;
         content-height: content.preferred-height;
         content := VerticalLayout {
-            width: root.width;
+            width: sv.width;
             padding: Theme.page-padding;
-            padding-top: 32px;
+            padding-left: root.two-pane ? 24px : Theme.page-padding;
+            padding-top: 24px;
             spacing: 18px;
             alignment: start;
 
-            Text {
-                text: "Paramètres";
-                color: Theme.text;
-                font-size: Theme.t-title;
-                font-weight: 800;
-                letter-spacing: -0.4px;
-            }
-
-            // Recherche et sections : une section à la fois, ou toutes.
-            HorizontalLayout {
+            // Fenêtre étroite : recherche et liste déroulante des catégories.
+            if !root.two-pane: HorizontalLayout {
                 spacing: 10px;
+                alignment: start;
                 TextField {
-                    width: min(360px, root.width * 0.35);
+                    width: min(320px, sv.width * 0.45);
                     height: 36px;
-                    placeholder: "Rechercher un réglage…";
+                    placeholder: "Rechercher un réglage";
                     icon: Icons.search;
                     has-icon: true;
                     text <=> SettingsUi.search;
                     edited(t) => { SettingsUi.search-changed(t); }
                 }
-                Rectangle { horizontal-stretch: 1; }
-            }
-            if root.width > 1250px: HorizontalLayout {
-                spacing: 6px;
-                alignment: start;
-                for name[i] in ["Tout", "Plateformes", "Dossiers", "Comptes", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage", "Son"]: Chip {
-                    text: name;
-                    checked: SettingsUi.section == i - 1 && SettingsUi.search == "";
-                    toggled => { SettingsUi.search = ""; SettingsUi.section = i - 1; SettingsUi.search-changed(""); }
-                }
-            }
-            if root.width <= 1250px: HorizontalLayout {
-                alignment: start;
                 Dropdown {
-                    prefix: "Section :";
                     align-left: true;
-                    options: ["Tout", "Plateformes", "Dossiers", "Comptes", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage", "Son"];
+                    options: ["Tous les réglages", "Plateformes", "Dossiers", "Comptes et succès", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage et diagnostic", "Son"];
                     selected: SettingsUi.section + 1;
                     changed(i) => { SettingsUi.search = ""; SettingsUi.section = i - 1; SettingsUi.search-changed(""); }
                 }
+            }
+            if SettingsUi.search != "" && SettingsUi.match-count > 0: Text {
+                text: SettingsUi.match-count == 1 ? "1 catégorie correspond à « " + SettingsUi.search + " »." : SettingsUi.match-count + " catégories correspondent à « " + SettingsUi.search + " ».";
+                color: Theme.text-muted;
+                font-size: Theme.t-small;
             }
             if SettingsUi.search != "" && SettingsUi.match-count == 0: Text {
                 text: "Aucun réglage ne correspond à « " + SettingsUi.search + " ».";
@@ -804,7 +866,7 @@ export component SettingsPage inherits Rectangle {
             }
 
             Text {
-                text: "Halcyon " + SettingsUi.version + "  ·  Made with Slint  ·  Police Inter (SIL OFL)";
+                text: "Halcyon " + SettingsUi.version + "  ·  Made with Slint  ·  Polices Inter et Sora (SIL OFL)";
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 horizontal-alignment: center;

@@ -5,7 +5,7 @@
 // Codes des widgets : voir `halcyon_storage::settings::widget`.
 
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Icons } from "../theme.slint";
+import { Theme, Icons, Art } from "../theme.slint";
 import { GameCard, WidgetSlot, KeyValue } from "../types.slint";
 import { Nav, Page, Actions, HomeUi, AppUi, LibraryUi, GameMenu, QuickUi } from "../state.slint";
 import {
@@ -32,49 +32,62 @@ component Shelf inherits Rectangle {
     }
 }
 
-/// Bandeau « Reprendre » : bannière du dernier jeu joué installé.
+/// Bandeau « Reprendre » : le dernier jeu installé lancé, en pleine largeur, illustration à
+/// droite et texte à gauche. En carte quand l'accueil le place ailleurs qu'en tête.
 component Hero inherits Rectangle {
     in property <bool> card: false;
     in property <length> top-inset: 0px;
-    height: card ? 340px : 470px;
+    height: card ? 340px : 540px;
     clip: true;
     border-radius: card ? Theme.radius-lg : 0px;
+    background: Theme.bg;
 
-    Rectangle {
+    // Sans bannière : dégradé des couleurs du jeu et jaquette agrandie, estompée.
+    if !HomeUi.hero.has-banner: Rectangle {
+        x: 0; y: 0;
+        width: root.width;
+        height: root.height;
         background: @linear-gradient(125deg, HomeUi.hero.color-a 0%, HomeUi.hero.color-b 100%);
-        opacity: HomeUi.hero.has-banner ? 0 : 0.55;
+        opacity: 0.5;
+    }
+    if !HomeUi.hero.has-banner && HomeUi.hero.has-cover: Image {
+        x: root.width * 0.42;
+        y: 0;
+        width: root.width * 0.58;
+        height: root.height;
+        source: HomeUi.hero.cover;
+        image-fit: cover;
+        opacity: 0.55;
     }
     if HomeUi.hero.has-banner: Image {
+        x: 0; y: 0;
         width: root.width;
         height: root.height;
         source: HomeUi.hero.banner;
         image-fit: cover;
     }
-    if !HomeUi.hero.has-banner && HomeUi.hero.has-cover: Image {
-        x: root.width - self.width - 80px;
-        y: (root.height - self.height) / 2 + root.top-inset / 2;
-        width: root.card ? 170px : 220px;
-        height: self.width * 1.5;
-        source: HomeUi.hero.cover;
-        image-fit: cover;
-    }
-    Rectangle {
-        background: @linear-gradient(90deg, Theme.bg.with-alpha(0.95) 0%, Theme.bg.with-alpha(0.72) 38%, Theme.bg.with-alpha(0.13) 75%, Theme.bg.with-alpha(0.00) 100%);
-    }
-    if !root.card: Rectangle {
-        background: @linear-gradient(180deg, Theme.bg.with-alpha(0.55) 0%, Theme.bg.with-alpha(0.00) 22%, Theme.bg.with-alpha(0.00) 55%, Theme.bg.with-alpha(0.85) 85%, Theme.bg 100%);
-    }
+    // Voiles (masques teintés, sans ligne de raccord en rendu logiciel).
+    Image { x: 0; y: 0; width: root.width * 0.78; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bg; }
+    Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bg; }
+    if !root.card: Image { x: 0; y: 0; width: root.width; height: 140px; source: Art.fade-top; image-fit: fill; colorize: Theme.bg; opacity: 0.8; }
 
     VerticalLayout {
         x: root.card ? Theme.s6 : Theme.page-padding;
-        width: min(640px, root.width - 2 * self.x);
-        padding-bottom: root.card ? Theme.s6 : 44px;
+        y: 0;
+        width: min(680px, root.width - 2 * self.x);
+        height: root.height;
+        padding-bottom: root.card ? Theme.s6 : 56px;
         spacing: Theme.s3;
         alignment: end;
 
-        Overline { text: HomeUi.hero-kicker; color: Theme.accent; }
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            Rectangle { y: 9px; width: 28px; height: 2px; border-radius: 1px; background: Theme.horizon; }
+            Text { text: HomeUi.hero-kicker; color: Theme.accent; font-size: Theme.t-small; font-weight: 650; }
+        }
         if HomeUi.hero.has-logo: Image {
-            height: root.card ? 90px : 120px;
+            height: root.card ? 90px : 132px;
             source: HomeUi.hero.logo;
             image-fit: contain;
             horizontal-alignment: left;
@@ -83,10 +96,11 @@ component Hero inherits Rectangle {
         if !HomeUi.hero.has-logo: Text {
             text: HomeUi.hero.title;
             color: Theme.text;
-            font-size: root.card ? Theme.t-title + 4px : Theme.t-display;
-            font-weight: 800;
+            font-family: Theme.display;
+            font-size: root.card ? 36px : 54px;
+            font-weight: 700;
             wrap: word-wrap;
-            letter-spacing: -0.8px;
+            letter-spacing: -1.2px;
         }
         Text {
             text: HomeUi.hero-meta;
@@ -97,19 +111,19 @@ component Hero inherits Rectangle {
         HorizontalLayout {
             spacing: Theme.s3;
             alignment: start;
-            padding-top: 6px;
+            padding-top: 10px;
             PrimaryButton {
                 text: HomeUi.hero.installed ? "Jouer" : "Non installé";
                 icon: Icons.play;
                 has-icon: HomeUi.hero.installed;
                 enabled: HomeUi.hero.installed;
-                h: 46px;
-                font-size: Theme.t-body + 1px;
+                h: 50px;
+                font-size: Theme.t-body + 2px;
                 clicked => { Actions.play(HomeUi.hero.id); }
             }
             SecondaryButton {
                 text: "Voir la fiche";
-                h: 46px;
+                h: 50px;
                 clicked => { Actions.open-game(HomeUi.hero.id); }
             }
         }
@@ -202,20 +216,23 @@ component WidgetFrame inherits Rectangle {
     in property <bool> first;
     in property <bool> last;
     in property <string> action;
+    /// Sans cadre : les étagères de jeux reposent sur le fond, seules les données ont un panneau.
+    in property <bool> bare;
+    property <bool> framed: !root.bare || HomeUi.editing;
     callback action-clicked;
     border-radius: Theme.radius-lg;
-    background: Theme.surface.with-alpha(0.78);
-    border-width: 1px;
+    background: root.framed ? Theme.surface.with-alpha(0.78) : transparent;
+    border-width: root.framed ? 1px : 0px;
     border-color: HomeUi.editing ? Theme.accent.with-alpha(0.45) : Theme.border;
 
     VerticalLayout {
-        padding: Theme.s5;
+        padding: root.framed ? Theme.s5 : 0px;
         spacing: Theme.s4;
         alignment: start;
         HorizontalLayout {
             spacing: Theme.s2;
             height: 30px;
-            SectionTitle { text: root.slot.title; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+            Text { text: root.slot.title; color: Theme.text; font-family: Theme.display; font-size: root.framed ? 17px : 21px; font-weight: 650; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
             if !HomeUi.editing && root.action != "": LinkText {
                 text: root.action;
                 vertical-alignment: center;
@@ -397,6 +414,7 @@ export component HomePage inherits Rectangle {
                         first: is-first;
                         last: is-last;
                         action: "Tout voir";
+                        bare: true;
                         action-clicked => {
                             if (s.kind == 1) {
                                 LibraryUi.sort = 1;

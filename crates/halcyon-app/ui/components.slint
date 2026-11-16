@@ -847,10 +847,13 @@ export component GameTile inherits Rectangle {
 }
 
 /// Titre de section.
+/// Titre de section : police d'affichage (Sora), commun à toutes les pages.
 export component SectionTitle inherits Text {
     color: Theme.text;
-    font-size: Theme.t-subheading + 1px;
-    font-weight: 700;
+    font-family: Theme.display;
+    font-size: Theme.t-subheading + 3px;
+    font-weight: 650;
+    letter-spacing: -0.2px;
 }
 
 /// Petit titre de groupe (widgets, cartes). 1.0 : casse normale, plus de capitales espacées.

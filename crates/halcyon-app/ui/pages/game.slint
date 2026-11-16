@@ -1,5 +1,5 @@
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Icons } from "../theme.slint";
+import { Theme, Icons, Art } from "../theme.slint";
 import { AchievementRow, ProfileRow, ModRow } from "../types.slint";
 import { Nav, Page, Actions, DetailUi, AppUi, SystemUi, GameMenu } from "../state.slint";
 import {
@@ -1235,8 +1235,8 @@ component HeroStat inherits VerticalLayout {
     in property <string> label;
     in property <string> value;
     spacing: 2px;
-    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }
-    Text { text: root.value; color: Theme.text; font-size: Theme.t-subheading; font-weight: 650; overflow: elide; }
+    Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading + 2px; font-weight: 650; overflow: elide; }
+    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-caption; }
 }
 
 export component GamePage inherits Rectangle {
@@ -1260,16 +1260,21 @@ export component GamePage inherits Rectangle {
                 height: root.banner-height;
                 clip: true;
                 Rectangle {
+                    x: 0; y: 0;
+                    width: parent.width;
+                    height: parent.height;
                     background: @linear-gradient(125deg, DetailUi.game.color-a 0%, DetailUi.game.color-b 100%);
                     opacity: DetailUi.game.has-banner ? 0 : 0.5;
                 }
                 if DetailUi.game.has-banner: Image {
+                    x: 0; y: 0;
                     width: parent.width;
                     height: parent.height;
                     source: DetailUi.game.banner;
                     image-fit: cover;
                 }
                 if !DetailUi.game.has-banner: Image {
+                    x: 0; y: 0;
                     width: parent.width;
                     height: parent.height;
                     source: DetailUi.ambient;
@@ -1277,12 +1282,10 @@ export component GamePage inherits Rectangle {
                     image-rendering: smooth;
                     opacity: 0.75;
                 }
-                Rectangle {
-                    background: @linear-gradient(90deg, Theme.bg.with-alpha(0.88) 0%, Theme.bg.with-alpha(0.45) 45%, Theme.bg.with-alpha(0.05) 100%);
-                }
-                Rectangle {
-                    background: @linear-gradient(180deg, Theme.bg.with-alpha(0.55) 0%, Theme.bg.with-alpha(0.00) 22%, Theme.bg.with-alpha(0.00) 50%, Theme.bg.with-alpha(0.85) 85%, Theme.bg 100%);
-                }
+                // Voiles (masques teintés) : texte lisible à gauche, raccord au contenu en bas.
+                Image { x: 0; y: 0; width: parent.width * 0.75; height: parent.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bg; }
+                Image { x: 0; y: 0; width: parent.width; height: parent.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bg; }
+                Image { x: 0; y: 0; width: parent.width; height: 140px; source: Art.fade-top; image-fit: fill; colorize: Theme.bg; opacity: 0.8; }
                 // Jaquette à droite (grandes fenêtres).
                 if root.wide: GameCover {
                     x: parent.width - self.width - Theme.page-padding;
@@ -1330,9 +1333,10 @@ export component GamePage inherits Rectangle {
                     if !DetailUi.game.has-logo: Text {
                         text: DetailUi.game.title;
                         color: Theme.text;
-                        font-size: Theme.t-display;
-                        font-weight: 800;
-                        letter-spacing: -0.8px;
+                        font-family: Theme.display;
+                        font-size: Theme.t-display + 6px;
+                        font-weight: 700;
+                        letter-spacing: -1.2px;
                         wrap: word-wrap;
                     }
                     if DetailUi.game.developer != "" || DetailUi.game.genres != "": Text {
