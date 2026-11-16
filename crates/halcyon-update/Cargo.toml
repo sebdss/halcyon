@@ -1,0 +1,46 @@
+[package]
+name = "halcyon-update"
+description = "Halcyon Update System (HUS) : versions, canaux, manifestes signés, téléchargement, installation transactionnelle et retour arrière"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[lib]
+name = "halcyon_update"
+path = "src/lib.rs"
+
+# Exécutable indépendant chargé des installations (sans interface, sans runtime asynchrone).
+[[bin]]
+name = "halcyon-updater"
+path = "src/bin/halcyon-updater.rs"
+
+# Outil de publication (CI, auteur) : clés, manifeste, signature, vérification des assets.
+[[bin]]
+name = "hus-release"
+path = "src/bin/hus-release.rs"
+
+# Faux Halcyon pour les tests d'intégration de l'updater (jamais livré).
+[[bin]]
+name = "hus-fake-app"
+path = "src/bin/hus-fake-app.rs"
+required-features = ["fault-injection"]
+
+[features]
+# Pannes simulées (interruption à une étape donnée) : tests uniquement.
+fault-injection = []
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+ureq.workspace = true
+sha2.workspace = true
+base64.workspace = true
+zip.workspace = true
+ed25519-compact = { version = "2", default-features = false }
+sysinfo = { version = "0.40", default-features = false, features = ["system"] }
+
+[dev-dependencies]
+tempfile.workspace = true
+ed25519-compact = { version = "2", default-features = false, features = ["random"] }

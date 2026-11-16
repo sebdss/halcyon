@@ -1,0 +1,10 @@
+# Clés publiques Ed25519 de publication de Halcyon (HUS).
+#
+# Une clé base64 (32 octets) par ligne. Pendant une rotation, gardez l'ancienne et la
+# nouvelle clé : les deux sont acceptées. La clé privée correspondante ne doit JAMAIS être
+# commitée : elle reste dans le secret GitHub `HALCYON_SIGNING_KEY` (environnement de
+# publication) et dans une copie hors ligne.
+#
+# Tant qu'aucune clé n'est présente ici (ni dans la variable de compilation
+# HALCYON_UPDATE_PUBKEY), Halcyon signale les nouvelles versions mais refuse de les
+# installer automatiquement. Procédure : docs/HUS.md, « Mise en place des clés ».
