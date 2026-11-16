@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 /// Dépôt officiel des versions.
-pub const OFFICIAL_REPO: &str = "sebdss/halycon";
+pub const OFFICIAL_REPO: &str = "sebdss/halcyon";
 
 #[derive(Clone)]
 pub struct Net {
@@ -289,7 +289,7 @@ mod tests {
         assert_eq!(r.len(), 2);
         assert!(r[0].prerelease && r[0].asset("halcyon-manifest.json").is_some());
         assert_eq!(r[1].version, "1.0.0".parse().unwrap());
-        assert!(valid_repo("sebdss/halycon").is_ok());
+        assert!(valid_repo("sebdss/halcyon").is_ok());
         assert!(valid_repo("a/b/c").is_err() && valid_repo("a b/c").is_err() && valid_repo("../x").is_err());
     }
 }

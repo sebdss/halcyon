@@ -10,7 +10,7 @@ use halcyon_update::Version;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
-const REPO: &str = "sebdss/halycon";
+const REPO: &str = "sebdss/halcyon";
 const P: Platform = Platform::LinuxX64;
 
 fn v(s: &str) -> Version {
@@ -75,7 +75,7 @@ fn etag_makes_requests_conditional() {
     let q = query(&f, Channel::Stable, &cur, &keys);
     assert!(available(network::check(&net, &q).unwrap()).is_some());
     assert!(available(network::check(&net, &q).unwrap()).is_some(), "réponse 304 : liste reprise du cache");
-    let reqs = f.server.requests("/repos/sebdss/halycon/releases?per_page=30");
+    let reqs = f.server.requests("/repos/sebdss/halcyon/releases?per_page=30");
     assert_eq!(reqs.len(), 2);
     assert!(!reqs[0].headers.contains_key("if-none-match"));
     assert_eq!(reqs[1].headers.get("if-none-match").map(String::as_str), Some("\"etag-1\""));
@@ -86,7 +86,7 @@ fn api_errors_are_explained() {
     let f = fixture(&[]);
     let net = Net::for_local_tests(&f.server.base);
     let keys = [testkit::public(&f.kp)];
-    let path = "/repos/sebdss/halycon/releases?per_page=30";
+    let path = "/repos/sebdss/halcyon/releases?per_page=30";
     f.server.set(path, Route { status: 403, headers: vec![("x-ratelimit-remaining".into(), "0".into())], ..Default::default() });
     assert!(network::check(&net, &query(&f, Channel::Stable, &v("1.0.0"), &keys)).unwrap_err().contains("limite"));
     f.server.set(path, Route { status: 503, ..Default::default() });

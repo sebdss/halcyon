@@ -202,7 +202,7 @@ publication ; la clé privée n'est exposée qu'à l'étape de signature.
 Vérification manuelle d'une publication :
 
 ```sh
-cargo run -p halcyon-update --bin hus-release -- verify-remote --repo sebdss/halycon --tag v1.1.0-beta.1
+cargo run -p halcyon-update --bin hus-release -- verify-remote --repo sebdss/halcyon --tag v1.1.0-beta.1
 cargo run -p halcyon-update --bin hus-release -- verify dossier-téléchargé/   # dossier local
 ```
 
