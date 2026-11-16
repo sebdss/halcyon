@@ -117,6 +117,8 @@ pub struct Settings {
     pub download_limit_kib: u64,
     /// Téléchargements simultanés (les suivants attendent).
     pub download_concurrency: u32,
+    /// Profils d'interface enregistrés (1.0.0).
+    pub ui_profiles: Vec<UiProfile>,
     /// Dossier des journaux de temps d'image (MangoHud `output_folder`, PresentMon).
     pub frametime_dir: Option<PathBuf>,
 
@@ -195,6 +197,15 @@ impl SoundSettings {
         }
         self.in_game = self.in_game.min(2);
     }
+}
+
+/// Profil d'interface nommé (1.0.0) : une apparence complète enregistrée (« Bureau »,
+/// « Salon », « Portable sur batterie »…), appliquée d'un clic.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct UiProfile {
+    pub name: String,
+    pub appearance: Appearance,
 }
 
 /// Personnalisation de l'interface.
@@ -469,6 +480,7 @@ impl Default for Settings {
             perf_history: true,
             download_limit_kib: 0,
             download_concurrency: 2,
+            ui_profiles: Vec::new(),
             frametime_dir: None,
         }
     }
@@ -567,6 +579,37 @@ impl Settings {
         }
     }
 
+    /// Enregistre l'apparence actuelle sous `name` (remplace un profil du même nom, sans
+    /// tenir compte de la casse). Renvoie `false` si le nom est vide.
+    pub fn save_ui_profile(&mut self, name: &str) -> bool {
+        let name = name.trim();
+        if name.is_empty() {
+            return false;
+        }
+        let p = UiProfile { name: name.chars().take(40).collect(), appearance: self.appearance.clone() };
+        match self.ui_profiles.iter().position(|x| x.name.eq_ignore_ascii_case(name)) {
+            Some(i) => self.ui_profiles[i] = p,
+            None if self.ui_profiles.len() < 20 => self.ui_profiles.push(p),
+            None => return false,
+        }
+        true
+    }
+
+    /// Applique un profil. Le mode Performance en cours (manuel ou automatique) est conservé :
+    /// changer d'apparence ne doit pas réactiver d'effets pendant une partie.
+    pub fn apply_ui_profile(&mut self, index: usize) -> bool {
+        let Some(p) = self.ui_profiles.get(index) else { return false };
+        let (perf, auto) = (self.appearance.performance, self.appearance.performance_auto);
+        self.appearance = p.appearance.clone();
+        self.appearance.performance = perf;
+        self.appearance.performance_auto = auto;
+        true
+    }
+
+    pub fn delete_ui_profile(&mut self, index: usize) -> bool {
+        (index < self.ui_profiles.len()).then(|| self.ui_profiles.remove(index)).is_some()
+    }
+
     /// Profil d'un émulateur (créé à la volée s'il n'existe pas encore).
     pub fn emulator_mut(&mut self, id: &str) -> &mut EmulatorSettings {
         if let Some(i) = self.emulators.iter().position(|e| e.id == id) {
@@ -640,6 +683,26 @@ impl MinecraftSettings {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ui_profiles_save_apply_delete() {
+        let mut s = Settings::default();
+        s.appearance.density = 2;
+        assert!(!s.save_ui_profile("  "));
+        assert!(s.save_ui_profile("Salon"));
+        s.appearance.density = 0;
+        s.appearance.performance = true;
+        assert!(s.save_ui_profile("salon"), "même nom : remplacé");
+        assert_eq!(s.ui_profiles.len(), 1);
+        s.appearance.density = 1;
+        s.appearance.performance = false;
+        assert!(s.apply_ui_profile(0));
+        assert_eq!(s.appearance.density, 0);
+        assert!(!s.appearance.performance, "le mode Performance courant est conservé");
+        assert!(!s.apply_ui_profile(5));
+        assert!(s.delete_ui_profile(0));
+        assert!(s.ui_profiles.is_empty());
+    }
 
     #[test]
     fn api_keys_live_in_the_vault_not_in_the_json() {

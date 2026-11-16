@@ -1123,6 +1123,22 @@ component Overview inherits VerticalLayout {
         }
     }
 
+    if DetailUi.news.length > 0 || DetailUi.news-status != "": SectionTitle { text: "Actualités"; }
+    if DetailUi.news-status != "": Text { text: DetailUi.news-status; color: Theme.text-dim; font-size: Theme.t-small; }
+    for n in DetailUi.news: Rectangle {
+        height: news-col.preferred-height;
+        border-radius: Theme.radius;
+        background: news-touch.has-hover ? Theme.surface-hover : Theme.surface;
+        news-touch := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-url(n.url); } }
+        news-col := VerticalLayout {
+            padding: 14px;
+            spacing: 4px;
+            Text { text: n.title; color: Theme.text; font-size: Theme.t-body; font-weight: 650; wrap: word-wrap; }
+            Text { text: n.meta; color: Theme.text-dim; font-size: Theme.t-overline; }
+            if n.excerpt != "": Text { text: n.excerpt; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+        }
+    }
+
     SectionTitle { text: "Collections"; }
     HorizontalLayout {
         spacing: 8px;

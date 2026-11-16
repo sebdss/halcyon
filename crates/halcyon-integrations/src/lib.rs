@@ -16,6 +16,7 @@ pub mod gog;
 pub mod gpu;
 pub mod launcher;
 pub mod mods;
+pub mod news;
 pub mod plugin_trust;
 pub mod plugins;
 pub mod process;

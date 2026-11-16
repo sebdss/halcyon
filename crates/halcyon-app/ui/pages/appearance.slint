@@ -21,6 +21,7 @@ export component AppearancePage inherits Rectangle {
     in-out property <string> bg-path: ThemeUi.background;
     in-out property <string> accent-hex: ThemeUi.accent;
     in-out property <string> import-path;
+    in-out property <string> profile-name;
     ScrollView {
         content-height: content.preferred-height;
         content := VerticalLayout {
@@ -232,6 +233,27 @@ export component AppearancePage inherits Rectangle {
                             IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-down; tooltip: "Descendre"; clicked => { ThemeUi.move-section(i, 1); } }
                             Toggle { y: (parent.height - self.height) / 2; checked: sec.visible; toggled => { ThemeUi.toggle-section(i); } }
                         }
+                    }
+                }
+            }
+
+            SectionTitle { text: "Profils d'interface"; }
+            Panel {
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 12px;
+                    Text { text: "Enregistrez l'apparence actuelle (thème, couleurs, densité, animations, fond, menu, accueil) sous un nom, puis basculez d'un profil à l'autre : « Bureau », « Salon », « Portable sur batterie »… Le mode Performance en cours n'est pas modifié."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    for name[i] in ThemeUi.ui-profiles: HorizontalLayout {
+                        height: 40px;
+                        spacing: 8px;
+                        Text { text: name; color: Theme.text; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                        SecondaryButton { y: 3px; h: 34px; text: "Appliquer"; clicked => { ThemeUi.apply-profile(i); } }
+                        IconButton { y: 3px; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer le profil"; clicked => { ThemeUi.delete-profile(i); } }
+                    }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        TextField { text <=> root.profile-name; placeholder: "Nom du profil (ex. Salon)"; }
+                        PrimaryButton { h: 38px; text: "Enregistrer l'apparence actuelle"; enabled: root.profile-name != ""; clicked => { ThemeUi.save-profile(root.profile-name); root.profile-name = ""; } }
                     }
                 }
             }

@@ -113,6 +113,7 @@ pub struct Controller {
     pub(crate) mc: RefCell<crate::ctl_minecraft::McState>,
     pub(crate) perfc: RefCell<crate::ctl_perf::PerfState>,
     pub(crate) downloads_timer: RefCell<Option<slint::Timer>>,
+    pub(crate) news_cache: RefCell<HashMap<GameId, (i64, Vec<halcyon_integrations::news::NewsItem>)>>,
     pub(crate) tray: RefCell<Option<crate::tray::Tray>>,
     pub(crate) hotkey: RefCell<Option<(global_hotkey::GlobalHotKeyManager, global_hotkey::hotkey::HotKey)>>,
     pub(crate) system_timer: RefCell<Option<slint::Timer>>,
@@ -208,6 +209,7 @@ impl Controller {
             perf_auto_active: Cell::new(false),
             perfc: RefCell::new(Default::default()),
             downloads_timer: RefCell::new(None),
+            news_cache: RefCell::new(HashMap::new()),
             audio,
             shell_timer: RefCell::new(None),
             paths,
@@ -516,6 +518,9 @@ impl Controller {
         tui.on_import_theme(with!(|c, p| c.import_theme(&p)));
         tui.on_export_theme(with!(|c| c.export_theme()));
         tui.on_reset(with!(|c| c.reset_appearance()));
+        tui.on_save_profile(with!(|c, n| c.save_ui_profile(&n)));
+        tui.on_apply_profile(with!(|c, i| c.apply_ui_profile(i.max(0) as usize)));
+        tui.on_delete_profile(with!(|c, i| c.delete_ui_profile(i.max(0) as usize)));
 
         let pui = app.global::<crate::PluginsUi>();
         pui.on_install(with!(|c, p| c.install_plugin(&p)));
@@ -944,6 +949,7 @@ impl Controller {
         app.global::<DetailUi>().set_save_diff(ModelRc::default());
         self.refresh_detail();
         self.refresh_game_tools();
+        self.refresh_game_news(id);
         let nav = app.global::<Nav>();
         if nav.get_page() != Page::Game {
             nav.set_page(Page::Game);
@@ -1980,5 +1986,69 @@ fn load_failures(paths: &AppPaths) -> HashMap<String, i64> {
 fn save_failures(paths: &AppPaths, failures: &HashMap<String, i64>) {
     if let Ok(data) = serde_json::to_vec(failures) {
         let _ = std::fs::write(failures_path(paths), data);
+    }
+}
+
+impl Controller {
+    /// Actualités officielles d'un jeu Steam (Game Hub, 1.0.0) : en ligne uniquement, une
+    /// requête par jeu et par heure au plus.
+    pub(crate) fn refresh_game_news(&self, id: GameId) {
+        let Some(app) = self.app() else { return };
+        let ui = app.global::<DetailUi>();
+        let game = self.lib.borrow().get(id).map(|g| (g.source, g.source_key.clone()));
+        let Some((GameSource::Steam, appid)) = game else {
+            ui.set_news(ModelRc::default());
+            ui.set_news_status("".into());
+            return;
+        };
+        let now = halcyon_storage::now_unix();
+        if let Some((at, items)) = self.news_cache.borrow().get(&id).cloned() {
+            if now - at < 3600 {
+                self.publish_news(id, &items, "");
+                return;
+            }
+        }
+        ui.set_news(ModelRc::default());
+        if !self.net_allowed() {
+            ui.set_news_status("Hors ligne : actualités indisponibles.".into());
+            return;
+        }
+        ui.set_news_status("Chargement des actualités…".into());
+        std::thread::Builder::new()
+            .name("news".into())
+            .spawn(move || {
+                let dl = halcyon_integrations::artwork::Downloader::new();
+                let r = halcyon_integrations::news::fetch_steam(&dl, &appid, 5);
+                post(move |c| match r {
+                    Ok(items) => {
+                        c.news_cache.borrow_mut().insert(id, (now, items.clone()));
+                        c.publish_news(id, &items, if items.is_empty() { "Aucune actualité publiée." } else { "" });
+                    }
+                    Err(e) => {
+                        log::info!("actualités indisponibles : {e}");
+                        c.publish_news(id, &[], "Actualités indisponibles pour le moment.");
+                    }
+                });
+            })
+            .ok();
+    }
+
+    fn publish_news(&self, id: GameId, items: &[halcyon_integrations::news::NewsItem], status: &str) {
+        if self.detail_id.get() != Some(id) {
+            return;
+        }
+        let Some(app) = self.app() else { return };
+        let ui = app.global::<DetailUi>();
+        let rows: Vec<crate::NewsRow> = items
+            .iter()
+            .map(|n| crate::NewsRow {
+                title: n.title.as_str().into(),
+                url: n.url.as_str().into(),
+                meta: [halcyon_core::util::format_date(n.date), n.source.clone()].into_iter().filter(|s| !s.is_empty()).collect::<Vec<_>>().join(" · ").into(),
+                excerpt: n.excerpt.as_str().into(),
+            })
+            .collect();
+        ui.set_news(ModelRc::new(VecModel::from(rows)));
+        ui.set_news_status(status.into());
     }
 }

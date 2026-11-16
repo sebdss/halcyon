@@ -7,7 +7,7 @@ import {
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
     UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
-    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem
+    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
 
 /// Éléments de la barre latérale affichés (personnalisation).
@@ -154,6 +154,9 @@ export global HomeUi {
 
 export global DetailUi {
     in property <GameDetail> game;
+    /// Actualités officielles (jeux Steam, en ligne), 1.0.0.
+    in property <[NewsRow]> news;
+    in property <string> news-status;
     in-out property <int> tab;
     in property <[image]> screenshots;
     /// Captures locales du jeu (Steam) et fond d'ambiance (sans bannière).
@@ -650,6 +653,11 @@ export global AppUi {
 }
 
 export global ThemeUi {
+    /// Profils d'interface enregistrés (1.0.0).
+    in property <[string]> ui-profiles;
+    callback save-profile(string);
+    callback apply-profile(int);
+    callback delete-profile(int);
     in property <[ThemeRow]> themes;
     in property <int> selected;
     in property <[color]> accents;

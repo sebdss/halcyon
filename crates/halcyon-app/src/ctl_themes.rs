@@ -309,6 +309,8 @@ impl Controller {
 
     fn refresh_appearance_ui_with(&self, themes: &[ThemeDef]) {
         let Some(app) = self.app() else { return };
+        let names: Vec<SharedString> = self.settings.borrow().ui_profiles.iter().map(|p| p.name.as_str().into()).collect();
+        app.global::<ThemeUi>().set_ui_profiles(ModelRc::new(VecModel::from(names)));
         let a = self.settings.borrow().appearance.clone();
         let ui = app.global::<ThemeUi>();
         let base_accent = parse_hex("#2fd4c5").unwrap_or_default();
@@ -583,5 +585,37 @@ mod tests {
     fn on_accent_contrast() {
         assert_eq!(on_accent_for(Color::from_rgb_u8(20, 20, 60)), Color::from_rgb_u8(255, 255, 255));
         assert!(on_accent_for(Color::from_rgb_u8(0xf2, 0xc9, 0x4c)).red() < 40);
+    }
+}
+
+impl Controller {
+    // ------------------------------------------------------------------ profils d'interface (1.0.0)
+
+    pub(crate) fn save_ui_profile(&self, name: &str) {
+        let ok = self.settings.borrow_mut().save_ui_profile(name);
+        if ok {
+            self.save_settings();
+            self.toast(format!("Profil d'interface « {} » enregistré", name.trim()), false);
+        } else {
+            self.toast("Nom vide, ou 20 profils déjà enregistrés", true);
+        }
+        self.refresh_appearance_ui();
+    }
+
+    pub(crate) fn apply_ui_profile(&self, index: usize) {
+        let name = self.settings.borrow().ui_profiles.get(index).map(|p| p.name.clone());
+        if self.settings.borrow_mut().apply_ui_profile(index) {
+            self.save_settings();
+            self.apply_appearance();
+            self.refresh_appearance_ui();
+            self.toast(format!("Profil « {} » appliqué", name.unwrap_or_default()), false);
+        }
+    }
+
+    pub(crate) fn delete_ui_profile(&self, index: usize) {
+        if self.settings.borrow_mut().delete_ui_profile(index) {
+            self.save_settings();
+            self.refresh_appearance_ui();
+        }
     }
 }
