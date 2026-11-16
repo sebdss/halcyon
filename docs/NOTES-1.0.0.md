@@ -34,17 +34,35 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
   valeur), extensions et autorisations, mises à jour vérifiées ou refusées, compte
   Microsoft, profils du launcher Minecraft officiel.
 
+### Bibliothèque : GOG
+- Jeux GOG installés par Heroic (Linux, Windows) ou GOG Galaxy (Windows), avec titres et
+  visuels du cache Heroic. Filtre « GOG » et règle de collection intelligente.
+
+### Téléchargements
+- Nouvelle page : vitesse, file d'attente, pause et reprise de tout ce que Halcyon
+  télécharge, limite de débit, nombre de téléchargements simultanés. Un fichier interrompu
+  par une coupure reprend où il s'était arrêté.
+
+### Statistiques, actualités, extensions, profils
+- Export des statistiques en CSV (tableurs) ou JSON.
+- Actualités officielles des jeux Steam dans leur fiche.
+- Extensions : empreinte du contenu, signature de l'auteur, mise à jour refusée si elle
+  n'est pas signée par le même auteur.
+- Profils d'interface : « Bureau », « Salon »… enregistrés et appliqués d'un clic.
+
 ### Corrections
+- L'installateur proposait « Réinstaller » au lieu de « Mettre à jour » pour une pré-version.
 - Une pré-version (`1.0.0-alpha.1`) est désormais considérée comme plus ancienne que la
   version finale correspondante : sans cela, une installation de test n'aurait jamais
   proposé la 1.0.0.
 - Minecraft apparaît dans le lancement rapide (Ctrl+K).
 
-## Ce qui n'est pas encore fait (suite de la 1.0)
+## Ce qui n'est pas fait
 
-Gestionnaire de téléchargements unifié (file, pause, reprise, limite de débit), GOG via
-Heroic, export des statistiques, signature des extensions, refonte visuelle écran par
-écran, profils d'interface. Voir [`AUDIT-1.0.md`](AUDIT-1.0.md#4-plan-dexécution).
+- Refonte visuelle des écrans existants (les nouveaux écrans suivent le design system).
+- Validation sur un vrai PC Windows et sous Linux avec réseau (voir
+  [`TESTS-1.0.0.md`](TESTS-1.0.0.md)).
+- Succès GOG : pas d'API publique sans connexion au compte (succès personnalisés seulement).
 
 ## À faire une fois (auteur)
 

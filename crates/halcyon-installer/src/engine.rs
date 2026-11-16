@@ -132,10 +132,22 @@ pub fn now_unix() -> i64 {
 }
 
 /// Compare deux versions « x.y.z » (`None` si illisibles).
+/// Comparaison semver (pré-versions comprises : `1.0.0-alpha.1` < `1.0.0`). Avant la 1.0,
+/// une pré-version rendait la comparaison impossible et l'installateur proposait une
+/// réinstallation au lieu d'une mise à jour.
 pub fn compare_versions(a: &str, b: &str) -> Option<std::cmp::Ordering> {
-    let parse = |v: &str| -> Option<Vec<u64>> { v.trim().trim_start_matches('v').split('.').map(|p| p.parse().ok()).collect() };
-    let (x, y) = (parse(a)?, parse(b)?);
-    Some(x.cmp(&y))
+    use halcyon_core::util::version_newer;
+    let ok = |v: &str| v.trim().trim_start_matches('v').starts_with(|c: char| c.is_ascii_digit());
+    if !ok(a) || !ok(b) {
+        return None;
+    }
+    Some(if version_newer(b, a) {
+        std::cmp::Ordering::Less
+    } else if version_newer(a, b) {
+        std::cmp::Ordering::Greater
+    } else {
+        std::cmp::Ordering::Equal
+    })
 }
 
 pub fn read_record(dir: &Path) -> Option<Record> {

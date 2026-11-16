@@ -195,6 +195,29 @@ Menu **Minecraft** (sous Big Picture). Détails : [`MINECRAFT.md`](MINECRAFT.md)
 5. **Paramètres** : RAM, Java, arguments JVM, résolution ; mode direct (connexion Microsoft dans
    Halcyon) si vous avez un ID d'application Azure approuvé par Mojang.
 
+## 6 bis+. GOG (1.0.0)
+
+**Paramètres › Sources › GOG** : Halcyon lit les jeux GOG installés par **Heroic**
+(Linux et Windows, natif ou Flatpak) et par **GOG Galaxy** (Windows). Les jeux Heroic se
+lancent par Heroic (qui applique Wine/Proton) ; ceux de Galaxy par leur exécutable (jeux
+sans DRM). Si Heroic est installé ailleurs, indiquez son dossier de configuration (celui qui
+contient `gog_store`). Filtre « GOG » dans la bibliothèque. Les succès GOG ne sont pas
+disponibles (pas d'API publique sans connexion au compte) : utilisez les succès
+personnalisés.
+
+## 6 quater. Téléchargements (1.0.0)
+
+Menu **Téléchargements** : tout ce que Halcyon télécharge lui-même (versions et Java de
+Minecraft, loaders, mods, modpacks, mises à jour de Halcyon).
+
+- **Tout mettre en pause / Reprendre** : les transferts attendent sans rien perdre.
+- **Limite de débit** (illimitée à 50 Mio/s) et **téléchargements simultanés** (1 à 4) :
+  appliqués immédiatement ; au-delà, les opérations attendent dans la file.
+- Une coupure réseau ne fait pas tout recommencer : le fichier reprend où il s'était
+  arrêté quand le serveur le permet, et reste vérifié par son empreinte.
+- Les jeux Steam, Epic et GOG restent téléchargés par leur client : la page indique combien
+  de mises à jour sont en attente et renvoie vers **Mises à jour**.
+
 ## 6 ter. Performances (1.0.0)
 
 Menu **Performances** (icône jauge), sous Minecraft.
@@ -226,6 +249,17 @@ Menu **Performances** (icône jauge), sous Minecraft.
   - Bouton **Ouvrir un journal…** puis **Dernier journal** (le plus récent du même dossier).
     Résultat : moyenne, « 1 % low » et « 0,1 % low » (1000 / 99ᵉ et 99,9ᵉ centiles du temps
     d'image), pire image, nombre de saccades et courbe des temps d'image.
+
+## 6 quinquies. Autres nouveautés 1.0
+
+- **Export des statistiques** (page Statistiques) : temps par jeu (CSV), sessions (CSV)
+  ou tout (JSON). Les CSV s'ouvrent dans Excel, LibreOffice ou Google Sheets.
+- **Actualités** (fiche d'un jeu Steam, onglet Aperçu) : dernières annonces officielles ;
+  un clic ouvre l'article. En ligne uniquement.
+- **Profils d'interface** (Apparence) : enregistrez l'apparence actuelle sous un nom
+  (« Bureau », « Salon »…) et basculez d'un clic.
+- **Extensions** : chaque extension affiche son empreinte, et « Signée par l'auteur » si
+  elle est signée ; voir [`PLUGINS.md`](PLUGINS.md#signer-une-extension-100).
 
 ## 7. Recherche avancée et collections intelligentes
 

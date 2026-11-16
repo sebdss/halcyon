@@ -29,9 +29,47 @@ une table ajoutée). Détails : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · 
   (génération des clés, signature, vérification) ; étape de signature dans la CI.
 - Journal `logs/security.log` (`halcyon-storage::audit`).
 
+### Bibliothèque : GOG (nouveau)
+- Source **GOG** : jeux installés par **Heroic** (natif, Flatpak ; `gog_store/installed.json`
+  et cache de bibliothèque pour titres et visuels), lancés par `heroic://launch?…&runner=gog`,
+  et par **GOG Galaxy** sous Windows (registre), lancés par leur exécutable (jeux sans DRM).
+- Paramètres › Sources (activation, dossier Heroic forcé), filtre « GOG » de la bibliothèque,
+  règle « Source : GOG » des collections intelligentes.
+
+### Téléchargements (nouveau)
+- Page **Téléchargements** : vitesse, volume reçu, file, tâches en cours et terminées,
+  annulation, état des mises à jour de jeux des plateformes.
+- Contrôle commun `halcyon-core::transfer` : **pause et reprise** globales, **limite de
+  débit** (seau à jetons), **téléchargements simultanés** (1 à 4, les suivants attendent).
+  Appliqué à Minecraft (versions, Java, bibliothèques, loaders, mods, modpacks) et à la mise
+  à jour de Halcyon.
+- **Reprise après coupure** : un fichier partiel reprend par requête `Range` (repart de
+  zéro si le serveur ne le permet pas) ; l'empreinte porte toujours sur le fichier entier.
+
+### Statistiques
+- Export **CSV** (temps par jeu, sessions ; BOM UTF-8, formules de tableur neutralisées)
+  et **JSON** (tout), depuis la page Statistiques.
+
+### Game Hub
+- **Actualités** des jeux Steam dans la fiche (API publique `ISteamNews`, sans clé ;
+  en ligne seulement, une requête par jeu et par heure ; liens HTTPS uniquement).
+
+### Extensions
+- **Empreinte du contenu** et **signature Ed25519 facultative de l'auteur** (`plugin.sig`,
+  outil `release_sign sign-plugin`) ; contenu signé modifié après coup : extension inutilisable.
+- **Épinglage** : une extension signée ne peut être remplacée que par une version signée par
+  la même clé. État affiché dans la page Extensions et dans la confirmation d'installation.
+
+### Personnalisation
+- **Profils d'interface** : enregistrer l'apparence actuelle sous un nom et l'appliquer d'un
+  clic (20 au plus) ; le mode Performance en cours est conservé.
+
 ### Corrections
-- Comparaison de versions conforme à semver pour les pré-versions (`1.0.0-alpha.1` < `1.0.0`).
-- Minecraft et Performances ajoutés au lancement rapide.
+- Comparaison de versions conforme à semver pour les pré-versions (`1.0.0-alpha.1` < `1.0.0`),
+  dans l'application **et dans l'installateur** (qui proposait « Réinstaller » au lieu de
+  « Mettre à jour » pour une pré-version).
+- Minecraft, Performances et Téléchargements ajoutés au lancement rapide.
+- Libellés des sources des collections intelligentes générés depuis le modèle.
 
 ## 0.5.0 — « Minecraft Integration »
 

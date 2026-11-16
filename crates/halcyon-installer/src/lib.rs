@@ -272,6 +272,9 @@ mod tests {
         assert_eq!(compare_versions("0.4.0", "0.4.1"), Some(std::cmp::Ordering::Less));
         assert_eq!(compare_versions("v0.10.0", "0.9.9"), Some(std::cmp::Ordering::Greater));
         assert_eq!(compare_versions("x", "0.1"), None);
+        assert_eq!(compare_versions("0.5.0", "1.0.0-alpha.1"), Some(std::cmp::Ordering::Less), "mise à jour vers une pré-version");
+        assert_eq!(compare_versions("1.0.0-alpha.1", "1.0.0"), Some(std::cmp::Ordering::Less));
+        assert_eq!(compare_versions("1.0.0", "1.0.0"), Some(std::cmp::Ordering::Equal));
     }
 
     #[test]
