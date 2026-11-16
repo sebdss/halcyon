@@ -144,8 +144,9 @@ component PlayTab inherits VerticalLayout {
                     Text {
                         text: McUi.profiles.length > 0 ? McUi.profiles[McUi.selected-profile].name : "Aucune installation";
                         color: Theme.text;
-                        font-size: Theme.t-title;
-                        font-weight: 800;
+                        font-family: Theme.display;
+                        font-size: Theme.t-title - 4px;
+                        font-weight: 700;
                         overflow: elide;
                     }
                     Text {
@@ -552,8 +553,8 @@ export component MinecraftPage inherits Rectangle {
             alignment: start;
             HorizontalLayout {
                 spacing: 14px;
-                Text { text: "Minecraft"; color: Theme.text; font-size: Theme.t-title; font-weight: 800; letter-spacing: -0.4px; }
-                Text { text: "Java Edition"; color: Theme.text-dim; font-size: Theme.t-body + 1px; vertical-alignment: bottom; horizontal-stretch: 1; }
+                Text { text: "Minecraft"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title; font-weight: 700; letter-spacing: -0.8px; }
+                Text { text: "Java Edition"; color: Theme.text-muted; font-size: Theme.t-body; vertical-alignment: center; horizontal-stretch: 1; }
             }
             Tabs {
                 items: ["Jouer", "Versions", "Mods", "Modpacks", "Loaders", "Paramètres"];

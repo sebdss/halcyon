@@ -1084,8 +1084,8 @@ export component BigStat inherits VerticalLayout {
     in property <string> value;
     in property <string> label;
     spacing: 2px;
-    Text { text: root.value; color: Theme.text; font-size: Theme.t-title - 2px; font-weight: 800; overflow: elide; }
-    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+    Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 4px; font-weight: 700; letter-spacing: -0.6px; overflow: elide; }
+    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
 }
 
 /// Histogramme vertical simple.

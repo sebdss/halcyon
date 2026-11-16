@@ -237,24 +237,17 @@ export component EmulatorsPage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 32px;
+            padding-top: 24px;
             spacing: 18px;
             alignment: start;
 
             HorizontalLayout {
                 spacing: 14px;
                 Text {
-                    text: "Émulateurs";
-                    color: Theme.text;
-                    font-size: Theme.t-title;
-                    font-weight: 800;
-                    letter-spacing: -0.4px;
-                }
-                Text {
-                    text: EmuUi.detected-count + " détectés · " + EmuUi.rom-count + " jeux émulés";
-                    color: Theme.text-dim;
-                    font-size: Theme.t-body + 1px;
-                    vertical-alignment: bottom;
+                    text: EmuUi.detected-count + " émulateurs détectés, " + EmuUi.rom-count + " jeux émulés";
+                    color: Theme.text-muted;
+                    font-size: Theme.t-body;
+                    vertical-alignment: center;
                     horizontal-stretch: 1;
                 }
                 SecondaryButton {

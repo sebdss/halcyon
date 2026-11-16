@@ -11,9 +11,13 @@ import { Panel, SectionTitle, Overline, PageHeader, SecondaryButton, PrimaryButt
 component Curve inherits Rectangle {
     in property <[float]> values;
     in property <color> tint: Theme.accent;
-    height: 56px;
+    height: 64px;
+    border-radius: 6px;
+    background: Theme.bg.with-alpha(0.45);
+    clip: true;
     HorizontalLayout {
         alignment: end;
+        padding: 4px;
         spacing: 2px;
         for v in root.values: Rectangle {
             width: 5px;
@@ -37,8 +41,8 @@ component MeasureCard inherits Rectangle {
     VerticalLayout {
         padding: 18px;
         spacing: 10px;
-        Overline { text: root.title; }
-        Text { text: root.value; color: Theme.text; font-size: Theme.t-title; font-weight: 800; }
+        Text { text: root.title; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; }
+        Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: 40px; font-weight: 700; letter-spacing: -1px; }
         if root.caption != "": Text { text: root.caption; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
         @children
     }
@@ -50,7 +54,7 @@ export component PerformancePage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 32px;
+            padding-top: 24px;
             spacing: 18px;
             alignment: start;
 

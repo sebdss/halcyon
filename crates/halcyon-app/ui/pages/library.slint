@@ -6,7 +6,7 @@
 // reçoivent qu'une fenêtre d'une vingtaine de jeux autour de la sélection (`strip`).
 
 import { ListView, ScrollView } from "std-widgets.slint";
-import { Theme, Icons } from "../theme.slint";
+import { Theme, Icons, Art } from "../theme.slint";
 import { GameCard, StripItem } from "../types.slint";
 import { Actions, LibraryUi, AppUi, SmartUi, GameMenu } from "../state.slint";
 import {
@@ -201,14 +201,16 @@ component FocusInfo inherits VerticalLayout {
 /// Illustration plein cadre du jeu sélectionné : bannière, sinon ambiance tirée de la jaquette.
 component Backdrop inherits Rectangle {
     clip: true;
-    Rectangle { background: @linear-gradient(125deg, LibraryUi.focus-game.color-a 0%, LibraryUi.focus-game.color-b 100%); opacity: 0.5; }
+    Rectangle { x: 0; y: 0; width: root.width; height: root.height; background: @linear-gradient(125deg, LibraryUi.focus-game.color-a 0%, LibraryUi.focus-game.color-b 100%); opacity: 0.5; }
     if LibraryUi.focus-game.has-banner: Image {
+        x: 0; y: 0;
         width: root.width;
         height: root.height;
         source: LibraryUi.focus-game.banner;
         image-fit: cover;
     }
     if !LibraryUi.focus-game.has-banner: Image {
+        x: 0; y: 0;
         width: root.width;
         height: root.height;
         source: LibraryUi.focus-ambient;
@@ -216,8 +218,9 @@ component Backdrop inherits Rectangle {
         image-rendering: smooth;
         opacity: 0.8;
     }
-    Rectangle { background: @linear-gradient(90deg, Theme.bg.with-alpha(0.92) 0%, Theme.bg.with-alpha(0.55) 45%, Theme.bg.with-alpha(0.10) 100%); }
-    Rectangle { background: @linear-gradient(180deg, Theme.bg.with-alpha(0.70) 0%, Theme.bg.with-alpha(0.0) 25%, Theme.bg.with-alpha(0.0) 45%, Theme.bg.with-alpha(0.92) 78%, Theme.bg 100%); }
+    Image { x: 0; y: 0; width: root.width * 0.8; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bg; }
+    Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bg; }
+    Image { x: 0; y: 0; width: root.width; height: 160px; source: Art.fade-top; image-fit: fill; colorize: Theme.bg; }
 }
 
 /// Sélecteur de vue (5 icônes).
@@ -319,9 +322,10 @@ export component LibraryPage inherits Rectangle {
                 Text {
                     text: "Bibliothèque";
                     color: Theme.text;
+                    font-family: Theme.display;
                     font-size: Theme.t-title;
-                    font-weight: 800;
-                    letter-spacing: -0.4px;
+                    font-weight: 700;
+                    letter-spacing: -0.8px;
                     vertical-alignment: center;
                 }
                 Text {
@@ -334,31 +338,11 @@ export component LibraryPage inherits Rectangle {
                     horizontal-stretch: 1;
                     overflow: elide;
                 }
-                if root.grid-like && root.width > 900px: Segmented {
-                    items: ["S", "M", "L"];
-                    selected: LibraryUi.card-width < 150px ? 0 : LibraryUi.card-width < 190px ? 1 : 2;
-                    activated(i) => { LibraryUi.card-size(i == 0 ? 132 : i == 1 ? 168 : 214); }
-                }
-                ViewSwitch { }
-                SecondaryButton {
-                    text: root.width > 1000px ? "Ajouter un jeu" : "";
-                    icon: Icons.plus;
-                    has-icon: true;
-                    clicked => { AppUi.add-dialog-open = true; }
-                }
-            }
-
-            // Barre d'outils : recherche, source, tri
-            HorizontalLayout {
-                padding-left: Theme.page-padding;
-                padding-right: Theme.page-padding;
-                padding-bottom: 12px;
-                spacing: 10px;
                 search := TextField {
                     min-width: 160px;
-                    max-width: 340px;
+                    max-width: 300px;
                     horizontal-stretch: 1;
-                    height: 34px;
+                    height: 38px;
                     placeholder: "Rechercher…  (Ctrl+F)";
                     icon: Icons.search;
                     has-icon: true;
@@ -368,7 +352,7 @@ export component LibraryPage inherits Rectangle {
                 }
                 help-btn := IconButton {
                     y: 0px;
-                    size: 34px;
+                    size: 38px;
                     icon: Icons.info;
                     tooltip: "Syntaxe de recherche";
                     clicked => { help.show(); }
@@ -403,26 +387,32 @@ export component LibraryPage inherits Rectangle {
                         }
                     }
                 }
-                Segmented {
-                    items: root.width > 1150px ? ["Tous", "Steam", "Epic", "Émulation", "Autres", "Minecraft", "GOG"] : ["Tous", "Steam", "Epic", "Ému.", "Autres", "MC", "GOG"];
-                    selected <=> LibraryUi.source;
-                    activated => { LibraryUi.query-changed(); }
+                if root.grid-like && root.width > 900px: Segmented {
+                    items: ["S", "M", "L"];
+                    selected: LibraryUi.card-width < 150px ? 0 : LibraryUi.card-width < 190px ? 1 : 2;
+                    activated(i) => { LibraryUi.card-size(i == 0 ? 132 : i == 1 ? 168 : 214); }
                 }
-                Rectangle { horizontal-stretch: 1; }
-                Dropdown {
-                    prefix: "Trier :";
-                    options: LibraryUi.sort-labels;
-                    selected <=> LibraryUi.sort;
-                    changed => { LibraryUi.query-changed(); }
+                ViewSwitch { }
+                SecondaryButton {
+                    text: root.width > 1000px ? "Ajouter un jeu" : "";
+                    icon: Icons.plus;
+                    has-icon: true;
+                    clicked => { AppUi.add-dialog-open = true; }
                 }
             }
-            // Filtres : état, collection, genre
+
+            // Filtres : source, état, collection, genre ; tri à droite
             HorizontalLayout {
                 padding-left: Theme.page-padding;
                 padding-right: Theme.page-padding;
                 padding-bottom: 16px;
                 spacing: 8px;
-                alignment: start;
+                Segmented {
+                    items: root.width > 1480px ? ["Tous", "Steam", "Epic", "Émulation", "Autres", "Minecraft", "GOG"] : ["Tous", "Steam", "Epic", "Ému.", "Autres", "MC", "GOG"];
+                    selected <=> LibraryUi.source;
+                    activated => { LibraryUi.query-changed(); }
+                }
+                Rectangle { width: 6px; }
                 Chip {
                     text: "Installés";
                     checked: LibraryUi.installed-only;
@@ -455,7 +445,7 @@ export component LibraryPage inherits Rectangle {
                     changed => { LibraryUi.query-changed(); }
                 }
                 SecondaryButton {
-                    text: root.width > 1000px ? "Collections intelligentes" : "";
+                    text: root.width > 1480px ? "Collections intelligentes" : "";
                     icon: Icons.bolt;
                     has-icon: true;
                     h: 32px;
@@ -465,6 +455,13 @@ export component LibraryPage inherits Rectangle {
                     prefix: "";
                     options: LibraryUi.genre-labels;
                     selected <=> LibraryUi.genre;
+                    changed => { LibraryUi.query-changed(); }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                Dropdown {
+                    prefix: root.width > 1300px ? "Trier :" : "";
+                    options: LibraryUi.sort-labels;
+                    selected <=> LibraryUi.sort;
                     changed => { LibraryUi.query-changed(); }
                 }
             }

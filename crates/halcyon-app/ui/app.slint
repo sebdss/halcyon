@@ -296,11 +296,14 @@ component Toast inherits Rectangle {
     height: 46px;
     width: min(row.preferred-width, 720px);
     border-radius: 23px;
-    background: #1f2530f2;
+    background: Theme.surface-active;
     border-width: 1px;
     border-color: AppUi.toast-error ? Theme.danger.with-alpha(0.5) : Theme.border-strong;
-    drop-shadow-blur: 30px;
+    drop-shadow-blur: Theme.effects ? 30px : 0px;
     drop-shadow-color: #00000099;
+    clip: true;
+    // Ligne d'horizon : la signature de Halcyon sur chaque confirmation.
+    Rectangle { x: 0; y: parent.height - 2px; width: parent.width; height: 2px; background: AppUi.toast-error ? Theme.danger : Theme.horizon; }
     row := HorizontalLayout {
         padding-left: 16px;
         padding-right: 20px;
