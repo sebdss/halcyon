@@ -56,7 +56,7 @@ jobs:
           $v = "${{ steps.version.outputs.value }}"
           New-Item -ItemType Directory -Force dist/payload | Out-Null
           Copy-Item target/release/halcyon.exe dist/payload/Halcyon.exe
-          Copy-Item README.md, CHANGELOG.md, docs/GUIDE.md, docs/PLUGINS.md, docs/SON.md, docs/INSTALLATEUR.md, crates/halcyon-app/ui/fonts/LICENSE-Inter.txt dist/payload/
+          Copy-Item README.md, CHANGELOG.md, docs/GUIDE.md, docs/PLUGINS.md, docs/SON.md, docs/INSTALLATEUR.md, crates/halcyon-app/ui/fonts/LICENSE-Inter.txt, crates/halcyon-app/ui/fonts/LICENSE-Sora.txt dist/payload/
           & target/release/halcyon-setup.exe --pack dist/payload $v "dist/Halcyon-$v-windows-x86_64-setup.exe"
           if ($LASTEXITCODE -ne 0) { throw "--pack a échoué" }
       - name: Signature du programme d'installation (si un certificat est configuré)
@@ -81,7 +81,7 @@ jobs:
           New-Item -ItemType Directory -Force dist/Halcyon-portable | Out-Null
           Copy-Item target/release/halcyon.exe dist/Halcyon-portable/Halcyon.exe
           New-Item -ItemType File dist/Halcyon-portable/portable.txt | Out-Null
-          Copy-Item README.md, docs/GUIDE.md, crates/halcyon-app/ui/fonts/LICENSE-Inter.txt dist/Halcyon-portable/
+          Copy-Item README.md, docs/GUIDE.md, crates/halcyon-app/ui/fonts/LICENSE-Inter.txt, crates/halcyon-app/ui/fonts/LICENSE-Sora.txt dist/Halcyon-portable/
           Compress-Archive -Path dist/Halcyon-portable/* -DestinationPath dist/Halcyon-${{ steps.version.outputs.value }}-windows-portable.zip
       - uses: actions/upload-artifact@v4
         with:

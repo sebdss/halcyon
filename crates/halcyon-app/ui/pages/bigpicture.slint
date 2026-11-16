@@ -1,163 +1,123 @@
-// Mode Big Picture : interface plein écran pensée pour la télévision et la manette.
-// Toute la navigation est pilotée par Rust (`BpUi.input`) : clavier et manette
-// produisent les mêmes actions.
+// Mode console (Big Picture, refonte 1.0) : une interface de salon, pensée pour la
+// télévision et la manette. Le jeu sélectionné occupe tout l'écran ; trois sections en haut
+// (Jouer, Bibliothèque, Recherche) ; fiche, menu d'options et centre de contrôle par-dessus.
+//
+// Toute la navigation est dans Rust (`BpUi.input`) : manette, clavier et souris produisent les
+// mêmes actions. Les tailles suivent la hauteur de l'écran (`u` = 1 px en 1080p) : la même
+// mise en page tient sur une télévision 4K comme sur un écran de portable.
 
-import { Theme, Icons } from "../theme.slint";
-import { BpRow, GameCard, AchievementRow } from "../types.slint";
+import { Theme, Icons, Art } from "../theme.slint";
+import { GameCard } from "../types.slint";
 import { BpUi } from "../state.slint";
-import { GameCover, Icon, Badge } from "../components.slint";
+import { GameCover, Icon } from "../components.slint";
 
-component BpTile inherits Rectangle {
-    in property <GameCard> game;
-    in property <bool> focused;
-    in property <length> base: 210px;
-    property <length> w: focused ? base * 1.12 : base;
-    width: w;
-    height: w * 1.5;
-    animate width, height { duration: Theme.animations ? 160ms : 0ms; easing: ease-out; }
-
-    GameCover {
-        width: parent.width;
-        height: parent.height;
-        source: root.game.cover;
-        has-image: root.game.has-cover;
-        color-a: root.game.color-a;
-        color-b: root.game.color-b;
-        initials: root.game.initials;
-        title: root.game.title;
-        corner: 14px;
-        drop-shadow-blur: root.focused ? 40px : 10px;
-        drop-shadow-color: root.focused ? Theme.accent.with-alpha(0.45) : #00000080;
-        opacity: root.game.installed ? 1 : 0.55;
-    }
+/// Anneau de sélection console : épais, clair, lisible à 3 mètres.
+component FocusFrame inherits Rectangle {
+    in property <bool> shown;
+    in property <length> corner;
+    in property <length> u;
     Rectangle {
-        border-radius: 16px;
-        x: -4px;
-        y: -4px;
-        width: parent.width + 8px;
-        height: parent.height + 8px;
-        border-width: root.focused ? 4px : 0px;
-        border-color: Theme.accent;
-        animate border-width { duration: Theme.animations ? 160ms : 0ms; }
+        x: -6 * root.u;
+        y: -6 * root.u;
+        width: root.width + 12 * root.u;
+        height: root.height + 12 * root.u;
+        border-radius: root.corner + 6 * root.u;
+        border-width: root.shown ? 4 * root.u : 0px;
+        border-color: #ffffff;
     }
 }
 
-component BpRowView inherits Rectangle {
-    in property <BpRow> data;
-    in property <bool> active;
-    in property <length> tile: 210px;
-    height: 46px + tile * 1.12 * 1.5 + 30px;
-
-    Text {
-        x: 0;
-        y: 0;
-        text: root.data.title + (root.data.count > 0 ? "  ·  " + root.data.count : "");
-        color: root.active ? Theme.text : Theme.text-muted;
-        font-size: Theme.t-heading + 2px;
-        font-weight: 700;
-    }
-    for g[j] in root.data.items: BpTile {
-        x: j * (root.tile + 32px) + (root.active && j > root.data.focus ? root.tile * 0.12 : 0px);
-        y: 46px + (root.active && j == root.data.focus ? 0px : root.tile * 0.06 * 1.5);
-        base: root.tile;
-        game: g;
-        focused: root.active && j == root.data.focus;
-        animate x, y { duration: Theme.animations ? 160ms : 0ms; easing: ease-out; }
-    }
-}
-
+/// Indication de bouton dans la barre d'aide.
 component Hint inherits HorizontalLayout {
     in property <string> key;
     in property <string> label;
-    spacing: 8px;
+    in property <length> u;
+    spacing: 10 * u;
     Rectangle {
-        width: max(30px, k.preferred-width + 14px);
-        height: 30px;
         y: (parent.height - self.height) / 2;
-        border-radius: 15px;
-        background: #ffffff1c;
-        border-width: 1px;
-        border-color: #ffffff30;
-        k := Text { text: root.key; color: Theme.text; font-size: Theme.t-small; font-weight: 700; }
+        width: max(34 * u, k.preferred-width + 18 * u);
+        height: 34 * u;
+        border-radius: 17 * u;
+        background: #ffffff1f;
+        k := Text { text: root.key; color: #ffffff; font-size: 16 * u; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
     }
-    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-subheading; vertical-alignment: center; }
+    Text { text: root.label; color: #ffffffcc; font-size: 20 * u; vertical-alignment: center; }
 }
 
-component BpAchievement inherits Rectangle {
-    in property <AchievementRow> item;
+/// Bouton rond d'action (favori, options).
+component RoundAction inherits Rectangle {
+    in property <image> icon;
     in property <bool> focused;
-    height: 76px;
-    border-radius: 12px;
-    background: focused ? #ffffff1a : #ffffff0a;
-    border-width: focused ? 3px : 0px;
-    border-color: Theme.accent;
-    HorizontalLayout {
-        padding: 12px;
-        spacing: 16px;
-        Rectangle {
-            width: 52px;
-            height: 52px;
-            border-radius: 8px;
-            clip: true;
-            background: #ffffff10;
-            opacity: root.item.unlocked ? 1 : 0.4;
-            if root.item.has-icon && !(root.item.hidden && !root.item.unlocked): Image {
-                width: parent.width;
-                height: parent.height;
-                source: root.item.icon;
-            }
-        }
+    in property <bool> on;
+    in property <length> u;
+    callback clicked;
+    width: 76 * u;
+    height: 76 * u;
+    border-radius: self.height / 2;
+    background: focused ? #ffffff : #ffffff26;
+    Icon {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        size: 32 * root.u;
+        tint: root.focused ? Theme.bp-bg : root.on ? Theme.warm : #ffffff;
+    }
+    TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+}
+
+/// Cartes d'informations du jeu mis en avant (accueil et fiche).
+component InfoCards inherits HorizontalLayout {
+    in property <length> u;
+    height: 150 * u;
+    spacing: 22 * u;
+    alignment: start;
+    Rectangle {
+        width: 340 * root.u;
+        border-radius: 20 * root.u;
+        background: #0000004d;
         VerticalLayout {
-            alignment: center;
-            spacing: 3px;
-            Text {
-                text: root.item.hidden && !root.item.unlocked ? "Succès caché" : root.item.name;
-                color: root.item.unlocked ? Theme.text : Theme.text-muted;
-                font-size: Theme.t-heading - 2px;
-                font-weight: 650;
-                overflow: elide;
-            }
-            Text {
-                text: root.item.hidden && !root.item.unlocked ? "" : root.item.description;
-                color: Theme.text-dim;
-                font-size: Theme.t-body;
-                overflow: elide;
+            padding: 24 * root.u;
+            spacing: 6 * root.u;
+            Text { text: "Temps de jeu"; color: #ffffffaa; font-size: 19 * root.u; }
+            Text { text: BpUi.focused.playtime; color: #ffffff; font-family: Theme.display; font-size: 36 * root.u; font-weight: 700; }
+            Text { text: BpUi.focused.last-played; color: #ffffffaa; font-size: 18 * root.u; overflow: elide; }
+        }
+    }
+    Rectangle {
+        width: 340 * root.u;
+        border-radius: 20 * root.u;
+        background: #0000004d;
+        VerticalLayout {
+            padding: 24 * root.u;
+            spacing: 8 * root.u;
+            Text { text: "Succès"; color: #ffffffaa; font-size: 19 * root.u; }
+            Text { text: BpUi.focused-ach-ratio >= 0 ? BpUi.focused-ach : "Non suivis"; color: #ffffff; font-family: Theme.display; font-size: 36 * root.u; font-weight: 700; }
+            if BpUi.focused-ach-ratio >= 0: Rectangle {
+                height: 8 * root.u;
+                border-radius: 4 * root.u;
+                background: #ffffff26;
+                Rectangle { x: 0; width: parent.width * BpUi.focused-ach-ratio; border-radius: 4 * root.u; background: Theme.horizon; }
             }
         }
-        Text {
-            text: root.item.unlocked ? root.item.date : root.item.rarity;
-            color: root.item.unlocked ? Theme.success : Theme.text-dim;
-            font-size: Theme.t-body;
-            vertical-alignment: center;
-            horizontal-alignment: right;
+    }
+    Rectangle {
+        width: 340 * root.u;
+        border-radius: 20 * root.u;
+        background: #0000004d;
+        VerticalLayout {
+            padding: 24 * root.u;
+            spacing: 6 * root.u;
+            Text { text: "État"; color: #ffffffaa; font-size: 19 * root.u; }
+            Text { text: BpUi.focused-state; color: #ffffff; font-family: Theme.display; font-size: 26 * root.u; font-weight: 700; wrap: word-wrap; }
+            if BpUi.focused-update != "": Text { text: BpUi.focused-update; color: Theme.warm; font-size: 18 * root.u; font-weight: 600; }
         }
     }
 }
 
 export component BigPicturePage inherits Rectangle {
     background: Theme.bp-bg;
-    forward-focus: scope;
-    // Taille des jaquettes adaptée à la hauteur de l'écran (TV 1080p/4K comme écran 900 px).
-    property <length> tile: max(140px, min(230px, root.height * 0.19));
-
-    // Arrière-plan : bannière du jeu sélectionné.
-    Rectangle {
-        background: @linear-gradient(125deg, BpUi.focused.color-a 0%, BpUi.focused.color-b 100%);
-        opacity: BpUi.focused.has-banner ? 0 : 0.35;
-    }
-    if BpUi.focused.has-banner: Image {
-        width: root.width;
-        height: root.height;
-        source: BpUi.focused.banner;
-        image-fit: cover;
-        opacity: 0.55;
-    }
-    Rectangle {
-        background: @linear-gradient(90deg, Theme.bp-bg.with-alpha(0.96) 0%, Theme.bp-bg.with-alpha(0.69) 45%, Theme.bp-bg.with-alpha(0.25) 100%);
-    }
-    Rectangle {
-        background: @linear-gradient(180deg, Theme.bp-bg.with-alpha(0.13) 0%, Theme.bp-bg.with-alpha(0.00) 35%, Theme.bp-bg.with-alpha(0.91) 70%, Theme.bp-bg 100%);
-    }
+    property <length> u: root.height / 1080;
+    property <length> side: 96 * u;
 
     init => { scope.focus(); }
 
@@ -169,11 +129,14 @@ export component BigPicturePage inherits Rectangle {
             if (event.text == Key.RightArrow) { BpUi.input("right"); return accept; }
             if (event.text == Key.Return) { BpUi.input("accept"); return accept; }
             if (event.text == Key.Escape) { BpUi.input("back"); return accept; }
-            if (event.text == Key.Backspace) { BpUi.input(BpUi.view == 2 ? "backspace" : "back"); return accept; }
+            if (event.text == Key.Backspace) { BpUi.input(BpUi.section == 2 && !BpUi.sheet-open ? "backspace" : "back"); return accept; }
             if (event.text == Key.F11) { BpUi.input("exit"); return accept; }
             if (event.text == Key.Tab) { BpUi.input("search"); return accept; }
+            if (event.text == Key.PageUp) { BpUi.input("prev"); return accept; }
+            if (event.text == Key.PageDown) { BpUi.input("next"); return accept; }
             if (event.text == Key.Menu || (event.text == "," && event.modifiers.control)) { BpUi.input("settings"); return accept; }
-            if (BpUi.view == 2 && event.text != "" && !event.modifiers.control) {
+            if (event.text == "o" && event.modifiers.control) { BpUi.input("context"); return accept; }
+            if (BpUi.section == 2 && !BpUi.sheet-open && !BpUi.options-open && !BpUi.menu-open && event.text != "" && !event.modifiers.control) {
                 BpUi.input("char:" + event.text);
                 return accept;
             }
@@ -181,243 +144,538 @@ export component BigPicturePage inherits Rectangle {
         }
     }
 
-    // Barre supérieure
-    HorizontalLayout {
-        x: 64px;
-        y: 36px;
-        width: root.width - 128px;
-        height: 44px;
-        spacing: 14px;
-        Image { source: Icons.logo; width: 40px; height: 40px; }
-        Text { text: "Halcyon"; color: Theme.text; font-size: Theme.t-title - 4px; font-weight: 800; vertical-alignment: center; }
-        Rectangle { horizontal-stretch: 1; }
-        if BpUi.pad-connected: Icon { source: Icons.gamepad; size: 26px; tint: Theme.accent; y: (parent.height - self.height) / 2; }
-        Text { text: BpUi.clock; color: Theme.text; font-size: Theme.t-heading + 4px; font-weight: 600; vertical-alignment: center; }
+    // ------------------------------------------------------------------ arrière-plan du jeu
+    if BpUi.has-focused && BpUi.focused.has-banner: Image {
+        width: root.width;
+        height: root.height;
+        source: BpUi.focused.banner;
+        image-fit: cover;
     }
-
-    // ---------------------------------------------------------------- accueil
-    if BpUi.view == 0: Rectangle {
-        // Informations du jeu sélectionné
-        VerticalLayout {
-            x: 64px;
-            y: 110px;
-            width: min(900px, root.width * 0.6);
-            height: root.height * 0.36 - 120px;
-            alignment: start;
-            spacing: 10px;
-            Text {
-                text: BpUi.focused.title;
-                color: Theme.text;
-                font-size: Theme.t-display + 8px;
-                font-weight: 800;
-                letter-spacing: -1px;
-                overflow: elide;
-            }
-            Text { text: BpUi.focused-meta; color: Theme.text-muted; font-size: Theme.t-heading; }
-            if BpUi.focused-ach != "": Text { text: BpUi.focused-ach; color: Theme.accent; font-size: Theme.t-heading - 2px; font-weight: 600; }
-        }
-        for row[i] in BpUi.rows: BpRowView {
-            x: 64px;
-            y: root.height * 0.36 + (i - BpUi.focus-row) * (self.height + 10px);
-            width: root.width - 64px;
-            tile: root.tile;
-            data: row;
-            active: i == BpUi.focus-row;
-            opacity: i < BpUi.focus-row ? 0 : i == BpUi.focus-row ? 1 : 0.75;
-            animate y, opacity { duration: Theme.animations ? 220ms : 0ms; easing: ease-out; }
-        }
-        if BpUi.rows.length == 0: Text {
-            x: 64px;
-            y: root.height * 0.45;
-            text: "Votre bibliothèque est vide. Quittez Big Picture pour ajouter des jeux.";
-            color: Theme.text-muted;
-            font-size: Theme.t-heading + 2px;
-        }
-    }
-
-    // ---------------------------------------------------------------- fiche
-    if BpUi.view == 1: Rectangle {
-        GameCover {
-            x: 64px;
-            y: 130px;
-            width: 300px;
-            height: 450px;
+    if BpUi.has-focused && !BpUi.focused.has-banner: Rectangle {
+        background: @linear-gradient(135deg, BpUi.focused.color-a.darker(0.35) 0%, BpUi.focused.color-b.darker(0.6) 70%, Theme.bp-bg 100%);
+        if BpUi.focused.has-cover: Image {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: root.height;
             source: BpUi.focused.cover;
-            has-image: BpUi.focused.has-cover;
-            color-a: BpUi.focused.color-a;
-            color-b: BpUi.focused.color-b;
-            initials: BpUi.focused.initials;
-            title: BpUi.focused.title;
-            corner: 16px;
-            drop-shadow-blur: 50px;
-            drop-shadow-color: #000000c0;
-        }
-        VerticalLayout {
-            x: 412px;
-            y: 130px;
-            width: root.width - 412px - 64px;
-            height: root.height - 130px - 110px;
-            spacing: 14px;
-            Text {
-                text: BpUi.focused.title;
-                color: Theme.text;
-                font-size: 50px;
-                font-weight: 800;
-                letter-spacing: -1px;
-                wrap: word-wrap;
-            }
-            Text { text: BpUi.focused-meta; color: Theme.text-muted; font-size: Theme.t-heading; }
-            HorizontalLayout {
-                spacing: 16px;
-                alignment: start;
-                padding-top: 10px;
-                padding-bottom: 10px;
-                for label[b] in [
-                    BpUi.focused.installed ? "Jouer" : BpUi.focused.can-install ? "Installer via Steam" : "Non installé",
-                    BpUi.focused.favorite ? "Retirer des favoris" : "Ajouter aux favoris",
-                    "Succès"
-                ]: Rectangle {
-                    height: 60px;
-                    width: lbl.preferred-width + 56px;
-                    border-radius: 30px;
-                    background: BpUi.game-button == b ? (b == 0 ? Theme.accent : #ffffff30) : #ffffff12;
-                    border-width: BpUi.game-button == b ? 3px : 0px;
-                    border-color: b == 0 ? #ffffff : Theme.accent;
-                    animate background { duration: Theme.animations ? 140ms : 0ms; }
-                    lbl := Text {
-                        text: label;
-                        color: BpUi.game-button == b && b == 0 ? Theme.on-accent : Theme.text;
-                        font-size: Theme.t-heading;
-                        font-weight: 700;
-                    }
-                }
-            }
-            if BpUi.game-button < 2: Text {
-                text: BpUi.focused.description;
-                color: #c9ced8;
-                font-size: Theme.t-heading - 2px;
-                wrap: word-wrap;
-                overflow: elide;
-                vertical-stretch: 1;
-            }
-            if BpUi.game-button == 2: VerticalLayout {
-                spacing: 10px;
-                Text { text: BpUi.focused-ach != "" ? BpUi.focused-ach : "Aucun succès pour ce jeu."; color: Theme.accent; font-size: Theme.t-heading - 2px; font-weight: 600; }
-                for a[k] in BpUi.achievements: BpAchievement { item: a; focused: k == BpUi.ach-index; }
-                Rectangle { vertical-stretch: 1; }
-            }
+            image-fit: cover;
+            opacity: 0.35;
         }
     }
+    // Voiles : lisibilité du texte à gauche et en bas, image visible à droite.
+    // Voiles (masques teintés) : lisibilité à gauche, en bas et sous la barre du haut.
+    Image { x: 0; y: 0; width: root.width * 0.8; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bp-bg; }
+    Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bp-bg; }
+    Image { x: 0; y: 0; width: root.width; height: 220 * root.u; source: Art.fade-top; image-fit: fill; colorize: Theme.bp-bg; }
 
-    // ---------------------------------------------------------------- recherche
-    if BpUi.view == 2: Rectangle {
-        VerticalLayout {
-            x: 64px;
-            y: 120px;
-            width: root.width - 128px;
-            spacing: 22px;
-            Rectangle {
-                height: 72px;
-                border-radius: 16px;
-                background: #ffffff10;
-                border-width: 2px;
-                border-color: BpUi.in-results ? #ffffff20 : Theme.accent;
-                HorizontalLayout {
-                    padding-left: 24px;
-                    spacing: 16px;
-                    Icon { source: Icons.search; size: 28px; tint: Theme.text-muted; y: (parent.height - self.height) / 2; }
-                    Text {
-                        text: BpUi.query == "" ? "Rechercher un jeu…" : BpUi.query + "▏";
-                        color: BpUi.query == "" ? Theme.text-dim : Theme.text;
-                        font-size: Theme.t-title;
-                        font-weight: 600;
-                        vertical-alignment: center;
-                    }
-                }
-            }
-            // Clavier virtuel : 10 touches par ligne.
-            Rectangle {
-                height: ceil(BpUi.keys.length / 10) * 66px;
-                for key[k] in BpUi.keys: Rectangle {
-                    x: mod(k, 10) * 76px;
-                    y: floor(k / 10) * 66px;
-                    width: 68px;
-                    height: 58px;
-                    border-radius: 12px;
-                    background: !BpUi.in-results && BpUi.key-index == k ? Theme.accent : #ffffff12;
-                    Text {
-                        text: key;
-                        color: !BpUi.in-results && BpUi.key-index == k ? Theme.on-accent : Theme.text;
-                        font-size: Theme.t-heading + 2px;
-                        font-weight: 700;
-                    }
-                }
-            }
-            BpRowView {
-                data: BpUi.results;
-                active: BpUi.in-results;
-                tile: root.tile * 0.8;
-            }
-        }
-    }
-
-    // ---------------------------------------------------------------- réglages
-    if BpUi.view == 3: Rectangle {
-        VerticalLayout {
-            x: 64px;
-            y: 120px;
-            width: min(980px, root.width - 128px);
-            height: root.height - 240px;
-            spacing: 8px;
-            alignment: start;
-            Text { text: "Réglages"; color: Theme.text; font-size: Theme.t-display; font-weight: 800; }
-            Text {
-                text: "Gauche / droite : modifier · A : activer · B : retour. Tous les autres paramètres : « Paramètres complets ».";
-                color: Theme.text-muted;
-                font-size: Theme.t-subheading;
-                wrap: word-wrap;
-            }
-            Rectangle { height: 6px; }
-            for st[i] in BpUi.settings: Rectangle {
-                height: 56px;
-                border-radius: Theme.radius-lg;
-                background: BpUi.setting-index == i ? Theme.accent-soft : Theme.surface.with-alpha(0.6);
-                border-width: BpUi.setting-index == i ? 3px : 0px;
-                border-color: Theme.focus;
-                HorizontalLayout {
-                    padding-left: 24px;
-                    padding-right: 24px;
-                    Text { text: st.label; color: Theme.text; font-size: Theme.t-heading; font-weight: 650; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                    if st.value != "": Text {
-                        text: (BpUi.setting-index == i && st.ratio > 0 ? "‹  " : "") + st.value + (BpUi.setting-index == i && st.ratio > 0 ? "  ›" : "");
-                        color: BpUi.setting-index == i ? Theme.accent : Theme.text-muted;
-                        font-size: Theme.t-heading;
-                        font-weight: 650;
-                        vertical-alignment: center;
-                    }
-                }
-                TouchArea { clicked => { BpUi.input("setting:" + i); } }
-            }
-        }
-    }
-
-    // Aide en bas d'écran, sur un fond qui masque les rangées suivantes.
-    Rectangle {
-        y: root.height - 130px;
-        height: 130px;
-        background: @linear-gradient(180deg, Theme.bp-bg.with-alpha(0.00) 0%, Theme.bp-bg.with-alpha(0.88) 45%, Theme.bp-bg 100%);
-    }
+    // ------------------------------------------------------------------ barre supérieure
     HorizontalLayout {
-        x: 64px;
-        y: root.height - 70px;
-        height: 40px;
-        spacing: 34px;
+        x: root.side;
+        y: 40 * u;
+        width: root.width - 2 * root.side;
+        height: 56 * u;
+        spacing: 44 * u;
+        for name[i] in ["Jouer", "Bibliothèque", "Recherche"]: Rectangle {
+            width: label.preferred-width;
+            label := Text {
+                text: name;
+                y: (parent.height - self.height) / 2 - 4 * root.u;
+                color: BpUi.section == i ? #ffffff : #ffffff99;
+                font-family: Theme.display;
+                font-size: 30 * root.u;
+                font-weight: BpUi.section == i ? 700 : 600;
+            }
+            // Ligne d'horizon sous la section active.
+            Rectangle {
+                y: parent.height - 6 * root.u;
+                height: 4 * root.u;
+                border-radius: 2 * root.u;
+                width: BpUi.section == i ? parent.width : 0px;
+                background: Theme.horizon;
+            }
+            FocusFrame { u: root.u; corner: 12 * root.u; shown: BpUi.zone == 0 && BpUi.section == i && !BpUi.sheet-open; }
+            TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("section:" + i); } }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        if BpUi.downloads > 0: HorizontalLayout {
+            spacing: 10 * root.u;
+            Icon { y: (parent.height - self.height) / 2; source: Icons.download; size: 28 * root.u; tint: Theme.accent; }
+            Text { text: BpUi.downloads; color: #ffffff; font-size: 24 * root.u; font-weight: 600; vertical-alignment: center; }
+        }
+        if BpUi.pad-connected: Icon { y: (parent.height - self.height) / 2; source: Icons.gamepad; size: 30 * root.u; tint: #ffffffcc; }
+        Text { text: BpUi.clock; color: #ffffff; font-family: Theme.display; font-size: 30 * root.u; font-weight: 600; vertical-alignment: center; }
+    }
+
+    // ------------------------------------------------------------------ Jouer
+    if BpUi.section == 0 && !BpUi.sheet-open: play := Rectangle {
+        property <length> tile: 136 * root.u;
+        property <length> big: 184 * root.u;
+        property <length> gap: 22 * root.u;
+        property <bool> strip-focus: BpUi.zone == 1;
+        property <int> first: max(0, BpUi.strip-index - 5);
+        property <length> label-w: self.strip-focus && BpUi.strip-index < BpUi.strip.length ? 420 * root.u : 0px;
+
+        // Rangée de tuiles : la tuile active grandit ; quand la rangée a le focus, son titre
+        // s'affiche à côté (comme une étiquette de salon).
+        for g[j] in BpUi.strip: tile := Rectangle {
+            property <bool> active: j == BpUi.strip-index;
+            property <length> size: self.active ? (parent.strip-focus ? parent.big : parent.tile * 1.12) : parent.tile;
+            visible: j >= parent.first && j < parent.first + 12;
+            x: root.side + (j - parent.first) * (parent.tile + parent.gap) + (j > BpUi.strip-index ? (parent.strip-focus ? parent.big - parent.tile : parent.tile * 0.12) + parent.label-w : 0px);
+            y: 140 * root.u;
+            width: self.size;
+            height: self.size;
+            animate x, width, height { duration: Theme.fast; easing: ease-out; }
+            GameCover {
+                width: parent.width;
+                height: parent.height;
+                source: g.cover;
+                has-image: g.has-cover;
+                color-a: g.color-a;
+                color-b: g.color-b;
+                initials: g.initials;
+                title: g.title;
+                show-title: false;
+                corner: 18 * root.u;
+                opacity: tile.active ? 1 : play.strip-focus ? (g.installed ? 1 : 0.6) : 0.55;
+            }
+            FocusFrame { u: root.u; corner: 18 * root.u; shown: tile.active && play.strip-focus; }
+            TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("tile:" + j); } }
+        }
+        // Titre de la tuile active.
+        if self.strip-focus && BpUi.strip-index < BpUi.strip.length && BpUi.strip-index >= self.first: VerticalLayout {
+            x: root.side + (BpUi.strip-index - parent.first) * (parent.tile + parent.gap) + parent.big + 26 * root.u;
+            y: 140 * root.u;
+            width: 390 * root.u;
+            height: parent.big;
+            alignment: center;
+            spacing: 6 * root.u;
+            Text { text: BpUi.focused.title; color: #ffffff; font-family: Theme.display; font-size: 30 * root.u; font-weight: 700; wrap: word-wrap; }
+            Text { text: BpUi.focused.source; color: #ffffffaa; font-size: 20 * root.u; }
+        }
+        // Tuile « Bibliothèque », toujours en fin de rangée.
+        libtile := Rectangle {
+            property <int> j: BpUi.strip.length;
+            property <bool> active: BpUi.strip-index == self.j;
+            property <length> size: self.active && parent.strip-focus ? parent.big : parent.tile;
+            x: root.side + (self.j - parent.first) * (parent.tile + parent.gap);
+            y: 140 * root.u;
+            width: self.size;
+            height: self.size;
+            border-radius: 18 * root.u;
+            background: self.active ? #ffffff2e : #ffffff17;
+            animate x, width, height { duration: Theme.fast; easing: ease-out; }
+            VerticalLayout {
+                alignment: center;
+                spacing: 10 * root.u;
+                HorizontalLayout { alignment: center; Icon { source: Icons.grid; size: 40 * root.u; tint: #ffffff; } }
+                Text { text: "Bibliothèque"; color: #ffffff; font-size: 20 * root.u; font-weight: 600; horizontal-alignment: center; }
+            }
+            FocusFrame { u: root.u; corner: 18 * root.u; shown: libtile.active && play.strip-focus; }
+            TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("tile:" + parent.j); } }
+        }
+
+        // Jeu sélectionné : titre (ou logo), informations, actions.
+        if BpUi.has-focused && BpUi.strip-index < BpUi.strip.length: VerticalLayout {
+            x: root.side;
+            y: 430 * root.u;
+            width: root.width * 0.55;
+            spacing: 18 * root.u;
+            alignment: start;
+            if BpUi.focused.has-logo: Image {
+                height: 150 * root.u;
+                source: BpUi.focused.logo;
+                image-fit: contain;
+                horizontal-alignment: left;
+            }
+            if !BpUi.focused.has-logo: Text {
+                text: BpUi.focused.title;
+                color: #ffffff;
+                font-family: Theme.display;
+                font-size: 76 * root.u;
+                font-weight: 800;
+                letter-spacing: -1.5 * root.u;
+                wrap: word-wrap;
+            }
+            Text { text: BpUi.focused-meta; color: #ffffffcc; font-size: 24 * root.u; overflow: elide; }
+            HorizontalLayout {
+                spacing: 20 * root.u;
+                alignment: start;
+                padding-top: 12 * root.u;
+                Rectangle {
+                    width: 300 * root.u;
+                    height: 76 * root.u;
+                    border-radius: self.height / 2;
+                    background: BpUi.zone == 2 && BpUi.button == 0 ? #ffffff : BpUi.focused.installed ? Theme.accent : #ffffff26;
+                    HorizontalLayout {
+                        alignment: center;
+                        spacing: 14 * root.u;
+                        Icon {
+                            y: (parent.height - self.height) / 2;
+                            source: Icons.play;
+                            size: 28 * root.u;
+                            tint: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-accent : #ffffffaa;
+                        }
+                        Text {
+                            text: BpUi.focused.installed ? "Jouer" : "Non installé";
+                            color: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-accent : #ffffffaa;
+                            font-family: Theme.display;
+                            font-size: 28 * root.u;
+                            font-weight: 700;
+                            vertical-alignment: center;
+                        }
+                    }
+                    TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("button:0"); } }
+                }
+                RoundAction { u: root.u; icon: BpUi.focused.favorite ? Icons.star-filled : Icons.star; on: BpUi.focused.favorite; focused: BpUi.zone == 2 && BpUi.button == 1; clicked => { BpUi.input("button:1"); } }
+                RoundAction { u: root.u; icon: Icons.more; focused: BpUi.zone == 2 && BpUi.button == 2; clicked => { BpUi.input("button:2"); } }
+            }
+        }
+
+        // Cartes d'informations (non sélectionnables : elles ne déclenchent rien).
+        if BpUi.has-focused && BpUi.strip-index < BpUi.strip.length: InfoCards {
+            x: root.side;
+            y: root.height - 300 * root.u;
+            u: root.u;
+        }
+        if BpUi.strip.length == 0: Text {
+            x: root.side;
+            y: 430 * root.u;
+            text: "Aucun jeu pour l'instant. Ouvrez la bibliothèque, ou analysez vos sources depuis le centre de contrôle.";
+            color: #ffffffcc;
+            font-size: 26 * root.u;
+            width: root.width * 0.5;
+            wrap: word-wrap;
+        }
+    }
+
+    // ------------------------------------------------------------------ Bibliothèque
+    if BpUi.section == 1 && !BpUi.sheet-open: Rectangle {
+        property <length> cover: 200 * root.u;
+        property <length> gap: 30 * root.u;
+        property <length> stride: self.cover * 1.5 + 64 * root.u;
+        property <length> grid-x: (root.width - (6 * self.cover + 5 * self.gap)) / 2;
+
+        HorizontalLayout {
+            x: parent.grid-x;
+            y: 136 * root.u;
+            width: root.width - 2 * parent.grid-x;
+            height: 54 * root.u;
+            spacing: 14 * root.u;
+            for f[i] in BpUi.filters: Rectangle {
+                width: ft.preferred-width + 40 * root.u;
+                border-radius: self.height / 2;
+                background: BpUi.filter == i ? (BpUi.zone == 1 ? #ffffff : #ffffff33) : #ffffff14;
+                ft := Text {
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    text: f;
+                    color: BpUi.filter == i && BpUi.zone == 1 ? Theme.bp-bg : #ffffff;
+                    font-size: 21 * root.u;
+                    font-weight: BpUi.filter == i ? 700 : 500;
+                }
+                TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("filter:" + i); } }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            Text { text: BpUi.grid-position; color: #ffffffaa; font-family: Theme.display; font-size: 22 * root.u; vertical-alignment: center; }
+        }
+        for g[k] in BpUi.grid: cell := Rectangle {
+            property <bool> active: k == BpUi.grid-index && BpUi.zone == 2;
+            x: parent.grid-x + mod(k, 6) * (parent.cover + parent.gap);
+            y: 222 * root.u + floor(k / 6) * parent.stride;
+            width: parent.cover;
+            height: parent.cover * 1.5;
+            GameCover {
+                width: parent.width;
+                height: parent.height;
+                source: g.cover;
+                has-image: g.has-cover;
+                color-a: g.color-a;
+                color-b: g.color-b;
+                initials: g.initials;
+                title: g.title;
+                corner: 16 * root.u;
+                opacity: g.installed || parent.active ? 1 : 0.55;
+            }
+            FocusFrame { u: root.u; corner: 16 * root.u; shown: cell.active; }
+            if cell.active: Text {
+                y: parent.height + 14 * root.u;
+                width: parent.width;
+                text: g.title;
+                color: #ffffff;
+                font-size: 21 * root.u;
+                font-weight: 600;
+                overflow: elide;
+            }
+            TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("grid:" + k); } }
+        }
+        if BpUi.filters.length == 0: Text {
+            x: parent.grid-x;
+            y: 240 * root.u;
+            text: "La bibliothèque est vide.";
+            color: #ffffffcc;
+            font-size: 26 * root.u;
+        }
+    }
+
+    // ------------------------------------------------------------------ Recherche
+    if BpUi.section == 2 && !BpUi.sheet-open: VerticalLayout {
+        x: root.side;
+        y: 140 * u;
+        width: root.width - 2 * root.side;
+        spacing: 30 * root.u;
         alignment: start;
-        Hint { key: "A"; label: BpUi.view == 2 && !BpUi.in-results ? "Saisir" : "Valider"; }
-        if BpUi.view != 0: Hint { key: "B"; label: "Retour"; }
-        Hint { key: "Y"; label: "Rechercher"; }
-        if BpUi.view != 3: Hint { key: "X"; label: "Favori"; }
-        if BpUi.view != 3: Hint { key: "Select"; label: "Réglages"; }
-        Hint { key: "Start"; label: "Quitter Big Picture"; }
+        Rectangle {
+            height: 92 * root.u;
+            border-radius: 46 * root.u;
+            background: #ffffff1a;
+            HorizontalLayout {
+                padding-left: 34 * root.u;
+                spacing: 18 * root.u;
+                Icon { y: (parent.height - self.height) / 2; source: Icons.search; size: 34 * root.u; tint: #ffffffaa; }
+                Text {
+                    text: BpUi.query == "" ? "Rechercher un jeu" : BpUi.query;
+                    color: BpUi.query == "" ? #ffffff80 : #ffffff;
+                    font-family: Theme.display;
+                    font-size: 40 * root.u;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+        }
+        // Clavier virtuel : 10 touches par ligne.
+        Rectangle {
+            height: 4 * 84 * root.u;
+            for k[i] in BpUi.keys: Rectangle {
+                property <bool> active: i == BpUi.key-index && BpUi.zone == 1;
+                x: mod(i, 10) * 84 * root.u;
+                y: floor(i / 10) * 84 * root.u;
+                width: 72 * root.u;
+                height: 72 * root.u;
+                border-radius: 14 * root.u;
+                background: self.active ? #ffffff : #ffffff1a;
+                Text { text: k; color: parent.active ? Theme.bp-bg : #ffffff; font-family: Theme.display; font-size: 28 * root.u; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; }
+            }
+        }
+        Text { text: BpUi.results.title; color: #ffffffcc; font-size: 22 * root.u; }
+        Rectangle {
+            height: 270 * root.u;
+            for g[j] in BpUi.results.items: res := Rectangle {
+                property <bool> active: j == BpUi.results.focus;
+                x: j * (180 * root.u + 26 * root.u);
+                width: 180 * root.u;
+                height: 270 * root.u;
+                GameCover {
+                    width: parent.width;
+                    height: parent.height;
+                    source: g.cover;
+                    has-image: g.has-cover;
+                    color-a: g.color-a;
+                    color-b: g.color-b;
+                    initials: g.initials;
+                    title: g.title;
+                    corner: 14 * root.u;
+                }
+                FocusFrame { u: root.u; corner: 14 * root.u; shown: res.active; }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ fiche d'un jeu
+    if BpUi.sheet-open && BpUi.has-focused: Rectangle {
+        VerticalLayout {
+            x: root.side;
+            y: 170 * root.u;
+            width: root.width * 0.48;
+            spacing: 20 * root.u;
+            alignment: start;
+            if BpUi.focused.has-logo: Image { height: 170 * root.u; source: BpUi.focused.logo; image-fit: contain; horizontal-alignment: left; }
+            if !BpUi.focused.has-logo: Text {
+                text: BpUi.focused.title;
+                color: #ffffff;
+                font-family: Theme.display;
+                font-size: 80 * root.u;
+                font-weight: 800;
+                wrap: word-wrap;
+            }
+            Text { text: BpUi.focused-meta; color: #ffffffcc; font-size: 24 * root.u; }
+            HorizontalLayout {
+                spacing: 20 * root.u;
+                alignment: start;
+                padding-top: 10 * root.u;
+                for label[i] in [BpUi.focused.installed ? "Jouer" : "Non installé", BpUi.focused.favorite ? "Favori" : "Ajouter aux favoris", "Succès"]: Rectangle {
+                    property <bool> active: BpUi.sheet-button == i;
+                    width: lt.preferred-width + 64 * root.u;
+                    height: 72 * root.u;
+                    border-radius: self.height / 2;
+                    background: self.active ? #ffffff : i == 0 && BpUi.focused.installed ? Theme.accent : #ffffff26;
+                    lt := Text {
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                        text: label;
+                        color: parent.active ? Theme.bp-bg : i == 0 && BpUi.focused.installed ? Theme.on-accent : #ffffff;
+                        font-family: Theme.display;
+                        font-size: 25 * root.u;
+                        font-weight: 700;
+                    }
+                    TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("sheet:" + i); } }
+                }
+            }
+            if BpUi.focused.description != "": Text {
+                text: BpUi.focused.description;
+                color: #ffffffcc;
+                font-size: 22 * root.u;
+                wrap: word-wrap;
+                height: min(self.preferred-height, 4 * 32 * root.u);
+                overflow: elide;
+            }
+        }
+        InfoCards {
+            x: root.side;
+            y: root.height - 300 * root.u;
+            u: root.u;
+        }
+        // Succès : liste à droite, parcourue avec la croix quand « Succès » est actif.
+        Rectangle {
+            x: root.width * 0.58;
+            y: 170 * root.u;
+            width: root.width * 0.42 - root.side;
+            // S'arrête au-dessus des cartes d'informations.
+            height: root.height - 500 * root.u;
+            border-radius: 24 * root.u;
+            background: #00000066;
+            VerticalLayout {
+                padding: 30 * root.u;
+                spacing: 12 * root.u;
+                alignment: start;
+                HorizontalLayout {
+                    Text { text: "Succès"; color: #ffffff; font-family: Theme.display; font-size: 30 * root.u; font-weight: 700; horizontal-stretch: 1; }
+                    Text { text: BpUi.focused-ach; color: #ffffffaa; font-family: Theme.display; font-size: 24 * root.u; vertical-alignment: center; }
+                }
+                if BpUi.ach-count == 0: Text { text: "Aucun succès suivi pour ce jeu."; color: #ffffffaa; font-size: 21 * root.u; wrap: word-wrap; }
+                for a[i] in BpUi.achievements: Rectangle {
+                    height: 76 * root.u;
+                    border-radius: 14 * root.u;
+                    background: i == BpUi.ach-index ? #ffffff26 : transparent;
+                    HorizontalLayout {
+                        padding: 10 * root.u;
+                        spacing: 16 * root.u;
+                        Rectangle {
+                            width: 56 * root.u;
+                            border-radius: 10 * root.u;
+                            background: #ffffff14;
+                            clip: true;
+                            if a.has-icon: Image { width: parent.width; height: parent.height; source: a.icon; image-fit: cover; opacity: a.unlocked ? 1 : 0.4; }
+                            if !a.has-icon: Icon { x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2; source: Icons.trophy; size: 26 * root.u; tint: a.unlocked ? Theme.warm : #ffffff66; }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            Text { text: a.name; color: a.unlocked ? #ffffff : #ffffffaa; font-size: 21 * root.u; font-weight: 600; overflow: elide; }
+                            Text { text: a.unlocked ? a.date : a.description; color: #ffffff88; font-size: 17 * root.u; overflow: elide; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Le contenu qui défile (grille) s'efface sous la barre d'aide.
+    Image { x: 0; y: root.height - 260 * root.u; width: root.width; height: 260 * root.u; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bp-bg; }
+
+    // ------------------------------------------------------------------ barre d'aide
+    HorizontalLayout {
+        x: root.side;
+        y: root.height - 76 * u;
+        height: 40 * u;
+        spacing: 34 * u;
+        alignment: start;
+        Hint { u: root.u; key: "A"; label: BpUi.section == 0 && BpUi.zone == 2 && BpUi.button == 0 ? "Jouer" : "Valider"; }
+        Hint { u: root.u; key: "B"; label: "Retour"; }
+        if !BpUi.menu-open && !BpUi.options-open && BpUi.has-focused: Hint { u: root.u; key: "X"; label: "Favori"; }
+        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open && BpUi.has-focused: Hint { u: root.u; key: "Select"; label: "Options du jeu"; }
+        Hint { u: root.u; key: "Start"; label: "Centre de contrôle"; }
+        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open: Hint { u: root.u; key: "LB  RB"; label: BpUi.section == 1 && BpUi.zone == 2 ? "Filtre" : "Section"; }
+    }
+
+    // ------------------------------------------------------------------ menu d'options
+    if BpUi.options-open: Rectangle {
+        background: #00000080;
+        TouchArea { clicked => { BpUi.input("back"); } }
+        Rectangle {
+            x: root.width - self.width - 64 * root.u;
+            y: (root.height - self.height) / 2;
+            width: 560 * root.u;
+            height: col.preferred-height;
+            border-radius: 28 * root.u;
+            background: Theme.surface;
+            col := VerticalLayout {
+                padding: 26 * root.u;
+                spacing: 6 * root.u;
+                Text { text: BpUi.focused.title; color: #ffffffaa; font-size: 20 * root.u; overflow: elide; height: 44 * root.u; vertical-alignment: center; x: 18 * root.u; }
+                for o[i] in BpUi.options: Rectangle {
+                    height: 70 * root.u;
+                    border-radius: 16 * root.u;
+                    background: i == BpUi.option-index ? #ffffff : transparent;
+                    Text {
+                        x: 22 * root.u;
+                        vertical-alignment: center;
+                        text: o;
+                        color: i == BpUi.option-index ? Theme.bp-bg : #ffffff;
+                        font-size: 24 * root.u;
+                        font-weight: 600;
+                    }
+                    TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("option:" + i); } }
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ centre de contrôle
+    if BpUi.menu-open: Rectangle {
+        background: #00000099;
+        TouchArea { clicked => { BpUi.input("back"); } }
+        Rectangle {
+            y: root.height - self.height;
+            height: 420 * root.u;
+            background: Theme.surface;
+            Rectangle { height: 3 * root.u; y: 0; background: Theme.horizon; }
+            Text {
+                x: root.side;
+                y: 40 * root.u;
+                text: "Centre de contrôle";
+                color: #ffffff;
+                font-family: Theme.display;
+                font-size: 30 * root.u;
+                font-weight: 700;
+            }
+            for s[i] in BpUi.settings: cc := Rectangle {
+                property <bool> active: i == BpUi.setting-index;
+                property <length> w: (root.width - 2 * root.side - 4 * 18 * root.u) / 5;
+                x: root.side + mod(i, 5) * (self.w + 18 * root.u);
+                y: 108 * root.u + floor(i / 5) * 130 * root.u;
+                width: self.w;
+                height: 112 * root.u;
+                border-radius: 22 * root.u;
+                background: self.active ? #ffffff : #ffffff12;
+                HorizontalLayout {
+                    padding: 22 * root.u;
+                    spacing: 18 * root.u;
+                    Icon {
+                        y: (parent.height - self.height) / 2;
+                        source: i == 0 ? Icons.bolt : i == 1 ? Icons.download : i == 2 ? Icons.bell : i == 3 ? Icons.sliders : i == 4 ? Icons.edit : i == 5 ? Icons.palette : i == 6 ? Icons.refresh : i == 7 ? Icons.trophy : i == 8 ? Icons.settings : Icons.power;
+                        size: 34 * root.u;
+                        tint: cc.active ? Theme.bp-bg : i == 9 ? Theme.warm : Theme.accent;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 4 * root.u;
+                        Text { text: s.label; color: cc.active ? Theme.bp-bg : #ffffff; font-size: 21 * root.u; font-weight: 700; overflow: elide; }
+                        if s.value != "": Text { text: s.value; color: cc.active ? Theme.bp-bg.with-alpha(0.7) : #ffffffaa; font-size: 18 * root.u; overflow: elide; }
+                    }
+                }
+                TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("menu:" + i); } }
+            }
+        }
     }
 }

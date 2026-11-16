@@ -518,27 +518,51 @@ export global McUi {
 
 export global BpUi {
     in property <bool> active;
-    /// 0 = accueil, 1 = fiche, 2 = recherche
-    in property <int> view;
-    in property <[BpRow]> rows;
-    in property <int> focus-row;
+    /// Sections : 0 Jouer, 1 Bibliothèque, 2 Recherche.
+    in property <int> section;
+    /// Zone de focus : 0 barre des sections, 1 première zone, 2 deuxième zone.
+    in property <int> zone: 1;
+    in property <bool> menu-open;
+    in property <bool> sheet-open;
+    in property <bool> options-open;
+    // Jeu mis en avant.
+    in property <bool> has-focused;
     in property <GameDetail> focused;
     in property <string> focused-meta;
     in property <string> focused-ach;
-    in property <int> game-button;
-    in property <[AchievementRow]> achievements;
-    in property <int> ach-index;
+    /// 0–1, ou -1 sans succès connus.
+    in property <float> focused-ach-ratio: -1;
+    in property <string> focused-state;
+    in property <string> focused-update;
+    // Jouer.
+    in property <[GameCard]> strip;
+    in property <int> strip-index;
+    in property <int> button;
+    // Bibliothèque.
+    in property <[string]> filters;
+    in property <int> filter;
+    in property <[GameCard]> grid;
+    in property <int> grid-index;
+    in property <string> grid-position;
+    // Recherche.
     in property <string> query;
     in property <[string]> keys;
     in property <int> key-index;
-    /// Vrai quand le focus est sur les résultats de recherche.
-    in property <bool> in-results;
     in property <BpRow> results;
-    in property <string> clock;
-    in property <bool> pad-connected;
-    /// Réglages (vue 3) : libellé, valeur actuelle ; ligne sélectionnée.
+    // Fiche.
+    in property <int> sheet-button;
+    in property <[AchievementRow]> achievements;
+    in property <int> ach-index;
+    in property <int> ach-count;
+    // Menu d'options d'un jeu.
+    in property <[string]> options;
+    in property <int> option-index;
+    // Centre de contrôle.
     in property <[KeyValue]> settings;
     in property <int> setting-index;
+    in property <int> downloads;
+    in property <string> clock;
+    in property <bool> pad-connected;
     callback input(string);
 }
 

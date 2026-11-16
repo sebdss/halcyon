@@ -55,7 +55,7 @@ impl Controller {
         self.publish_sound_ui();
     }
 
-    fn sound_toggle(&self, key: &str, on: bool) {
+    pub(crate) fn sound_toggle(&self, key: &str, on: bool) {
         self.edit_sound(|s| match key {
             "enabled" => s.enabled = on,
             "muted" => s.muted = on,

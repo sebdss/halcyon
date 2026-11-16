@@ -66,7 +66,9 @@ export global Theme {
     out property <length> nav-height: self.density == 1 ? 34px : 40px;
     out property <length> control-height: self.density == 1 ? 34px : 40px;
 
-    // ---------------------------------------------------------------- typographie (Inter)
+    // ---------------------------------------------------------------- typographie
+    /// Police d'affichage (titres, chiffres, mode console) ; Inter pour le texte courant.
+    out property <string> display: "Sora";
     /// Facteur de taille du texte (accessibilité) : 0,9 à 1,3.
     in-out property <float> text-scale: 1.0;
     out property <length> t-display: 48px * self.text-scale;
@@ -97,6 +99,15 @@ export global Theme {
     in-out property <bool> has-background: false;
     in-out property <float> background-opacity: 0.18;
     in-out property <bool> animated-background: false;
+}
+
+/// Masques de fondu (images alpha teintées par `colorize`) : contrairement aux dégradés,
+/// une image mise à l'échelle se redessine à l'identique quand seule une partie de l'écran
+/// change (rendu logiciel), sans ligne de raccord.
+export global Art {
+    out property <image> fade-left: @image-url("art/fade-left.png");
+    out property <image> fade-bottom: @image-url("art/fade-bottom.png");
+    out property <image> fade-top: @image-url("art/fade-top.png");
 }
 
 export global Icons {
