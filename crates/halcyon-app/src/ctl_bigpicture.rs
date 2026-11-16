@@ -643,7 +643,7 @@ impl Controller {
                     let i = bp.grid_index;
                     let id = bp.filters.get(bp.filter).and_then(|(_, l)| l.get(i)).copied();
                     match a {
-                        "left" if i % GRID_COLS > 0 => bp.grid_index = i - 1,
+                        "left" if !i.is_multiple_of(GRID_COLS) => bp.grid_index = i - 1,
                         "right" if i % GRID_COLS < GRID_COLS - 1 && i + 1 < len => bp.grid_index = i + 1,
                         "up" if i >= GRID_COLS => bp.grid_index = i - GRID_COLS,
                         "up" | "back" => bp.zone = 1,

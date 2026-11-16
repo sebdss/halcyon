@@ -17,6 +17,17 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
   titres plus lisibles, contrastes vérifiés. L'ancienne apparence reste disponible
   (Apparence › Thème › « Nocturne (0.5) »).
 
+### Nouvelle navigation et nouveau mode console
+- **Un menu de six espaces** au lieu de 19 entrées : Accueil, Bibliothèque, Minecraft,
+  Activité, Outils, Système. Activité, Outils et Système ont leurs onglets en haut de page,
+  avec les compteurs utiles (téléchargements, mises à jour, jeux émulés, manettes).
+  Rien n'a disparu : chaque page de la 0.5 est à un clic de son espace.
+- **Mode console** pensé pour la télévision et la manette : le jeu sélectionné occupe tout
+  l'écran, une rangée de jaquettes en dessous, une fiche plein écran, un menu d'options par jeu
+  et un centre de contrôle (touche Menu / Select). Voir le Guide, section 6.
+- **Accueil, fiche de jeu, bibliothèque et paramètres** repris : grandes illustrations sans
+  raccord, titres en Sora, paramètres classés par catégorie dans une colonne à gauche.
+
 ### Performance Center (nouveau)
 - Nouvelle entrée **Performances** dans le menu (et dans le lancement rapide, Ctrl+K).
 - Processeur, mémoire, carte(s) graphique(s), stockage en direct, mesurés uniquement
@@ -65,8 +76,12 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
 
 ## Ce qui n'est pas fait
 
-- Retouches écran par écran au-delà du socle commun (la refonte passe par les jetons, les
-  composants et le menu, partagés par toutes les pages, Big Picture et l'installateur compris).
+- Contenu de certaines pages encore proche de la 0.5 (Sauvegardes, Jeu à distance, Manettes,
+  Extensions, Journal, onglets de la fiche) : elles profitent de la nouvelle navigation, des
+  titres et des composants communs, sans mise en page propre.
+- Le binaire complet ne se compile pas dans l'environnement de développement utilisé
+  (mémoire) : les vérifications à l'écran ont été faites sur un binaire de test sans la page
+  Minecraft, et la page Minecraft a été vérifiée par `cargo check` uniquement.
 - Validation sur un vrai PC Windows et sous Linux avec réseau (voir
   [`TESTS-1.0.0.md`](TESTS-1.0.0.md)).
 - Succès GOG : pas d'API publique sans connexion au compte (succès personnalisés seulement).

@@ -52,8 +52,12 @@ temps de jeu et personnalisations sont conservés.
 
 ## 2 bis. Se repérer dans l'interface (0.4)
 
-- **Barre latérale** : repliable (bouton de la barre supérieure ou *Apparence › Barre latérale
-  repliée*), repliée automatiquement dans une fenêtre étroite (infobulles au survol).
+- **Menu (1.0)** : six espaces — Accueil, Bibliothèque, Minecraft, **Activité** (Que jouer ?,
+  Succès, Statistiques, Journal), **Outils** (Téléchargements, Mises à jour, Sauvegardes,
+  Émulateurs, Manettes, Jeu à distance, Extensions) et **Système** (Performances, Apparence,
+  Paramètres). Les trois derniers ont des onglets en haut de page ; chaque espace rouvre le
+  dernier onglet consulté. En bas du menu : **Console** (mode Big Picture) et **Analyser**.
+  *Apparence › Menu : icônes seules* masque les libellés.
 - **Barre supérieure** : précédent / suivant (aussi `Alt+←` / `Alt+→`, touche Retour du
   clavier multimédia), recherche universelle (`Ctrl+K`), indicateurs *En jeu*, *Performance*, *Hors ligne*,
   mode Performance, bascule de mode d'affichage, **centre de commandes** (cloche).
@@ -64,7 +68,7 @@ temps de jeu et personnalisations sont conservés.
   changer la largeur (1/3, 2/3, pleine) et de masquer chaque widget ; les widgets masqués
   apparaissent en haut pour les rajouter. *Réinitialiser* revient à la disposition d'origine.
 - **Modes** : *standard*, *minimaliste* (accueil réduit à la recherche, aux derniers jeux et aux
-  favoris), *cinéma* (sans barre latérale). Le **mode Performance** coupe animations et effets et
+  favoris), *cinéma* (sans menu). Le **mode Performance** coupe animations et effets et
   reporte les tâches secondaires ; il peut s'activer tout seul pendant les parties
   (*Apparence › Automatique pendant les parties*). Aucun programme n'est jamais fermé.
 
@@ -158,7 +162,7 @@ Configurez vos comptes dans **Paramètres › Comptes et succès** :
 
 ## 6. Mode Big Picture
 
-Entrée : bouton **Big Picture** de la barre latérale, touche **F11**, ou bouton **Start / Guide**
+Entrée : bouton **Console** du menu, touche **F11**, ou bouton **Start / Guide**
 de la manette. Option « Démarrer en mode Big Picture » dans les paramètres.
 
 | Action | Manette | Clavier |
@@ -180,7 +184,7 @@ Les touches se personnalisent dans la page **Manettes** (section 13).
 
 ## 6 bis. Minecraft (0.5.0)
 
-Menu **Minecraft** (sous Big Picture). Détails : [`MINECRAFT.md`](MINECRAFT.md).
+Espace **Minecraft** du menu. Détails : [`MINECRAFT.md`](MINECRAFT.md).
 
 1. **Loaders** (ou **Versions** pour du vanilla) : choisissez la version de Minecraft, le loader
    et sa version, puis **Installer**. La progression affiche fichiers et mégaoctets réels.
@@ -397,7 +401,7 @@ Thèmes intégrés (Halcyon, Minuit, Braise, Forêt, Graphite), importés (`.hal
 - le **mode d'affichage** (standard, minimaliste, cinéma), la barre latérale repliée, le mode
   Performance et son activation automatique pendant les parties ;
 - une image de fond avec son intensité et un fond animé facultatif ;
-- les entrées affichées dans la barre latérale ;
+- les entrées affichées (onglets d'Activité et d'Outils, bouton Console) ;
 - l'ordre et l'affichage des widgets de l'accueil (largeur : bouton crayon de l'accueil).
 
 *Exporter le thème actuel* produit un fichier partageable. *Rétablir* revient aux réglages
@@ -531,7 +535,7 @@ archive de sécurité de l'état actuel, puis redémarre Halcyon.
 ## 23. Mise à jour de Halcyon
 
 Dans **Paramètres › Mises à jour**, indiquez le dépôt GitHub qui publie Halcyon
-(`propriétaire/nom`). Une nouvelle version est signalée dans la barre latérale.
+(`propriétaire/nom`). Une nouvelle version est signalée par une pastille sur l'espace Système et dans l'onglet Paramètres.
 
 *Télécharger* récupère le paquet adapté au système : programme d'installation Windows ;
 sous Linux, le programme d'installation si Halcyon a été installé par lui, sinon le `.deb`.

@@ -36,6 +36,36 @@ Règles 1.0 :
 
 ---
 
+## Expérience 1.0 : navigation et écrans
+
+**Rail de six espaces** (88 px, 68 px en icônes seules, masqué en mode cinéma) : Accueil,
+Bibliothèque, Minecraft, Activité, Outils, Système ; Console et Analyser en bas. L'espace actif
+porte la ligne d'horizon au bord du rail. Les pastilles ne montrent que des états réels :
+téléchargements actifs (accent), mises à jour en attente et nouvelle version (orange), partie
+Minecraft en cours (orange).
+
+**Deux niveaux d'onglets, deux formes** :
+- *Espace* (Activité, Outils, Système) : barre d'espace sous la barre supérieure, titre Sora 26 px,
+  onglets en pilule avec compteur. Les pages de ces espaces n'affichent plus leur propre titre
+  (`Layout.tabbed`, lu par `PageHeader`) : leur sous-titre devient la première ligne.
+- *Dans une page* (fiche de jeu, Minecraft) : onglets soulignés par la ligne d'horizon.
+
+**Typographie d'affichage : Sora** (SIL OFL, `Theme.display`) pour les titres de page et de
+section (`SectionTitle`), les grands chiffres (`BigStat`, mesures du Performance Center) et le
+mode console ; **Inter** pour tout le texte courant.
+
+**Images plein cadre** (accueil, fiche, bibliothèque immersive, console) : illustration puis
+voiles `Art.fade-left`, `Art.fade-bottom`, `Art.fade-top` teintés par `colorize` à la couleur du
+fond — aucun dégradé superposé, aucune ligne de raccord en rendu logiciel.
+
+**Panneau ou pas** : les jeux reposent sur le fond (étagères de l'accueil, grilles) ; seules les
+données et les réglages sont posés sur une surface. Les paramètres passent en deux colonnes
+(catégories à gauche, une catégorie à la fois à droite).
+
+**Mode console** : mise en page à l'échelle de la hauteur d'écran (`u = height / 1080`),
+sections Jouer / Bibliothèque / Recherche, cadre de focus intérieur, barre d'aide contextuelle,
+centre de contrôle en bas de l'écran. Détails de navigation : [`GUIDE.md`](GUIDE.md), section 6.
+
 ## Historique : « Nocturne » (0.4)
 
 Toutes les valeurs visuelles sont centralisées dans `crates/halcyon-app/ui/theme.slint`
@@ -71,7 +101,7 @@ Aucune page ne doit coder en dur une couleur, une taille de texte ou une durée 
 Les thèmes 0.3 (fichiers `.halcyon-theme`) restent compatibles : les noms d'origine sont conservés,
 les nouveaux jetons sont dérivés (`glass` dérive de `bg`, `accent-glow` de `accent`…).
 
-## Typographie (Inter)
+## Typographie (Inter, et Sora pour l'affichage depuis la 1.0)
 
 | Jeton | Taille de base | Usage |
 |---|---|---|

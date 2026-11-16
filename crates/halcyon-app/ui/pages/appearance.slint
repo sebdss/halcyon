@@ -121,7 +121,7 @@ export component AppearancePage inherits Rectangle {
                     spacing: 18px;
                     Row {
                         title: "Mode d'affichage";
-                        description: "Minimaliste : barre repliée, accueil réduit aux favoris et récents. Cinéma : sans barre latérale, illustrations plein cadre. Bouton de la barre supérieure pour basculer.";
+                        description: "Minimaliste : menu en icônes seules, accueil réduit aux favoris et récents. Cinéma : sans menu, illustrations plein cadre. Bouton de la barre supérieure pour basculer.";
                         Segmented {
                             y: (parent.height - self.height) / 2;
                             items: ["Standard", "Minimaliste", "Cinéma"];
@@ -130,8 +130,8 @@ export component AppearancePage inherits Rectangle {
                         }
                     }
                     Row {
-                        title: "Barre latérale repliée";
-                        description: "Icônes seules (infobulles au survol). Repliée automatiquement dans une fenêtre étroite.";
+                        title: "Menu : icônes seules";
+                        description: "Masque les libellés sous les icônes du menu de gauche. Automatique en mode minimaliste et dans une fenêtre peu haute.";
                         Toggle {
                             y: (parent.height - self.height) / 2;
                             checked: AppUi.sidebar-collapsed;
@@ -208,8 +208,8 @@ export component AppearancePage inherits Rectangle {
                         padding: 22px;
                         spacing: 10px;
                         alignment: start;
-                        SectionTitle { text: "Barre latérale"; }
-                        Text { text: "Affichez seulement les sections que vous utilisez."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                        SectionTitle { text: "Entrées affichées"; }
+                        Text { text: "Onglets des espaces Activité et Outils, et bouton Console du menu : gardez seulement ce que vous utilisez."; color: Theme.text-dim; font-size: Theme.t-caption; }
                         for n in ThemeUi.nav-items: HorizontalLayout {
                             height: 34px;
                             Text { text: n.label; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }

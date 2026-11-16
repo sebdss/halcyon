@@ -6,6 +6,31 @@
 une table ajoutée). Détails : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · audit :
 [`docs/AUDIT-1.0.md`](docs/AUDIT-1.0.md) · sécurité : [`docs/SECURITE.md`](docs/SECURITE.md).
 
+### Nouvelle expérience (UI/UX 1.0)
+- **Bureau, nouvelle navigation** : le menu de 19 entrées devient un **rail de six espaces**
+  (Accueil, Bibliothèque, Minecraft, Activité, Outils, Système), avec pastilles réelles
+  (téléchargements actifs, mises à jour en attente, nouvelle version, partie Minecraft en cours).
+  Les espaces Activité (Que jouer ?, Succès, Statistiques, Journal), Outils (Téléchargements,
+  Mises à jour, Sauvegardes, Émulateurs, Manettes, Jeu à distance, Extensions) et Système
+  (Performances, Apparence, Paramètres) ont une **barre d'espace à onglets** commune, avec
+  compteurs ; chaque espace rouvre le dernier onglet consulté. Console et analyse des sources en
+  bas du rail. Le réglage « barre latérale repliée » devient « Menu : icônes seules ».
+- **Mode console** (Big Picture) repensé pour la télévision : sections Jouer / Bibliothèque /
+  Recherche, illustration plein écran du jeu sélectionné, rangée de jaquettes, fiche plein
+  écran, menu d'options du jeu, centre de contrôle (mode Performance, pause des
+  téléchargements, son, mouvement, taille du texte, thème…), barre d'aide contextuelle.
+- **Accueil** plein cadre (illustration du jeu à reprendre, texte à gauche), étagères de jeux
+  sans cadre sur le fond ; seules les données (stats, stockage, succès…) restent en panneaux.
+- **Fiche de jeu** : bandeau sans raccord, titre en Sora, chiffres clés lisibles.
+- **Paramètres en deux colonnes** : catégories avec icônes et recherche à gauche, une catégorie
+  à la fois à droite (« Tous les réglages » reste disponible).
+- **Bibliothèque** : en-tête et filtres regroupés sur deux rangées (recherche dans l'en-tête,
+  source, filtres et tri sur la seconde).
+- **Typographie** : police d'affichage **Sora** (SIL OFL) pour les titres, sections et grands
+  chiffres ; Inter pour le reste. Notifications aux couleurs Alcyon avec ligne d'horizon.
+- Mesures (binaire de test, 3 lancements) : mémoire au repos 84–87 Mo (96–97 Mo avant la
+  refonte), processeur au repos 0,2–0,3 %.
+
 ### Refonte graphique « Alcyon »
 - Nouvelle identité tirée du martin-pêcheur : fonds bleu d'eau profonde, accent cobalt,
   orange réservé à ce qui est vivant (en jeu, hors ligne, alertes, mises à jour).

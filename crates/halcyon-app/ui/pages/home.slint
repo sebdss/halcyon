@@ -37,7 +37,7 @@ component Shelf inherits Rectangle {
 component Hero inherits Rectangle {
     in property <bool> card: false;
     in property <length> top-inset: 0px;
-    height: card ? 340px : 540px;
+    height: card ? 340px : 500px;
     clip: true;
     border-radius: card ? Theme.radius-lg : 0px;
     background: Theme.bg;
@@ -76,7 +76,7 @@ component Hero inherits Rectangle {
         y: 0;
         width: min(680px, root.width - 2 * self.x);
         height: root.height;
-        padding-bottom: root.card ? Theme.s6 : 56px;
+        padding-bottom: root.card ? Theme.s6 : 32px;
         spacing: Theme.s3;
         alignment: end;
 

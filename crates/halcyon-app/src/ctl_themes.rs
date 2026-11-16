@@ -165,7 +165,7 @@ fn hex(c: Color) -> String {
 /// Entrées masquables de la barre latérale.
 pub const NAV_ITEMS: [(&str, &str); 11] = [
     ("assistant", "Que jouer ?"),
-    ("big-picture", "Big Picture"),
+    ("big-picture", "Console (Big Picture)"),
     ("achievements", "Succès"),
     ("stats", "Statistiques"),
     ("journal", "Journal"),
