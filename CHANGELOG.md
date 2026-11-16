@@ -1,5 +1,12 @@
 # Journal des modifications
 
+## 1.0.0-alpha.2 — Nouveau logo
+
+- Nouveau logo de Halcyon : application, programme d'installation, icônes Windows et Linux.
+- Première version signée : les mises à jour automatiques (HUS) peuvent l'installer, et elle
+  pourra recevoir automatiquement les versions suivantes. Une installation en
+  1.0.0-alpha.1 (non signée) la signale sans l'installer : installez-la une fois à la main.
+
 ## 1.0.0-alpha.1 — « Performance First » (première étape de la 1.0)
 
 Évolution de la 0.5.0 : aucune fonction retirée, données de la 0.5.0 reprises (schéma v6 :
