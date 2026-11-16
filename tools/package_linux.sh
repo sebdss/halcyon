@@ -58,7 +58,7 @@ install -m 755 "$D/usr/bin/halcyon" "$S/halcyon"
 install -m 755 "$UPDATER" "$S/halcyon-updater"
 strip "$S/halcyon-updater" 2>/dev/null || true
 install -m 644 packaging/linux/halcyon.png packaging/linux/halcyon-mime.xml "$S/"
-install -m 644 README.md CHANGELOG.md docs/GUIDE.md docs/PLUGINS.md docs/SON.md docs/INSTALLATEUR.md "$S/"
+install -m 644 README.md CHANGELOG.md docs/GUIDE.md docs/PLUGINS.md docs/SON.md docs/INSTALLATEUR.md docs/HUS.md "$S/"
 install -m 755 "$SETUP" "$TMP/stub"
 strip "$TMP/stub" 2>/dev/null || true
 "$TMP/stub" --pack "$S" "$VERSION" "$OUT/halcyon-$VERSION-linux-x86_64-setup" --min-glibc "$GLIBC"

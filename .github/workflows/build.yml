@@ -1,27 +1,23 @@
 name: Build
 
+# Intégration continue : tests, analyse et compilation sur chaque branche et demande de
+# fusion. La publication des versions (tags v*) est faite par release.yml.
 on:
   push:
     branches: ["**"]
-    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
-  # Clé publique Ed25519 des versions (variable de dépôt, non secrète). Embarquée dans
-  # l'application : une mise à jour sans SHA256SUMS.sig valide est alors refusée.
   HALCYON_UPDATE_PUBKEY: ${{ vars.HALCYON_UPDATE_PUBKEY }}
 
 jobs:
   windows:
-    name: Windows — tests, exécutable, installateur
+    name: Windows — tests, clippy, compilation
     runs-on: windows-latest
-    env:
-      # Certificat de signature de code (PFX en base64) : facultatif, secrets du dépôt.
-      WINDOWS_CERT_PFX: ${{ secrets.WINDOWS_CERT_PFX }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -30,121 +26,30 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Tests
         run: cargo test --workspace
+      - name: Tests HUS (serveur local, processus réels, pannes simulées)
+        run: cargo test -p halcyon-update --features fault-injection
       - name: Clippy
         # -j 1 : le code généré par Slint demande ~5 Go par compilation.
         run: cargo clippy --workspace --all-targets -j 1
-      - name: Build release
-        run: cargo build --release -p halcyon-app -p halcyon-installer
-      - name: Version
-        id: version
-        shell: pwsh
-        run: |
-          $v = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
-          "value=$v" >> $env:GITHUB_OUTPUT
-      - name: Signature de Halcyon.exe (si un certificat est configuré)
-        if: ${{ env.WINDOWS_CERT_PFX != '' }}
-        env:
-          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
-        shell: pwsh
-        run: |
-          [IO.File]::WriteAllBytes("cert.pfx", [Convert]::FromBase64String($env:WINDOWS_CERT_PFX))
-          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | Select-Object -Last 1
-          & $signtool sign /f cert.pfx /p $env:WINDOWS_CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 target/release/halcyon.exe
-      - name: Programme d'installation Halcyon
-        shell: pwsh
-        run: |
-          $v = "${{ steps.version.outputs.value }}"
-          New-Item -ItemType Directory -Force dist/payload | Out-Null
-          Copy-Item target/release/halcyon.exe dist/payload/Halcyon.exe
-          Copy-Item README.md, CHANGELOG.md, docs/GUIDE.md, docs/PLUGINS.md, docs/SON.md, docs/INSTALLATEUR.md, crates/halcyon-app/ui/fonts/LICENSE-Inter.txt, crates/halcyon-app/ui/fonts/LICENSE-Sora.txt dist/payload/
-          & target/release/halcyon-setup.exe --pack dist/payload $v "dist/Halcyon-$v-windows-x86_64-setup.exe"
-          if ($LASTEXITCODE -ne 0) { throw "--pack a échoué" }
-      - name: Signature du programme d'installation (si un certificat est configuré)
-        if: ${{ env.WINDOWS_CERT_PFX != '' }}
-        env:
-          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
-        shell: pwsh
-        run: |
-          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | Select-Object -Last 1
-          & $signtool sign /f cert.pfx /p $env:WINDOWS_CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 (Get-Item dist/*-setup.exe).FullName
-          Remove-Item cert.pfx
-      - name: Contrôle de la charge utile (après signature éventuelle)
-        shell: pwsh
-        run: |
-          $s = (Get-Item dist/*-setup.exe).FullName
-          $p = Start-Process -FilePath $s -ArgumentList "--info" -Wait -PassThru -NoNewWindow -RedirectStandardOutput info.txt
-          Get-Content info.txt
-          if (-not (Select-String -Path info.txt -Pattern '"version"')) { throw "charge utile illisible" }
-      - name: Version portable
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force dist/Halcyon-portable | Out-Null
-          Copy-Item target/release/halcyon.exe dist/Halcyon-portable/Halcyon.exe
-          New-Item -ItemType File dist/Halcyon-portable/portable.txt | Out-Null
-          Copy-Item README.md, docs/GUIDE.md, crates/halcyon-app/ui/fonts/LICENSE-Inter.txt, crates/halcyon-app/ui/fonts/LICENSE-Sora.txt dist/Halcyon-portable/
-          Compress-Archive -Path dist/Halcyon-portable/* -DestinationPath dist/Halcyon-${{ steps.version.outputs.value }}-windows-portable.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Halcyon-windows
-          path: |
-            dist/*.exe
-            dist/*.zip
+      - name: Compilation release
+        run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater --bin hus-release
 
   linux:
-    name: Linux — tests, .deb, installateur, archive
+    name: Linux — tests, compilation, AppImage
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Dépendances système
-        run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libfontconfig1-dev libudev-dev libdbus-1-dev libasound2-dev pkg-config
+        run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libfontconfig1-dev libudev-dev libdbus-1-dev libasound2-dev pkg-config squashfs-tools
       - run: cargo test --workspace -j 2
-      - run: cargo build --release -p halcyon-app -p halcyon-installer
-      - name: Paquets (.deb, installateur, archive, sources)
-        run: sh tools/package_linux.sh && mkdir -p dist/out && cp dist/*/halcyon* dist/out/
-      - name: Contrôle de l'installateur
-        run: ./dist/out/halcyon-*-linux-x86_64-setup --info | head -8
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Halcyon-linux
-          path: |
-            dist/out/*.deb
-            dist/out/*-setup
-            dist/out/*.tar.gz
-
-  release:
-    name: Publication (tags v*)
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [windows, linux]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          merge-multiple: true
-      - name: Empreintes SHA-256 (vérifiées par la mise à jour intégrée)
-        run: cd artifacts && sha256sum * > SHA256SUMS && cat SHA256SUMS
-      - uses: actions/checkout@v4
-        with:
-          path: src
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Signature Ed25519 de SHA256SUMS
-        env:
-          HALCYON_SIGNING_KEY: ${{ secrets.HALCYON_SIGNING_KEY }}
+      - name: Tests HUS (serveur local, processus réels, pannes simulées)
+        run: cargo test -p halcyon-update --features fault-injection
+      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update --bin halcyon-updater --bin hus-release
+      - name: AppImage (contrôle de structure)
         run: |
-          if [ -z "$HALCYON_UPDATE_PUBKEY" ]; then
-            echo "::warning::HALCYON_UPDATE_PUBKEY non définie : version publiée sans signature (intégrité seule)"
-            exit 0
-          fi
-          if [ -z "$HALCYON_SIGNING_KEY" ]; then
-            echo "::error::clé publique embarquée mais secret HALCYON_SIGNING_KEY absent : les clients refuseraient cette version"
-            exit 1
-          fi
-          cd src
-          cargo run -q -p halcyon-integrations --example release_sign -- sign - ../artifacts/SHA256SUMS
-          cargo run -q -p halcyon-integrations --example release_sign -- verify "$HALCYON_UPDATE_PUBKEY" ../artifacts/SHA256SUMS
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/*
-          generate_release_notes: true
+          sh tools/package_appimage.sh
+          V=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          ./dist/$V/Halcyon-$V-x86_64.AppImage --appimage-extract usr/bin/halcyon-updater >/dev/null
+          ./squashfs-root/usr/bin/halcyon-updater --version
