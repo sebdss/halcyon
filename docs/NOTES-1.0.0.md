@@ -29,7 +29,7 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
   raccord, titres en Sora, paramètres classés par catégorie dans une colonne à gauche.
 
 ### Performance Center (nouveau)
-- Nouvelle entrée **Performances** dans le menu (et dans le lancement rapide, Ctrl+K).
+- Nouvel onglet **Performances** dans l'espace Système (et dans le lancement rapide, Ctrl+K).
 - Processeur, mémoire, carte(s) graphique(s), stockage en direct, mesurés uniquement
   pendant que la page est ouverte.
 - Applications les plus gourmandes, regroupées par application, et coût de Halcyon lui-même.
