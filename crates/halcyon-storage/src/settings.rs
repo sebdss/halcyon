@@ -8,6 +8,14 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+/// Champs de [`Settings`] conservés dans le coffre des secrets, jamais dans le JSON.
+pub const SECRET_FIELDS: &[&str] = &["steam_api_key", "ra_api_key", "nexus_api_key", "steamgriddb_api_key", "curseforge_api_key"];
+
+/// Coffre voisin du fichier de configuration (`<données>/secrets`).
+pub fn secret_store(settings_path: &Path) -> crate::secrets::SecretStore {
+    crate::secrets::SecretStore::new(settings_path.parent().unwrap_or(Path::new(".")).join("secrets"))
+}
+
 /// Configuration d'un émulateur (profil).
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
@@ -98,6 +106,11 @@ pub struct Settings {
     pub steamgriddb_api_key: String,
     /// Aucune requête réseau, même si une connexion est disponible.
     pub offline_forced: bool,
+    /// Performance Center : résumé processeur / mémoire / carte graphique de chaque partie
+    /// (un échantillon toutes les 10 s pendant le jeu).
+    pub perf_history: bool,
+    /// Dossier des journaux de temps d'image (MangoHud `output_folder`, PresentMon).
+    pub frametime_dir: Option<PathBuf>,
 
     pub appearance: Appearance,
     /// Extensions activées (identifiants). Une extension installée reste inactive tant
@@ -443,13 +456,44 @@ impl Default for Settings {
             sound: SoundSettings::default(),
             minecraft: MinecraftSettings::default(),
             curseforge_api_key: String::new(),
+            perf_history: true,
+            frametime_dir: None,
         }
     }
 }
 
 impl Settings {
     /// Charge la configuration ; ne renvoie jamais d'erreur bloquante.
+    ///
+    /// Les clés d'API sont lues dans le coffre `secrets/` voisin (voir [`crate::secrets`]).
+    /// Une clé encore présente en clair dans le fichier (version ≤ 0.5) est déplacée dans le
+    /// coffre, puis le fichier est réécrit sans elle.
     pub fn load(path: &Path) -> Self {
+        let mut s = Self::load_file(path);
+        let vault = secret_store(path);
+        let mut migrated = false;
+        for &name in SECRET_FIELDS {
+            let field = s.secret_mut(name);
+            if !field.trim().is_empty() {
+                match vault.set(name, field) {
+                    Ok(_) => migrated = true,
+                    Err(e) => log::error!("coffre des secrets : {name} non déplacée ({e})"),
+                }
+            } else if let Some(v) = vault.get(name) {
+                *field = v;
+            }
+        }
+        if migrated {
+            log::info!("clés d'API déplacées de settings.json vers le coffre des secrets");
+            crate::audit::event("secret.migrated", "settings.json → secrets/");
+            if let Err(e) = s.save(path) {
+                log::error!("réécriture de la configuration sans secrets impossible : {e}");
+            }
+        }
+        s
+    }
+
+    fn load_file(path: &Path) -> Self {
         match std::fs::read_to_string(path) {
             Ok(text) => match serde_json::from_str::<Settings>(&text) {
                 Ok(mut s) => {
@@ -470,13 +514,30 @@ impl Settings {
         }
     }
 
-    /// Enregistre de manière atomique.
+    /// Enregistre de manière atomique, fichier réservé à l'utilisateur (Unix : `0600`).
+    /// Les clés d'API vont dans le coffre ; le fichier JSON n'en contient aucune.
     pub fn save(&self, path: &Path) -> crate::Result<()> {
-        let tmp = path.with_extension("json.tmp");
-        let data = serde_json::to_vec_pretty(self)?;
-        std::fs::write(&tmp, data)?;
-        std::fs::rename(&tmp, path)?;
+        let vault = secret_store(path);
+        let mut clean = self.clone();
+        for &name in SECRET_FIELDS {
+            let field = clean.secret_mut(name);
+            vault.set(name, field)?;
+            field.clear();
+        }
+        let data = serde_json::to_vec_pretty(&clean)?;
+        crate::secrets::write_private(path, &data)?;
         Ok(())
+    }
+
+    fn secret_mut(&mut self, name: &str) -> &mut String {
+        match name {
+            "steam_api_key" => &mut self.steam_api_key,
+            "ra_api_key" => &mut self.ra_api_key,
+            "nexus_api_key" => &mut self.nexus_api_key,
+            "steamgriddb_api_key" => &mut self.steamgriddb_api_key,
+            "curseforge_api_key" => &mut self.curseforge_api_key,
+            _ => unreachable!("champ secret inconnu : {name}"),
+        }
     }
 
     fn sanitize(&mut self) {
@@ -567,6 +628,36 @@ impl MinecraftSettings {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn api_keys_live_in_the_vault_not_in_the_json() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("settings.json");
+        // Fichier 0.5 : clé en clair.
+        std::fs::write(&path, r#"{"steam_api_key":"PLAIN-KEY","card_width":180}"#).unwrap();
+        let s = Settings::load(&path);
+        assert_eq!(s.steam_api_key, "PLAIN-KEY", "la clé reste utilisable");
+        assert_eq!(s.card_width, 180);
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert!(!text.contains("PLAIN-KEY"), "fichier réécrit sans la clé");
+        assert_eq!(secret_store(&path).get("steam_api_key").as_deref(), Some("PLAIN-KEY"));
+
+        // Nouvel enregistrement : toujours rien en clair, relecture identique.
+        let s2 = Settings { curseforge_api_key: "CF".into(), ..s.clone() };
+        s2.save(&path).unwrap();
+        assert!(!std::fs::read_to_string(&path).unwrap().contains("CF\""));
+        assert_eq!(Settings::load(&path), s2);
+
+        // Clé effacée dans les paramètres : retirée du coffre.
+        let s3 = Settings { steam_api_key: String::new(), ..s2 };
+        s3.save(&path).unwrap();
+        assert_eq!(secret_store(&path).get("steam_api_key"), None);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            assert_eq!(std::fs::metadata(&path).unwrap().permissions().mode() & 0o777, 0o600);
+        }
+    }
 
     #[test]
     fn roundtrip_and_corruption_recovery() {

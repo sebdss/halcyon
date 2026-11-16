@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft
+    remote, plugins, appearance, minecraft, performance
 }
 
 export global Nav {
@@ -773,6 +773,8 @@ export global SystemUi {
     in property <bool> companion;
     in property <[ShortcutRow]> shortcuts;
     in property <string> integrity-status;
+    /// Niveau de vérification des mises à jour de cette compilation.
+    in property <string> update-verification;
     in property <bool> integrity-running;
     in property <string> update-asset;
     in property <string> update-progress;

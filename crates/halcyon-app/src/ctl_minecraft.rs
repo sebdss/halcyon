@@ -508,6 +508,7 @@ impl Controller {
                 // Fichiers complets côté Halcyon (loaders, bibliothèques produites par Forge…).
                 install::install(&ctx.http, &ctx.layout, &p.version_id, ctx.manifest.as_deref(), false, &ctx.cancel, &ctx.sink())?;
                 official::export_profile(&ctx.layout, &off, &p, &java_args, res).map_err(|e| Error::Disk(e.to_string()))?;
+                halcyon_storage::audit::event("minecraft.official_profile.write", &official::profile_key(&p));
                 official::open(kind, &exe).map_err(|e| Error::Invalid(format!("launcher officiel non lancé : {e}")))?;
                 let name = p.name.clone();
                 Ok(Box::new(move |c: &Rc<Controller>| {
@@ -613,7 +614,9 @@ impl Controller {
         self.confirm(&format!("Supprimer « {} » ?", p.name), &detail, "Supprimer", move |c| {
             let layout = c.mc_layout();
             if let Some(off) = official::dir() {
-                let _ = official::remove_profile(&off, &p);
+                if official::remove_profile(&off, &p).is_ok() {
+                    halcyon_storage::audit::event("minecraft.official_profile.remove", &official::profile_key(&p));
+                }
             }
             match profiles::delete(&layout, &p.id) {
                 Ok(()) => c.toast(format!("{} supprimée", p.name), false),
@@ -681,6 +684,7 @@ impl Controller {
         }
         match r {
             Ok(a) => {
+                halcyon_storage::audit::event("minecraft.login", &a.name);
                 self.toast(format!("Connecté : {}", a.name), false);
                 self.mc.borrow_mut().account = Some(a);
             }
@@ -693,6 +697,7 @@ impl Controller {
     pub(crate) fn mc_logout(&self) {
         let Some(a) = self.mc.borrow_mut().account.take() else { return };
         let _ = auth::Store::new(self.mc_layout().root.join("accounts")).remove(&a.uuid);
+        halcyon_storage::audit::event("minecraft.logout", &a.name);
         self.toast("Compte déconnecté de Halcyon", false);
         self.mc_refresh_ui();
     }

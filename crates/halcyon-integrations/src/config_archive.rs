@@ -16,8 +16,9 @@ pub const MANIFEST: &str = "halcyon-archive.json";
 /// Dossiers de données inclus dans l'archive (relatifs au dossier de données).
 pub const DIRS: &[&str] = &["custom-artwork", "emulators", "platforms", "themes", "plugins"];
 
-/// Champs de `settings.json` contenant des secrets.
-const SECRET_KEYS: &[&str] = &["steam_api_key", "ra_api_key", "nexus_api_key", "steamgriddb_api_key", "curseforge_api_key"];
+/// Champs de `settings.json` contenant des secrets (conservés dans le coffre `secrets/`
+/// depuis la 1.0.0 ; réinjectés dans l'archive seulement sur demande explicite).
+use halcyon_storage::settings::SECRET_FIELDS as SECRET_KEYS;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Manifest {
@@ -47,13 +48,15 @@ pub fn export(data_dir: &Path, db_copy: &Path, dest: &Path, opts: &ExportOptions
     let settings = data_dir.join("settings.json");
     if let Ok(bytes) = std::fs::read(&settings) {
         let mut v: serde_json::Value = serde_json::from_slice(&bytes).map_err(io::Error::other)?;
-        if !opts.include_secrets {
-            if let Some(obj) = v.as_object_mut() {
-                for k in SECRET_KEYS {
-                    if obj.contains_key(*k) {
-                        obj.insert((*k).to_string(), serde_json::Value::String(String::new()));
-                    }
-                }
+        if let Some(obj) = v.as_object_mut() {
+            let vault = halcyon_storage::settings::secret_store(&settings);
+            for k in SECRET_KEYS {
+                // Le coffre n'est jamais copié tel quel : sous Windows son contenu est lié au
+                // compte (DPAPI) et serait illisible ailleurs. Les clés passent en clair dans
+                // l'archive uniquement si l'utilisateur l'a demandé ; à la restauration,
+                // `Settings::load` les replace dans le coffre.
+                let value = if opts.include_secrets { vault.get(k).or_else(|| obj.get(*k).and_then(|x| x.as_str()).map(String::from)).unwrap_or_default() } else { String::new() };
+                obj.insert((*k).to_string(), serde_json::Value::String(value));
             }
         }
         extra.push(("settings.json".into(), serde_json::to_vec_pretty(&v).map_err(io::Error::other)?));

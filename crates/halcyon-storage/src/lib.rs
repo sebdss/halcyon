@@ -5,16 +5,20 @@
 
 pub mod achievements;
 pub mod activity;
+pub mod audit;
 pub mod db;
 pub mod logging;
 mod migrations;
 pub mod paths;
+pub mod perf;
 pub mod repo;
 pub mod saves_mods;
+pub mod secrets;
 pub mod settings;
 pub mod tracking;
 
 pub use db::Database;
+pub use perf::PerfSession;
 pub use paths::AppPaths;
 pub use activity::{Activity, ActivityKind};
 pub use repo::{ArtworkKind, MergeStats};

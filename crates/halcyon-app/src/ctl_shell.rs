@@ -23,6 +23,7 @@ fn page_from_name(name: &str) -> Option<Page> {
         "plugins" => Page::Plugins,
         "emulators" => Page::Emulators,
         "minecraft" => Page::Minecraft,
+        "performance" => Page::Performance,
         _ => return None,
     })
 }
@@ -140,6 +141,9 @@ impl Controller {
     /// Début d'une partie : mode Performance automatique si l'option est active.
     pub(crate) fn performance_session_started(&self) {
         self.audio.set_game_active(true);
+        if let Some(id) = self.active_session.get() {
+            self.perf_session_start(id);
+        }
         if self.settings.borrow().appearance.performance_auto && !self.perf_auto_active.get() {
             self.perf_auto_active.set(true);
             self.apply_ui_modes();
@@ -150,6 +154,7 @@ impl Controller {
     /// Fin de la partie : fonctionnement normal restauré.
     pub(crate) fn performance_session_ended(&self) {
         self.audio.set_game_active(false);
+        self.perf_session_stop();
         if self.perf_auto_active.replace(false) {
             self.apply_ui_modes();
             self.on_performance_changed();

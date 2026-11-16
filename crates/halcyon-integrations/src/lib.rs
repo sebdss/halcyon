@@ -10,6 +10,7 @@ pub mod artwork;
 pub mod config_archive;
 pub mod emulators;
 pub mod engines;
+pub mod frametimes;
 pub mod epic;
 pub mod gpu;
 pub mod launcher;
@@ -25,6 +26,7 @@ pub mod standalone;
 pub mod steam;
 pub mod steam_web;
 pub mod steamgriddb;
+pub mod sysmon;
 pub mod update;
 pub mod vdf;
 

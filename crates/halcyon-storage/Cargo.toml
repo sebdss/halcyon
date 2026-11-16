@@ -15,5 +15,9 @@ thiserror.workspace = true
 log.workspace = true
 dirs.workspace = true
 
+[target.'cfg(windows)'.dependencies]
+# Chiffrement des clés d'API par DPAPI (lié au compte Windows).
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
 [dev-dependencies]
 tempfile.workspace = true

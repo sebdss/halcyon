@@ -183,6 +183,7 @@ impl Controller {
                     }
                     c.plugin_updates.borrow_mut().remove(&id);
                     c.log_plugin(&format!("Extension « {name} » installée"));
+                    halcyon_storage::audit::event("plugin.installed", &format!("{id} permissions=[{}]", perms.join(", ")));
                     c.plugins_status(format!("« {name} » installée"));
                     c.apply_plugins();
                 }
@@ -197,6 +198,7 @@ impl Controller {
             self.settings.borrow_mut().plugins_enabled.retain(|x| *x != id);
             self.save_settings();
             self.log_plugin(&format!("Extension « {id} » désactivée"));
+            halcyon_storage::audit::event("plugin.disabled", &id);
             self.apply_plugins();
             return;
         }
@@ -217,6 +219,7 @@ impl Controller {
             drop(s);
             c.save_settings();
             c.log_plugin(&format!("Extension « {} » activée", m.name));
+            halcyon_storage::audit::event("plugin.enabled", &format!("{id} permissions=[{}]", m.permissions.join(", ")));
             c.plugins_status(format!("« {} » activée", m.name));
             c.apply_plugins();
         });
@@ -234,6 +237,7 @@ impl Controller {
             "Désinstaller",
             move |c| match std::fs::remove_dir_all(&dir) {
                 Ok(()) => {
+                    halcyon_storage::audit::event("plugin.uninstalled", &id);
                     c.settings.borrow_mut().plugins_enabled.retain(|x| *x != id);
                     c.save_settings();
                     c.log_plugin(&format!("Extension « {id} » désinstallée"));

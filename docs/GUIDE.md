@@ -195,6 +195,38 @@ Menu **Minecraft** (sous Big Picture). Détails : [`MINECRAFT.md`](MINECRAFT.md)
 5. **Paramètres** : RAM, Java, arguments JVM, résolution ; mode direct (connexion Microsoft dans
    Halcyon) si vous avez un ID d'application Azure approuvé par Mojang.
 
+## 6 ter. Performances (1.0.0)
+
+Menu **Performances** (icône jauge), sous Minecraft.
+
+- **En direct** : processeur (total, courbe des 90 dernières secondes, une barre par unité de
+  calcul), mémoire et mémoire d'échange, carte(s) graphique(s) avec mémoire vidéo, stockage.
+  Les mesures ne tournent **que pendant que la page est ouverte** (toutes les 1,5 s) et
+  s'arrêtent dès que vous la quittez.
+- **Carte graphique** : utilisation et mémoire vidéo lues par le système (Windows : compteurs
+  de performance ; Linux : pilote AMD, NVIDIA par NVML, autres par Vulkan). Si le pilote ne
+  fournit pas une valeur, Halcyon affiche « non fourni par le pilote » : rien n'est estimé.
+- **Applications les plus gourmandes** : processus regroupés par application (un navigateur
+  en lance des dizaines), avec la consommation de Halcyon lui-même.
+- **Recommandations** : constats tirés des mesures (mémoire presque pleine, mémoire
+  d'échange utilisée, application qui occupe le processeur hors partie, carte graphique
+  occupée sans jeu, disque presque plein). La seule action proposée est réversible :
+  activer le mode Performance de Halcyon. Halcyon ne ferme jamais un programme et ne change
+  aucun réglage de Windows ou de Linux.
+- **Historique des parties** : pendant chaque partie lancée depuis Halcyon, un relevé toutes
+  les 10 s (processeur, mémoire, carte graphique) ; seul le résumé est gardé (50 parties par
+  jeu). Interrupteur « Mesurer pendant les parties » pour le désactiver.
+- **Images par seconde et temps d'image** : Halcyon n'injecte rien dans les jeux. Il lit les
+  journaux des outils dédiés :
+  - **Linux — MangoHud** : dans `~/.config/MangoHud/MangoHud.conf`, ajoutez
+    `output_folder=/home/vous/mangohud-logs` ; en jeu, Maj+F2 démarre et arrête
+    l'enregistrement (ou `autostart_log=1`). Lancez le jeu avec MangoHud (profil de
+    lancement, option « MangoHud » ou `mangohud %command%` dans Steam).
+  - **Windows — PresentMon** (Intel, gratuit) : enregistrez une capture en CSV.
+  - Bouton **Ouvrir un journal…** puis **Dernier journal** (le plus récent du même dossier).
+    Résultat : moyenne, « 1 % low » et « 0,1 % low » (1000 / 99ᵉ et 99,9ᵉ centiles du temps
+    d'image), pire image, nombre de saccades et courbe des temps d'image.
+
 ## 7. Recherche avancée et collections intelligentes
 
 La recherche tolère les fautes de frappe : « nigth owl » trouve *Night Owl*. Les résultats
@@ -474,6 +506,17 @@ Le paquet n'est conservé que si son **empreinte SHA-256** correspond au fichier
 lance le programme d'installation vérifié. Pour un `.deb`, le dossier du paquet s'ouvre pour
 une installation par votre gestionnaire (`sudo apt install ./halcyon_….deb`). Vos données
 sont conservées.
+
+Depuis la 1.0, les versions officielles sont aussi **signées** : `SHA256SUMS` doit porter la
+signature Ed25519 de l'auteur (`SHA256SUMS.sig`), sinon rien n'est installé. Le niveau de
+vérification de votre exemplaire est affiché sous les boutons. Détails :
+[`SECURITE.md`](SECURITE.md).
+
+**Clés d'API** (Steam, RetroAchievements, Nexus Mods, SteamGridDB, CurseForge) : depuis la
+1.0, elles sont rangées dans un coffre (`<données>/secrets`, chiffré par Windows ; réservé à
+votre compte sous Linux) et non plus en clair dans `settings.json`. Le déplacement est
+automatique au premier lancement. Les événements sensibles sont inscrits dans
+`logs/security.log` (jamais la valeur d'une clé).
 
 **Vérification d'intégrité** (**Paramètres › Stockage et diagnostic**) : elle contrôle la base
 de données, les paramètres, l'accès au dossier des données, les dossiers des jeux installés,

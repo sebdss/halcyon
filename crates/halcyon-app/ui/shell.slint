@@ -189,6 +189,13 @@ export component Sidebar inherits Rectangle {
                     trailing: McUi.playing ? "En jeu" : "";
                     clicked => { Nav.go(Page.minecraft); }
                 }
+                NavItem {
+                    collapsed: root.collapsed;
+                    text: "Performances";
+                    icon: Icons.gauge;
+                    active: Nav.page == Page.performance;
+                    clicked => { Nav.go(Page.performance); }
+                }
                 if AppUi.nav.achievements || AppUi.nav.stats || AppUi.nav.journal: NavGroup { collapsed: root.collapsed; text: "SUIVI"; }
                 if AppUi.nav.achievements: NavItem {
                     collapsed: root.collapsed;

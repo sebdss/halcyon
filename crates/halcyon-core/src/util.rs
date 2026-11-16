@@ -232,10 +232,32 @@ pub fn strip_html(s: &str) -> String {
 
 /// Compare deux versions « 1.2.3 » (préfixe « v » toléré).
 pub fn version_newer(candidate: &str, current: &str) -> bool {
-    let parse = |v: &str| -> Vec<u64> {
-        v.trim().trim_start_matches(['v', 'V']).split(['.', '-']).map_while(|p| p.parse().ok()).collect()
+    // « 1.0.0-alpha.1 » < « 1.0.0 » (semver) : à numéros égaux, une pré-version est plus
+    // ancienne que la version finale ; deux pré-versions se comparent par leur suffixe.
+    let parse = |v: &str| -> (Vec<u64>, Option<String>) {
+        let v = v.trim().trim_start_matches(['v', 'V']);
+        let (core, pre) = match v.split_once('-') {
+            Some((c, p)) => (c, Some(p.to_lowercase())),
+            None => (v, None),
+        };
+        (core.split('.').map_while(|p| p.parse().ok()).collect(), pre)
     };
-    parse(candidate) > parse(current)
+    let (a, pa) = parse(candidate);
+    let (b, pb) = parse(current);
+    if a != b {
+        return a > b;
+    }
+    match (pa, pb) {
+        (None, Some(_)) => true,
+        (Some(x), Some(y)) => pre_key(&x) > pre_key(&y),
+        _ => false,
+    }
+}
+
+/// « alpha.10 » > « alpha.9 » : parties numériques comparées comme des nombres, et
+/// inférieures aux parties textuelles (semver).
+fn pre_key(p: &str) -> Vec<(u8, u64, String)> {
+    p.split('.').map(|part| part.parse::<u64>().map(|n| (0, n, String::new())).unwrap_or((1, 0, part.to_string()))).collect()
 }
 
 #[cfg(test)]
@@ -286,6 +308,12 @@ mod tests {
         assert!(version_newer("v0.2.0", "0.1.9"));
         assert!(!version_newer("0.1.0", "0.1.0"));
         assert!(version_newer("1.10.0", "1.9.3"));
+        assert!(version_newer("1.0.0", "1.0.0-alpha.1"), "version finale après la pré-version");
+        assert!(!version_newer("1.0.0-alpha.1", "1.0.0"));
+        assert!(version_newer("1.0.0-alpha.10", "1.0.0-alpha.9"));
+        assert!(version_newer("1.0.0-beta.1", "1.0.0-alpha.3"));
+        assert!(version_newer("1.0.0-alpha.1", "0.5.0"));
+        assert!(!version_newer("1.0.0-alpha.1", "1.0.0-alpha.1"));
     }
 
     #[test]

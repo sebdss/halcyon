@@ -745,7 +745,7 @@ export component SettingsPage inherits Rectangle {
                             if SystemUi.update-ready: PrimaryButton { text: SystemUi.update-is-setup ? "Installer" : "Ouvrir le paquet vérifié"; icon: Icons.check; has-icon: true; clicked => { SystemUi.install-update(); } }
                         }
                         if SystemUi.update-progress != "": Text { text: SystemUi.update-progress; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
-                        Text { text: "Le paquet n'est installé que si son empreinte SHA-256 correspond au fichier SHA256SUMS publié avec la version."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        Text { text: "Le paquet n'est installé que si son empreinte SHA-256 correspond au fichier SHA256SUMS publié avec la version, et, pour les versions officielles, si ce fichier porte la signature Ed25519 de l'auteur. Cette compilation vérifie : " + SystemUi.update-verification + "."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                     }
                 }
             }
@@ -786,7 +786,7 @@ export component SettingsPage inherits Rectangle {
                         if SystemUi.integrity-status != "": Text { text: SystemUi.integrity-status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                         SettingRow {
                             title: "Journaux";
-                            description: SettingsUi.log-dir;
+                            description: SettingsUi.log-dir + " — dont security.log : clés d'API définies ou retirées (jamais leur valeur), extensions et autorisations, mises à jour vérifiées ou refusées, compte Microsoft.";
                             SecondaryButton {
                                 y: (parent.height - self.height) / 2;
                                 text: "Ouvrir";

@@ -1,5 +1,38 @@
 # Journal des modifications
 
+## 1.0.0-alpha.1 — « Performance First » (première étape de la 1.0)
+
+Évolution de la 0.5.0 : aucune fonction retirée, données de la 0.5.0 reprises (schéma v6 :
+une table ajoutée). Détails : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · audit :
+[`docs/AUDIT-1.0.md`](docs/AUDIT-1.0.md) · sécurité : [`docs/SECURITE.md`](docs/SECURITE.md).
+
+### Performance Center (nouveau)
+- Page **Performances** : processeur (total, par unité de calcul, courbe), mémoire et
+  mémoire d'échange, cartes graphiques (utilisation, mémoire vidéo), stockage, mesurés par
+  `sysinfo` (fonctionnalité `gpu` activée) uniquement pendant l'affichage de la page.
+- Applications les plus gourmandes (processus regroupés), coût de Halcyon affiché.
+- Recommandations à partir des mesures (mémoire, mémoire d'échange, processeur hors partie,
+  carte graphique occupée, disque presque plein) ; action réversible : mode Performance.
+- Historique des performances par partie (schéma v6, table `perf_sessions`, 50 parties par
+  jeu, désactivable) : un relevé toutes les 10 s pendant le jeu.
+- FPS, 1 % low, 0,1 % low, 99ᵉ centile, saccades et courbe des temps d'image depuis les
+  journaux CSV de MangoHud et PresentMon (`halcyon-integrations::frametimes`).
+- Outil de mesure du coût : `cargo run --release -p halcyon-integrations --example sysmon_bench`.
+
+### Sécurité
+- Coffre des secrets (`halcyon-storage::secrets`) : clés d'API hors de `settings.json`,
+  DPAPI sous Windows, `0600`/`0700` sous Linux, migration automatique, export inchangé
+  (clés incluses seulement sur demande).
+- `settings.json` écrit en `0600` sous Unix (et synchronisé sur disque avant renommage).
+- Signature Ed25519 de `SHA256SUMS` (`SHA256SUMS.sig`) vérifiée avant toute mise à jour
+  quand la clé publique est embarquée (`HALCYON_UPDATE_PUBKEY`) ; outil `release_sign`
+  (génération des clés, signature, vérification) ; étape de signature dans la CI.
+- Journal `logs/security.log` (`halcyon-storage::audit`).
+
+### Corrections
+- Comparaison de versions conforme à semver pour les pré-versions (`1.0.0-alpha.1` < `1.0.0`).
+- Minecraft et Performances ajoutés au lancement rapide.
+
 ## 0.5.0 — « Minecraft Integration »
 
 Évolution de la 0.4.1 : aucune fonction retirée, données de la 0.4.1 reprises telles quelles.

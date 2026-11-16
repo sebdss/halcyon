@@ -2,6 +2,14 @@
 //! version publiée sur GitHub à la version en cours, puis télécharge le paquet adapté
 //! au système et vérifie son empreinte SHA-256 avec le fichier `SHA256SUMS` publié
 //! avec la version. Sans empreinte vérifiable, rien n'est installé.
+//!
+//! **Authenticité (1.0.0)** : l'empreinte prouve que le fichier n'a pas été abîmé, pas
+//! qu'il vient bien de l'auteur (un compte GitHub compromis peut publier paquet *et*
+//! empreintes). Les versions officielles embarquent donc une clé publique Ed25519
+//! (`HALCYON_UPDATE_PUBKEY`, fixée à la compilation par la CI) ; `SHA256SUMS` doit alors être
+//! accompagné de `SHA256SUMS.sig`, signé par la clé privée de l'auteur (secret de la CI,
+//! jamais dans le dépôt). Signature absente ou invalide : rien n'est installé. Une
+//! compilation locale sans clé reste limitée à la vérification d'intégrité, et l'indique.
 
 use crate::artwork::{Downloader, FetchError};
 use halcyon_core::util::version_newer;
@@ -59,6 +67,28 @@ pub fn parse_sums(text: &str) -> std::collections::HashMap<String, String> {
         .collect()
 }
 
+/// Clé publique de signature des versions (base64, 32 octets), fixée à la compilation.
+pub const UPDATE_PUBKEY: Option<&str> = option_env!("HALCYON_UPDATE_PUBKEY");
+
+/// Niveau de vérification appliqué par cette compilation.
+pub fn verification_level() -> &'static str {
+    match UPDATE_PUBKEY {
+        Some(k) if !k.trim().is_empty() => "intégrité (SHA-256) et authenticité (signature Ed25519)",
+        _ => "intégrité seule (SHA-256) : compilation sans clé de signature",
+    }
+}
+
+/// Vérifie la signature Ed25519 (base64) de `message` avec la clé publique `pubkey_b64`.
+pub fn verify_signature(pubkey_b64: &str, message: &[u8], signature_b64: &str) -> Result<(), String> {
+    use base64::Engine;
+    let b64 = base64::engine::general_purpose::STANDARD;
+    let pk = b64.decode(pubkey_b64.trim()).map_err(|_| "clé publique de signature illisible".to_string())?;
+    let sig = b64.decode(signature_b64.trim()).map_err(|_| "signature illisible".to_string())?;
+    let pk = ed25519_compact::PublicKey::from_slice(&pk).map_err(|_| "clé publique de signature invalide".to_string())?;
+    let sig = ed25519_compact::Signature::from_slice(&sig).map_err(|_| "signature invalide".to_string())?;
+    pk.verify(message, &sig).map_err(|_| "signature incorrecte : cette version n'a pas été publiée par l'auteur de Halcyon".to_string())
+}
+
 /// Télécharge `asset` dans `dir` et vérifie son empreinte. Le fichier est supprimé si elle ne correspond pas.
 pub fn download_verified(release: &Release, asset: &Asset, dir: &std::path::Path) -> Result<std::path::PathBuf, String> {
     let sums = release
@@ -86,6 +116,32 @@ pub fn download_verified(release: &Release, asset: &Asset, dir: &std::path::Path
         .limit(1024 * 1024)
         .read_to_string()
         .map_err(|e| format!("SHA256SUMS : {e}"))?;
+    match UPDATE_PUBKEY.map(str::trim).filter(|k| !k.is_empty()) {
+        Some(key) => {
+            let sig_asset = release
+                .assets
+                .iter()
+                .find(|a| matches!(a.name.as_str(), "SHA256SUMS.sig" | "SHA256SUMS.txt.sig"))
+                .ok_or("cette version n'est pas signée (SHA256SUMS.sig absent) : téléchargement refusé")?;
+            if !sig_asset.url.starts_with("https://") {
+                return Err("adresse de téléchargement non sécurisée".into());
+            }
+            let sig = agent
+                .get(&sig_asset.url)
+                .call()
+                .map_err(|e| format!("SHA256SUMS.sig : {e}"))?
+                .body_mut()
+                .with_config()
+                .limit(4096)
+                .read_to_string()
+                .map_err(|e| format!("SHA256SUMS.sig : {e}"))?;
+            if let Err(e) = verify_signature(key, text.as_bytes(), &sig) {
+                halcyon_storage::audit::event("update.rejected", &format!("{} : {e}", release.version));
+                return Err(e);
+            }
+        }
+        None => log::warn!("mise à jour : compilation sans clé de signature, vérification d'intégrité seule"),
+    }
     let expected = parse_sums(&text).remove(&asset.name).ok_or_else(|| format!("{} absent de SHA256SUMS", asset.name))?;
     std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     let safe = asset.name.replace(['/', '\\'], "_");
@@ -105,6 +161,7 @@ pub fn download_verified(release: &Release, asset: &Asset, dir: &std::path::Path
         return Err(format!("empreinte incorrecte pour {} : fichier supprimé", asset.name));
     }
     std::fs::rename(&part, &dest).map_err(|e| e.to_string())?;
+    halcyon_storage::audit::event("update.verified", &format!("{} {} ({})", release.version, asset.name, verification_level()));
     Ok(dest)
 }
 
@@ -152,6 +209,21 @@ mod tests {
         assert!(version_newer(&r.version, "0.2.1"));
         assert!(check(&Downloader::new(), "pas un dépôt", "0.1.0").is_err());
         assert!(r.assets.is_empty());
+    }
+
+    #[test]
+    fn ed25519_signature_is_checked() {
+        use base64::Engine;
+        let b64 = base64::engine::general_purpose::STANDARD;
+        let kp = ed25519_compact::KeyPair::generate();
+        let msg = b"0123  halcyon-1.0.0-setup.exe\n";
+        let sig = b64.encode(kp.sk.sign(msg, None).as_ref());
+        let pk = b64.encode(kp.pk.as_ref());
+        assert!(verify_signature(&pk, msg, &sig).is_ok());
+        assert!(verify_signature(&pk, b"0124  halcyon-1.0.0-setup.exe\n", &sig).is_err(), "SHA256SUMS modifié");
+        let other = b64.encode(ed25519_compact::KeyPair::generate().pk.as_ref());
+        assert!(verify_signature(&other, msg, &sig).is_err(), "autre clé");
+        assert!(verify_signature(&pk, msg, "pas du base64 !").is_err());
     }
 
     #[test]

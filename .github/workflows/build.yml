@@ -10,6 +10,11 @@ on:
 permissions:
   contents: write
 
+env:
+  # Clé publique Ed25519 des versions (variable de dépôt, non secrète). Embarquée dans
+  # l'application : une mise à jour sans SHA256SUMS.sig valide est alors refusée.
+  HALCYON_UPDATE_PUBKEY: ${{ vars.HALCYON_UPDATE_PUBKEY }}
+
 jobs:
   windows:
     name: Windows — tests, exécutable, installateur
@@ -120,6 +125,25 @@ jobs:
           merge-multiple: true
       - name: Empreintes SHA-256 (vérifiées par la mise à jour intégrée)
         run: cd artifacts && sha256sum * > SHA256SUMS && cat SHA256SUMS
+      - uses: actions/checkout@v4
+        with:
+          path: src
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Signature Ed25519 de SHA256SUMS
+        env:
+          HALCYON_SIGNING_KEY: ${{ secrets.HALCYON_SIGNING_KEY }}
+        run: |
+          if [ -z "$HALCYON_UPDATE_PUBKEY" ]; then
+            echo "::warning::HALCYON_UPDATE_PUBKEY non définie : version publiée sans signature (intégrité seule)"
+            exit 0
+          fi
+          if [ -z "$HALCYON_SIGNING_KEY" ]; then
+            echo "::error::clé publique embarquée mais secret HALCYON_SIGNING_KEY absent : les clients refuseraient cette version"
+            exit 1
+          fi
+          cd src
+          cargo run -q -p halcyon-integrations --example release_sign -- sign - ../artifacts/SHA256SUMS
+          cargo run -q -p halcyon-integrations --example release_sign -- verify "$HALCYON_UPDATE_PUBKEY" ../artifacts/SHA256SUMS
       - uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*

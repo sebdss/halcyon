@@ -15,6 +15,7 @@ mod ctl_palette;
 mod ctl_minecraft;
 mod ctl_mods;
 mod ctl_pads;
+mod ctl_perf;
 mod ctl_plugins;
 mod ctl_profiles;
 mod ctl_remote;
@@ -56,6 +57,7 @@ fn main() {
     }
     let level = if std::env::var_os("HALCYON_DEBUG").is_some() { log::LevelFilter::Debug } else { log::LevelFilter::Info };
     logging::init(&paths.logs_dir, level);
+    halcyon_storage::audit::init(&paths.logs_dir);
     log::info!("Halcyon {} — données : {}", env!("CARGO_PKG_VERSION"), paths.data_dir.display());
 
     let settings = Settings::load(&paths.settings_path());

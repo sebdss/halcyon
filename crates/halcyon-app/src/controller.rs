@@ -111,6 +111,7 @@ pub struct Controller {
     pub(crate) pad_edit: RefCell<Option<halcyon_storage::settings::PadProfile>>,
     pub(crate) remote_state: RefCell<crate::ctl_remote::RemoteState>,
     pub(crate) mc: RefCell<crate::ctl_minecraft::McState>,
+    pub(crate) perfc: RefCell<crate::ctl_perf::PerfState>,
     pub(crate) tray: RefCell<Option<crate::tray::Tray>>,
     pub(crate) hotkey: RefCell<Option<(global_hotkey::GlobalHotKeyManager, global_hotkey::hotkey::HotKey)>>,
     pub(crate) system_timer: RefCell<Option<slint::Timer>>,
@@ -204,6 +205,7 @@ impl Controller {
             history: RefCell::new(crate::nav::History::new(Page::Home, 60)),
             tasks: RefCell::new(crate::tasks::TaskCenter::default()),
             perf_auto_active: Cell::new(false),
+            perfc: RefCell::new(Default::default()),
             audio,
             shell_timer: RefCell::new(None),
             paths,
@@ -540,6 +542,12 @@ impl Controller {
         rui.on_open_sunshine(with!(|c| c.open_sunshine()));
         rui.on_set_moonlight_path(with!(|c, p| c.set_moonlight_path(&p)));
 
+        let perf = app.global::<crate::PerfUi>();
+        perf.on_reco_action(with!(|c, a| c.perf_reco_action(&a)));
+        perf.on_set_history(with!(|c, on| c.set_perf_history(on)));
+        perf.on_open_frame_log(with!(|c| c.perf_open_frame_log(false)));
+        perf.on_open_latest_log(with!(|c| c.perf_open_frame_log(true)));
+
         let aui = app.global::<crate::AssistUi>();
         aui.on_refresh(with!(|c| c.refresh_assistant()));
         aui.on_surprise(with!(|c| c.surprise()));
@@ -851,7 +859,12 @@ impl Controller {
     }
 
     fn on_page_shown(&self, page: Page) {
+        // Mesures en direct : uniquement tant que le Performance Center est affiché.
+        if page != Page::Performance {
+            self.perf_close();
+        }
         match page {
+            Page::Performance => self.perf_open(),
             Page::Achievements => self.refresh_ach_page(),
             Page::Emulators => self.refresh_emulators_ui(),
             Page::Settings => {

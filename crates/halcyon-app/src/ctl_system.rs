@@ -32,7 +32,7 @@ const NAV_PAGES: [Page; 9] =
     [Page::Home, Page::Library, Page::Assistant, Page::Achievements, Page::Stats, Page::Journal, Page::Updates, Page::Saves, Page::Settings];
 
 /// Pages proposées par le lancement rapide (libellé, mots-clés, page).
-const QUICK_PAGES: [(&str, &str, Page); 16] = [
+const QUICK_PAGES: [(&str, &str, Page); 18] = [
     ("Accueil", "home debut", Page::Home),
     ("Bibliothèque", "jeux library", Page::Library),
     ("Que jouer ?", "assistant suggestions recommandations", Page::Assistant),
@@ -44,6 +44,8 @@ const QUICK_PAGES: [(&str, &str, Page); 16] = [
     ("Émulateurs", "emulation roms retro", Page::Emulators),
     ("Manettes", "controller gamepad pad", Page::Controllers),
     ("Jeu à distance", "streaming sunshine moonlight remote", Page::Remote),
+    ("Performances", "performance center fps cpu gpu ram processeur memoire carte graphique monitoring", Page::Performance),
+    ("Minecraft", "java mods modpacks fabric forge neoforge", Page::Minecraft),
     ("Extensions", "plugins", Page::Plugins),
     ("Apparence", "theme couleurs fond", Page::Appearance),
     ("Paramètres", "settings options reglages raccourcis", Page::Settings),
@@ -218,6 +220,7 @@ impl Controller {
         ui.set_global_enabled(s.global_hotkey_enabled);
         ui.set_global_hotkey(s.global_hotkey.clone().into());
         ui.set_companion(s.companion_window);
+        ui.set_update_verification(halcyon_integrations::update::verification_level().into());
         let rows: Vec<ShortcutRow> = SHORTCUTS
             .iter()
             .map(|(a, l, d)| ShortcutRow { action: (*a).into(), label: (*l).into(), combo: self.shortcut_combo(a).into(), default_combo: (*d).into() })
