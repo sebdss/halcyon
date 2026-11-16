@@ -9,7 +9,7 @@
 //   animés vivent dans un enfant ;
 // - aucune valeur visuelle en dur : tout vient de `Theme`.
 
-import { Theme, Icons } from "theme.slint";
+import { Theme, Icons, Layout } from "theme.slint";
 import { Sound } from "sound.slint";
 import { GameCard, BarItem, MenuEntry } from "types.slint";
 
@@ -1136,8 +1136,9 @@ export component PageHeader inherits HorizontalLayout {
     VerticalLayout {
         spacing: 4px;
         horizontal-stretch: 1;
-        Text { text: root.title; color: Theme.text; font-size: Theme.t-title; font-weight: 800; letter-spacing: -0.9px; overflow: elide; }
-        if root.subtitle != "": Text { text: root.subtitle; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+        alignment: center;
+        if !Layout.tabbed: Text { text: root.title; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title; font-weight: 700; letter-spacing: -0.6px; overflow: elide; }
+        if root.subtitle != "": Text { text: root.subtitle; color: Theme.text-muted; font-size: Layout.tabbed ? Theme.t-body : Theme.t-small; wrap: word-wrap; }
     }
     @children
 }

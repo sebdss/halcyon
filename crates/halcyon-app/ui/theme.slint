@@ -185,3 +185,9 @@ export global Icons {
     out property <image> user: @image-url("icons/user.svg");
     out property <image> power: @image-url("icons/power.svg");
 }
+
+/// Mise en page de la coque : vrai quand la page courante appartient à un espace à onglets
+/// (Activité, Outils, Système) dont la barre porte déjà le titre.
+export global Layout {
+    in-out property <bool> tabbed;
+}

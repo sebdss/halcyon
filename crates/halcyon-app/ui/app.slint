@@ -8,7 +8,7 @@ import "fonts/Sora-SemiBold.ttf";
 import "fonts/Sora-Bold.ttf";
 import "fonts/Sora-ExtraBold.ttf";
 
-import { Theme, Icons } from "theme.slint";
+import { Theme, Icons, Layout } from "theme.slint";
 import { Sound } from "sound.slint";
 import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
@@ -42,7 +42,7 @@ import { RemotePage } from "pages/remote.slint";
 import { PerformancePage } from "pages/performance.slint";
 import { DownloadsPage } from "pages/downloads.slint";
 import { AssistantPage } from "pages/assistant.slint";
-import { Sidebar, TopBar, CommandCenter } from "shell.slint";
+import { Sidebar, SpaceBar, Spaces, TopBar, CommandCenter } from "shell.slint";
 import { ScrollView } from "std-widgets.slint";
 
 export {
@@ -453,8 +453,14 @@ export component AppWindow inherits Window {
     /// Pages à grande illustration : la barre supérieure se pose dessus.
     property <bool> overlay-top: Nav.page == Page.home || Nav.page == Page.game || (Nav.page == Page.library && LibraryUi.view-mode == 3);
     /// Barre latérale repliée : choix de l'utilisateur, mode minimaliste ou fenêtre étroite.
-    property <bool> sidebar-collapsed: AppUi.sidebar-collapsed || AppUi.ui-mode == 1 || root.width < 1100px;
-    property <length> sidebar-width: AppUi.ui-mode == 2 ? 0px : root.sidebar-collapsed ? 72px : 236px;
+    // Rail : libellés sous les icônes, sauf réglage « icônes seules », mode minimaliste ou
+    // fenêtre basse ; masqué en mode cinéma.
+    property <bool> sidebar-collapsed: AppUi.sidebar-collapsed || AppUi.ui-mode == 1 || root.height < 620px;
+    property <length> sidebar-width: AppUi.ui-mode == 2 ? 0px : root.sidebar-collapsed ? 68px : 88px;
+    // Espaces à onglets (Activité, Outils, Système) : barre d'espace sous la barre supérieure.
+    property <bool> tabbed: Spaces.current >= 3;
+    changed tabbed => { Layout.tabbed = self.tabbed; }
+    init => { Layout.tabbed = self.tabbed; }
     /// Apparition de la page : masquée une image, puis fondu et glissement courts.
     property <bool> revealing: false;
     reveal := Timer {
@@ -613,7 +619,7 @@ export component AppWindow inherits Window {
                 // Pages : sous la barre supérieure, sauf les pages à grande illustration (accueil,
                 // fiche) qui passent dessous. Apparition progressive à chaque changement de page.
                 pages := Rectangle {
-                    y: root.overlay-top ? 0px : 60px;
+                    y: root.overlay-top ? 0px : root.tabbed ? 136px : 60px;
                     height: parent.height - self.y;
                     states [
                         // Masquage instantané, apparition animée (états Slint : seule la sortie anime).
@@ -649,6 +655,10 @@ export component AppWindow inherits Window {
                     if Nav.page == Page.downloads: DownloadsPage { }
                     if Nav.page == Page.assistant: AssistantPage { }
                     }
+                }
+                if root.tabbed: SpaceBar {
+                    width: parent.width;
+                    y: 60px;
                 }
                 TopBar {
                     width: parent.width;

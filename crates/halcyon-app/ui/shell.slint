@@ -8,84 +8,69 @@ import { Icon, IconButton, Overline, ProgressBar, Spinner, SecondaryButton, Badg
 import { DownloadsUi } from "downloads_state.slint";
 
 /// Entrée de navigation. Repliée : icône seule, libellé en infobulle.
-component NavItem inherits Rectangle {
+/// Entrée du rail : icône, libellé court dessous, ligne d'horizon pour l'espace actif.
+component RailItem inherits Rectangle {
     in property <string> text;
     in property <image> icon;
     in property <bool> active;
-    in property <string> trailing;
-    in property <bool> muted-trailing: true;
-    in property <bool> collapsed;
+    in property <bool> labels: true;
+    /// Pastille (compteur, état) affichée sur l'icône.
+    in property <string> badge;
+    in property <bool> warm-badge;
     callback clicked;
 
-    height: Theme.nav-height;
+    height: root.labels ? 64px : 52px;
     accessible-role: button;
     accessible-label: text;
     accessible-action-default => { root.clicked(); }
     forward-focus: fs;
 
-    bg := Rectangle {
-        border-radius: root.height / 2;
-        background: root.active ? Theme.accent.with-alpha(0.13) : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
+    pill := Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: root.labels ? 4px : (parent.height - self.height) / 2;
+        width: 52px;
+        height: 36px;
+        border-radius: 18px;
+        background: root.active ? Theme.accent.with-alpha(0.16) : ta.has-hover || fs.has-focus ? Theme.surface-hover : transparent;
         border-width: fs.has-focus ? Theme.focus-width : 0px;
         border-color: Theme.focus;
         animate background { duration: Theme.fast; }
+        Icon {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            source: root.icon;
+            size: 22px;
+            tint: root.active ? Theme.accent : ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
+        }
     }
-    // Signature 1.0 : la ligne d'horizon marque la page active.
-    pill := Rectangle {
+    // Signature : la ligne d'horizon marque l'espace actif, au bord du rail.
+    Rectangle {
         x: 0;
-        y: (parent.height - self.height) / 2;
+        y: pill.y + 6px;
         width: 3px;
-        height: root.active ? root.height - 14px : 0px;
+        height: root.active ? pill.height - 12px : 0px;
         border-radius: 2px;
         background: Theme.horizon-v;
         animate height { duration: Theme.normal; easing: ease-out; }
     }
-    HorizontalLayout {
-        padding-left: root.collapsed ? 16px : 14px;
-        padding-right: 12px;
-        spacing: 12px;
-        Icon {
-            source: root.icon;
-            size: 20px;
-            tint: root.active ? Theme.accent : ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
-            y: (parent.height - self.height) / 2;
-        }
-        if !root.collapsed: Text {
-            text: root.text;
-            color: root.active || ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
-            font-size: Theme.t-body;
-            font-weight: root.active ? 650 : 550;
-            vertical-alignment: center;
-            horizontal-stretch: 1;
-            overflow: elide;
-        }
-        if !root.collapsed && root.trailing != "": Text {
-            text: root.trailing;
-            color: root.muted-trailing ? Theme.text-dim : Theme.warm;
-            font-size: root.muted-trailing ? Theme.t-caption : 10px;
-            font-weight: 600;
-            vertical-alignment: center;
-        }
+    if root.badge != "": Rectangle {
+        x: pill.x + pill.width - self.width + 4px;
+        y: pill.y - 3px;
+        width: max(18px, bt.preferred-width + 10px);
+        height: 18px;
+        border-radius: 9px;
+        background: root.warm-badge ? Theme.warm : Theme.accent;
+        bt := Text { text: root.badge; color: Theme.on-accent; font-size: 10px; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
     }
-    // Repliée : pastille d'alerte et infobulle.
-    if root.collapsed && root.trailing != "" && !root.muted-trailing: Rectangle {
-        x: root.width - 18px;
-        y: 6px;
-        width: 8px;
-        height: 8px;
-        border-radius: 4px;
-        background: Theme.warm;
-    }
-    if root.collapsed && (ta.has-hover || fs.has-focus): Rectangle {
-        x: root.width + 10px;
-        y: (root.height - self.height) / 2;
-        width: tip.preferred-width + 20px;
-        height: 30px;
-        border-radius: Theme.radius-sm;
-        background: Theme.surface-active;
-        border-width: 1px;
-        border-color: Theme.border-strong;
-        tip := Text { text: root.text + (root.trailing != "" ? "  ·  " + root.trailing : ""); color: Theme.text; font-size: Theme.t-small; }
+    if root.labels: Text {
+        y: pill.y + pill.height + 4px;
+        width: parent.width;
+        text: root.text;
+        color: root.active ? Theme.text : Theme.text-muted;
+        font-size: 11px;
+        font-weight: root.active ? 650 : 500;
+        horizontal-alignment: center;
+        overflow: elide;
     }
     ta := TouchArea {
         mouse-cursor: pointer;
@@ -103,17 +88,48 @@ component NavItem inherits Rectangle {
     }
 }
 
-component NavGroup inherits Rectangle {
-    in property <string> text;
-    in property <bool> collapsed;
-    height: root.collapsed ? 14px : 30px;
-    if root.collapsed: Rectangle { x: 18px; y: 7px; width: root.width - 36px; height: 1px; background: Theme.border; }
-    if !root.collapsed: Text { x: 14px; y: 12px; text: root.text; color: Theme.text-dim; font-size: Theme.t-caption; font-weight: 600; }
+/// Espaces de navigation du bureau (1.0) : 0 Accueil, 1 Bibliothèque, 2 Minecraft,
+/// 3 Activité, 4 Outils, 5 Système.
+export global Spaces {
+    /// Espace de la page affichée.
+    out property <int> current: Spaces.of(Nav.page);
+    // Dernière page visitée dans chaque espace à onglets (retour au même onglet).
+    in-out property <Page> last-activity: Page.achievements;
+    in-out property <Page> last-tools: Page.downloads;
+    in-out property <Page> last-system: Page.performance;
+
+    public pure function of(p: Page) -> int {
+        if (p == Page.home) { return 0; }
+        if (p == Page.library || p == Page.game) { return 1; }
+        if (p == Page.minecraft) { return 2; }
+        if (p == Page.assistant || p == Page.achievements || p == Page.stats || p == Page.journal) { return 3; }
+        if (p == Page.performance || p == Page.appearance || p == Page.settings) { return 5; }
+        return 4;
+    }
+
+    public function open(space: int) {
+        if (space == 0) { Nav.go(Page.home); }
+        if (space == 1) { Nav.go(Page.library); }
+        if (space == 2) { Nav.go(Page.minecraft); }
+        if (space == 3) { Nav.go(Spaces.last-activity); }
+        if (space == 4) { Nav.go(Spaces.last-tools); }
+        if (space == 5) { Nav.go(Spaces.last-system); }
+    }
 }
 
+/// Rail de navigation : six espaces, puis le mode console et l'analyse des sources.
 export component Sidebar inherits Rectangle {
+    /// Vrai : icônes seules (réglage « Libellés du menu » désactivé).
     in property <bool> collapsed;
+    property <bool> labels: !root.collapsed;
     background: Theme.sidebar;
+    // Mémorise l'onglet ouvert dans chaque espace à onglets.
+    property <Page> page: Nav.page;
+    changed page => {
+        if (Spaces.of(self.page) == 3) { Spaces.last-activity = self.page; }
+        if (Spaces.of(self.page) == 4) { Spaces.last-tools = self.page; }
+        if (Spaces.of(self.page) == 5) { Spaces.last-system = self.page; }
+    }
 
     Rectangle {
         x: parent.width - 1px;
@@ -122,197 +138,114 @@ export component Sidebar inherits Rectangle {
     }
 
     VerticalLayout {
-        padding: root.collapsed ? 10px : 14px;
-        padding-top: 18px;
-        spacing: 2px;
+        padding-top: 16px;
+        padding-bottom: 14px;
+        spacing: 6px;
 
         HorizontalLayout {
-            padding-left: root.collapsed ? 0px : 8px;
-            padding-bottom: 16px;
-            spacing: 10px;
-            alignment: root.collapsed ? center : start;
-            Image {
-                source: Icons.logo;
-                width: 32px;
-                height: 32px;
-            }
-            if !root.collapsed: VerticalLayout {
-                alignment: center;
-                horizontal-stretch: 1;
-                spacing: 3px;
-                Text {
-                    text: "Halcyon";
-                    color: Theme.text;
-                    font-size: Theme.t-heading + 1px;
-                    font-weight: 800;
-                    letter-spacing: -0.6px;
-                }
-                // Ligne d'horizon : signature de la 1.0.
-                Rectangle { width: 46px; height: 2px; border-radius: 1px; background: Theme.horizon; }
-            }
+            alignment: center;
+            padding-bottom: 14px;
+            Image { source: Icons.logo; width: 34px; height: 34px; }
         }
+        RailItem { labels: root.labels; text: "Accueil"; icon: Icons.home; active: Spaces.current == 0; clicked => { Spaces.open(0); } }
+        RailItem { labels: root.labels; text: "Bibliothèque"; icon: Icons.library; active: Spaces.current == 1; clicked => { Spaces.open(1); } }
+        RailItem { labels: root.labels; text: "Minecraft"; icon: Icons.cube; active: Spaces.current == 2; badge: McUi.playing ? "●" : ""; warm-badge: true; clicked => { Spaces.open(2); } }
+        RailItem { labels: root.labels; text: "Activité"; icon: Icons.chart; active: Spaces.current == 3; clicked => { Spaces.open(3); } }
+        RailItem {
+            labels: root.labels;
+            text: "Outils";
+            icon: Icons.layers;
+            active: Spaces.current == 4;
+            badge: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : "";
+            warm-badge: DownloadsUi.active.length == 0;
+            clicked => { Spaces.open(4); }
+        }
+        RailItem { labels: root.labels; text: "Système"; icon: Icons.sliders; active: Spaces.current == 5; badge: AppUi.update-version != "" ? "1" : ""; warm-badge: true; clicked => { Spaces.open(5); } }
+        Rectangle { vertical-stretch: 1; }
+        if AppUi.nav.big-picture: RailItem { labels: root.labels; text: "Console"; icon: Icons.tv; clicked => { Actions.enter-big-picture(); } }
+        RailItem { labels: root.labels; text: AppUi.scanning ? "Analyse…" : "Analyser"; icon: Icons.refresh; clicked => { if (!AppUi.scanning) { Actions.rescan(); } } }
+    }
+}
 
-        Flickable {
-            vertical-stretch: 1;
-            content-height: nav.preferred-height;
-            nav := VerticalLayout {
-                width: parent.width;
-                spacing: 2px;
-                alignment: start;
-                NavItem {
-                    collapsed: root.collapsed;
-                    text: "Accueil";
-                    icon: Icons.home;
-                    active: Nav.page == Page.home;
-                    clicked => { Nav.go(Page.home); }
-                }
-                NavItem {
-                    collapsed: root.collapsed;
-                    text: "Bibliothèque";
-                    icon: Icons.library;
-                    active: Nav.page == Page.library || (Nav.page == Page.game && Nav.return-page == Page.library);
-                    trailing: LibraryUi.total > 0 ? LibraryUi.total : "";
-                    clicked => { Nav.go(Page.library); }
-                }
-                if AppUi.nav.assistant: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Que jouer ?";
-                    icon: Icons.sparkle;
-                    active: Nav.page == Page.assistant;
-                    clicked => { Nav.go(Page.assistant); }
-                }
-                if AppUi.nav.big-picture: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Big Picture";
-                    icon: Icons.tv;
-                    trailing: "F11";
-                    clicked => { Actions.enter-big-picture(); }
-                }
-                NavItem {
-                    collapsed: root.collapsed;
-                    text: "Minecraft";
-                    icon: Icons.cube;
-                    active: Nav.page == Page.minecraft;
-                    trailing: McUi.playing ? "En jeu" : "";
-                    clicked => { Nav.go(Page.minecraft); }
-                }
-                NavItem {
-                    collapsed: root.collapsed;
-                    text: "Performances";
-                    icon: Icons.gauge;
-                    active: Nav.page == Page.performance;
-                    clicked => { Nav.go(Page.performance); }
-                }
-                NavItem {
-                    collapsed: root.collapsed;
-                    text: "Téléchargements";
-                    icon: Icons.download;
-                    active: Nav.page == Page.downloads;
-                    trailing: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : "";
-                    clicked => { Nav.go(Page.downloads); }
-                }
-                if AppUi.nav.achievements || AppUi.nav.stats || AppUi.nav.journal: NavGroup { collapsed: root.collapsed; text: "Suivi"; }
-                if AppUi.nav.achievements: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Succès";
-                    icon: Icons.trophy;
-                    active: Nav.page == Page.achievements;
-                    trailing: AchUi.total > 0 ? round(AchUi.percent * 100) + " %" : "";
-                    clicked => { Nav.go(Page.achievements); }
-                }
-                if AppUi.nav.stats: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Statistiques";
-                    icon: Icons.chart;
-                    active: Nav.page == Page.stats;
-                    clicked => { Nav.go(Page.stats); }
-                }
-                if AppUi.nav.journal: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Journal";
-                    icon: Icons.journal;
-                    active: Nav.page == Page.journal;
-                    clicked => { Nav.go(Page.journal); }
-                }
-                NavGroup { collapsed: root.collapsed; text: "Outils"; }
-                if AppUi.nav.updates: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Mises à jour";
-                    icon: Icons.download;
-                    active: Nav.page == Page.updates;
-                    trailing: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : "";
-                    muted-trailing: UpdatesUi.pending.length == 0;
-                    clicked => { Nav.go(Page.updates); }
-                }
-                if AppUi.nav.saves: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Sauvegardes";
-                    icon: Icons.save;
-                    active: Nav.page == Page.saves;
-                    clicked => { Nav.go(Page.saves); }
-                }
-                if AppUi.nav.emulators: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Émulateurs";
-                    icon: Icons.gamepad;
-                    active: Nav.page == Page.emulators;
-                    trailing: EmuUi.rom-count > 0 ? EmuUi.rom-count : "";
-                    clicked => { Nav.go(Page.emulators); }
-                }
-                if AppUi.nav.controllers: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Manettes";
-                    icon: Icons.gamepad;
-                    active: Nav.page == Page.controllers;
-                    trailing: PadsUi.pads.length > 0 ? PadsUi.pads.length : "";
-                    clicked => { Nav.go(Page.controllers); }
-                }
-                if AppUi.nav.remote: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Jeu à distance";
-                    icon: Icons.monitor;
-                    active: Nav.page == Page.remote;
-                    clicked => { Nav.go(Page.remote); }
-                }
-                if AppUi.nav.plugins: NavItem {
-                    collapsed: root.collapsed;
-                    text: "Extensions";
-                    icon: Icons.puzzle;
-                    active: Nav.page == Page.plugins;
-                    clicked => { Nav.go(Page.plugins); }
-                }
-            }
-        }
-
-        if AppUi.update-version != "": NavItem {
-            collapsed: root.collapsed;
-            text: "Version " + AppUi.update-version;
-            icon: Icons.download;
-            trailing: "Nouveau";
-            muted-trailing: false;
-            clicked => { Nav.go(Page.settings); }
-        }
-        NavItem {
-            collapsed: root.collapsed;
-            text: AppUi.scanning ? "Analyse en cours…" : "Analyser les sources";
-            icon: Icons.refresh;
-            clicked => { if (!AppUi.scanning) { Actions.rescan(); } }
-        }
-        NavItem {
-            collapsed: root.collapsed;
-            text: "Apparence";
-            icon: Icons.palette;
-            active: Nav.page == Page.appearance;
-            clicked => { Nav.go(Page.appearance); }
-        }
-        NavItem {
-            collapsed: root.collapsed;
-            text: "Paramètres";
-            icon: Icons.settings;
-            active: Nav.page == Page.settings;
-            clicked => { Nav.go(Page.settings); }
+/// Onglet d'un espace.
+component SpaceTab inherits Rectangle {
+    in property <string> text;
+    in property <bool> active;
+    in property <string> count;
+    callback clicked;
+    height: 36px;
+    width: row.preferred-width + 28px;
+    border-radius: 18px;
+    background: root.active ? Theme.surface-active : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
+    border-width: fs.has-focus ? Theme.focus-width : 0px;
+    border-color: Theme.focus;
+    accessible-role: tab;
+    accessible-label: text;
+    accessible-action-default => { root.clicked(); }
+    forward-focus: fs;
+    row := HorizontalLayout {
+        x: 14px;
+        spacing: 7px;
+        Text { text: root.text; color: root.active ? Theme.text : Theme.text-muted; font-size: Theme.t-small; font-weight: root.active ? 650 : 500; vertical-alignment: center; }
+        if root.count != "": Rectangle {
+            y: (parent.height - self.height) / 2;
+            height: 20px;
+            width: ct.preferred-width + 12px;
+            border-radius: 10px;
+            background: root.active ? Theme.accent.with-alpha(0.22) : Theme.surface-active;
+            ct := Text { text: root.count; color: root.active ? Theme.accent : Theme.text-muted; font-size: 11px; font-weight: 650; vertical-alignment: center; horizontal-alignment: center; }
         }
     }
+    ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+    fs := FocusScope {
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == " ") { root.clicked(); return accept; }
+            reject
+        }
+    }
+}
+
+/// Barre d'un espace à onglets (Activité, Outils, Système) : titre et onglets communs, sous
+/// la barre supérieure. Les pages n'y répètent pas leur titre (`Layout.tabbed`).
+export component SpaceBar inherits Rectangle {
+    height: 76px;
+    background: Theme.bg;
+    HorizontalLayout {
+        padding-left: Theme.page-padding;
+        padding-right: Theme.page-padding;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        spacing: 28px;
+        Text {
+            text: Spaces.current == 3 ? "Activité" : Spaces.current == 4 ? "Outils" : "Système";
+            color: Theme.text;
+            font-family: Theme.display;
+            font-size: 26px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: start;
+            horizontal-stretch: 1;
+            if Spaces.current == 3 && AppUi.nav.assistant: SpaceTab { y: 6px; text: "Que jouer ?"; active: Nav.page == Page.assistant; clicked => { Nav.go(Page.assistant); } }
+            if Spaces.current == 3 && AppUi.nav.achievements: SpaceTab { y: 6px; text: "Succès"; active: Nav.page == Page.achievements; count: AchUi.unlocked > 0 ? AchUi.unlocked : ""; clicked => { Nav.go(Page.achievements); } }
+            if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { y: 6px; text: "Statistiques"; active: Nav.page == Page.stats; clicked => { Nav.go(Page.stats); } }
+            if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { y: 6px; text: "Journal"; active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
+            if Spaces.current == 4: SpaceTab { y: 6px; text: "Téléchargements"; active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; clicked => { Nav.go(Page.downloads); } }
+            if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { y: 6px; text: "Mises à jour"; active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; clicked => { Nav.go(Page.updates); } }
+            if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { y: 6px; text: "Sauvegardes"; active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
+            if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { y: 6px; text: "Émulateurs"; active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
+            if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { y: 6px; text: "Manettes"; active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }
+            if Spaces.current == 4 && AppUi.nav.remote: SpaceTab { y: 6px; text: "Jeu à distance"; active: Nav.page == Page.remote; clicked => { Nav.go(Page.remote); } }
+            if Spaces.current == 4 && AppUi.nav.plugins: SpaceTab { y: 6px; text: "Extensions"; active: Nav.page == Page.plugins; clicked => { Nav.go(Page.plugins); } }
+            if Spaces.current == 5: SpaceTab { y: 6px; text: "Performances"; active: Nav.page == Page.performance; clicked => { Nav.go(Page.performance); } }
+            if Spaces.current == 5: SpaceTab { y: 6px; text: "Apparence"; active: Nav.page == Page.appearance; clicked => { Nav.go(Page.appearance); } }
+            if Spaces.current == 5: SpaceTab { y: 6px; text: "Paramètres"; active: Nav.page == Page.settings; count: AppUi.update-version != "" ? "Nouvelle version" : ""; clicked => { Nav.go(Page.settings); } }
+        }
+    }
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
 }
 
 /// Pastille de recherche universelle : ouvre la palette de commandes.
