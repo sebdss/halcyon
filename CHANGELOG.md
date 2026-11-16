@@ -1,5 +1,15 @@
 # Journal des modifications
 
+## 1.0.0-alpha.3 — Alignements
+
+- Compteurs des onglets (Mises à jour, Émulateurs…) qui débordaient de leur bouton, notamment
+  avec la mise à l'échelle de Windows : position calculée, plus de débordement.
+- Icônes centrées verticalement sur le texte voisin dans toutes les rangées (paramètres,
+  barre de recherche, téléchargements, succès, notifications, Minecraft…).
+- Titres de section alignés sur les boutons qui les accompagnent.
+- Bouton à icône seule (collections intelligentes, fenêtre étroite) sans marge vide.
+- Première version distribuée par la mise à jour automatique (HUS) depuis la 1.0.0-alpha.2.
+
 ## 1.0.0-alpha.2 — Nouveau logo
 
 - Nouveau logo de Halcyon : application, programme d'installation, icônes Windows et Linux.
