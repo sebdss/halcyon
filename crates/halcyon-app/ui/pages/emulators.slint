@@ -139,7 +139,7 @@ component EmulatorForm inherits Panel {
         padding: 20px;
         spacing: 12px;
         HorizontalLayout {
-            Text { text: EmuUi.form-id == "" ? "Ajouter un émulateur" : "Modifier l'émulateur"; color: Theme.text; font-size: Theme.t-heading; font-weight: 800; horizontal-stretch: 1; }
+            Text { text: EmuUi.form-id == "" ? "Ajouter un émulateur" : "Modifier l'émulateur"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-heading; font-weight: 700; horizontal-stretch: 1; }
             IconButton { icon: Icons.close; icon-size: 16px; tooltip: "Fermer"; clicked => { EmuUi.form-open = false; } }
         }
         Text { text: "Nom"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
