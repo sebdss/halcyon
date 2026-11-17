@@ -5,7 +5,7 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { McProfileRow, McVersionRow, McModRow, McProjectRow } from "../types.slint";
 import { McUi, AppUi } from "../state.slint";
-import { Panel, PrimaryButton, PlayButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown, Tabs, ProgressBar, Notice, EmptyState, Segmented } from "../components.slint";
+import { Panel, PrimaryButton, PlayButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown, Tabs, ProgressBar, Notice, EmptyState, Segmented, Rubric, ListItem } from "../components.slint";
 
 /// Bloc d'herbe dessiné au pixel (6 × 6) : l'emblème de la page, net à toute échelle.
 component GrassBlock inherits Rectangle {
@@ -187,7 +187,7 @@ component PlayTab inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: "Compte"; }
+    Rubric { title: "Compte"; }
     Panel {
         VerticalLayout {
             padding: 18px;
@@ -261,7 +261,7 @@ component PlayTab inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: "Installations"; }
+    Rubric { title: "Installations"; }
     if McUi.profiles.length == 0: EmptyState {
         icon: Icons.cube;
         title: "Aucune installation";
@@ -269,12 +269,10 @@ component PlayTab inherits VerticalLayout {
         action: "Choisir une version";
         action-clicked => { McUi.set-tab(1); }
     }
-    for p[i] in McUi.profiles: Rectangle {
+    for p[i] in McUi.profiles: ListItem {
         height: 56px;
-        border-radius: Theme.radius;
-        background: i == McUi.selected-profile ? Theme.accent-soft : pta.has-hover ? Theme.surface-hover : Theme.surface;
-        border-width: i == McUi.selected-profile ? 1px : 0px;
-        border-color: Theme.accent.with-alpha(0.5);
+        active: i == McUi.selected-profile;
+        background: i == McUi.selected-profile ? Theme.surface : pta.has-hover ? Theme.surface.with-alpha(0.6) : transparent;
         HorizontalLayout {
             padding-left: 16px;
             padding-right: 16px;
@@ -363,12 +361,11 @@ component ModsTab inherits VerticalLayout {
             if McUi.updates > 0: PrimaryButton { text: "Mettre à jour " + McUi.updates + " mod(s)"; icon: Icons.refresh; has-icon: true; h: 36px; enabled: !McUi.busy; clicked => { McUi.update-mods(); } }
             SecondaryButton { text: "Dossier des mods"; icon: Icons.folder; has-icon: true; h: 36px; clicked => { McUi.open-folder("mods"); } }
         }
-        SectionTitle { text: "Mods installés (" + McUi.mods.length + ")"; }
+        Rubric { title: "Mods installés"; note: McUi.mods.length + " mod(s)"; }
         if McUi.mods.length == 0: Hint { text: "Aucun mod dans cette installation."; }
-        for m in McUi.mods: Rectangle {
+        for m in McUi.mods: ListItem {
             height: 50px;
-            border-radius: Theme.radius;
-            background: Theme.surface;
+            active: m.enabled;
             HorizontalLayout {
                 padding-left: 14px;
                 padding-right: 10px;
@@ -386,7 +383,7 @@ component ModsTab inherits VerticalLayout {
                 IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; icon-size: 15px; active-tint: Theme.danger; tooltip: "Supprimer"; enabled: !McUi.busy; clicked => { McUi.mod-remove(m.file); } }
             }
         }
-        SectionTitle { text: "Ajouter des mods"; }
+        Rubric { title: "Ajouter des mods"; }
         HorizontalLayout {
             spacing: 10px;
             SourcePicker { }

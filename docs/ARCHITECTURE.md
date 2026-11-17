@@ -36,7 +36,7 @@ Mesures indicatives pour une fenêtre affichant une grille de jaquettes (Windows
 - **Performances** : pas de navigateur, pas de GC, UI compilée en code natif. Démarrage mesuré
   à ~50 ms avec 5 000 jeux, RAM dominée par les jaquettes visibles (décodées à la bonne taille).
 - **Qualité visuelle** : langage déclaratif `.slint` (proche de QML) avec animations
-  d'état, dégradés, ombres portées, coins arrondis, clipping, police Inter embarquée.
+  d'état, dégradés, ombres portées, coins arrondis, clipping, police Archivo embarquée.
 - **Maintenabilité** : un seul langage typé pour la logique, l'UI est vérifiée à la compilation
   (une propriété mal nommée = erreur de build, pas un bug silencieux).
 - **Distribution** : un exécutable unique (50 Mo en 0.3 avec police, icônes et définitions), sans runtime à installer.

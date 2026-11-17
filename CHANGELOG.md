@@ -1,5 +1,32 @@
 # Journal des modifications
 
+## 1.0.0-alpha.4 — « Berge », refonte de l'interface
+
+Nouvelle direction artistique, appliquée à toute l'application, au mode console et à
+l'installateur. Détails : [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md). Navigation
+inchangée : mêmes six espaces, mêmes onglets, mêmes noms, même ordre, mêmes destinations.
+
+- **Identité** : couleurs du logo avec un rôle chacune (bleu : où l'on est ; orange : jouer et
+  ce qui est vivant), ardoise mate sans verre ni dégradé décoratif, police Archivo (Expanded
+  pour les titres et les chiffres), icônes redessinées au trait carré, petits rayons,
+  « perche » d'accent pour l'élément actif. Le bouton **Jouer** est orange partout.
+- **Coque** : colonne de navigation avec libellés (icônes seules sous 1080 px de large),
+  compteurs en chiffres plutôt qu'en pastilles, barre supérieure avec états réels (en jeu,
+  Performance, hors ligne), centre de commandes en tiroir, notifications inversées.
+- **Accueil** : « Reprendre » en deux parties (texte et chiffres à gauche, planche à droite),
+  widgets en rubriques sans cartes, « Personnaliser l'accueil » en pied de page.
+- **Bibliothèque** : index des filtres à gauche (sources, affichage, collections en un clic,
+  genre), barre d'outils dédiée, liste en tableau, légendes des tuiles (titre, source, temps).
+- **Fiche de jeu** : bande illustrée nette, jaquette qui chevauche son bord, chiffres réels à
+  droite des actions, fiche technique en groupes (suivi, installation, édition, liens).
+- **Activité, Outils, Système** : chiffres-titres (complétion, temps total), rubriques à
+  filet, chronologie du journal, rangées à perche pour les transferts, instruments du
+  Performance Center, miniatures des thèmes, colonne de lecture des paramètres.
+- **Minecraft** : bloc d'herbe dessiné au pixel et filet herbe et terre sous les onglets.
+- **Thème conservé** : l'apparence des préversions reste disponible (« Alcyon (1.0
+  préversion) »), comme « Nocturne (0.5) ».
+- La ligne de provenance des jeux ne répète plus le temps de jeu (affiché à part).
+
 ## 1.0.0-alpha.3 — Alignements
 
 - Compteurs des onglets (Mises à jour, Émulateurs…) qui débordaient de leur bouton, notamment

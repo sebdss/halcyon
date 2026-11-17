@@ -11,7 +11,15 @@ mesures : [`PERFORMANCES.md`](PERFORMANCES.md#100-alpha1) · tests :
 
 ## Ce qui change pour vous
 
-### Nouvelle apparence « Alcyon »
+### Apparence « Berge » (depuis la 1.0.0-alpha.4)
+- Nouvelle direction artistique, appliquée à toutes les pages, au mode console et à
+  l'installateur : couleurs du logo avec un rôle chacune (bleu pour savoir où l'on est,
+  orange pour jouer), ardoise mate, police Archivo, rubriques ouvertes plutôt que cartes,
+  « perche » d'accent sur l'élément actif. Même navigation, mêmes onglets, mêmes fonctions.
+  Détails : [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md). L'apparence décrite ci-dessous reste
+  disponible (Apparence › Thème › « Alcyon (1.0 préversion) »).
+
+### Nouvelle apparence « Alcyon » (1.0.0-alpha.1 à alpha.3)
 - Halcyon change de visage : bleu d'eau profonde, accent cobalt, orange pour ce qui est en
   cours, et une « ligne d'horizon » qui montre où vous êtes. Plus de capitales partout,
   titres plus lisibles, contrastes vérifiés. L'ancienne apparence reste disponible

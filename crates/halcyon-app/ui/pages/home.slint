@@ -85,7 +85,7 @@ component HeroArt inherits Rectangle {
 component Hero inherits Rectangle {
     in property <bool> card: false;
     property <bool> stacked: root.card || root.width < 860px;
-    height: root.stacked ? root.width * 0.42 + text-col.preferred-height + 20px : 380px;
+    height: root.stacked ? root.width * 0.42 + text-col.preferred-height + 20px : 360px;
 
     art := HeroArt {
         x: root.stacked ? 0px : root.width * 0.42;

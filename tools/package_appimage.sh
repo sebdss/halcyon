@@ -28,7 +28,7 @@ ln -s halcyon.png "$A/.DirIcon"
 # Entrée de bureau de l'AppImage (Exec relatif, exigé par le format).
 sed -e 's|^Exec=.*|Exec=halcyon %f|' -e 's|^Icon=.*|Icon=halcyon|' packaging/linux/halcyon.desktop > "$A/halcyon.desktop"
 cp "$A/halcyon.desktop" "$A/usr/share/applications/halcyon.desktop"
-for f in README.md CHANGELOG.md docs/GUIDE.md docs/HUS.md crates/halcyon-app/ui/fonts/LICENSE-Inter.txt crates/halcyon-app/ui/fonts/LICENSE-Sora.txt packaging/appimage/README.md; do
+for f in README.md CHANGELOG.md docs/GUIDE.md docs/HUS.md crates/halcyon-app/ui/fonts/LICENSE-Archivo.txt packaging/appimage/README.md; do
   [ -f "$f" ] && install -m 644 "$f" "$A/usr/share/doc/halcyon/$(basename "$f")"
 done
 mksquashfs "$A" "$TMP/fs.sqfs" -root-owned -noappend -comp zstd -quiet -no-progress
