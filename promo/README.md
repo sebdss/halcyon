@@ -38,6 +38,7 @@ src/components/        Logo animé, caméra et calques sur captures (Layer), tit
 src/lib/               jetons du design system Berge, temps et courbes, mise en page
 src/logo.json          logo vectorisé (tuile, oiseau, pattes, œil)
 public/captures/       captures réelles de Halcyon 1.0.0-alpha.4 (2880 × 1800)
+tools/real-games.py    bibliothèque Steam d'exemple (vrais jeux) utilisée pour les captures
 public/brand/          logo vectoriel (SVG)
 public/fonts/          Archivo, fichiers du launcher (SIL OFL)
 audio/synth.py         synthèse : cloches, pincés, nappes, batterie, réverbérations…
@@ -74,9 +75,11 @@ relancer `render.sh`.
 - Chaque écran vient du logiciel réel : Halcyon 1.0.0-alpha.4 (binaire Linux publié sur
   GitHub), lancé sous Xvfb avec un facteur d'échelle 2. Aucun écran n'est redessiné ; les
   mouvements, découpes et profondeurs sont appliqués aux captures elles-mêmes.
-- La bibliothèque montrée est celle de démonstration du dépôt (`tools/make_demo_fixture.py`) :
-  jeux et jaquettes fictifs. Pour ce film, les jaquettes de démonstration ont été générées en
-  aplats graphiques (variante du script, dans `tools/demo-covers.py`).
+- La bibliothèque montrée est une installation Steam d'exemple créée par `tools/real-games.py` :
+  quinze jeux populaires (Counter-Strike 2, Elden Ring, Cyberpunk 2077, Baldur's Gate 3,
+  Marvel Rivals, Helldivers 2, Dota 2, Call of Duty, GTA V…) avec leurs visuels de
+  bibliothèque officiels, téléchargés depuis le CDN de Steam. Halcyon les détecte comme une
+  vraie bibliothèque ; les temps de jeu sont des valeurs d'exemple.
 - Seuls deux éléments sont dessinés : le logo (vectorisé fidèlement depuis
   `crates/halcyon-app/ui/icons/logo.png`) et le bouton orange, reproduit d'après `PlayButton`
   (couleurs, rayon, police, icône).

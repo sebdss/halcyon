@@ -16,7 +16,7 @@ jeu, grandes réussites). Aucune musique commerciale n'est utilisée.
 | Élément | Origine | Licence |
 |---|---|---|
 | Captures de l'interface (`public/captures/`) | Halcyon 1.0.0-alpha.4, capturé pour ce film | MIT (projet Halcyon) |
-| Jeux, jaquettes et illustrations visibles dans les captures | fictifs, générés par `tools/demo-covers.py` | MIT |
+| Noms, jaquettes, illustrations et logos des jeux visibles dans les captures (Counter-Strike 2, Elden Ring, Cyberpunk 2077, Baldur's Gate 3, Marvel Rivals, Helldivers 2, Dota 2, Call of Duty, GTA V, Rocket League, Apex Legends, Red Dead Redemption 2, Black Myth: Wukong, The Witcher 3, Hollow Knight: Silksong) | visuels officiels de bibliothèque Steam | **propriété de leurs éditeurs respectifs**, aucune licence accordée : montrés pour illustrer le fonctionnement du launcher. Leur usage dans une publicité diffusée relève de l'auteur de Halcyon |
 | Logo (`public/brand/halcyon-logo.svg`, `src/logo.json`) | vectorisation du logo de Halcyon (`crates/halcyon-app/ui/icons/logo.png`) | appartient à l'auteur de Halcyon |
 | Police Archivo (`public/fonts/`) | Omnibus-Type, fichiers du launcher | SIL Open Font License 1.1 (`public/fonts/LICENSE-Archivo.txt`) |
 | Animations, compositions, code (`src/`, `tools/`, `render.sh`) | écrits pour ce film | MIT |
