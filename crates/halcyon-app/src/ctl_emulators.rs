@@ -14,7 +14,7 @@ impl Controller {
         self.extend_registry(&mut reg);
         for w in warnings {
             log::warn!("définition d'émulateur ignorée : {w}");
-            self.toast(format!("Définition ignorée : {w}"), true);
+            self.toast(tr!("Définition ignorée : {w}", w = w), true);
         }
         crate::models::set_platform_names(
             reg.platforms.iter().map(|p| (p.id.clone(), (p.short_or_name().to_string(), p.name.clone()))).collect(),
@@ -56,10 +56,10 @@ impl Controller {
     /// `pad_profile` : profil de manette du profil de lancement (sinon le profil actif).
     pub(crate) fn emulator_target(&self, game: &Game, pad_profile: Option<i64>) -> Result<LaunchTarget, String> {
         let platform = game.platform.clone().unwrap_or_default();
-        let rom = game.executable.clone().ok_or("ROM introuvable")?;
+        let rom = game.executable.clone().ok_or(tr!("ROM introuvable"))?;
         let (def, detected) = self.emulator_for(game).ok_or_else(|| {
             let name = self.registry.borrow().platform(&platform).map(|p| p.name.clone()).unwrap_or(platform.clone());
-            format!("Aucun émulateur détecté pour {name} : installez-en un ou indiquez son chemin dans la page Émulateurs")
+            tr!("Aucun émulateur détecté pour {name} : installez-en un ou indiquez son chemin dans la page Émulateurs", name = name)
         })?;
         let mut profile = self
             .settings
@@ -88,19 +88,19 @@ impl Controller {
     /// Choix d'émulateur proposé dans la fiche : « Par défaut » puis les émulateurs compatibles.
     pub(crate) fn emulator_options(&self, game: &Game) -> (Vec<SharedString>, usize) {
         let Some(platform) = game.platform.as_deref().filter(|_| game.source == GameSource::Emulated) else {
-            return (vec!["Par défaut".into()], 0);
+            return (vec![tr!("Par défaut").into()], 0);
         };
         let default_name = {
             let mut g = game.clone();
             g.emulator = None;
-            self.emulator_for(&g).map(|(d, _)| d.name).unwrap_or_else(|| "aucun détecté".into())
+            self.emulator_for(&g).map(|(d, _)| d.name).unwrap_or_else(|| tr!("aucun détecté").into())
         };
         let reg = self.registry.borrow();
         let detected = self.detected.borrow();
         let defs = reg.emulators_for(platform);
-        let mut options: Vec<SharedString> = vec![format!("Par défaut ({default_name})").into()];
+        let mut options: Vec<SharedString> = vec![tr!("Par défaut ({default_name})", default_name = default_name).into()];
         options.extend(defs.iter().map(|d| {
-            if detected.contains_key(&d.id) { d.name.clone().into() } else { format!("{} (non détecté)", d.name).into() }
+            if detected.contains_key(&d.id) { d.name.clone().into() } else { tr!("{name} (non détecté)", name = d.name).into() }
         }));
         let index = game.emulator.as_ref().and_then(|e| defs.iter().position(|d| &d.id == e)).map(|i| i + 1).unwrap_or(0);
         (options, index)
@@ -115,7 +115,7 @@ impl Controller {
             self.registry.borrow().emulators_for(&platform).get(index - 1).map(|d| d.id.clone())
         };
         if let Err(e) = self.db().set_game_emulator(id, choice.as_deref()) {
-            self.toast(format!("Erreur : {e}"), true);
+            self.toast(tr!("Erreur : {e}", e = e), true);
             return;
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
@@ -147,7 +147,7 @@ impl Controller {
                     name: def.name.as_str().into(),
                     detected: d.is_some(),
                     path: d.map(|d| d.program.display().to_string()).unwrap_or_default().into(),
-                    via: d.map(|d| d.via).unwrap_or_default().into(),
+                    via: d.map(|d| halcyon_i18n::t(d.via)).unwrap_or_default().into(),
                     platforms: platforms.join(" · ").into(),
                     extra_args: profile.map(|p| p.extra_args.clone()).unwrap_or_default().into(),
                     fullscreen: profile.is_some_and(|p| p.fullscreen),
@@ -165,7 +165,7 @@ impl Controller {
                 let defs = reg.emulators_for(&p.id);
                 let names: Vec<SharedString> = defs
                     .iter()
-                    .map(|d| if detected.contains_key(&d.id) { d.name.clone().into() } else { format!("{} (non détecté)", d.name).into() })
+                    .map(|d| if detected.contains_key(&d.id) { d.name.clone().into() } else { tr!("{name} (non détecté)", name = d.name).into() })
                     .collect();
                 let selected = s
                     .platform_emulator
@@ -179,7 +179,7 @@ impl Controller {
                     id: p.id.as_str().into(),
                     name: p.name.as_str().into(),
                     short: p.short_or_name().into(),
-                    emulators: ModelRc::new(VecModel::from(if names.is_empty() { vec![SharedString::from("Aucun")] } else { names })),
+                    emulators: ModelRc::new(VecModel::from(if names.is_empty() { vec![SharedString::from(tr!("Aucun"))] } else { names })),
                     selected: selected as i32,
                     folders: ModelRc::new(VecModel::from(folders)),
                     games: lib.games.iter().filter(|g| g.platform.as_deref() == Some(&p.id) && g.installed).count() as i32,
@@ -221,7 +221,7 @@ impl Controller {
         } else {
             match emulators::read_custom(&self.paths.data_dir, id) {
                 Some(e) => e,
-                None => return self.toast("Définition introuvable ou illisible", true),
+                None => return self.toast(tr!("Définition introuvable ou illisible"), true),
             }
         };
         ui.set_form_id(id.into());
@@ -272,7 +272,7 @@ impl Controller {
                 self.after_emulator_change();
                 let ok = self.detected.borrow().contains_key(&new_id);
                 self.toast(
-                    if ok { format!("{} ajouté : importez vos ROM pour ses plateformes", e.name) } else { format!("{} enregistré, mais son exécutable n'est pas trouvé", e.name) },
+                    if ok { tr!("{name} ajouté : importez vos ROM pour ses plateformes", name = e.name) } else { tr!("{name} enregistré, mais son exécutable n'est pas trouvé", name = e.name) },
                     !ok,
                 );
             }
@@ -284,9 +284,9 @@ impl Controller {
         let name = self.registry.borrow().emulator(id).map(|d| d.name.clone()).unwrap_or_else(|| id.to_string());
         let id = id.to_string();
         self.confirm(
-            &format!("Supprimer {name} ?"),
-            "Sa définition est retirée de Halcyon. L'émulateur lui-même, ses fichiers et vos jeux ne sont pas touchés.",
-            "Supprimer",
+            &tr!("Supprimer {name} ?", name = name),
+            &tr!("Sa définition est retirée de Halcyon. L'émulateur lui-même, ses fichiers et vos jeux ne sont pas touchés."),
+            &tr!("Supprimer"),
             move |c| match emulators::delete_custom(&c.paths.data_dir, &id) {
                 Ok(()) => {
                     {
@@ -295,7 +295,7 @@ impl Controller {
                     }
                     c.load_registry();
                     c.after_emulator_change();
-                    c.toast(format!("{name} supprimé"), false);
+                    c.toast(tr!("{name} supprimé", name = name), false);
                 }
                 Err(e) => c.toast(e, true),
             },
@@ -324,7 +324,7 @@ impl Controller {
         self.refresh_emulators_ui();
         self.refresh_detail();
         let n = self.detected.borrow().len();
-        self.toast(format!("{n} émulateur{} détecté{}", if n > 1 { "s" } else { "" }, if n > 1 { "s" } else { "" }), false);
+        self.toast(trn!(n, "{n} émulateur détecté", "{n} émulateurs détectés"), false);
     }
 
     fn after_emulator_change(&self) {
@@ -338,20 +338,20 @@ impl Controller {
         let path = Some(PathBuf::from(path.trim().trim_matches('"'))).filter(|p| !p.as_os_str().is_empty());
         if let Some(p) = &path {
             if !p.is_file() {
-                self.toast(format!("Exécutable introuvable : {}", p.display()), true);
+                self.toast(tr!("Exécutable introuvable : {p}", p = p.display()), true);
                 return;
             }
         }
         self.settings.borrow_mut().emulator_mut(id).path = path;
         self.after_emulator_change();
         let ok = self.detected.borrow().contains_key(id);
-        self.toast(if ok { "Émulateur configuré" } else { "Émulateur toujours introuvable" }, !ok);
+        self.toast(if ok { tr!("Émulateur configuré") } else { tr!("Émulateur toujours introuvable") }, !ok);
     }
 
     pub(crate) fn set_emulator_args(&self, id: &str, args: &str) {
         self.settings.borrow_mut().emulator_mut(id).extra_args = args.trim().to_string();
         self.after_emulator_change();
-        self.toast("Arguments enregistrés", false);
+        self.toast(tr!("Arguments enregistrés"), false);
     }
 
     pub(crate) fn set_emulator_fullscreen(&self, id: &str, value: bool) {
@@ -370,7 +370,7 @@ impl Controller {
     pub(crate) fn add_rom_folder(&self, platform_index: usize, path: &str) {
         let path = PathBuf::from(path.trim().trim_matches('"'));
         if !path.is_dir() {
-            self.toast(format!("Dossier introuvable : {}", path.display()), true);
+            self.toast(tr!("Dossier introuvable : {path}", path = path.display()), true);
             return;
         }
         let Some(platform) = self.registry.borrow().platforms.get(platform_index).map(|p| p.id.clone()) else { return };
@@ -379,7 +379,7 @@ impl Controller {
             let mut s = self.settings.borrow_mut();
             if s.rom_folders.iter().any(|f| f.platform == platform && halcyon_core::util::path_key(&f.path) == key) {
                 drop(s);
-                self.toast("Ce dossier est déjà associé à cette plateforme", true);
+                self.toast(tr!("Ce dossier est déjà associé à cette plateforme"), true);
                 return;
             }
             s.rom_folders.push(RomFolder { platform, path });

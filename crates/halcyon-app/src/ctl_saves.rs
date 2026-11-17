@@ -46,7 +46,7 @@ impl SaveJob {
     /// passer devant celles des autres PC, même si leurs horloges sont en avance).
     pub fn run_at(&self, db: &Arc<Mutex<Database>>, reason: &str, note: &str, dedup: bool, at: i64) -> Result<Option<SnapshotMeta>, String> {
         if !self.primary.available() {
-            return Err(format!("dépôt de sauvegardes inaccessible : {}", self.primary.root.display()));
+            return Err(tr!("dépôt de sauvegardes inaccessible : {root}", root = self.primary.root.display()));
         }
         let created = self
             .primary
@@ -58,7 +58,7 @@ impl SaveJob {
                 self.remember(db, &m);
                 return Ok(None);
             }
-            Created::Empty => return Err("aucun fichier de sauvegarde trouvé dans les emplacements".into()),
+            Created::Empty => return Err(tr!("aucun fichier de sauvegarde trouvé dans les emplacements").into()),
         };
         self.remember(db, &meta);
         for m in &self.mirrors {
@@ -76,8 +76,8 @@ impl SaveJob {
         let _ = lock.log_activity(
             ActivityKind::Save,
             Some(self.game_id),
-            &format!("Sauvegarde de {}", self.name),
-            &format!("{} · {} fichier(s) · {}", meta.reason_label(), meta.files.len(), util::format_size(meta.total_size)),
+            &tr_later!("Sauvegarde de {name}", name = self.name),
+            &trn_later!(meta.files.len(), "{reason_label} · {n} fichier · {total_size}", "{reason_label} · {n} fichiers · {total_size}", reason_label = meta.reason_label(), total_size = util::format_size(meta.total_size)),
         );
         Ok(Some(meta))
     }
@@ -206,7 +206,7 @@ impl Controller {
                 let p = env.resolve(t, g.install_dir.as_deref());
                 SaveLocRow {
                     token: t.as_str().into(),
-                    path: p.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| "Introuvable sur ce PC".into()).into(),
+                    path: p.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Introuvable sur ce PC").into()).into(),
                     exists: p.as_ref().is_some_and(|p| p.exists()),
                 }
             })
@@ -227,15 +227,15 @@ impl Controller {
         let (store, fallback, _) = self.save_stores();
         dui.set_save_root(
             if fallback {
-                format!("Dépôt choisi inaccessible : sauvegarde locale ({}), copiée à son retour", store.root.display())
+                tr!("Dépôt choisi inaccessible : sauvegarde locale ({root}), copiée à son retour", root = store.root.display())
             } else {
-                format!("Dépôt : {}", store.root.display())
+                tr!("Dépôt : {root}", root = store.root.display())
             }
             .into(),
         );
         if config.locations.is_empty() {
             dui.set_save_state(0);
-            dui.set_save_state_text("Aucun emplacement associé : associez un emplacement détecté ou ajoutez un dossier.".into());
+            dui.set_save_state_text(tr!("Aucun emplacement associé : associez un emplacement détecté ou ajoutez un dossier.").into());
             dui.set_snapshots(ModelRc::default());
             return;
         }
@@ -290,24 +290,23 @@ impl Controller {
             })
             .collect();
         dui.set_snapshots(ModelRc::new(VecModel::from(rows)));
-        let local = format!("{} fichier(s), {} en local", s.local_files, util::format_size(s.local_size));
+        let local = trn!(s.local_files, "{n} fichier, {local_size} en local", "{n} fichiers, {local_size} en local", local_size = util::format_size(s.local_size));
         let (state, text) = match (&s.error, &s.state) {
-            (Some(e), _) => (5, format!("Lecture impossible : {e}")),
-            (None, SyncState::NoSnapshot) => (2, format!("Aucune sauvegarde pour l'instant · {local}")),
-            (None, SyncState::UpToDate) => (1, format!("À jour : identique à la dernière sauvegarde · {local}")),
-            (None, SyncState::LocalChanged) if s.matches_last => (1, format!("Identique à la sauvegarde restaurée · {local}")),
-            (None, SyncState::LocalChanged) => (2, format!("Modifié depuis la dernière sauvegarde · {local}")),
+            (Some(e), _) => (5, tr!("Lecture impossible : {e}", e = e)),
+            (None, SyncState::NoSnapshot) => (2, tr!("Aucune sauvegarde pour l'instant · {local}", local = local)),
+            (None, SyncState::UpToDate) => (1, tr!("À jour : identique à la dernière sauvegarde · {local}", local = local)),
+            (None, SyncState::LocalChanged) if s.matches_last => (1, tr!("Identique à la sauvegarde restaurée · {local}", local = local)),
+            (None, SyncState::LocalChanged) => (2, tr!("Modifié depuis la dernière sauvegarde · {local}", local = local)),
             (None, SyncState::RemoteNewer(m)) => (
                 3,
-                format!("Version plus récente sauvegardée sur « {} » le {} : restaurez-la pour continuer sur ce PC.", m.machine, date_time(m.created_at)),
+                tr!("Version plus récente sauvegardée sur « {machine} » le {created_at} : restaurez-la pour continuer sur ce PC.", machine = m.machine, created_at = date_time(m.created_at)),
             ),
             (None, SyncState::Conflict(m)) => (
                 4,
-                format!(
-                    "Conflit : « {} » a sauvegardé une autre progression le {}, et les fichiers de ce PC ont aussi changé. \
-                     Choisissez la version à garder (l'autre reste disponible dans l'historique).",
-                    m.machine,
-                    date_time(m.created_at)
+                tr!(
+                    "Conflit : « {machine} » a sauvegardé une autre progression le {date}, et les fichiers de ce PC ont aussi changé. Choisissez la version à garder (l'autre reste disponible dans l'historique).",
+                    machine = m.machine,
+                    date = date_time(m.created_at)
                 ),
             ),
         };
@@ -324,7 +323,7 @@ impl Controller {
         let mut c = self.db().save_config(id).ok().flatten().unwrap_or(SaveConfig { auto_before: true, auto_after: true, ..Default::default() });
         f(&mut c);
         if let Err(e) = self.db().set_save_config(id, &c) {
-            self.toast(format!("Enregistrement impossible : {e}"), true);
+            self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
         }
     }
 
@@ -332,7 +331,7 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let p = PathBuf::from(path.trim().trim_matches('"'));
         if !p.exists() {
-            return self.toast(format!("Emplacement introuvable : {}", p.display()), true);
+            return self.toast(tr!("Emplacement introuvable : {p}", p = p.display()), true);
         }
         let token = self.save_env().tokenize(&p, g.install_dir.as_deref());
         self.with_config(id, |c| {
@@ -340,7 +339,7 @@ impl Controller {
                 c.locations.push(token);
             }
         });
-        let _ = self.db().log_activity(ActivityKind::Save, Some(id), &format!("Emplacement de sauvegarde ajouté pour {}", g.name), path);
+        let _ = self.db().log_activity(ActivityKind::Save, Some(id), &tr_later!("Emplacement de sauvegarde ajouté pour {name}", name = g.name), path);
         self.refresh_saves_tab(&g);
     }
 
@@ -371,7 +370,7 @@ impl Controller {
     pub(crate) fn save_now(&self, id: GameId, note: &str) {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let Some(job) = self.save_job_for(&g) else {
-            return self.toast("Associez d'abord un emplacement de sauvegarde", true);
+            return self.toast(tr!("Associez d'abord un emplacement de sauvegarde"), true);
         };
         if let Some(app) = self.app() {
             app.global::<DetailUi>().set_save_busy(true);
@@ -382,9 +381,9 @@ impl Controller {
             let r = job.run(&db, "manual", &note, true);
             post(move |c| {
                 match r {
-                    Ok(Some(m)) => c.toast(format!("Sauvegarde créée · {} fichier(s)", m.files.len()), false),
-                    Ok(None) => c.toast("Rien n'a changé depuis la dernière sauvegarde", false),
-                    Err(e) => c.toast(format!("Sauvegarde impossible : {e}"), true),
+                    Ok(Some(m)) => c.toast(trn!(m.files.len(), "Sauvegarde créée · {n} fichier", "Sauvegarde créée · {n} fichiers"), false),
+                    Ok(None) => c.toast(tr!("Rien n'a changé depuis la dernière sauvegarde"), false),
+                    Err(e) => c.toast(tr!("Sauvegarde impossible : {e}", e = e), true),
                 }
                 c.refresh_game_tools();
             });
@@ -396,36 +395,35 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let Some(job) = self.save_job_for(&g) else { return };
         let Some(snap) = job.primary.get(&job.key, snap_id) else {
-            return self.toast("Sauvegarde introuvable dans le dépôt", true);
+            return self.toast(tr!("Sauvegarde introuvable dans le dépôt"), true);
         };
         if self.active_session.get() == Some(id) {
-            return self.toast("Fermez le jeu avant de restaurer une sauvegarde", true);
+            return self.toast(tr!("Fermez le jeu avant de restaurer une sauvegarde"), true);
         }
         let env = self.save_env();
         let targets: Option<Vec<PathBuf>> = snap.locations.iter().map(|t| env.resolve(t, g.install_dir.as_deref())).collect();
         let Some(targets) = targets else {
-            return self.toast("Un emplacement de cette sauvegarde n'existe pas sur ce PC", true);
+            return self.toast(tr!("Un emplacement de cette sauvegarde n'existe pas sur ce PC"), true);
         };
-        let text = format!(
-            "Les fichiers actuels de « {} » seront remplacés par la sauvegarde du {} ({}, {}). \
-             Une sauvegarde de l'état actuel est créée juste avant : vous pourrez revenir en arrière.",
-            g.name,
-            date_time(snap.created_at),
-            snap.machine,
-            snap.reason_label().to_lowercase()
+        let text = tr!(
+            "Les fichiers actuels de « {name} » seront remplacés par la sauvegarde du {date} ({machine}, {reason}). Une sauvegarde de l'état actuel est créée juste avant : vous pourrez revenir en arrière.",
+            name = g.name,
+            date = date_time(snap.created_at),
+            machine = snap.machine,
+            reason = snap.reason_label().to_lowercase()
         );
         let db = self.db.clone();
-        self.confirm("Restaurer cette sauvegarde ?", &text, "Restaurer", move |c| {
+        self.confirm(&tr!("Restaurer cette sauvegarde ?"), &text, &tr!("Restaurer"), move |c| {
             if let Some(app) = c.app() {
                 app.global::<DetailUi>().set_save_busy(true);
             }
             std::thread::spawn(move || {
                 let r = (|| -> Result<usize, String> {
                     // 1. Instantané de sécurité (sauf si rien à sauvegarder).
-                    match job.run(&db, "before_restore", "Avant restauration", true) {
+                    match job.run(&db, "before_restore", &tr!("Avant restauration"), true) {
                         Ok(_) => {}
-                        Err(e) if e.starts_with("aucun fichier") => {}
-                        Err(e) => return Err(format!("sauvegarde de sécurité impossible, restauration annulée : {e}")),
+                        Err(e) if e == tr!("aucun fichier de sauvegarde trouvé dans les emplacements") => {}
+                        Err(e) => return Err(tr!("sauvegarde de sécurité impossible, restauration annulée : {e}", e = e)),
                     }
                     // 2. Restauration vérifiée.
                     let n = job.primary.restore(&snap, &targets).map_err(|e| e.to_string())?;
@@ -434,15 +432,15 @@ impl Controller {
                     let _ = lock.log_activity(
                         ActivityKind::Save,
                         Some(job.game_id),
-                        &format!("Sauvegarde restaurée pour {}", job.name),
+                        &tr_later!("Sauvegarde restaurée pour {name}", name = job.name),
                         &format!("{} · {}", date_time(snap.created_at), snap.machine),
                     );
                     Ok(n)
                 })();
                 post(move |c| {
                     match r {
-                        Ok(n) => c.toast(format!("Sauvegarde restaurée ({n} fichier(s))"), false),
-                        Err(e) => c.toast(format!("Restauration impossible : {e}"), true),
+                        Ok(n) => c.toast(trn!(n, "Sauvegarde restaurée ({n} fichier)", "Sauvegarde restaurée ({n} fichiers)"), false),
+                        Err(e) => c.toast(tr!("Restauration impossible : {e}", e = e), true),
                     }
                     c.refresh_game_tools();
                 });
@@ -459,11 +457,11 @@ impl Controller {
         std::thread::spawn(move || {
             let latest = job.primary.list(&job.key).first().map(|m| m.created_at).unwrap_or(0);
             let at = now_unix().max(latest + 1);
-            let r = job.run_at(&db, "manual", &format!("Version de {machine} conservée"), false, at);
+            let r = job.run_at(&db, "manual", &tr!("Version de {machine} conservée", machine = machine), false, at);
             post(move |c| {
                 match r {
-                    Ok(_) => c.toast("Version de ce PC enregistrée comme référence", false),
-                    Err(e) => c.toast(format!("Sauvegarde impossible : {e}"), true),
+                    Ok(_) => c.toast(tr!("Version de ce PC enregistrée comme référence"), false),
+                    Err(e) => c.toast(tr!("Sauvegarde impossible : {e}", e = e), true),
                 }
                 c.refresh_game_tools();
             });
@@ -493,19 +491,12 @@ impl Controller {
                         lines.extend(d.added.iter().take(40).map(|f| SharedString::from(format!("+ {f}"))));
                         lines.extend(d.removed.iter().take(40).map(|f| SharedString::from(format!("− {f}"))));
                         dui.set_save_diff_title(
-                            format!(
-                                "Sauvegarde du {} → fichiers actuels : {} modifié(s), {} ajouté(s), {} supprimé(s), {} identique(s)",
-                                date_time(snap.created_at),
-                                d.modified.len(),
-                                d.added.len(),
-                                d.removed.len(),
-                                d.unchanged
-                            )
+                            tr!("Sauvegarde du {created_at} → fichiers actuels · modifiés : {modified} · ajoutés : {added} · supprimés : {removed} · identiques : {unchanged}", created_at = date_time(snap.created_at), modified = d.modified.len(), added = d.added.len(), removed = d.removed.len(), unchanged = d.unchanged)
                             .into(),
                         );
                         dui.set_save_diff(ModelRc::new(VecModel::from(lines)));
                     }
-                    Err(e) => c.toast(format!("Comparaison impossible : {e}"), true),
+                    Err(e) => c.toast(tr!("Comparaison impossible : {e}", e = e), true),
                 }
             });
         });
@@ -517,17 +508,13 @@ impl Controller {
         let Some(snap) = job.primary.get(&job.key, snap_id) else { return };
         let sid = snap_id.to_string();
         self.confirm(
-            "Supprimer cette sauvegarde ?",
-            &format!(
-                "La sauvegarde du {} ({}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés.",
-                date_time(snap.created_at),
-                snap.reason_label().to_lowercase()
-            ),
-            "Supprimer",
+            &tr!("Supprimer cette sauvegarde ?"),
+            &tr!("La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés.", created_at = date_time(snap.created_at), v = snap.reason_label().to_lowercase()),
+            &tr!("Supprimer"),
             move |c| {
                 match job.primary.delete(&job.key, &sid) {
-                    Ok(()) => c.toast("Sauvegarde supprimée", false),
-                    Err(e) => c.toast(format!("Suppression impossible : {e}"), true),
+                    Ok(()) => c.toast(tr!("Sauvegarde supprimée"), false),
+                    Err(e) => c.toast(tr!("Suppression impossible : {e}", e = e), true),
                 }
                 c.refresh_game_tools();
             },
@@ -573,7 +560,7 @@ impl Controller {
                 let ui = app.global::<SavesUi>();
                 let total: u64 = rows.iter().map(|r| r.4).sum();
                 let count: usize = rows.iter().map(|r| r.2).sum();
-                ui.set_summary(format!("{} jeu(x) suivis · {count} sauvegarde(s) · {}", rows.len(), util::format_size(total)).into());
+                ui.set_summary(tr!("Jeux suivis : {rows} · sauvegardes : {count} · {total}", rows = rows.len(), count = count, total = util::format_size(total)).into());
                 let lib = c.lib.borrow();
                 let out: Vec<SaveGameRow> = rows
                     .iter()
@@ -581,7 +568,7 @@ impl Controller {
                         id: *id as i32,
                         title: name.as_str().into(),
                         count: *n as i32,
-                        last: last.map(date_time).unwrap_or_else(|| "Jamais".into()).into(),
+                        last: last.map(date_time).unwrap_or_else(|| tr!("Jamais").into()).into(),
                         size: util::format_size(*size).into(),
                         other_machine: *other,
                         card: lib.get(*id).map(|g| crate::models::card_for(g, &c.images, now_unix())).unwrap_or_default(),
@@ -635,15 +622,15 @@ impl Controller {
                     let _ = c.db().log_activity(
                         ActivityKind::Save,
                         None,
-                        &format!("Sauvegardes détectées pour {games_done} jeu(x)"),
-                        &format!("{associated} emplacement(s) associé(s) automatiquement"),
+                        &trn_later!(games_done, "Sauvegardes détectées pour {n} jeu", "Sauvegardes détectées pour {n} jeux"),
+                        &trn_later!(associated, "{n} emplacement associé automatiquement", "{n} emplacements associés automatiquement"),
                     );
                 }
                 c.toast(
                     if games_done == 0 {
-                        "Aucun nouvel emplacement certain trouvé (vous pouvez en associer à la main dans chaque fiche)".to_string()
+                        tr!("Aucun nouvel emplacement certain trouvé (vous pouvez en associer à la main dans chaque fiche)")
                     } else {
-                        format!("{associated} emplacement(s) associé(s) pour {games_done} jeu(x)")
+                        tr!("Emplacements associés : {associated} · jeux : {games_done}", associated = associated, games_done = games_done)
                     },
                     false,
                 );
@@ -657,7 +644,7 @@ impl Controller {
         let root = if p.is_empty() { None } else { Some(PathBuf::from(p)) };
         if let Some(r) = &root {
             if std::fs::create_dir_all(r).is_err() {
-                return self.toast(format!("Dossier inaccessible : {}", r.display()), true);
+                return self.toast(tr!("Dossier inaccessible : {r}", r = r.display()), true);
             }
         }
         self.settings.borrow_mut().save_root = root;
@@ -669,7 +656,7 @@ impl Controller {
     pub(crate) fn add_save_mirror(&self, path: &str) {
         let p = PathBuf::from(path.trim());
         if p.as_os_str().is_empty() || std::fs::create_dir_all(&p).is_err() {
-            return self.toast("Dossier inaccessible", true);
+            return self.toast(tr!("Dossier inaccessible"), true);
         }
         {
             let mut s = self.settings.borrow_mut();
@@ -700,7 +687,7 @@ impl Controller {
                 self.save_settings();
                 self.refresh_saves_page();
             }
-            _ => self.toast("Nombre entre 0 (illimité) et 1000 attendu", true),
+            _ => self.toast(tr!("Nombre entre 0 (illimité) et 1000 attendu"), true),
         }
     }
 
@@ -744,7 +731,7 @@ impl Controller {
             }
             if copied > 0 {
                 log::info!("{copied} sauvegarde(s) recopiée(s) vers les dépôts");
-                post(move |c| c.toast(format!("{copied} sauvegarde(s) synchronisée(s) vers les dépôts"), false));
+                post(move |c| c.toast(trn!(copied, "{n} sauvegarde synchronisée vers les dépôts", "{n} sauvegardes synchronisées vers les dépôts"), false));
             }
         });
     }

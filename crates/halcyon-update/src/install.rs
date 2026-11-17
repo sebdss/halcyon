@@ -79,7 +79,7 @@ impl Target {
 pub fn fault(layout: &Layout, point: &str) {
     #[cfg(feature = "fault-injection")]
     if std::env::var("HUS_FAULT").ok().as_deref() == Some(point) {
-        log(layout, &format!("panne simulée : {point}"));
+        log(layout, &tr!("panne simulée : {point}", point = point));
         std::process::exit(86);
     }
     let _ = (layout, point);
@@ -106,7 +106,7 @@ pub struct Verified {
 /// Place un paquet téléchargé et vérifié dans `.hus/pending` (installation immédiate ou au
 /// prochain démarrage). Le manifeste et sa signature l'accompagnent : l'updater revérifie tout.
 pub fn stage(layout: &Layout, manifest_bytes: &[u8], signature: &str, package: &Path, version: &Version, target: &Target) -> Result<(), String> {
-    let name = package.file_name().and_then(|n| n.to_str()).ok_or("nom de paquet invalide")?.to_string();
+    let name = package.file_name().and_then(|n| n.to_str()).ok_or(tr!("nom de paquet invalide"))?.to_string();
     let dir = layout.pending();
     let tmp = layout.hus().join("pending.tmp");
     let _ = std::fs::remove_dir_all(&tmp);
@@ -114,19 +114,19 @@ pub fn stage(layout: &Layout, manifest_bytes: &[u8], signature: &str, package: &
     write_atomic(&tmp.join(MANIFEST_NAME), manifest_bytes).map_err(|e| e.to_string())?;
     write_atomic(&tmp.join(SIGNATURE_NAME), signature.as_bytes()).map_err(|e| e.to_string())?;
     if std::fs::rename(package, tmp.join(&name)).is_err() {
-        std::fs::copy(package, tmp.join(&name)).map_err(|e| format!("paquet : {e}"))?;
+        std::fs::copy(package, tmp.join(&name)).map_err(|e| tr!("paquet : {e}", e = e))?;
         let _ = std::fs::remove_file(package);
     }
     let p = Pending { version: version.to_string(), package: name, target: target.clone(), staged_at: recovery::now() };
     write_atomic(&tmp.join("pending.json"), &serde_json::to_vec_pretty(&p).unwrap_or_default()).map_err(|e| e.to_string())?;
     let _ = std::fs::remove_dir_all(&dir);
-    std::fs::rename(&tmp, &dir).map_err(|e| format!("mise en attente : {e}"))?;
+    std::fs::rename(&tmp, &dir).map_err(|e| tr!("mise en attente : {e}", e = e))?;
     let mut r = recovery::load(layout);
     r.state = State::Staging;
     r.to = version.to_string();
     r.message = String::new();
     recovery::save(layout, &r)?;
-    log(layout, &format!("paquet {version} vérifié et mis en attente ({})", target.arg()));
+    log(layout, &tr!("paquet {version} vérifié et mis en attente ({arg})", version = version, arg = target.arg()));
     Ok(())
 }
 
@@ -141,22 +141,22 @@ pub fn discard_pending(layout: &Layout) {
 /// Revérification complète du paquet en attente : rien n'est cru sur parole.
 pub fn verify_pending(layout: &Layout, keys: &[PublicKey], platform: Platform) -> Result<Verified, String> {
     let dir = layout.pending();
-    let pending = read_pending(layout).ok_or("aucune mise à jour en attente")?;
-    let bytes = std::fs::read(dir.join(MANIFEST_NAME)).map_err(|e| format!("manifeste : {e}"))?;
-    let sig = std::fs::read_to_string(dir.join(SIGNATURE_NAME)).map_err(|e| format!("signature : {e}"))?;
+    let pending = read_pending(layout).ok_or(tr!("aucune mise à jour en attente"))?;
+    let bytes = std::fs::read(dir.join(MANIFEST_NAME)).map_err(|e| tr!("manifeste : {e}", e = e))?;
+    let sig = std::fs::read_to_string(dir.join(SIGNATURE_NAME)).map_err(|e| tr!("signature : {e}", e = e))?;
     security::verify_signature(keys, &bytes, &sig)?;
     let checked = Manifest::parse(&bytes)?.check(None, None)?;
     if checked.version.to_string() != pending.version {
-        return Err("paquet en attente incohérent avec son manifeste".into());
+        return Err(tr!("paquet en attente incohérent avec son manifeste").into());
     }
-    let pkg = checked.package(platform).ok_or("aucun paquet pour ce système dans le manifeste")?;
+    let pkg = checked.package(platform).ok_or(tr!("aucun paquet pour ce système dans le manifeste"))?;
     if pkg.name != pending.package || pkg.format != pending.target.format() {
-        return Err("paquet en attente différent du manifeste signé".into());
+        return Err(tr!("paquet en attente différent du manifeste signé").into());
     }
     let path = dir.join(&pkg.name);
-    let len = std::fs::metadata(&path).map(|m| m.len()).map_err(|e| format!("paquet : {e}"))?;
+    let len = std::fs::metadata(&path).map(|m| m.len()).map_err(|e| tr!("paquet : {e}", e = e))?;
     if len != pkg.size || security::sha256_file(&path).map_err(|e| e.to_string())? != pkg.sha256 {
-        return Err("paquet en attente altéré (SHA-256 différent du manifeste signé)".into());
+        return Err(tr!("paquet en attente altéré (SHA-256 différent du manifeste signé)").into());
     }
     security::check_package(&path, pkg.format)?;
     Ok(Verified { pending, checked, package_path: path })
@@ -195,11 +195,11 @@ struct Journal {
 
 fn rel_path(base: &Path, rel: &str) -> Result<PathBuf, String> {
     let ok = !rel.is_empty() && !rel.starts_with('/') && !rel.contains(':') && rel.split('/').all(|p| !p.is_empty() && p != "." && p != "..");
-    if ok { Ok(base.join(rel)) } else { Err(format!("chemin refusé : {rel}")) }
+    if ok { Ok(base.join(rel)) } else { Err(tr!("chemin refusé : {rel}", rel = rel)) }
 }
 
 fn save_journal(layout: &Layout, j: &Journal) -> Result<(), String> {
-    write_atomic(&layout.journal(), &serde_json::to_vec(j).unwrap_or_default()).map_err(|e| format!("journal de transaction : {e}"))
+    write_atomic(&layout.journal(), &serde_json::to_vec(j).unwrap_or_default()).map_err(|e| tr!("journal de transaction : {e}", e = e))
 }
 
 #[cfg(unix)]
@@ -225,7 +225,7 @@ fn extract_zip(package: &Path, staging: &Path) -> Result<Vec<(String, u64, Strin
             continue;
         }
         let raw = e.name().map_err(|e| e.to_string())?.to_string();
-        let rel = security::safe_relative(&raw).ok_or_else(|| format!("chemin refusé : {raw}"))?;
+        let rel = security::safe_relative(&raw).ok_or_else(|| tr!("chemin refusé : {raw}", raw = raw))?;
         debug_assert!(names.contains(&rel));
         let exec = e.unix_mode().is_some_and(|m| m & 0o111 != 0) || rel.ends_with(".exe") || rel == security::WINDOWS_MAIN;
         let dest = rel_path(staging, &rel)?;
@@ -234,7 +234,7 @@ fn extract_zip(package: &Path, staging: &Path) -> Result<Vec<(String, u64, Strin
         }
         let mut f = std::fs::File::create(&dest).map_err(|e| format!("{rel} : {e}"))?;
         // La lecture complète vérifie le CRC-32 de chaque entrée.
-        let n = std::io::copy(&mut e, &mut f).map_err(|e| format!("{rel} : extraction impossible ({e})"))?;
+        let n = std::io::copy(&mut e, &mut f).map_err(|e| tr!("{rel} : extraction impossible ({e})", rel = rel, e = e))?;
         f.sync_all().map_err(|e| e.to_string())?;
         drop(f);
         if exec {
@@ -295,12 +295,12 @@ pub fn install(layout: &Layout, v: &Verified, installed: &Version) -> Result<Str
             r.to = to.to_string();
             r.message = String::new();
             recovery::save(layout, &r)?;
-            log(layout, &format!("fichiers de {to} en place (transaction {txid}), contrôle de santé"));
+            log(layout, &tr!("fichiers de {to} en place (transaction {txid}), contrôle de santé", to = to, txid = txid));
             Ok(txid)
         }
         Err(e) => {
-            log(layout, &format!("échec de l'installation : {e}"));
-            rollback(layout).map_err(|r| format!("{e} ; retour arrière incomplet : {r}"))?;
+            log(layout, &tr!("échec de l'installation : {e}", e = e));
+            rollback(layout).map_err(|r| tr!("{e} ; retour arrière incomplet : {r}", e = e, r = r))?;
             Err(e)
         }
     }
@@ -380,7 +380,7 @@ fn apply(layout: &Layout, v: &Verified, installed: &Version, txid: &str) -> Resu
     for e in &mut entries {
         let target = rel_path(root, &e.rel)?;
         if target.is_dir() && target.symlink_metadata().map(|m| !m.file_type().is_symlink()).unwrap_or(false) {
-            return Err(format!("{} : un dossier porte ce nom, rien n'a été modifié", e.rel));
+            return Err(tr!("{rel} : un dossier porte ce nom, rien n'a été modifié", rel = e.rel));
         }
         e.had_old = target.symlink_metadata().is_ok();
     }
@@ -395,7 +395,7 @@ fn apply(layout: &Layout, v: &Verified, installed: &Version, txid: &str) -> Resu
         entries: entries.clone(),
     };
     save_journal(layout, &journal)?;
-    log(layout, &format!("transaction {txid} : {} opération(s)", entries.len()));
+    log(layout, &trn!(entries.len(), "transaction {txid} : {n} opération", "transaction {txid} : {n} opérations", txid = txid));
     fault(layout, "after-journal");
 
     // 4. Mise en place.
@@ -406,7 +406,7 @@ fn apply(layout: &Layout, v: &Verified, installed: &Version, txid: &str) -> Resu
             if let Some(d) = b.parent() {
                 std::fs::create_dir_all(d).map_err(|err| err.to_string())?;
             }
-            preserve(&target, &b).map_err(|err| format!("sauvegarde de {} : {err}", e.rel))?;
+            preserve(&target, &b).map_err(|err| tr!("sauvegarde de {rel} : {err}", rel = e.rel, err = err))?;
         }
         if let Some(d) = target.parent() {
             std::fs::create_dir_all(d).map_err(|err| err.to_string())?;
@@ -450,7 +450,7 @@ fn link_atomic(to: &str, at: &Path) -> std::io::Result<()> {
 
 #[cfg(not(unix))]
 fn link_atomic(_: &str, _: &Path) -> std::io::Result<()> {
-    Err(std::io::Error::other("liens symboliques non utilisés sous Windows"))
+    Err(std::io::Error::other(tr!("liens symboliques non utilisés sous Windows")))
 }
 
 /// Rejoue le journal à l'envers : chaque fichier retrouve sa version d'avant la transaction.
@@ -460,8 +460,8 @@ pub fn rollback(layout: &Layout) -> Result<bool, String> {
         let _ = std::fs::remove_dir_all(layout.staging());
         return Ok(false);
     };
-    let j: Journal = serde_json::from_slice(&text).map_err(|e| format!("journal de transaction illisible : {e}"))?;
-    log(layout, &format!("retour arrière de la transaction {} ({} → {})", j.txid, j.from, j.to));
+    let j: Journal = serde_json::from_slice(&text).map_err(|e| tr!("journal de transaction illisible : {e}", e = e))?;
+    log(layout, &tr!("retour arrière de la transaction {txid} ({from} → {to})", txid = j.txid, from = j.from, to = j.to));
     let backup = layout.backup();
     let mut errors = Vec::new();
     for (i, e) in j.entries.iter().enumerate().rev() {
@@ -489,28 +489,28 @@ pub fn rollback(layout: &Layout) -> Result<bool, String> {
     }
     if !errors.is_empty() {
         let msg = errors.join(" ; ");
-        log(layout, &format!("retour arrière incomplet : {msg}"));
+        log(layout, &tr!("retour arrière incomplet : {msg}", msg = msg));
         return Err(msg);
     }
     let _ = std::fs::remove_dir_all(layout.staging());
     let _ = std::fs::remove_dir_all(&backup);
     let _ = std::fs::remove_file(layout.journal());
-    log(layout, &format!("version {} rétablie", j.from));
+    log(layout, &tr!("version {from} rétablie", from = j.from));
     Ok(true)
 }
 
 /// Transaction confirmée par le contrôle de santé : l'ancienne version est gardée dans
 /// `.hus/previous`, le reste est nettoyé, l'état passe à `Completed`.
 pub fn finalize(layout: &Layout, txid: &str) -> Result<(), String> {
-    let j: Journal = serde_json::from_slice(&std::fs::read(layout.journal()).map_err(|e| format!("journal : {e}"))?).map_err(|e| e.to_string())?;
+    let j: Journal = serde_json::from_slice(&std::fs::read(layout.journal()).map_err(|e| tr!("journal : {e}", e = e))?).map_err(|e| e.to_string())?;
     if j.txid != txid {
-        return Err("transaction inattendue".into());
+        return Err(tr!("transaction inattendue").into());
     }
     let prev = layout.previous();
     let _ = std::fs::remove_dir_all(&prev);
     if layout.backup().exists() {
         std::fs::create_dir_all(&prev).map_err(|e| e.to_string())?;
-        std::fs::rename(layout.backup(), prev.join(&j.from)).map_err(|e| format!("conservation de la version précédente : {e}"))?;
+        std::fs::rename(layout.backup(), prev.join(&j.from)).map_err(|e| tr!("conservation de la version précédente : {e}", e = e))?;
     }
     let _ = std::fs::remove_file(layout.journal());
     let _ = std::fs::remove_dir_all(layout.staging());
@@ -528,9 +528,9 @@ pub fn finalize(layout: &Layout, txid: &str) -> Result<(), String> {
     r.to = j.to.clone();
     r.blocked = None;
     r.acknowledged = false;
-    r.message = format!("Halcyon {} installé", j.to);
+    r.message = tr_later!("Halcyon {to} installé", to = j.to);
     recovery::save(layout, &r)?;
-    log(layout, &format!("mise à jour {} → {} terminée", j.from, j.to));
+    log(layout, &tr!("mise à jour {from} → {to} terminée", from = j.from, to = j.to));
     Ok(())
 }
 

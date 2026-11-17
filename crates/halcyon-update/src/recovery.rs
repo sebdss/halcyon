@@ -153,7 +153,7 @@ pub fn load(layout: &Layout) -> Record {
 pub fn save(layout: &Layout, record: &Record) -> Result<(), String> {
     let mut r = record.clone();
     r.updated = now();
-    write_atomic(&layout.state_file(), &serde_json::to_vec_pretty(&r).unwrap_or_default()).map_err(|e| format!("état de mise à jour : {e}"))
+    write_atomic(&layout.state_file(), &serde_json::to_vec_pretty(&r).unwrap_or_default()).map_err(|e| tr!("état de mise à jour : {e}", e = e))
 }
 
 /// Change d'état (et journalise).
@@ -165,7 +165,7 @@ pub fn set_state(layout: &Layout, state: State, message: &str) -> Result<Record,
         r.acknowledged = false;
     }
     save(layout, &r)?;
-    log(layout, &format!("état {state:?}{}", if message.is_empty() { String::new() } else { format!(" : {message}") }));
+    log(layout, &tr!("état {state}{v}", state = format!("{:?}", state), v = if message.is_empty() { String::new() } else { format!(" : {}", halcyon_i18n::render(message)) }));
     Ok(r)
 }
 
@@ -226,16 +226,16 @@ impl Lock {
                 Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
                     let owner = std::fs::read_to_string(&path).ok().and_then(|s| s.trim().parse::<u32>().ok());
                     match owner {
-                        Some(pid) if pid != std::process::id() && pid_alive(pid) => return Err("une mise à jour est déjà en cours".into()),
+                        Some(pid) if pid != std::process::id() && pid_alive(pid) => return Err(tr!("une mise à jour est déjà en cours").into()),
                         _ => {
                             let _ = std::fs::remove_file(&path);
                         }
                     }
                 }
-                Err(e) => return Err(format!("verrou de mise à jour : {e}")),
+                Err(e) => return Err(tr!("verrou de mise à jour : {e}", e = e)),
             }
         }
-        Err("verrou de mise à jour indisponible".into())
+        Err(tr!("verrou de mise à jour indisponible").into())
     }
 
     /// Un updater vivant tient-il le verrou ?
@@ -262,10 +262,10 @@ pub const ARG_ROLLED_BACK: &str = "--hus-rolled-back";
 /// Appelée par Halcyon une fois sa fenêtre affichée et sa boucle d'évènements active.
 pub fn confirm_health(layout: &Layout, txid: &str) -> Result<(), String> {
     if txid.is_empty() || !txid.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-') {
-        return Err("identifiant de transaction invalide".into());
+        return Err(tr!("identifiant de transaction invalide").into());
     }
-    write_atomic(&layout.health().join(format!("{txid}.ok")), b"ok").map_err(|e| format!("contrôle de santé : {e}"))?;
-    log(layout, &format!("santé confirmée pour la transaction {txid}"));
+    write_atomic(&layout.health().join(format!("{txid}.ok")), b"ok").map_err(|e| tr!("contrôle de santé : {e}", e = e))?;
+    log(layout, &tr!("santé confirmée pour la transaction {txid}", txid = txid));
     Ok(())
 }
 

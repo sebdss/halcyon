@@ -288,18 +288,18 @@ impl Database {
                                 params![id, v, now],
                             )?;
                             if let Some(old) = &e.version {
-                                log_with(&tx, ActivityKind::Update, Some(id), &format!("{} mis à jour", e.name), &format!("{old} → {v}"))?;
+                                log_with(&tx, ActivityKind::Update, Some(id), &tr_later!("{name} mis à jour", name = e.name), &format!("{old} → {v}"))?;
                             }
                         }
                     }
                     if let Some(u) = upd {
                         if u.state == UpdateState::Available && e.update == UpdateState::None {
-                            log_with(&tx, ActivityKind::Update, Some(id), &format!("Mise à jour disponible pour {}", e.name), source.label())?;
+                            log_with(&tx, ActivityKind::Update, Some(id), &tr_later!("Mise à jour disponible pour {name}", name = e.name), &source.label())?;
                             stats.new_updates.push((id, e.name.clone()));
                         }
                     }
                     if d.installed && !e.installed {
-                        log_with(&tx, ActivityKind::Installed, Some(id), &format!("{} installé", e.name), source.label())?;
+                        log_with(&tx, ActivityKind::Installed, Some(id), &tr_later!("{name} installé", name = e.name), &source.label())?;
                     }
                 } else {
                     insert.execute(params![
@@ -343,7 +343,7 @@ impl Database {
                         )?;
                     }
                     if added_names.len() < ACTIVITY_DETAIL_LIMIT {
-                        log_with(&tx, ActivityKind::Added, Some(id), &format!("{} ajouté à la bibliothèque", d.name), source.label())?;
+                        log_with(&tx, ActivityKind::Added, Some(id), &tr_later!("{name} ajouté à la bibliothèque", name = d.name), &source.label())?;
                     }
                     added_names.push(d.name.clone());
                 }
@@ -355,7 +355,7 @@ impl Database {
                     &tx,
                     ActivityKind::Added,
                     None,
-                    &format!("{more} autres jeux ajoutés ({})", source.label()),
+                    &trn_later!(more, "{n} autre jeu ajouté ({label})", "{n} autres jeux ajoutés ({label})", label = source.label()),
                     &added_names[ACTIVITY_DETAIL_LIMIT..].iter().take(30).cloned().collect::<Vec<_>>().join(", "),
                 )?;
             }
@@ -365,7 +365,7 @@ impl Database {
                     if e.installed && !seen.contains(key.as_str()) {
                         mark.execute([e.id])?;
                         stats.uninstalled += 1;
-                        log_with(&tx, ActivityKind::Uninstalled, Some(e.id), &format!("{} désinstallé", e.name), source.label())?;
+                        log_with(&tx, ActivityKind::Uninstalled, Some(e.id), &tr_later!("{name} désinstallé", name = e.name), &source.label())?;
                     }
                 }
             }
@@ -386,10 +386,10 @@ impl Database {
             )
             .optional()?;
         if let Some(name) = dup {
-            return Err(StorageError::Conflict(format!("cet exécutable est déjà dans la bibliothèque (« {name} »)")));
+            return Err(StorageError::Conflict(tr!("cet exécutable est déjà dans la bibliothèque (« {name} »)", name = name)));
         }
         let name = if input.name.trim().is_empty() {
-            input.executable.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_else(|| "Jeu".into())
+            input.executable.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Jeu").into())
         } else {
             input.name.trim().to_string()
         };
@@ -409,7 +409,7 @@ impl Database {
             ],
         )?;
         let id = self.conn.last_insert_rowid();
-        self.log_activity(ActivityKind::Added, Some(id), &format!("{name} ajouté à la bibliothèque"), "Ajout manuel")?;
+        self.log_activity(ActivityKind::Added, Some(id), &tr_later!("{name} ajouté à la bibliothèque", name = name), &tr_later!("Ajout manuel"))?;
         self.get_game(id)
     }
 
@@ -464,7 +464,7 @@ impl Database {
         self.log_activity(
             ActivityKind::Session,
             Some(id),
-            &format!("Session de {name}"),
+            &tr_later!("Session de {name}", name = name),
             &halcyon_core::util::format_playtime(duration_secs),
         )
     }
@@ -494,7 +494,7 @@ impl Database {
     pub fn remove_manual_game(&self, id: GameId) -> Result<()> {
         let n = self.conn.execute("DELETE FROM games WHERE id = ?1 AND source = 'manual'", [id])?;
         if n == 0 {
-            return Err(StorageError::Conflict("seuls les jeux ajoutés manuellement peuvent être supprimés".into()));
+            return Err(StorageError::Conflict(tr!("seuls les jeux ajoutés manuellement peuvent être supprimés").into()));
         }
         Ok(())
     }
@@ -583,7 +583,7 @@ impl Database {
     pub fn create_collection(&self, name: &str) -> Result<i64> {
         let name = name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict("le nom de la collection est vide".into()));
+            return Err(StorageError::Conflict(tr!("le nom de la collection est vide").into()));
         }
         self.conn.execute("INSERT OR IGNORE INTO collections (name) VALUES (?1)", [name])?;
         Ok(self.conn.query_row("SELECT id FROM collections WHERE name = ?1", [name], |r| r.get(0))?)

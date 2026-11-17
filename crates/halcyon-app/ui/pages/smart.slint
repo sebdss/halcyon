@@ -27,7 +27,7 @@ component RuleEditor inherits Rectangle {
         spacing: 8px;
         Chip {
             y: (parent.height - self.height) / 2;
-            text: "Sauf";
+            text: @tr("Sauf");
             checked: root.negate;
             toggled => { SmartUi.set-rule(root.index, root.kind, root.param, !root.negate); }
         }
@@ -41,7 +41,7 @@ component RuleEditor inherits Rectangle {
         }
         if root.ptype == 1 || root.ptype == 4: TextField {
             text <=> root.draft;
-            placeholder: root.ptype == 1 ? "nombre" : "valeur";
+            placeholder: root.ptype == 1 ? @tr("nombre") : @tr("valeur");
             mono: root.ptype == 1;
             edited(t) => { SmartUi.set-rule(root.index, root.kind, t, root.negate); }
         }
@@ -68,7 +68,7 @@ component RuleEditor inherits Rectangle {
             y: (parent.height - self.height) / 2;
             icon: Icons.trash;
             active-tint: Theme.danger;
-            tooltip: "Retirer la règle";
+            tooltip: @tr("Retirer la règle");
             clicked => { SmartUi.remove-rule(root.index); }
         }
     }
@@ -91,19 +91,19 @@ export component SmartDialog inherits Modal {
                 horizontal-stretch: 1;
                 spacing: 3px;
                 Text {
-                    text: SmartUi.editing-id < 0 ? "Collections intelligentes" : SmartUi.editing-id == 0 ? "Nouvelle collection intelligente" : "Modifier la collection";
+                    text: SmartUi.editing-id < 0 ? @tr("Collections intelligentes") : SmartUi.editing-id == 0 ? @tr("Nouvelle collection intelligente") : @tr("Modifier la collection");
                     color: Theme.text;
                     font-size: Theme.t-heading + 2px;
                     font-weight: 700;
                     font-family: Theme.display;
                 }
                 Text {
-                    text: "Mises à jour automatiquement selon vos règles : aucun jeu à ajouter à la main.";
+                    text: @tr("Mises à jour automatiquement selon vos règles : aucun jeu à ajouter à la main.");
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                 }
             }
-            IconButton { icon: Icons.close; tooltip: "Fermer"; clicked => { SmartUi.open = false; } }
+            IconButton { icon: Icons.close; tooltip: @tr("Fermer"); clicked => { SmartUi.open = false; } }
         }
 
         // Liste
@@ -130,17 +130,17 @@ export component SmartDialog inherits Modal {
                             HorizontalLayout {
                                 spacing: 8px;
                                 Text { text: c.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
-                                Badge { text: c.count + (c.count > 1 ? " jeux" : " jeu"); }
+                                Badge { text: @tr("{n} jeu" | "{n} jeux" % c.count); }
                                 Rectangle { horizontal-stretch: 1; }
                             }
                             Text { text: c.description; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
                         }
-                        IconButton { y: (parent.height - self.height) / 2; icon: Icons.edit; tooltip: "Modifier"; clicked => { SmartUi.edit(c.id); } }
-                        IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer"; clicked => { SmartUi.remove(c.id); } }
+                        IconButton { y: (parent.height - self.height) / 2; icon: Icons.edit; tooltip: @tr("Modifier"); clicked => { SmartUi.edit(c.id); } }
+                        IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Supprimer"); clicked => { SmartUi.remove(c.id); } }
                     }
                 }
                 if SmartUi.collections.length == 0: Text {
-                    text: "Aucune collection intelligente.";
+                    text: @tr("Aucune collection intelligente.");
                     color: Theme.text-dim;
                     font-size: Theme.t-small;
                 }
@@ -148,7 +148,7 @@ export component SmartDialog inherits Modal {
         }
         if SmartUi.editing-id < 0: HorizontalLayout {
             alignment: end;
-            PrimaryButton { text: "Nouvelle collection"; icon: Icons.plus; has-icon: true; clicked => { SmartUi.create(); } }
+            PrimaryButton { text: @tr("Nouvelle collection"); icon: Icons.plus; has-icon: true; clicked => { SmartUi.create(); } }
         }
 
         // Édition
@@ -157,9 +157,9 @@ export component SmartDialog inherits Modal {
             vertical-stretch: 1;
             HorizontalLayout {
                 spacing: 10px;
-                TextField { text <=> SmartUi.name; placeholder: "Nom de la collection"; }
+                TextField { text <=> SmartUi.name; placeholder: @tr("Nom de la collection"); }
                 Segmented {
-                    items: ["Toutes les règles", "Au moins une"];
+                    items: [@tr("Toutes les règles"), @tr("Au moins une")];
                     selected: SmartUi.match-all ? 0 : 1;
                     activated(i) => { SmartUi.set-match-all(i == 0); }
                 }
@@ -174,21 +174,21 @@ export component SmartDialog inherits Modal {
                     for r[i] in SmartUi.rules: RuleEditor { index: i; kind: r.kind; param: r.param; negate: r.negate; valid: r.valid; }
                     HorizontalLayout {
                         alignment: start;
-                        SecondaryButton { text: "Ajouter une règle"; icon: Icons.plus; has-icon: true; clicked => { SmartUi.add-rule(); } }
+                        SecondaryButton { text: @tr("Ajouter une règle"); icon: Icons.plus; has-icon: true; clicked => { SmartUi.add-rule(); } }
                     }
                 }
             }
             HorizontalLayout {
                 spacing: 10px;
                 Text {
-                    text: SmartUi.error != "" ? SmartUi.error : SmartUi.preview-count + (SmartUi.preview-count > 1 ? " jeux correspondent" : " jeu correspond");
+                    text: SmartUi.error != "" ? SmartUi.error : @tr("{n} jeu correspond" | "{n} jeux correspondent" % SmartUi.preview-count);
                     color: SmartUi.error != "" ? Theme.danger : Theme.text-muted;
                     font-size: Theme.t-small;
                     vertical-alignment: center;
                     horizontal-stretch: 1;
                 }
-                SecondaryButton { text: "Annuler"; clicked => { SmartUi.editing-id = -1; } }
-                PrimaryButton { text: "Enregistrer"; icon: Icons.check; has-icon: true; clicked => { SmartUi.save(); } }
+                SecondaryButton { text: @tr("Annuler"); clicked => { SmartUi.editing-id = -1; } }
+                PrimaryButton { text: @tr("Enregistrer"); icon: Icons.check; has-icon: true; clicked => { SmartUi.save(); } }
             }
         }
     }

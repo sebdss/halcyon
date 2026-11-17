@@ -136,21 +136,21 @@ impl State {
         self as i32
     }
 
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            State::Idle => "En attente",
-            State::Checking => "Recherche de mises à jour…",
-            State::UpToDate => "À jour",
-            State::Available => "Mise à jour disponible",
-            State::Downloading => "Téléchargement…",
-            State::Verifying => "Vérification…",
-            State::Staging => "Prête à être installée",
-            State::Installing => "Installation…",
-            State::HealthCheck => "Contrôle du démarrage…",
-            State::Completed => "Mise à jour installée",
-            State::Failed => "Échec",
-            State::Recovery => "Récupération…",
-            State::RolledBack => "Version précédente restaurée",
+            State::Idle => tr!("En attente"),
+            State::Checking => tr!("Recherche de mises à jour…"),
+            State::UpToDate => tr!("À jour"),
+            State::Available => tr!("Mise à jour disponible"),
+            State::Downloading => tr!("Téléchargement…"),
+            State::Verifying => tr!("Vérification…"),
+            State::Staging => tr!("Prête à être installée"),
+            State::Installing => tr!("Installation…"),
+            State::HealthCheck => tr!("Contrôle du démarrage…"),
+            State::Completed => tr!("Mise à jour installée"),
+            State::Failed => tr!("Échec"),
+            State::Recovery => tr!("Récupération…"),
+            State::RolledBack => tr!("Version précédente restaurée"),
         }
     }
 }

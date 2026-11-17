@@ -43,7 +43,7 @@ pub struct ExportOptions {
 pub fn export(data_dir: &Path, db_copy: &Path, dest: &Path, opts: &ExportOptions, mut manifest: Manifest) -> io::Result<u64> {
     let mut entries: Vec<(String, PathBuf)> = vec![("library.db".into(), db_copy.to_path_buf())];
     let mut extra: Vec<(String, Vec<u8>)> = Vec::new();
-    let mut sections = vec!["bibliothèque".to_string(), "statistiques".to_string()];
+    let mut sections = vec![tr!("bibliothèque"), "statistiques".to_string()];
 
     let settings = data_dir.join("settings.json");
     if let Ok(bytes) = std::fs::read(&settings) {
@@ -60,7 +60,7 @@ pub fn export(data_dir: &Path, db_copy: &Path, dest: &Path, opts: &ExportOptions
             }
         }
         extra.push(("settings.json".into(), serde_json::to_vec_pretty(&v).map_err(io::Error::other)?));
-        sections.push("paramètres".into());
+        sections.push(tr!("paramètres").into());
     }
     for dir in DIRS {
         let base = data_dir.join(dir);
@@ -105,13 +105,13 @@ pub fn export(data_dir: &Path, db_copy: &Path, dest: &Path, opts: &ExportOptions
 /// Lit et valide le manifeste d'une archive.
 pub fn inspect(path: &Path) -> io::Result<Manifest> {
     let bytes = archive::read_entry(path, MANIFEST)
-        .map_err(|_| io::Error::other("ce fichier n'est pas une archive de configuration Halcyon"))?;
-    let m: Manifest = serde_json::from_slice(&bytes).map_err(|e| io::Error::other(format!("manifeste illisible : {e}")))?;
+        .map_err(|_| io::Error::other(tr!("ce fichier n'est pas une archive de configuration Halcyon")))?;
+    let m: Manifest = serde_json::from_slice(&bytes).map_err(|e| io::Error::other(tr!("manifeste illisible : {e}", e = e)))?;
     if m.format > FORMAT {
-        return Err(io::Error::other("archive créée par une version plus récente de Halcyon"));
+        return Err(io::Error::other(tr!("archive créée par une version plus récente de Halcyon")));
     }
     if !archive::list_entries(path)?.iter().any(|n| n == "library.db") {
-        return Err(io::Error::other("archive incomplète : base de la bibliothèque absente"));
+        return Err(io::Error::other(tr!("archive incomplète : base de la bibliothèque absente")));
     }
     Ok(m)
 }

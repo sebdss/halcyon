@@ -43,14 +43,14 @@ impl Controller {
             .iter()
             .filter_map(|(key, label, _, default)| {
                 let b = p.mapping.get(*key)?;
-                (Some(b.as_str()) != gamepad::button_name(*default)).then(|| format!("{label} : {}", gamepad::button_label(b, brand)))
+                (Some(b.as_str()) != gamepad::button_name(*default)).then(|| tr!("{label} : {button}", label = halcyon_i18n::t(label), button = gamepad::button_label(b, brand)))
             })
             .collect();
         let emu = p.emulator_args.values().filter(|v| !v.trim().is_empty()).count();
         if emu > 0 {
-            parts.push(format!("options pour {emu} émulateur(s)"));
+            parts.push(trn!(emu, "options pour {n} émulateur", "options pour {n} émulateurs"));
         }
-        if parts.is_empty() { "Disposition standard".into() } else { parts.join(" · ") }
+        if parts.is_empty() { tr!("Disposition standard").into() } else { parts.join(" · ") }
     }
 
     pub(crate) fn refresh_pads_ui(&self) {
@@ -61,7 +61,7 @@ impl Controller {
             .pads
             .borrow()
             .iter()
-            .map(|p: &PadInfo| PadRow { name: p.name.clone().into(), brand: p.brand.clone().into(), power: p.power.clone().into(), last_used: p.last_used })
+            .map(|p: &PadInfo| PadRow { name: p.name.clone().into(), brand: halcyon_i18n::t(&p.brand).into(), power: p.power.clone().into(), last_used: p.last_used })
             .collect();
         ui.set_pads(ModelRc::new(VecModel::from(pads)));
         let s = self.settings.borrow();
@@ -75,7 +75,7 @@ impl Controller {
                 active: p.id == s.active_pad_profile,
             })
             .collect();
-        let mut labels: Vec<SharedString> = vec!["Disposition standard".into()];
+        let mut labels: Vec<SharedString> = vec![tr!("Disposition standard").into()];
         labels.extend(s.pad_profiles.iter().map(|p| SharedString::from(p.name.as_str())));
         let active = s.pad_profiles.iter().position(|p| p.id == s.active_pad_profile).map(|i| i + 1).unwrap_or(0);
         drop(s);
@@ -95,7 +95,7 @@ impl Controller {
             .iter()
             .map(|(key, label, _, default)| {
                 let b = p.mapping.get(*key).cloned().unwrap_or_else(|| gamepad::button_name(*default).unwrap_or("").to_string());
-                MappingRow { action: (*key).into(), label: (*label).into(), button: gamepad::button_label(&b, &brand).into() }
+                MappingRow { action: (*key).into(), label: halcyon_i18n::t(label).into(), button: gamepad::button_label(&b, &brand).into() }
             })
             .collect();
         ui.set_mapping(ModelRc::new(VecModel::from(mapping)));
@@ -147,7 +147,7 @@ impl Controller {
     pub(crate) fn start_capture(self: &Rc<Self>, action: &str) {
         let Some(app) = self.app() else { return };
         if self.pads.borrow().is_empty() {
-            self.toast("Aucune manette connectée", true);
+            self.toast(tr!("Aucune manette connectée"), true);
             return;
         }
         app.global::<PadsUi>().set_capture(action.into());
@@ -210,7 +210,7 @@ impl Controller {
     pub(crate) fn save_pad_profile(&self, name: &str) {
         let name = name.trim();
         if name.is_empty() {
-            self.toast("Donnez un nom au profil", true);
+            self.toast(tr!("Donnez un nom au profil"), true);
             return;
         }
         self.cancel_capture();
@@ -231,15 +231,15 @@ impl Controller {
         }
         self.apply_pad_profile();
         self.refresh_pads_ui();
-        self.toast(format!("Profil « {} » enregistré", p.name), false);
+        self.toast(tr!("Profil « {name} » enregistré", name = p.name), false);
     }
 
     pub(crate) fn delete_pad_profile(self: &Rc<Self>, id: i64) {
         let Some(name) = self.settings.borrow().pad_profiles.iter().find(|p| p.id == id).map(|p| p.name.clone()) else { return };
         self.confirm(
-            &format!("Supprimer le profil « {name} » ?"),
-            "Les profils de lancement qui l'utilisaient reviendront au profil actif.",
-            "Supprimer",
+            &tr!("Supprimer le profil « {name} » ?", name = name),
+            &tr!("Les profils de lancement qui l'utilisaient reviendront au profil actif."),
+            &tr!("Supprimer"),
             move |c| {
                 {
                     let mut s = c.settings.borrow_mut();

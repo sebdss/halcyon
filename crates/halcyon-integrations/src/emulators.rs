@@ -151,25 +151,25 @@ impl Registry {
         for v in platforms {
             match serde_json::from_value::<PlatformDef>(v.clone()) {
                 Ok(d) if builtin.platform(&d.id).is_some() => {
-                    errors.push(format!("{source} : la plateforme intégrée « {} » ne peut pas être remplacée", d.id))
+                    errors.push(tr!("{source} : la plateforme intégrée « {id} » ne peut pas être remplacée", source = source, id = d.id))
                 }
                 Ok(d) => {
                     self.platforms.retain(|x| x.id != d.id);
                     self.platforms.push(d);
                 }
-                Err(e) => errors.push(format!("{source} : plateforme invalide ({e})")),
+                Err(e) => errors.push(tr!("{source} : plateforme invalide ({e})", source = source, e = e)),
             }
         }
         for v in emulators {
             match serde_json::from_value::<EmulatorDef>(v.clone()) {
                 Ok(d) if builtin.emulator(&d.id).is_some() => {
-                    errors.push(format!("{source} : l'émulateur intégré « {} » ne peut pas être remplacé", d.id))
+                    errors.push(tr!("{source} : l'émulateur intégré « {id} » ne peut pas être remplacé", source = source, id = d.id))
                 }
                 Ok(d) => {
                     self.emulators.retain(|x| x.id != d.id);
                     self.emulators.push(d);
                 }
-                Err(e) => errors.push(format!("{source} : émulateur invalide ({e})")),
+                Err(e) => errors.push(tr!("{source} : émulateur invalide ({e})", source = source, e = e)),
             }
         }
         errors
@@ -232,7 +232,7 @@ pub struct Detected {
 /// Cherche l'exécutable d'un émulateur : chemin forcé, dossiers usuels, PATH, Flatpak.
 pub fn detect(def: &EmulatorDef, forced: Option<&Path>) -> Option<Detected> {
     if let Some(p) = forced {
-        return p.is_file().then(|| Detected { program: p.to_path_buf(), via: "manuel" });
+        return p.is_file().then(|| Detected { program: p.to_path_buf(), via: tr_noop!("manuel") });
     }
     let names = def.executables.current();
     for dir in def.search_paths.current() {
@@ -240,7 +240,7 @@ pub fn detect(def: &EmulatorDef, forced: Option<&Path>) -> Option<Detected> {
         for n in names {
             let p = dir.join(n);
             if p.is_file() {
-                return Some(Detected { program: p, via: "dossier" });
+                return Some(Detected { program: p, via: tr_noop!("dossier") });
             }
         }
     }
@@ -303,9 +303,9 @@ pub fn build_launch(
     rom: &Path,
     profile: &Profile,
 ) -> Result<LaunchTarget, String> {
-    let launch = def.platforms.get(platform).ok_or_else(|| format!("{} ne prend pas en charge cette plateforme", def.name))?;
+    let launch = def.platforms.get(platform).ok_or_else(|| tr!("{name} ne prend pas en charge cette plateforme", name = def.name))?;
     if !rom.exists() {
-        return Err(format!("ROM introuvable : {}", rom.display()));
+        return Err(tr!("ROM introuvable : {rom}", rom = rom.display()));
     }
     let core_dir = cores_dir(def, &detected.program);
     let vars: Vec<(&str, String)> = vec![
@@ -325,10 +325,7 @@ pub fn build_launch(
     for t in &launch.args {
         let value = render(t);
         if t.contains("{core_dir}") && !Path::new(&value).is_file() {
-            return Err(format!(
-                "cœur introuvable : {} — installez-le depuis RetroArch (Menu principal › Charger un cœur › Télécharger un cœur)",
-                value
-            ));
+            return Err(tr!("cœur introuvable : {value} — installez-le depuis RetroArch (Menu principal › Charger un cœur › Télécharger un cœur)", value = value));
         }
         args.push(value);
     }
@@ -363,19 +360,19 @@ pub fn custom_id(name: &str) -> String {
 /// Vérifie la saisie ; renvoie le message à afficher en cas de problème.
 pub fn validate_custom(e: &CustomEmulator, reg: &Registry) -> Result<(), String> {
     if e.name.trim().is_empty() {
-        return Err("indiquez le nom de l'émulateur".into());
+        return Err(tr!("indiquez le nom de l'émulateur").into());
     }
     if !e.executable.is_file() {
-        return Err(format!("exécutable introuvable : {}", e.executable.display()));
+        return Err(tr!("exécutable introuvable : {executable}", executable = e.executable.display()));
     }
     if e.platforms.is_empty() {
-        return Err("choisissez au moins une plateforme".into());
+        return Err(tr!("choisissez au moins une plateforme").into());
     }
     if let Some(p) = e.platforms.iter().find(|p| reg.platform(p).is_none()) {
-        return Err(format!("plateforme inconnue : {p}"));
+        return Err(tr!("plateforme inconnue : {p}", p = p));
     }
     if !e.args.contains("{rom") {
-        return Err("les arguments doivent contenir {rom} (ou {rom_dir}, {rom_name}) pour transmettre le jeu".into());
+        return Err(tr!("les arguments doivent contenir {rom} (ou {rom_dir}, {rom_name}) pour transmettre le jeu"));
     }
     Ok(())
 }
@@ -385,7 +382,7 @@ pub fn validate_custom(e: &CustomEmulator, reg: &Registry) -> Result<(), String>
 pub fn save_custom(data_dir: &Path, id: Option<&str>, e: &CustomEmulator) -> Result<String, String> {
     let id = match id {
         Some(id) if id.starts_with(CUSTOM_PREFIX) => id.to_string(),
-        Some(id) => return Err(format!("« {id} » est un émulateur intégré : il ne peut pas être modifié ici")),
+        Some(id) => return Err(tr!("« {id} » est un émulateur intégré : il ne peut pas être modifié ici", id = id)),
         None => {
             let base = custom_id(&e.name);
             let mut id = base.clone();
@@ -413,7 +410,7 @@ pub fn save_custom(data_dir: &Path, id: Option<&str>, e: &CustomEmulator) -> Res
         "added_by": "halcyon",
     });
     // Vérifie que le fichier se relit comme une définition valide avant de l'écrire.
-    serde_json::from_value::<EmulatorDef>(def.clone()).map_err(|err| format!("définition invalide : {err}"))?;
+    serde_json::from_value::<EmulatorDef>(def.clone()).map_err(|err| tr!("définition invalide : {err}", err = err))?;
     let dir = data_dir.join("emulators");
     std::fs::create_dir_all(&dir).map_err(|err| format!("{} : {err}", dir.display()))?;
     let path = dir.join(format!("{id}.json"));
@@ -446,7 +443,7 @@ pub fn read_custom(data_dir: &Path, id: &str) -> Option<CustomEmulator> {
 /// d'une extension).
 pub fn delete_custom(data_dir: &Path, id: &str) -> Result<(), String> {
     if !id.starts_with(CUSTOM_PREFIX) {
-        return Err("seuls les émulateurs ajoutés dans Halcyon peuvent être supprimés".into());
+        return Err(tr!("seuls les émulateurs ajoutés dans Halcyon peuvent être supprimés").into());
     }
     let path = data_dir.join("emulators").join(format!("{id}.json"));
     std::fs::remove_file(&path).map_err(|err| format!("{} : {err}", path.display()))
@@ -456,7 +453,7 @@ pub fn delete_custom(data_dir: &Path, id: &str) -> Result<(), String> {
 pub fn save_custom_platform(data_dir: &Path, name: &str, extensions: &str) -> Result<String, String> {
     let name = name.trim();
     if name.is_empty() {
-        return Err("indiquez le nom de la plateforme".into());
+        return Err(tr!("indiquez le nom de la plateforme").into());
     }
     let exts: Vec<String> = extensions
         .split([',', ' ', ';'])
@@ -464,13 +461,13 @@ pub fn save_custom_platform(data_dir: &Path, name: &str, extensions: &str) -> Re
         .filter(|x| !x.is_empty() && x.chars().all(|c| c.is_ascii_alphanumeric()))
         .collect();
     if exts.is_empty() {
-        return Err("indiquez au moins une extension de fichier (ex. iso, chd)".into());
+        return Err(tr!("indiquez au moins une extension de fichier (ex. iso, chd)").into());
     }
     let id = custom_id(name);
     let dir = data_dir.join("platforms");
     std::fs::create_dir_all(&dir).map_err(|err| format!("{} : {err}", dir.display()))?;
     let def = serde_json::json!({ "id": id, "name": name, "extensions": exts });
-    serde_json::from_value::<PlatformDef>(def.clone()).map_err(|err| format!("plateforme invalide : {err}"))?;
+    serde_json::from_value::<PlatformDef>(def.clone()).map_err(|err| tr!("plateforme invalide : {err}", err = err))?;
     std::fs::write(dir.join(format!("{id}.json")), serde_json::to_string_pretty(&def).unwrap_or_default()).map_err(|err| err.to_string())?;
     Ok(id)
 }
@@ -534,7 +531,7 @@ mod tests {
             .into_iter()
             .collect(),
         };
-        let det = Detected { program: program.clone(), via: "manuel" };
+        let det = Detected { program: program.clone(), via: tr_noop!("manuel") };
         let profile = Profile { extra_args: "--verbose \"a b\"".into(), fullscreen: true };
 
         match build_launch(&def, &det, "gc", &rom, &profile).unwrap() {

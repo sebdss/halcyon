@@ -177,25 +177,25 @@ component AddGameDialog inherits Rectangle {
             padding: 28px;
             spacing: 16px;
             Text {
-                text: "Ajouter un jeu";
+                text: @tr("Ajouter un jeu");
                 color: Theme.text;
                 font-family: Theme.display;
                 font-size: Theme.t-heading;
                 font-weight: 700;
             }
             Text {
-                text: "Exécutable (.exe), script (.bat) ou raccourci (.lnk, .url).";
+                text: @tr("Exécutable (.exe), script (.bat) ou raccourci (.lnk, .url).");
                 color: Theme.text-dim;
                 font-size: Theme.t-small;
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "Exécutable *"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                Text { text: @tr("Exécutable *"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
                 HorizontalLayout {
                     spacing: 8px;
-                    exe-field := TextField { text <=> root.exe; mono: true; placeholder: "C:\\Jeux\\MonJeu\\MonJeu.exe"; }
+                    exe-field := TextField { text <=> root.exe; mono: true; placeholder: @tr("C:\\Jeux\\MonJeu\\MonJeu.exe"); }
                     if AppUi.can-browse: SecondaryButton {
-                        text: "Parcourir…";
+                        text: @tr("Parcourir…");
                         h: 38px;
                         clicked => {
                             let p = AppUi.browse-file();
@@ -206,22 +206,22 @@ component AddGameDialog inherits Rectangle {
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "Nom"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
-                TextField { text <=> root.name; placeholder: "Déduit du nom de l'exécutable si vide"; }
+                Text { text: @tr("Nom"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                TextField { text <=> root.name; placeholder: @tr("Déduit du nom de l'exécutable si vide"); }
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "Arguments"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
-                TextField { text <=> root.args; mono: true; placeholder: "Optionnel"; }
+                Text { text: @tr("Arguments"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                TextField { text <=> root.args; mono: true; placeholder: @tr("Optionnel"); }
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "Répertoire de travail"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                Text { text: @tr("Répertoire de travail"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
                 HorizontalLayout {
                     spacing: 8px;
-                    TextField { text <=> root.wd; mono: true; placeholder: "Dossier de l'exécutable par défaut"; }
+                    TextField { text <=> root.wd; mono: true; placeholder: @tr("Dossier de l'exécutable par défaut"); }
                     if AppUi.can-browse: SecondaryButton {
-                        text: "Parcourir…";
+                        text: @tr("Parcourir…");
                         h: 38px;
                         clicked => {
                             let p = AppUi.browse-folder();
@@ -235,11 +235,11 @@ component AddGameDialog inherits Rectangle {
                 spacing: 10px;
                 alignment: end;
                 SecondaryButton {
-                    text: "Annuler";
+                    text: @tr("Annuler");
                     clicked => { AppUi.add-dialog-open = false; }
                 }
                 PrimaryButton {
-                    text: "Ajouter";
+                    text: @tr("Ajouter");
                     enabled: root.exe != "";
                     clicked => {
                         if (AppUi.add-game(root.name, root.exe, root.args, root.wd)) {
@@ -271,7 +271,7 @@ component ConfirmDialog inherits Rectangle {
                 padding-top: 6px;
                 spacing: 10px;
                 alignment: end;
-                SecondaryButton { text: "Annuler"; clicked => { AppUi.confirm-open = false; } }
+                SecondaryButton { text: @tr("Annuler"); clicked => { AppUi.confirm-open = false; } }
                 PrimaryButton {
                     text: AppUi.confirm-button;
                     clicked => {
@@ -363,7 +363,7 @@ component QuickLaunch inherits Rectangle {
                 field := TextField {
                     height: 46px;
                     text <=> QuickUi.query;
-                    placeholder: "Jouer à…, aller à une page, un réglage, une collection ou une commande";
+                    placeholder: @tr("Jouer à…, aller à une page, un réglage, une collection ou une commande");
                     icon: Icons.search;
                     has-icon: true;
                     edited(t) => { QuickUi.selected = 0; QuickUi.query-changed(t); }
@@ -409,7 +409,7 @@ component QuickLaunch inherits Rectangle {
                             Text { text: r.subtitle; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
                         }
                         if QuickUi.selected == i: Text {
-                            text: r.kind == 0 ? "Entrée : jouer · Ctrl+Entrée : fiche" : "Entrée : ouvrir";
+                            text: r.kind == 0 ? @tr("Entrée : jouer · Ctrl+Entrée : fiche") : @tr("Entrée : ouvrir");
                             color: Theme.text-dim;
                             font-size: Theme.t-overline;
                             vertical-alignment: center;
@@ -417,7 +417,7 @@ component QuickLaunch inherits Rectangle {
                     }
                 }
                 if QuickUi.rows.length == 0 && QuickUi.query != "": Text {
-                    text: "Aucun résultat";
+                    text: @tr("Aucun résultat");
                     color: Theme.text-dim;
                     font-size: Theme.t-small;
                     horizontal-alignment: center;
@@ -709,7 +709,7 @@ export component AppWindow inherits Window {
             VerticalLayout {
                 alignment: center;
                 spacing: 2px;
-                Text { text: "Succès débloqué" + (AppUi.ach-toast.has-rarity ? ", " + AppUi.ach-toast.rarity : ""); color: Theme.warm; font-size: Theme.t-caption; font-weight: 600; }
+                Text { text: AppUi.ach-toast.has-rarity ? @tr("Succès débloqué, {}", AppUi.ach-toast.rarity) : @tr("Succès débloqué"); color: Theme.warm; font-size: Theme.t-caption; font-weight: 600; }
                 Text { text: AppUi.ach-toast.name; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; }
                 Text { text: AppUi.ach-toast.game; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
             }
@@ -761,7 +761,7 @@ component MiniList inherits VerticalLayout {
 
 /// Mode compact : petite fenêtre au premier plan (recherche, favoris, récents).
 export component MiniWindow inherits Window {
-    title: "Halcyon — compact";
+    title: @tr("Halcyon — compact");
     icon: Icons.logo;
     always-on-top: root.on-top;
     width: 340px;
@@ -785,14 +785,14 @@ export component MiniWindow inherits Window {
             spacing: 6px;
             TextField {
                 text <=> root.query;
-                placeholder: "Rechercher un jeu…";
+                placeholder: @tr("Rechercher un jeu…");
                 icon: Icons.search;
                 has-icon: true;
                 edited(t) => { root.search(t); }
                 accepted => { if (root.results.length > 0) { root.launch(root.results[0].id); } }
             }
-            IconButton { icon: Icons.pin; active: root.on-top; active-tint: Theme.accent; tooltip: "Toujours au premier plan"; clicked => { root.toggle-on-top(); } }
-            IconButton { icon: Icons.library; tooltip: "Fenêtre complète"; clicked => { root.open-main(); } }
+            IconButton { icon: Icons.pin; active: root.on-top; active-tint: Theme.accent; tooltip: @tr("Toujours au premier plan"); clicked => { root.toggle-on-top(); } }
+            IconButton { icon: Icons.library; tooltip: @tr("Fenêtre complète"); clicked => { root.open-main(); } }
         }
         Flickable {
             vertical-stretch: 1;
@@ -801,12 +801,12 @@ export component MiniWindow inherits Window {
                 width: parent.width;
                 spacing: 14px;
                 alignment: start;
-                if root.query != "": MiniList { title: "Résultats"; items: root.results; launch(id) => { root.launch(id); } }
-                if root.query != "" && root.results.length == 0: Text { text: "Aucun jeu trouvé"; color: Theme.text-dim; font-size: Theme.t-caption; }
-                if root.query == "": MiniList { title: "Favoris"; items: root.favorites; launch(id) => { root.launch(id); } }
-                if root.query == "": MiniList { title: "Récemment joués"; items: root.recent; launch(id) => { root.launch(id); } }
+                if root.query != "": MiniList { title: @tr("Résultats"); items: root.results; launch(id) => { root.launch(id); } }
+                if root.query != "" && root.results.length == 0: Text { text: @tr("Aucun jeu trouvé"); color: Theme.text-dim; font-size: Theme.t-caption; }
+                if root.query == "": MiniList { title: @tr("Favoris"); items: root.favorites; launch(id) => { root.launch(id); } }
+                if root.query == "": MiniList { title: @tr("Récemment joués"); items: root.recent; launch(id) => { root.launch(id); } }
                 if root.query == "" && root.favorites.length == 0 && root.recent.length == 0: Text {
-                    text: "Vos favoris et jeux récents apparaîtront ici.";
+                    text: @tr("Vos favoris et jeux récents apparaîtront ici.");
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                     wrap: word-wrap;
@@ -820,7 +820,7 @@ export component MiniWindow inherits Window {
 /// Fenêtre séparée au premier plan (aucune injection dans le jeu) : visible en mode
 /// fenêtré sans bordure ou sur un second écran.
 export component CompanionWindow inherits Window {
-    title: "Halcyon — session";
+    title: @tr("Halcyon — session");
     icon: Icons.logo;
     always-on-top: true;
     width: 300px;
@@ -839,17 +839,17 @@ export component CompanionWindow inherits Window {
         spacing: 10px;
         HorizontalLayout {
             Text { text: root.game; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; horizontal-stretch: 1; vertical-alignment: center; }
-            IconButton { size: 30px; icon-size: 15px; icon: Icons.eye-off; tooltip: "Masquer jusqu'à la prochaine partie"; clicked => { root.hide-window(); } }
+            IconButton { size: 30px; icon-size: 15px; icon: Icons.eye-off; tooltip: @tr("Masquer jusqu'à la prochaine partie"); clicked => { root.hide-window(); } }
         }
         Text { text: root.elapsed; color: Theme.warm; font-family: Theme.display; font-size: Theme.t-title; font-weight: 800; }
-        Text { text: "Session en cours"; color: Theme.text-dim; font-size: Theme.t-overline; }
+        Text { text: @tr("Session en cours"); color: Theme.text-dim; font-size: Theme.t-overline; }
         if root.achievements != "": Text { text: root.achievements; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
-        Text { text: "Notes"; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }
+        Text { text: @tr("Notes"); color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }
         TextArea { vertical-stretch: 1; text <=> root.notes; }
         HorizontalLayout {
             spacing: 8px;
             Text { text: root.status; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; horizontal-stretch: 1; }
-            SecondaryButton { h: 32px; text: "Enregistrer"; clicked => { root.save-notes(root.notes); } }
+            SecondaryButton { h: 32px; text: @tr("Enregistrer"); clicked => { root.save-notes(root.notes); } }
         }
     }
 }

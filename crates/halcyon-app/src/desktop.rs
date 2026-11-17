@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 const RUN_VALUE: &str = "Halcyon";
 
 fn exe() -> Result<PathBuf, String> {
-    std::env::current_exe().map_err(|e| format!("chemin de Halcyon introuvable : {e}"))
+    std::env::current_exe().map_err(|e| tr!("chemin de Halcyon introuvable : {e}", e = e))
 }
 
 #[allow(unused_imports)]
@@ -57,7 +57,7 @@ pub fn set_autostart(enabled: bool) -> Result<(), String> {
     }
     #[cfg(not(windows))]
     {
-        let file = autostart_file().ok_or("dossier de configuration introuvable")?;
+        let file = autostart_file().ok_or(tr!("dossier de configuration introuvable"))?;
         if !enabled {
             return match std::fs::remove_file(&file) {
                 Ok(()) => Ok(()),
@@ -77,7 +77,7 @@ pub fn set_autostart(enabled: bool) -> Result<(), String> {
 /// Renvoie le chemin créé.
 pub fn create_game_shortcut(name: &str, id: i64, icon: Option<&Path>) -> Result<PathBuf, String> {
     let exe = exe()?;
-    let desktop = dirs::desktop_dir().ok_or("dossier Bureau introuvable")?;
+    let desktop = dirs::desktop_dir().ok_or(tr!("dossier Bureau introuvable"))?;
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
@@ -93,23 +93,18 @@ pub fn create_game_shortcut(name: &str, id: i64, icon: Option<&Path>) -> Result<
             .env("HALCYON_LNK", &dest)
             .env("HALCYON_EXE", &exe)
             .env("HALCYON_ARGS", format!("--launch {id}"))
-            .env("HALCYON_DESC", format!("Lancer {name} avec Halcyon"))
+            .env("HALCYON_DESC", tr!("Lancer {name} avec Halcyon", name = name))
             .creation_flags(CREATE_NO_WINDOW)
             .status()
-            .map_err(|e| format!("PowerShell indisponible : {e}"))?;
-        if status.success() && dest.is_file() { Ok(dest) } else { Err("création du raccourci refusée par le système".into()) }
+            .map_err(|e| tr!("PowerShell indisponible : {e}", e = e))?;
+        if status.success() && dest.is_file() { Ok(dest) } else { Err(tr!("création du raccourci refusée par le système").into()) }
     }
     #[cfg(not(windows))]
     {
         let icon = icon.filter(|p| p.is_file()).map(|p| p.display().to_string()).unwrap_or_else(|| "halcyon".into());
         let clean = |s: &str| s.replace(['\n', '\r'], " ");
-        let content = format!(
-            "[Desktop Entry]\nType=Application\nName={}\nComment=Lancer avec Halcyon\nExec={} --launch {id}\nIcon={}\nTerminal=false\nCategories=Game;\n",
-            clean(name),
-            desktop_quote(&exe.display().to_string()),
-            clean(&icon)
-        );
-        let file_name = format!("halcyon-jeu-{id}.desktop");
+        let content = tr!("[Desktop Entry]\nType=Application\nName={name}\nComment=Lancer avec Halcyon\nExec={display} --launch {id}\nIcon={icon}\nTerminal=false\nCategories=Game;\n", name = clean(name), display = desktop_quote(&exe.display().to_string()), id = id, icon = clean(&icon));
+        let file_name = tr!("halcyon-jeu-{id}.desktop", id = id);
         // Menu des applications, puis Bureau (fichier exécutable : requis par les environnements de bureau).
         if let Some(apps) = dirs::data_dir().map(|d| d.join("applications")) {
             let _ = std::fs::create_dir_all(&apps);

@@ -48,7 +48,7 @@ component TextSetting inherits VerticalLayout {
             placeholder: root.placeholder;
             accepted(t) => { SettingsUi.set-text(root.key, t); }
         }
-        SecondaryButton { text: "Enregistrer"; h: 36px; clicked => { SettingsUi.set-text(root.key, root.value); } }
+        SecondaryButton { text: @tr("Enregistrer"); h: 36px; clicked => { SettingsUi.set-text(root.key, root.value); } }
     }
     if root.hint != "": Text { text: root.hint; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
 }
@@ -63,7 +63,7 @@ component ShortcutEditor inherits HorizontalLayout {
     height: 40px;
     spacing: 10px;
     Text { text: root.label; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
-    if root.combo != root.default-combo: Text { text: "défaut : " + root.default-combo; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
+    if root.combo != root.default-combo: Text { text: @tr("défaut : {}", root.default-combo); color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
     Rectangle {
         width: 170px;
         border-radius: Theme.radius-sm;
@@ -71,7 +71,7 @@ component ShortcutEditor inherits HorizontalLayout {
         border-width: 1px;
         border-color: root.capturing ? Theme.accent : Theme.border;
         Text {
-            text: root.capturing ? "Appuyez sur les touches…" : root.combo == "" ? "Aucun" : root.combo;
+            text: root.capturing ? @tr("Appuyez sur les touches…") : root.combo == "" ? @tr("Aucun") : root.combo;
             color: root.capturing ? Theme.accent : Theme.text;
             font-size: Theme.t-small;
             font-weight: 600;
@@ -115,41 +115,41 @@ component ExportPanel inherits Panel {
         padding: 22px;
         spacing: 16px;
         Text {
-            text: "Une archive unique contient la bibliothèque, vos métadonnées et visuels personnalisés, collections, profils de lancement, réglages des émulateurs, paramètres, thèmes, extensions et statistiques. Les fichiers des jeux ne sont jamais inclus. Idéal pour migrer vers un autre PC.";
+            text: @tr("Une archive unique contient la bibliothèque, vos métadonnées et visuels personnalisés, collections, profils de lancement, réglages des émulateurs, paramètres, thèmes, extensions et statistiques. Les fichiers des jeux ne sont jamais inclus. Idéal pour migrer vers un autre PC.");
             color: Theme.text-dim;
             font-size: Theme.t-caption;
             wrap: word-wrap;
         }
         SettingRow {
-            title: "Inclure les clés d'API";
-            description: "Désactivé par défaut : l'archive peut alors être partagée sans exposer vos comptes.";
+            title: @tr("Inclure les clés d'API");
+            description: @tr("Désactivé par défaut : l'archive peut alors être partagée sans exposer vos comptes.");
             Toggle { y: (parent.height - self.height) / 2; checked <=> root.secrets; }
         }
         SettingRow {
-            title: "Inclure les fichiers des mods";
-            description: "Sinon, seules les fiches des mods et les profils sont exportés.";
+            title: @tr("Inclure les fichiers des mods");
+            description: @tr("Sinon, seules les fiches des mods et les profils sont exportés.");
             Toggle { y: (parent.height - self.height) / 2; checked <=> root.mod-files; }
         }
         HorizontalLayout {
             alignment: start;
             spacing: 10px;
-            PrimaryButton { text: "Exporter maintenant"; icon: Icons.upload; has-icon: true; clicked => { SettingsUi.export-config(root.secrets, root.mod-files); } }
-            SecondaryButton { text: "Ouvrir le dossier des exports"; clicked => { Actions.open-folder(SettingsUi.backups-dir); } }
+            PrimaryButton { text: @tr("Exporter maintenant"); icon: Icons.upload; has-icon: true; clicked => { SettingsUi.export-config(root.secrets, root.mod-files); } }
+            SecondaryButton { text: @tr("Ouvrir le dossier des exports"); clicked => { Actions.open-folder(SettingsUi.backups-dir); } }
         }
         Rectangle { height: 1px; background: Theme.border; }
-        Text { text: "Restaurer une archive"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+        Text { text: @tr("Restaurer une archive"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
         HorizontalLayout {
             spacing: 8px;
-            TextField { text <=> root.import-path; mono: true; placeholder: "Chemin de l'archive .zip"; }
+            TextField { text <=> root.import-path; mono: true; placeholder: @tr("Chemin de l'archive .zip"); }
             if AppUi.can-browse: SecondaryButton {
-                text: "Parcourir…";
+                text: @tr("Parcourir…");
                 h: 36px;
                 clicked => {
                     let p = AppUi.browse-file();
                     if (p != "") { root.import-path = p; }
                 }
             }
-            SecondaryButton { text: "Restaurer…"; h: 36px; enabled: root.import-path != ""; clicked => { SettingsUi.import-config(root.import-path); } }
+            SecondaryButton { text: @tr("Restaurer…"); h: 36px; enabled: root.import-path != ""; clicked => { SettingsUi.import-config(root.import-path); } }
         }
         if SettingsUi.backup-status != "": Text { text: SettingsUi.backup-status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
     }
@@ -166,9 +166,9 @@ component SourcePanel inherits Panel {
         spacing: 16px;
         SettingRow {
             title: root.info.name;
-            description: !root.info.enabled ? "Désactivé" : root.info.found
-                ? "Détecté : " + root.info.detected + ", " + root.info.count + " jeux"
-                : "Introuvable sur cet ordinateur. Indiquez son dossier ci-dessous si nécessaire.";
+            description: !root.info.enabled ? @tr("Désactivé") : root.info.found
+                ? @tr("Détecté : {}, {n} jeu" | "Détecté : {}, {n} jeux" % root.info.count, root.info.detected)
+                : @tr("Introuvable sur cet ordinateur. Indiquez son dossier ci-dessous si nécessaire.");
             Toggle {
                 y: (parent.height - self.height) / 2;
                 checked: root.info.enabled;
@@ -184,7 +184,7 @@ component SourcePanel inherits Panel {
                 accepted(t) => { SettingsUi.set-source-path(root.key, t); }
             }
             if AppUi.can-browse: SecondaryButton {
-                text: "Parcourir…";
+                text: @tr("Parcourir…");
                 h: 36px;
                 clicked => {
                     let p = AppUi.browse-folder();
@@ -195,7 +195,7 @@ component SourcePanel inherits Panel {
                 }
             }
             SecondaryButton {
-                text: "Appliquer";
+                text: @tr("Appliquer");
                 h: 36px;
                 clicked => { SettingsUi.set-source-path(root.key, root.path); }
             }
@@ -231,16 +231,16 @@ component UpdateStatusPanel inherits Panel {
                 Text { text: HusUi.status; color: Theme.text; font-family: Theme.display; font-size: Theme.t-heading - 2px; font-weight: 700; wrap: word-wrap; }
                 if HusUi.detail != "": Text { text: HusUi.detail; color: HusUi.error ? Theme.danger : Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
             }
-            if HusUi.security: Badge { y: 12px; text: "Sécurité"; tint: Theme.warm; solid: true; }
+            if HusUi.security: Badge { y: 12px; text: @tr("Sécurité"); tint: Theme.warm; solid: true; }
         }
         HorizontalLayout {
             spacing: 32px;
             alignment: start;
             for kv in [
-                { label: "Version installée", value: HusUi.installed },
-                { label: "Dernière version", value: HusUi.latest != "" ? HusUi.latest : HusUi.state == 2 ? HusUi.installed : "—" },
-                { label: "Canal", value: HusUi.channel == 1 ? "Beta" : "Stable" },
-                { label: "Dernière recherche", value: HusUi.last-check },
+                { label: @tr("Version installée"), value: HusUi.installed },
+                { label: @tr("Dernière version"), value: HusUi.latest != "" ? HusUi.latest : HusUi.state == 2 ? HusUi.installed : "—" },
+                { label: @tr("Canal"), value: HusUi.channel == 1 ? @tr("Beta") : @tr("Stable") },
+                { label: @tr("Dernière recherche"), value: HusUi.last-check },
             ]: VerticalLayout {
                 spacing: 2px;
                 Text { text: kv.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; }
@@ -252,7 +252,7 @@ component UpdateStatusPanel inherits Panel {
             ProgressBar { value: HusUi.state == 5 ? -1 : HusUi.progress; }
             Text {
                 text: HusUi.state == 5
-                    ? "Vérification de la signature, de l'empreinte SHA-256 et du paquet…"
+                    ? @tr("Vérification de la signature, de l'empreinte SHA-256 et du paquet…")
                     : HusUi.progress-text + (HusUi.size-text != "" ? ", " + HusUi.size-text : "") + (HusUi.speed != "" ? ", " + HusUi.speed : "") + (HusUi.eta != "" ? ", " + HusUi.eta : "");
                 color: Theme.text-muted;
                 font-size: Theme.t-small;
@@ -262,19 +262,19 @@ component UpdateStatusPanel inherits Panel {
             spacing: 8px;
             alignment: start;
             SecondaryButton {
-                text: HusUi.checking ? "Recherche…" : "Rechercher des mises à jour";
+                text: HusUi.checking ? @tr("Recherche…") : @tr("Rechercher des mises à jour");
                 icon: Icons.refresh;
                 has-icon: true;
                 enabled: !root.busy;
                 clicked => { HusUi.check(); }
             }
-            if HusUi.can-download: PrimaryButton { text: "Télécharger " + HusUi.latest; icon: Icons.download; has-icon: true; clicked => { HusUi.download(); } }
-            if HusUi.downloading: SecondaryButton { text: "Annuler"; icon: Icons.close; has-icon: true; clicked => { HusUi.cancel(); } }
-            if HusUi.staged: PrimaryButton { text: "Installer et redémarrer"; icon: Icons.check; has-icon: true; clicked => { HusUi.install-now(); } }
-            if HusUi.staged && !HusUi.at-restart: SecondaryButton { text: "Installer au prochain démarrage"; icon: Icons.clock; has-icon: true; clicked => { HusUi.install-at-restart(); } }
-            if HusUi.release-url != "": SecondaryButton { text: "Page de la version"; icon: Icons.external; has-icon: true; clicked => { HusUi.open-release(); } }
+            if HusUi.can-download: PrimaryButton { text: @tr("Télécharger {}", HusUi.latest); icon: Icons.download; has-icon: true; clicked => { HusUi.download(); } }
+            if HusUi.downloading: SecondaryButton { text: @tr("Annuler"); icon: Icons.close; has-icon: true; clicked => { HusUi.cancel(); } }
+            if HusUi.staged: PrimaryButton { text: @tr("Installer et redémarrer"); icon: Icons.check; has-icon: true; clicked => { HusUi.install-now(); } }
+            if HusUi.staged && !HusUi.at-restart: SecondaryButton { text: @tr("Installer au prochain démarrage"); icon: Icons.clock; has-icon: true; clicked => { HusUi.install-at-restart(); } }
+            if HusUi.release-url != "": SecondaryButton { text: @tr("Page de la version"); icon: Icons.external; has-icon: true; clicked => { HusUi.open-release(); } }
         }
-        if HusUi.staged && HusUi.at-restart: Text { text: "Installation prévue au prochain démarrage de Halcyon."; color: Theme.text-muted; font-size: Theme.t-caption; }
+        if HusUi.staged && HusUi.at-restart: Text { text: @tr("Installation prévue au prochain démarrage de Halcyon."); color: Theme.text-muted; font-size: Theme.t-caption; }
     }
 }
 
@@ -284,7 +284,8 @@ component CategoryItem inherits Rectangle {
     in property <image> icon;
     in property <bool> active;
     callback clicked;
-    height: 34px;
+    // Une ligne d'ordinaire ; deux si le nom de la section est long (selon la langue).
+    height: max(34px, label.preferred-height + 14px);
     border-radius: Theme.radius-sm;
     background: ta.has-hover ? Theme.surface : transparent;
     border-width: fs.has-focus ? Theme.focus-width : 0px;
@@ -294,12 +295,16 @@ component CategoryItem inherits Rectangle {
     accessible-action-default => { root.clicked(); }
     forward-focus: fs;
     if root.active: Rectangle { x: 0; y: 8px; width: Theme.perch; height: parent.height - 16px; background: Theme.accent; }
-    HorizontalLayout {
-        padding-left: 12px;
-        padding-right: 10px;
-        spacing: 12px;
-        Icon { source: root.icon; size: 16px; tint: root.active ? Theme.accent : Theme.text-dim; }
-        Text { text: root.text; color: root.active ? Theme.text : Theme.text-muted; font-size: Theme.t-small; font-weight: root.active ? 650 : 500; vertical-alignment: center; overflow: elide; }
+    Icon { x: 12px; y: (parent.height - 16px) / 2; height: 16px; source: root.icon; size: 16px; tint: root.active ? Theme.accent : Theme.text-dim; }
+    label := Text {
+        x: 40px;
+        width: parent.width - 50px;
+        text: root.text;
+        color: root.active ? Theme.text : Theme.text-muted;
+        font-size: Theme.t-small;
+        font-weight: root.active ? 650 : 500;
+        vertical-alignment: center;
+        wrap: word-wrap;
     }
     ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
     fs := FocusScope {
@@ -316,8 +321,8 @@ export component SettingsPage inherits Rectangle {
     property <bool> two-pane: root.width > 940px;
     property <length> nav-width: root.two-pane ? 252px : 0px;
     // Index de catégorie (-1 : tous les réglages), dans l'ordre de `SettingsUi.shown`.
-    property <[string]> names: ["Plateformes", "Dossiers", "Comptes et succès", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage et diagnostic", "Son"];
-    property <[image]> icons: [Icons.gamepad, Icons.folder, Icons.user, Icons.sliders, Icons.cloud, Icons.monitor, Icons.keyboard, Icons.save, Icons.download, Icons.drive, Icons.bell];
+    property <[string]> names: [@tr("Plateformes"), @tr("Dossiers"), @tr("Comptes et succès"), @tr("Comportement"), @tr("Hors ligne"), @tr("Système"), @tr("Raccourcis"), @tr("Configuration"), @tr("Mises à jour"), @tr("Stockage et diagnostic"), @tr("Son"), @tr("Langue")];
+    property <[image]> icons: [Icons.gamepad, Icons.folder, Icons.user, Icons.sliders, Icons.cloud, Icons.monitor, Icons.keyboard, Icons.save, Icons.download, Icons.drive, Icons.bell, Icons.globe];
     init => { SettingsUi.search-changed(SettingsUi.search); }
 
     // Colonne des catégories : recherche, puis une catégorie à la fois.
@@ -334,7 +339,7 @@ export component SettingsPage inherits Rectangle {
             spacing: 2px;
             alignment: start;
             TextField {
-                placeholder: "Rechercher un réglage";
+                placeholder: @tr("Rechercher un réglage");
                 icon: Icons.search;
                 has-icon: true;
                 text <=> SettingsUi.search;
@@ -349,7 +354,7 @@ export component SettingsPage inherits Rectangle {
             }
             Rectangle { height: 8px; }
             CategoryItem {
-                text: "Tous les réglages";
+                text: @tr("Tous les réglages");
                 icon: Icons.list;
                 active: SettingsUi.search == "" && SettingsUi.section == -1;
                 clicked => { SettingsUi.search = ""; SettingsUi.section = -1; SettingsUi.search-changed(""); sv.content-y = 0; }
@@ -378,7 +383,7 @@ export component SettingsPage inherits Rectangle {
                 TextField {
                     width: min(320px, sv.width * 0.45);
                     height: 36px;
-                    placeholder: "Rechercher un réglage";
+                    placeholder: @tr("Rechercher un réglage");
                     icon: Icons.search;
                     has-icon: true;
                     text <=> SettingsUi.search;
@@ -386,20 +391,53 @@ export component SettingsPage inherits Rectangle {
                 }
                 Dropdown {
                     align-left: true;
-                    options: ["Tous les réglages", "Plateformes", "Dossiers", "Comptes et succès", "Comportement", "Hors ligne", "Système", "Raccourcis", "Configuration", "Mises à jour", "Stockage et diagnostic", "Son"];
+                    options: [@tr("Tous les réglages"), @tr("Plateformes"), @tr("Dossiers"), @tr("Comptes et succès"), @tr("Comportement"), @tr("Hors ligne"), @tr("Système"), @tr("Raccourcis"), @tr("Configuration"), @tr("Mises à jour"), @tr("Stockage et diagnostic"), @tr("Son"), @tr("Langue")];
                     selected: SettingsUi.section + 1;
                     changed(i) => { SettingsUi.search = ""; SettingsUi.section = i - 1; SettingsUi.search-changed(""); }
                 }
             }
             if SettingsUi.search != "" && SettingsUi.match-count > 0: Text {
-                text: SettingsUi.match-count == 1 ? "1 catégorie correspond à « " + SettingsUi.search + " »." : SettingsUi.match-count + " catégories correspondent à « " + SettingsUi.search + " ».";
+                text: @tr("{n} catégorie correspond à « {} »." | "{n} catégories correspondent à « {} »." % SettingsUi.match-count, SettingsUi.search);
                 color: Theme.text-muted;
                 font-size: Theme.t-small;
             }
             if SettingsUi.search != "" && SettingsUi.match-count == 0: Text {
-                text: "Aucun réglage ne correspond à « " + SettingsUi.search + " ».";
+                text: @tr("Aucun réglage ne correspond à « {} ».", SettingsUi.search);
                 color: Theme.text-muted;
                 font-size: Theme.t-body;
+            }
+
+            if SettingsUi.shown[11]: VerticalLayout {
+                spacing: 18px;
+                // --- Langue ---
+                SectionTitle { text: @tr("Langue"); }
+                Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 18px;
+                        SettingRow {
+                            title: @tr("Langue de l'interface");
+                            description: SettingsUi.language-index != 0
+                                ? @tr("Le changement s'applique immédiatement, sans redémarrage.")
+                                : SettingsUi.language-fallback
+                                    ? @tr("La langue du système ({}) n'est pas encore disponible : Halcyon s'affiche en anglais. Le changement s'applique immédiatement, sans redémarrage.", SettingsUi.language-system)
+                                    : @tr("Halcyon suit la langue du système ({}). Le changement s'applique immédiatement, sans redémarrage.", SettingsUi.language-detected);
+                            Dropdown {
+                                y: (parent.height - self.height) / 2;
+                                popup-width: 300px;
+                                options: SettingsUi.languages;
+                                selected: SettingsUi.language-index;
+                                changed(i) => { SettingsUi.set-language(i); }
+                            }
+                        }
+                        Text {
+                            text: @tr("Les noms des jeux, les fiches et les actualités venant des boutiques restent dans leur langue d'origine.");
+                            color: Theme.text-dim;
+                            font-size: Theme.t-small;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
             }
 
             if SettingsUi.shown[0]: VerticalLayout {
@@ -408,10 +446,10 @@ export component SettingsPage inherits Rectangle {
                 HorizontalLayout {
                     padding-top: 10px;
                     spacing: 12px;
-                    SectionTitle { text: "Plateformes"; }
+                    SectionTitle { text: @tr("Plateformes"); }
                     Rectangle { horizontal-stretch: 1; }
                     PrimaryButton {
-                        text: AppUi.scanning ? "Analyse en cours…" : "Analyser maintenant";
+                        text: AppUi.scanning ? @tr("Analyse en cours…") : @tr("Analyser maintenant");
                         icon: Icons.refresh;
                         has-icon: true;
                         enabled: !AppUi.scanning;
@@ -423,30 +461,30 @@ export component SettingsPage inherits Rectangle {
                 SourcePanel {
                     info: SettingsUi.steam;
                     key: "steam";
-                    path-label: "Dossier Steam (détection automatique si vide)";
+                    path-label: @tr("Dossier Steam (détection automatique si vide)");
                 }
                 SourcePanel {
                     info: SettingsUi.epic;
                     key: "epic";
-                    path-label: "Dossier des manifestes Epic (détection automatique si vide)";
+                    path-label: @tr("Dossier des manifestes Epic (détection automatique si vide)");
                 }
                 SourcePanel {
                     info: SettingsUi.gog;
                     key: "gog";
-                    path-label: "Dossier de configuration Heroic (détection automatique si vide)";
+                    path-label: @tr("Dossier de configuration Heroic (détection automatique si vide)");
                 }
             }
 
             if SettingsUi.shown[1]: VerticalLayout {
                 spacing: 18px;
                 // --- Dossiers ---
-                SectionTitle { text: "Dossiers de jeux"; }
+                SectionTitle { text: @tr("Dossiers de jeux"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 12px;
                         Text {
-                            text: "Chaque sous-dossier d'un dossier surveillé est considéré comme un jeu. Halcyon choisit l'exécutable le plus probable ; vous pouvez le corriger depuis la fiche du jeu.";
+                            text: @tr("Chaque sous-dossier d'un dossier surveillé est considéré comme un jeu. Halcyon choisit l'exécutable le plus probable ; vous pouvez le corriger depuis la fiche du jeu.");
                             color: Theme.text-dim;
                             font-size: Theme.t-caption;
                             wrap: word-wrap;
@@ -473,7 +511,7 @@ export component SettingsPage inherits Rectangle {
                                     icon: Icons.trash;
                                     icon-size: 16px;
                                     active-tint: Theme.danger;
-                                    tooltip: "Retirer ce dossier";
+                                    tooltip: @tr("Retirer ce dossier");
                                     clicked => { SettingsUi.remove-folder(i); }
                                 }
                             }
@@ -483,14 +521,14 @@ export component SettingsPage inherits Rectangle {
                             TextField {
                                 text <=> root.new-folder;
                                 mono: true;
-                                placeholder: "Chemin d'un dossier, ex. D:\\Jeux";
+                                placeholder: @tr("Chemin d'un dossier, ex. D:\\Jeux");
                                 accepted(t) => {
                                     SettingsUi.add-folder(t);
                                     root.new-folder = "";
                                 }
                             }
                             if AppUi.can-browse: SecondaryButton {
-                                text: "Parcourir…";
+                                text: @tr("Parcourir…");
                                 h: 36px;
                                 clicked => {
                                     let p = AppUi.browse-folder();
@@ -498,7 +536,7 @@ export component SettingsPage inherits Rectangle {
                                 }
                             }
                             SecondaryButton {
-                                text: "Ajouter";
+                                text: @tr("Ajouter");
                                 icon: Icons.plus;
                                 has-icon: true;
                                 h: 36px;
@@ -515,59 +553,59 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[2]: VerticalLayout {
                 spacing: 18px;
                 // --- Comptes et succès ---
-                SectionTitle { text: "Comptes et succès"; }
+                SectionTitle { text: @tr("Comptes et succès"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
                         Text {
-                            text: "Clés stockées uniquement sur cet ordinateur, dans le coffre de Halcyon (chiffré par Windows ; réservé à votre compte sous Linux), jamais dans settings.json. Les succès Epic Games ne sont pas disponibles : Epic ne propose pas d'API publique.";
+                            text: @tr("Clés stockées uniquement sur cet ordinateur, dans le coffre de Halcyon (chiffré par Windows ; réservé à votre compte sous Linux), jamais dans settings.json. Les succès Epic Games ne sont pas disponibles : Epic ne propose pas d'API publique.");
                             color: Theme.text-dim;
                             font-size: Theme.t-caption;
                             wrap: word-wrap;
                         }
                         TextSetting {
                             key: "steam_api_key";
-                            label: "Clé Steam Web API";
-                            hint: "À obtenir sur steamcommunity.com/dev/apikey. Les détails de jeu de votre profil Steam doivent être publics. Ajoute aussi les jeux possédés non installés.";
-                            placeholder: "32 caractères hexadécimaux";
+                            label: @tr("Clé Steam Web API");
+                            hint: @tr("À obtenir sur steamcommunity.com/dev/apikey. Les détails de jeu de votre profil Steam doivent être publics. Ajoute aussi les jeux possédés non installés.");
+                            placeholder: @tr("32 caractères hexadécimaux");
                             value: SettingsUi.steam-key;
                         }
                         TextSetting {
                             key: "steam_id";
-                            label: "SteamID64";
-                            hint: SettingsUi.steam-id-detected != "" ? "Détecté sur cet ordinateur : " + SettingsUi.steam-id-detected + " (laisser vide pour l'utiliser)." : "Aucun compte Steam détecté sur cet ordinateur.";
+                            label: @tr("SteamID64");
+                            hint: SettingsUi.steam-id-detected != "" ? @tr("Détecté sur cet ordinateur : {} (laisser vide pour l'utiliser).", SettingsUi.steam-id-detected) : @tr("Aucun compte Steam détecté sur cet ordinateur.");
                             placeholder: "7656119…";
                             value: SettingsUi.steam-id;
                         }
                         HorizontalLayout {
                             spacing: 12px;
-                            TextSetting { key: "ra_user"; label: "Utilisateur RetroAchievements"; placeholder: "Pseudo"; value: SettingsUi.ra-user; }
+                            TextSetting { key: "ra_user"; label: @tr("Utilisateur RetroAchievements"); placeholder: @tr("Pseudo"); value: SettingsUi.ra-user; }
                             TextSetting {
                                 key: "ra_api_key";
-                                label: "Clé Web API RetroAchievements";
-                                hint: "retroachievements.org › Paramètres › Clé Web API.";
-                                placeholder: "Clé";
+                                label: @tr("Clé Web API RetroAchievements");
+                                hint: @tr("retroachievements.org › Paramètres › Clé Web API.");
+                                placeholder: @tr("Clé");
                                 value: SettingsUi.ra-key;
                             }
                         }
                         TextSetting {
                             key: "nexus_api_key";
-                            label: "Clé d'API Nexus Mods (facultative)";
-                            hint: "nexusmods.com › Mon compte › Accès à l'API. Sert uniquement à vérifier les versions de vos mods.";
-                            placeholder: "Clé personnelle";
+                            label: @tr("Clé d'API Nexus Mods (facultative)");
+                            hint: @tr("nexusmods.com › Mon compte › Accès à l'API. Sert uniquement à vérifier les versions de vos mods.");
+                            placeholder: @tr("Clé personnelle");
                             value: SettingsUi.nexus-key;
                         }
                         TextSetting {
                             key: "steamgriddb_api_key";
-                            label: "Clé d'API SteamGridDB (facultative)";
-                            hint: "steamgriddb.com › Préférences › API. Jaquettes, bannières et logos des jeux standalone et ajoutés à la main (avec « Télécharger les visuels manquants »).";
-                            placeholder: "Clé personnelle";
+                            label: @tr("Clé d'API SteamGridDB (facultative)");
+                            hint: @tr("steamgriddb.com › Préférences › API. Jaquettes, bannières et logos des jeux standalone et ajoutés à la main (avec « Télécharger les visuels manquants »).");
+                            placeholder: @tr("Clé personnelle");
                             value: SettingsUi.steamgriddb-key;
                         }
                         SettingRow {
-                            title: "Synchroniser les succès au démarrage";
-                            description: "Incrémentale : seuls les jeux non synchronisés depuis 12 h sont interrogés.";
+                            title: @tr("Synchroniser les succès au démarrage");
+                            description: @tr("Incrémentale : seuls les jeux non synchronisés depuis 12 h sont interrogés.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.sync-on-startup;
@@ -575,8 +613,8 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Surveiller les succès pendant une partie";
-                            description: "Vérifie périodiquement le jeu lancé (Steam : 2 min, RetroAchievements : 90 s) pour vous notifier.";
+                            title: @tr("Surveiller les succès pendant une partie");
+                            description: @tr("Vérifie périodiquement le jeu lancé (Steam : 2 min, RetroAchievements : 90 s) pour vous notifier.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.polling;
@@ -584,8 +622,8 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Notifications de succès";
-                            description: "Notification système discrète : elle ne prend jamais le focus et n'interrompt pas le jeu.";
+                            title: @tr("Notifications de succès");
+                            description: @tr("Notification système discrète : elle ne prend jamais le focus et n'interrompt pas le jeu.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.notifications;
@@ -595,14 +633,14 @@ export component SettingsPage inherits Rectangle {
                     }
                 }
 
-                if SettingsUi.is-linux: SectionTitle { text: "Linux"; }
+                if SettingsUi.is-linux: SectionTitle { text: @tr("Linux"); }
                 if SettingsUi.is-linux: Panel {
                     VerticalLayout {
                         padding: 22px;
                         TextSetting {
                             key: "windows_runner";
-                            label: "Commande pour les jeux Windows (.exe)";
-                            hint: "Exemples : wine, umu-run, flatpak run org.winehq.Wine. Les jeux Steam utilisent Proton via Steam, les jeux Epic via Heroic.";
+                            label: @tr("Commande pour les jeux Windows (.exe)");
+                            hint: @tr("Exemples : wine, umu-run, flatpak run org.winehq.Wine. Les jeux Steam utilisent Proton via Steam, les jeux Epic via Heroic.");
                             placeholder: "wine";
                             value: SettingsUi.windows-runner;
                         }
@@ -613,14 +651,14 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[3]: VerticalLayout {
                 spacing: 18px;
                 // --- Comportement ---
-                SectionTitle { text: "Comportement"; }
+                SectionTitle { text: @tr("Comportement"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 20px;
                         SettingRow {
-                            title: "Analyser les sources au démarrage";
-                            description: "En arrière-plan : l'interface reste utilisable pendant l'analyse.";
+                            title: @tr("Analyser les sources au démarrage");
+                            description: @tr("En arrière-plan : l'interface reste utilisable pendant l'analyse.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.scan-on-startup;
@@ -628,8 +666,8 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Réduire Halcyon pendant le jeu";
-                            description: "Libère le GPU : l'interface ne se redessine pas tant qu'elle est réduite.";
+                            title: @tr("Réduire Halcyon pendant le jeu");
+                            description: @tr("Libère le GPU : l'interface ne se redessine pas tant qu'elle est réduite.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.minimize-on-launch;
@@ -637,8 +675,8 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Démarrer en mode Big Picture";
-                            description: "Plein écran, navigation à la manette. Start ou F11 pour en sortir.";
+                            title: @tr("Démarrer en mode Big Picture");
+                            description: @tr("Plein écran, navigation à la manette. Start ou F11 pour en sortir.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.start-big-picture;
@@ -646,9 +684,9 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Métadonnées en ligne";
-                            description: "Descriptions, genres et captures d'écran depuis la boutique Steam (vos modifications restent prioritaires).";
-                            Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
+                            title: @tr("Métadonnées en ligne");
+                            description: @tr("Descriptions, genres et captures d'écran depuis la boutique Steam (vos modifications restent prioritaires).");
+                            Badge { y: (parent.height - self.height) / 2; text: @tr("En ligne"); tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.online-metadata;
@@ -656,9 +694,9 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Télécharger les visuels manquants";
-                            description: "Nécessite Internet. Jaquettes et bannières sont ensuite conservées hors ligne.";
-                            Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
+                            title: @tr("Télécharger les visuels manquants");
+                            description: @tr("Nécessite Internet. Jaquettes et bannières sont ensuite conservées hors ligne.");
+                            Badge { y: (parent.height - self.height) / 2; text: @tr("En ligne"); tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.online-artwork;
@@ -672,28 +710,28 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[10]: VerticalLayout {
                 spacing: 18px;
                 // --- Son ---
-                SectionTitle { text: "Son"; }
+                SectionTitle { text: @tr("Son"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
                         SettingRow {
-                            title: "Effets sonores";
-                            description: "Identité sonore de Halcyon : navigation, actions, notifications. Indépendant du volume du système.";
+                            title: @tr("Effets sonores");
+                            description: @tr("Identité sonore de Halcyon : navigation, actions, notifications. Indépendant du volume du système.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SettingsUi.sound-enabled; toggled(v) => { SettingsUi.sound-toggle("enabled", v); } }
                         }
                         SettingRow {
-                            title: "Mode silencieux";
-                            description: "Coupe tous les sons sans modifier les réglages ci-dessous.";
+                            title: @tr("Mode silencieux");
+                            description: @tr("Coupe tous les sons sans modifier les réglages ci-dessous.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SettingsUi.sound-muted; toggled(v) => { SettingsUi.sound-toggle("muted", v); } }
                         }
                         Rectangle { height: 1px; background: Theme.border; }
                         for row[i] in [
-                            { label: "Volume général", hint: "Appliqué à tous les sons." },
-                            { label: "Navigation", hint: "Sélection, sections, panneaux, menus, retour." },
-                            { label: "Interactions", hint: "Validation, favoris, collections, fiche d'un jeu, réglages." },
-                            { label: "Notifications", hint: "Réussite, avertissement, erreur, téléchargements, mises à jour." },
-                            { label: "Actions importantes", hint: "Lancement d'un jeu, grandes réussites." },
+                            { label: @tr("Volume général"), hint: @tr("Appliqué à tous les sons.") },
+                            { label: @tr("Navigation"), hint: @tr("Sélection, sections, panneaux, menus, retour.") },
+                            { label: @tr("Interactions"), hint: @tr("Validation, favoris, collections, fiche d'un jeu, réglages.") },
+                            { label: @tr("Notifications"), hint: @tr("Réussite, avertissement, erreur, téléchargements, mises à jour.") },
+                            { label: @tr("Actions importantes"), hint: @tr("Lancement d'un jeu, grandes réussites.") },
                         ]: HorizontalLayout {
                             spacing: 16px;
                             VerticalLayout {
@@ -722,7 +760,7 @@ export component SettingsPage inherits Rectangle {
                             SecondaryButton {
                                 y: 2px;
                                 h: 34px;
-                                text: "Écouter";
+                                text: @tr("Écouter");
                                 icon: Icons.play;
                                 has-icon: true;
                                 clicked => { SettingsUi.sound-preview(i); }
@@ -730,16 +768,16 @@ export component SettingsPage inherits Rectangle {
                         }
                         Rectangle { height: 1px; background: Theme.border; }
                         SettingRow {
-                            title: "Sons de survol";
-                            description: "Très discrets, au passage de la souris sur une jaquette.";
+                            title: @tr("Sons de survol");
+                            description: @tr("Très discrets, au passage de la souris sur une jaquette.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SettingsUi.sound-hover; toggled(v) => { SettingsUi.sound-toggle("hover", v); } }
                         }
                         SettingRow {
-                            title: "Pendant une partie";
-                            description: "Sons de Halcyon pendant un jeu lancé depuis Halcyon.";
+                            title: @tr("Pendant une partie");
+                            description: @tr("Sons de Halcyon pendant un jeu lancé depuis Halcyon.");
                             Segmented {
                                 y: (parent.height - self.height) / 2;
-                                items: ["Silencieux", "Réduits", "Normaux"];
+                                items: [@tr("Silencieux"), @tr("Réduits"), @tr("Normaux")];
                                 selected: SettingsUi.sound-in-game;
                                 activated(i) => { SettingsUi.sound-volume(5, i); }
                             }
@@ -747,7 +785,7 @@ export component SettingsPage inherits Rectangle {
                         HorizontalLayout {
                             alignment: end;
                             SecondaryButton {
-                                text: "Rétablir les réglages du son";
+                                text: @tr("Rétablir les réglages du son");
                                 icon: Icons.restore;
                                 has-icon: true;
                                 clicked => { SettingsUi.sound-reset(); }
@@ -760,17 +798,17 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[4]: VerticalLayout {
                 spacing: 18px;
                 // --- Hors ligne ---
-                SectionTitle { text: "Connexion"; }
+                SectionTitle { text: @tr("Connexion"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
                         SettingRow {
-                            title: "Mode hors ligne forcé";
+                            title: @tr("Mode hors ligne forcé");
                             description: AppUi.online
-                                ? "Connexion disponible. Activez pour qu'Halcyon n'effectue plus aucune requête réseau (bibliothèque, lancement, sauvegardes et mods restent disponibles)."
-                                : "Hors ligne : la bibliothèque reste entièrement utilisable. Succès, visuels et métadonnées seront synchronisés automatiquement au retour de la connexion.";
-                            Badge { y: (parent.height - self.height) / 2; text: AppUi.online ? "En ligne" : "Hors ligne"; tint: AppUi.online ? Theme.success : Theme.warm; solid: true; }
+                                ? @tr("Connexion disponible. Activez pour qu'Halcyon n'effectue plus aucune requête réseau (bibliothèque, lancement, sauvegardes et mods restent disponibles).")
+                                : @tr("Hors ligne : la bibliothèque reste entièrement utilisable. Succès, visuels et métadonnées seront synchronisés automatiquement au retour de la connexion.");
+                            Badge { y: (parent.height - self.height) / 2; text: AppUi.online ? @tr("En ligne") : @tr("Hors ligne"); tint: AppUi.online ? Theme.success : Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.offline-forced;
@@ -784,30 +822,30 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[5]: VerticalLayout {
                 spacing: 18px;
                 // --- Système ---
-                SectionTitle { text: "Système"; }
+                SectionTitle { text: @tr("Système"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
                         SettingRow {
-                            title: "Démarrer avec la session";
-                            description: "Halcyon s'ouvre réduit dans la zone de notification à la connexion.";
+                            title: @tr("Démarrer avec la session");
+                            description: @tr("Halcyon s'ouvre réduit dans la zone de notification à la connexion.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.autostart; toggled(v) => { SystemUi.set-option("autostart", v); } }
                         }
                         SettingRow {
-                            title: "Fermer dans la zone de notification";
-                            description: "Fermer la fenêtre garde Halcyon actif (raccourcis, lancements depuis Sunshine). « Quitter » depuis l'icône pour l'arrêter.";
+                            title: @tr("Fermer dans la zone de notification");
+                            description: @tr("Fermer la fenêtre garde Halcyon actif (raccourcis, lancements depuis Sunshine). « Quitter » depuis l'icône pour l'arrêter.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.close-to-tray; toggled(v) => { SystemUi.set-option("close_to_tray", v); } }
                         }
                         SettingRow {
-                            title: "Réduire dans la zone de notification";
-                            description: "Une fenêtre réduite disparaît de la barre des tâches.";
+                            title: @tr("Réduire dans la zone de notification");
+                            description: @tr("Une fenêtre réduite disparaît de la barre des tâches.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.minimize-to-tray; toggled(v) => { SystemUi.set-option("minimize_to_tray", v); } }
                         }
                         if SystemUi.tray-status != "": Text { text: SystemUi.tray-status; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                         SettingRow {
-                            title: "Fenêtre compagnon pendant les parties";
-                            description: "Petite fenêtre au premier plan : temps de session, succès, notes. Aucune injection dans le jeu : visible en mode fenêtré sans bordure ou sur un second écran. Pour les performances (i/s, températures), utilisez MangoHud (Linux) ou RTSS / la Xbox Game Bar (Windows).";
+                            title: @tr("Fenêtre compagnon pendant les parties");
+                            description: @tr("Petite fenêtre au premier plan : temps de session, succès, notes. Aucune injection dans le jeu : visible en mode fenêtré sans bordure ou sur un second écran. Pour les performances (i/s, températures), utilisez MangoHud (Linux) ou RTSS / la Xbox Game Bar (Windows).");
                             Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.companion; toggled(v) => { SystemUi.set-option("companion", v); } }
                         }
                     }
@@ -817,7 +855,7 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[6]: VerticalLayout {
                 spacing: 18px;
                 // --- Raccourcis ---
-                SectionTitle { text: "Raccourcis clavier"; }
+                SectionTitle { text: @tr("Raccourcis clavier"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
@@ -825,25 +863,25 @@ export component SettingsPage inherits Rectangle {
                         for sc in SystemUi.shortcuts: ShortcutEditor { action: sc.action; label: sc.label; combo: sc.combo; default-combo: sc.default-combo; }
                         HorizontalLayout {
                             height: 40px;
-                            Text { text: "Aller aux pages (Accueil, Bibliothèque, Que jouer ?, Succès, Statistiques, Journal, Mises à jour, Sauvegardes, Paramètres)"; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
-                            Text { text: "Ctrl+1 … Ctrl+9"; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; }
+                            Text { text: @tr("Aller aux pages (Accueil, Bibliothèque, Que jouer ?, Succès, Statistiques, Journal, Mises à jour, Sauvegardes, Paramètres)"); color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                            Text { text: @tr("Ctrl+1 … Ctrl+9"); color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; }
                         }
-                        Text { text: "Cliquez sur une combinaison puis appuyez sur les nouvelles touches. Retour arrière : aucun raccourci. Échap : annuler."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        Text { text: @tr("Cliquez sur une combinaison puis appuyez sur les nouvelles touches. Retour arrière : aucun raccourci. Échap : annuler."); color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                         Rectangle { height: 1px; background: Theme.border; }
                         SettingRow {
-                            title: "Raccourci global";
-                            description: SystemUi.global-status != "" ? SystemUi.global-status : "Ouvre le lancement rapide même quand Halcyon est en arrière-plan.";
+                            title: @tr("Raccourci global");
+                            description: SystemUi.global-status != "" ? SystemUi.global-status : @tr("Ouvre le lancement rapide même quand Halcyon est en arrière-plan.");
                             Toggle { y: (parent.height - self.height) / 2; checked: SystemUi.global-enabled; toggled(v) => { SystemUi.set-option("global", v); } }
                         }
                         if SystemUi.global-enabled: HorizontalLayout {
                             spacing: 8px;
-                            gtf := TextField { text: SystemUi.global-hotkey; mono: true; placeholder: "Ctrl+Alt+H"; accepted(t) => { SystemUi.set-global-hotkey(t); } }
-                            SecondaryButton { h: 36px; text: "Appliquer"; clicked => { SystemUi.set-global-hotkey(gtf.text); } }
+                            gtf := TextField { text: SystemUi.global-hotkey; mono: true; placeholder: @tr("Ctrl+Alt+H"); accepted(t) => { SystemUi.set-global-hotkey(t); } }
+                            SecondaryButton { h: 36px; text: @tr("Appliquer"); clicked => { SystemUi.set-global-hotkey(gtf.text); } }
                         }
                         HorizontalLayout {
                             alignment: start;
                             padding-top: 6px;
-                            SecondaryButton { h: 34px; text: "Rétablir les raccourcis par défaut"; clicked => { SystemUi.reset-shortcuts(); } }
+                            SecondaryButton { h: 34px; text: @tr("Rétablir les raccourcis par défaut"); clicked => { SystemUi.reset-shortcuts(); } }
                         }
                     }
                 }
@@ -852,35 +890,35 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[7]: VerticalLayout {
                 spacing: 18px;
                 // --- Export / restauration ---
-                SectionTitle { text: "Exporter ou restaurer la configuration"; }
+                SectionTitle { text: @tr("Exporter ou restaurer la configuration"); }
                 ExportPanel { }
             }
 
             if SettingsUi.shown[8]: VerticalLayout {
                 spacing: 18px;
                 // --- Mises à jour (Halcyon Update System) ---
-                SectionTitle { text: "Mises à jour"; }
+                SectionTitle { text: @tr("Mises à jour"); }
                 UpdateStatusPanel { }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
                         SettingRow {
-                            title: "Canal";
+                            title: @tr("Canal");
                             description: HusUi.channel == 1
-                                ? "Beta : prépublications pour tester les nouveautés, et versions stables plus récentes."
-                                : "Stable : versions finales uniquement." + (HusUi.channel-default ? " Canal par défaut de la version installée." : "");
+                                ? @tr("Beta : prépublications pour tester les nouveautés, et versions stables plus récentes.")
+                                : (HusUi.channel-default ? @tr("Stable : versions finales uniquement. Canal par défaut de la version installée.") : @tr("Stable : versions finales uniquement."));
                             Segmented {
                                 y: (parent.height - self.height) / 2;
-                                items: ["Stable", "Beta"];
+                                items: [@tr("Stable"), @tr("Beta")];
                                 selected: HusUi.channel;
                                 activated(i) => { HusUi.set-channel(i); }
                             }
                         }
                         SettingRow {
-                            title: "Rechercher automatiquement";
-                            description: "Au démarrage puis toutes les 6 heures. Requête conditionnelle à GitHub : rien n'est retéléchargé si rien n'a changé.";
-                            Badge { y: (parent.height - self.height) / 2; text: "En ligne"; tint: Theme.warm; solid: true; }
+                            title: @tr("Rechercher automatiquement");
+                            description: @tr("Au démarrage puis toutes les 6 heures. Requête conditionnelle à GitHub : rien n'est retéléchargé si rien n'a changé.");
+                            Badge { y: (parent.height - self.height) / 2; text: @tr("En ligne"); tint: Theme.warm; solid: true; }
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.check-updates;
@@ -888,10 +926,10 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
-                            title: "Mises à jour automatiques";
+                            title: @tr("Mises à jour automatiques");
                             description: HusUi.managed
-                                ? "Télécharge et vérifie les nouvelles versions en arrière-plan, puis les installe au démarrage suivant de Halcyon."
-                                : "Indisponible pour cette installation : " + HusUi.kind;
+                                ? @tr("Télécharge et vérifie les nouvelles versions en arrière-plan, puis les installe au démarrage suivant de Halcyon.")
+                                : @tr("Indisponible pour cette installation : {}", HusUi.kind);
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 enabled: HusUi.managed;
@@ -900,16 +938,16 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         if HusUi.can-install-user: SettingRow {
-                            title: "Installer Halcyon pour mon compte";
-                            description: "Copie cette AppImage dans ~/.local/opt/halcyon, ajoute Halcyon au menu des applications et à ~/.local/bin. Les mises à jour remplaceront ensuite ce fichier, sans toucher aux raccourcis.";
-                            SecondaryButton { y: (parent.height - self.height) / 2; text: "Installer"; icon: Icons.download; has-icon: true; clicked => { HusUi.install-user(); } }
+                            title: @tr("Installer Halcyon pour mon compte");
+                            description: @tr("Copie cette AppImage dans ~/.local/opt/halcyon, ajoute Halcyon au menu des applications et à ~/.local/bin. Les mises à jour remplaceront ensuite ce fichier, sans toucher aux raccourcis.");
+                            SecondaryButton { y: (parent.height - self.height) / 2; text: @tr("Installer"); icon: Icons.download; has-icon: true; clicked => { HusUi.install-user(); } }
                         }
                         HorizontalLayout {
                             TextSetting {
                                 key: "update_repo";
-                                label: "Dépôt des versions";
-                                hint: "Vide : dépôt officiel (sebdss/halcyon). Un autre dépôt n'est utile que pour une version dérivée : ses manifestes doivent être signés par une clé intégrée à cette compilation.";
-                                placeholder: "sebdss/halcyon";
+                                label: @tr("Dépôt des versions");
+                                hint: @tr("Vide : dépôt officiel (sebdss/halcyon). Un autre dépôt n'est utile que pour une version dérivée : ses manifestes doivent être signés par une clé intégrée à cette compilation.");
+                                placeholder: @tr("sebdss/halcyon");
                                 value: SettingsUi.update-repo;
                             }
                         }
@@ -919,7 +957,7 @@ export component SettingsPage inherits Rectangle {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 10px;
-                        Text { text: "Nouveautés de la version " + HusUi.latest; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                        Text { text: @tr("Nouveautés de la version {}", HusUi.latest); color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
                         Text { text: HusUi.notes; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
                     }
                 }
@@ -929,43 +967,43 @@ export component SettingsPage inherits Rectangle {
             if SettingsUi.shown[9]: VerticalLayout {
                 spacing: 18px;
                 // --- Stockage & diagnostic ---
-                SectionTitle { text: "Stockage et diagnostic"; }
+                SectionTitle { text: @tr("Stockage et diagnostic"); }
                 Panel {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 20px;
                         SettingRow {
-                            title: "Cache des miniatures";
-                            description: SettingsUi.cache-size + " — reconstruit automatiquement si vidé.";
+                            title: @tr("Cache des miniatures");
+                            description: @tr("{} — reconstruit automatiquement si vidé.", SettingsUi.cache-size);
                             SecondaryButton {
                                 y: (parent.height - self.height) / 2;
-                                text: "Vider";
+                                text: @tr("Vider");
                                 h: 34px;
                                 clicked => { SettingsUi.clear-cache(); }
                             }
                         }
                         SettingRow {
-                            title: "Données de l'application";
+                            title: @tr("Données de l'application");
                             description: SettingsUi.data-dir;
                             SecondaryButton {
                                 y: (parent.height - self.height) / 2;
-                                text: "Ouvrir";
+                                text: @tr("Ouvrir");
                                 h: 34px;
                                 clicked => { SettingsUi.open-data(); }
                             }
                         }
                         SettingRow {
-                            title: "Vérification d'intégrité";
-                            description: "Base de données, paramètres, dossier des données, jeux installés, jaquettes et extensions.";
-                            SecondaryButton { y: (parent.height - self.height) / 2; text: SystemUi.integrity-running ? "Vérification…" : "Vérifier"; icon: Icons.shield; has-icon: true; h: 34px; clicked => { SystemUi.check-integrity(); } }
+                            title: @tr("Vérification d'intégrité");
+                            description: @tr("Base de données, paramètres, dossier des données, jeux installés, jaquettes et extensions.");
+                            SecondaryButton { y: (parent.height - self.height) / 2; text: SystemUi.integrity-running ? @tr("Vérification…") : @tr("Vérifier"); icon: Icons.shield; has-icon: true; h: 34px; clicked => { SystemUi.check-integrity(); } }
                         }
                         if SystemUi.integrity-status != "": Text { text: SystemUi.integrity-status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                         SettingRow {
-                            title: "Journaux";
-                            description: SettingsUi.log-dir + " — dont security.log : clés d'API définies ou retirées (jamais leur valeur), extensions et autorisations, mises à jour vérifiées ou refusées, compte Microsoft.";
+                            title: @tr("Journaux");
+                            description: @tr("{} — dont security.log : clés d'API définies ou retirées (jamais leur valeur), extensions et autorisations, mises à jour vérifiées ou refusées, compte Microsoft.", SettingsUi.log-dir);
                             SecondaryButton {
                                 y: (parent.height - self.height) / 2;
-                                text: "Ouvrir";
+                                text: @tr("Ouvrir");
                                 h: 34px;
                                 clicked => { SettingsUi.open-logs(); }
                             }
@@ -975,7 +1013,7 @@ export component SettingsPage inherits Rectangle {
             }
 
             Text {
-                text: "Halcyon " + SettingsUi.version + ". Made with Slint. Police Archivo (SIL OFL).";
+                text: @tr("Halcyon {}. Made with Slint. Police Archivo (SIL OFL).", SettingsUi.version);
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 horizontal-alignment: center;

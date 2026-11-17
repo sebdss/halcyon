@@ -43,46 +43,46 @@ export component StatsPage inherits Rectangle {
                     horizontal-stretch: 1;
                     spacing: 8px;
                     Text { text: StatsUi.total; color: Theme.text; font-family: Theme.display; font-size: Theme.t-display + 4px; font-weight: 800; }
-                    Text { text: "Temps de jeu total retenu. " + StatsUi.total-detail; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+                    Text { text: @tr("Temps de jeu total retenu. {}", StatsUi.total-detail); color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
                 }
                 VerticalLayout {
                     alignment: center;
                     spacing: 8px;
-                    SecondaryButton { text: "Temps par jeu (CSV)"; icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("csv-games"); } }
-                    SecondaryButton { text: "Sessions (CSV)"; icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("csv-sessions"); } }
-                    SecondaryButton { text: "Tout (JSON)"; icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("json"); } }
+                    SecondaryButton { text: @tr("Temps par jeu (CSV)"); icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("csv-games"); } }
+                    SecondaryButton { text: @tr("Sessions (CSV)"); icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("csv-sessions"); } }
+                    SecondaryButton { text: @tr("Tout (JSON)"); icon: Icons.upload; has-icon: true; clicked => { StatsUi.export("json"); } }
                 }
             }
 
             HorizontalLayout {
                 spacing: 44px;
                 alignment: start;
-                BigStat { value: StatsUi.games-played; label: "jeux lancés au moins une fois"; }
-                BigStat { value: StatsUi.sessions; label: "sessions suivies"; }
-                BigStat { value: StatsUi.avg-session; label: "durée moyenne d'une session"; }
-                BigStat { value: StatsUi.week-total; label: "joué cette semaine"; }
-                BigStat { value: StatsUi.streak + " j"; label: "série de jours joués"; }
-                BigStat { value: StatsUi.completed; label: "jeux terminés"; }
+                BigStat { value: StatsUi.games-played; label: @tr("jeux lancés au moins une fois"); }
+                BigStat { value: StatsUi.sessions; label: @tr("sessions suivies"); }
+                BigStat { value: StatsUi.avg-session; label: @tr("durée moyenne d'une session"); }
+                BigStat { value: StatsUi.week-total; label: @tr("joué cette semaine"); }
+                BigStat { value: @tr("{} j", StatsUi.streak); label: @tr("série de jours joués"); }
+                BigStat { value: StatsUi.completed; label: @tr("jeux terminés"); }
             }
 
             if !StatsUi.has-local: Notice {
-                text: "Aucune session n'a encore été suivie par Halcyon. Les graphiques hebdomadaires et mensuels se remplissent à mesure que vous lancez vos jeux depuis Halcyon (y compris les jeux Steam et Epic, détectés pendant leur exécution).";
+                text: @tr("Aucune session n'a encore été suivie par Halcyon. Les graphiques hebdomadaires et mensuels se remplissent à mesure que vous lancez vos jeux depuis Halcyon (y compris les jeux Steam et Epic, détectés pendant leur exécution).");
             }
 
             HorizontalLayout {
                 spacing: Theme.s6;
                 ChartRubric {
-                    title: "Par semaine";
-                    note: "suivi local, 12 semaines";
+                    title: @tr("Par semaine");
+                    note: @tr("suivi local, 12 semaines");
                     empty: !StatsUi.has-local;
-                    empty-text: "Pas encore de session suivie.";
+                    empty-text: @tr("Pas encore de session suivie.");
                     items: StatsUi.weeks;
                 }
                 ChartRubric {
-                    title: "Par mois";
-                    note: "suivi local, 12 mois";
+                    title: @tr("Par mois");
+                    note: @tr("suivi local, 12 mois");
                     empty: !StatsUi.has-local;
-                    empty-text: "Pas encore de session suivie.";
+                    empty-text: @tr("Pas encore de session suivie.");
                     items: StatsUi.months;
                 }
             }
@@ -91,8 +91,8 @@ export component StatsPage inherits Rectangle {
                 spacing: Theme.s6;
                 Rubric {
                     horizontal-stretch: 3;
-                    title: "Jeux les plus joués";
-                    if StatsUi.top.length == 0: Text { text: "Aucun temps de jeu connu pour l'instant."; color: Theme.text-dim; font-size: Theme.t-small; }
+                    title: @tr("Jeux les plus joués");
+                    if StatsUi.top.length == 0: Text { text: @tr("Aucun temps de jeu connu pour l'instant."); color: Theme.text-dim; font-size: Theme.t-small; }
                     for t[i] in StatsUi.top: Rectangle {
                         height: 54px;
                         border-radius: Theme.radius-sm;
@@ -126,7 +126,7 @@ export component StatsPage inherits Rectangle {
                 }
                 Rubric {
                     horizontal-stretch: 2;
-                    title: "Par source";
+                    title: @tr("Par source");
                     for s in StatsUi.sources: MeterRow { label: s.label; value: s.value; ratio: s.ratio; }
                 }
             }
@@ -134,22 +134,22 @@ export component StatsPage inherits Rectangle {
             HorizontalLayout {
                 spacing: Theme.s6;
                 ChartRubric {
-                    title: "Succès débloqués";
-                    note: "données des plateformes, 12 mois";
+                    title: @tr("Succès débloqués");
+                    note: @tr("données des plateformes, 12 mois");
                     items: StatsUi.unlocks;
                     bar-color: Theme.warm;
                 }
                 ChartRubric {
-                    title: "Jeux terminés";
-                    note: "statut « Terminé », 12 mois";
+                    title: @tr("Jeux terminés");
+                    note: @tr("statut « Terminé », 12 mois");
                     items: StatsUi.completions;
                     bar-color: Theme.success;
                 }
             }
 
             Rubric {
-                title: "Sessions récentes";
-                if StatsUi.recent.length == 0: Text { text: "Aucune session suivie."; color: Theme.text-dim; font-size: Theme.t-small; }
+                title: @tr("Sessions récentes");
+                if StatsUi.recent.length == 0: Text { text: @tr("Aucune session suivie."); color: Theme.text-dim; font-size: Theme.t-small; }
                 for r in StatsUi.recent: Rectangle {
                     height: 38px;
                     border-radius: Theme.radius-sm;

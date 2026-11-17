@@ -33,12 +33,12 @@ export component AppearancePage inherits Rectangle {
             alignment: start;
 
             PageHeader {
-                title: "Apparence";
-                subtitle: "Thème, couleurs, fond, densité et organisation de l'interface. Les changements s'appliquent immédiatement.";
-                SecondaryButton { y: 6px; text: "Rétablir les réglages d'origine"; clicked => { ThemeUi.reset(); } }
+                title: @tr("Apparence");
+                subtitle: @tr("Thème, couleurs, fond, densité et organisation de l'interface. Les changements s'appliquent immédiatement.");
+                SecondaryButton { y: 6px; text: @tr("Rétablir les réglages d'origine"); clicked => { ThemeUi.reset(); } }
             }
 
-            SectionTitle { text: "Thème"; }
+            SectionTitle { text: @tr("Thème"); }
             // Chaque thème en miniature : colonne de navigation, perche, jaquettes, « Jouer ».
             Flickable {
                 height: 140px;
@@ -78,8 +78,8 @@ export component AppearancePage inherits Rectangle {
                     padding: 22px;
                     spacing: 18px;
                     Row {
-                        title: "Couleur d'accent";
-                        description: "Boutons, sélection et indicateurs. Une teinte personnalisée s'écrit #RRGGBB.";
+                        title: @tr("Couleur d'accent");
+                        description: @tr("Boutons, sélection et indicateurs. Une teinte personnalisée s'écrit #RRGGBB.");
                     }
                     HorizontalLayout {
                         spacing: 10px;
@@ -100,33 +100,33 @@ export component AppearancePage inherits Rectangle {
                             }
                             TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.set-accent(ThemeUi.accent-hexes[i]); } }
                         }
-                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: "#3d9be9"; accepted(t) => { ThemeUi.set-accent(t); } }
-                        SecondaryButton { h: 34px; text: "Appliquer"; clicked => { ThemeUi.set-accent(root.accent-hex); } }
+                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: @tr("#3d9be9"); accepted(t) => { ThemeUi.set-accent(t); } }
+                        SecondaryButton { h: 34px; text: @tr("Appliquer"); clicked => { ThemeUi.set-accent(root.accent-hex); } }
                     }
                     Rectangle { height: 1px; background: Theme.border; }
                     Row {
-                        title: "Densité";
-                        description: "Compacte : marges et éléments de navigation réduits.";
+                        title: @tr("Densité");
+                        description: @tr("Compacte : marges et éléments de navigation réduits.");
                         Segmented {
                             y: (parent.height - self.height) / 2;
-                            items: ["Confortable", "Compacte"];
+                            items: [@tr("Confortable"), @tr("Compacte")];
                             selected: ThemeUi.density;
                             activated(i) => { ThemeUi.set-density(i); }
                         }
                     }
                     Row {
-                        title: "Mouvement";
-                        description: "Réduit : fondus courts, sans glissement. Aucun : interface instantanée (recommandé si les animations gênent).";
+                        title: @tr("Mouvement");
+                        description: @tr("Réduit : fondus courts, sans glissement. Aucun : interface instantanée (recommandé si les animations gênent).");
                         Segmented {
                             y: (parent.height - self.height) / 2;
-                            items: ["Complet", "Réduit", "Aucun"];
+                            items: [@tr("Complet"), @tr("Réduit"), @tr("Aucun")];
                             selected: ThemeUi.motion;
                             activated(i) => { ThemeUi.set-motion(i); }
                         }
                     }
                     Row {
-                        title: "Taille du texte";
-                        description: "Agrandit tous les textes de l'interface (accessibilité).";
+                        title: @tr("Taille du texte");
+                        description: @tr("Agrandit tous les textes de l'interface (accessibilité).");
                         Segmented {
                             y: (parent.height - self.height) / 2;
                             items: ["90 %", "100 %", "115 %", "130 %"];
@@ -137,24 +137,24 @@ export component AppearancePage inherits Rectangle {
                 }
             }
 
-            SectionTitle { text: "Interface"; }
+            SectionTitle { text: @tr("Interface"); }
             Panel {
                 VerticalLayout {
                     padding: 22px;
                     spacing: 18px;
                     Row {
-                        title: "Mode d'affichage";
-                        description: "Minimaliste : menu en icônes seules, accueil réduit aux favoris et récents. Cinéma : sans menu, illustrations plein cadre. Bouton de la barre supérieure pour basculer.";
+                        title: @tr("Mode d'affichage");
+                        description: @tr("Minimaliste : menu en icônes seules, accueil réduit aux favoris et récents. Cinéma : sans menu, illustrations plein cadre. Bouton de la barre supérieure pour basculer.");
                         Segmented {
                             y: (parent.height - self.height) / 2;
-                            items: ["Standard", "Minimaliste", "Cinéma"];
+                            items: [@tr("Standard"), @tr("Minimaliste"), @tr("Cinéma")];
                             selected: AppUi.ui-mode;
                             activated(i) => { AppUi.set-ui-mode(i); }
                         }
                     }
                     Row {
-                        title: "Menu : icônes seules";
-                        description: "Masque les libellés sous les icônes du menu de gauche. Automatique en mode minimaliste et dans une fenêtre peu haute.";
+                        title: @tr("Menu : icônes seules");
+                        description: @tr("Masque les libellés sous les icônes du menu de gauche. Automatique en mode minimaliste et dans une fenêtre peu haute.");
                         Toggle {
                             y: (parent.height - self.height) / 2;
                             checked: AppUi.sidebar-collapsed;
@@ -163,8 +163,8 @@ export component AppearancePage inherits Rectangle {
                     }
                     Rectangle { height: 1px; background: Theme.border; }
                     Row {
-                        title: "Mode Performance";
-                        description: "Coupe animations et effets, suspend les téléchargements de visuels et la vérification des mises à jour. Aucun programme ni service n'est fermé.";
+                        title: @tr("Mode Performance");
+                        description: @tr("Coupe animations et effets, suspend les téléchargements de visuels et la vérification des mises à jour. Aucun programme ni service n'est fermé.");
                         Toggle {
                             y: (parent.height - self.height) / 2;
                             checked: AppUi.performance && !AppUi.performance-auto;
@@ -172,8 +172,8 @@ export component AppearancePage inherits Rectangle {
                         }
                     }
                     Row {
-                        title: "Automatique pendant les parties";
-                        description: "Active le mode Performance au lancement d'un jeu depuis Halcyon et rétablit tout à la fermeture du jeu.";
+                        title: @tr("Automatique pendant les parties");
+                        description: @tr("Active le mode Performance au lancement d'un jeu depuis Halcyon et rétablit tout à la fermeture du jeu.");
                         Toggle {
                             y: (parent.height - self.height) / 2;
                             checked: ThemeUi.performance-auto;
@@ -183,27 +183,27 @@ export component AppearancePage inherits Rectangle {
                 }
             }
 
-            SectionTitle { text: "Fond d'écran"; }
+            SectionTitle { text: @tr("Fond d'écran"); }
             Panel {
                 VerticalLayout {
                     padding: 22px;
                     spacing: 16px;
                     HorizontalLayout {
                         spacing: 8px;
-                        TextField { text <=> root.bg-path; mono: true; placeholder: "Image (.jpg, .png, .webp) affichée en fond, assombrie"; }
+                        TextField { text <=> root.bg-path; mono: true; placeholder: @tr("Image (.jpg, .png, .webp) affichée en fond, assombrie"); }
                         if AppUi.can-browse: SecondaryButton {
-                            text: "Parcourir…";
+                            text: @tr("Parcourir…");
                             h: 36px;
                             clicked => {
                                 let p = AppUi.browse-file();
                                 if (p != "") { root.bg-path = p; ThemeUi.set-background(root.bg-path); }
                             }
                         }
-                        SecondaryButton { h: 36px; text: "Appliquer"; clicked => { ThemeUi.set-background(root.bg-path); } }
-                        if ThemeUi.background != "": SecondaryButton { h: 36px; text: "Retirer"; clicked => { root.bg-path = ""; ThemeUi.set-background(""); } }
+                        SecondaryButton { h: 36px; text: @tr("Appliquer"); clicked => { ThemeUi.set-background(root.bg-path); } }
+                        if ThemeUi.background != "": SecondaryButton { h: 36px; text: @tr("Retirer"); clicked => { root.bg-path = ""; ThemeUi.set-background(""); } }
                     }
                     if ThemeUi.background != "": Row {
-                        title: "Intensité du fond";
+                        title: @tr("Intensité du fond");
                         description: round(ThemeUi.background-opacity * 100) + " %";
                         HorizontalLayout {
                             spacing: 6px;
@@ -216,8 +216,8 @@ export component AppearancePage inherits Rectangle {
                         }
                     }
                     Row {
-                        title: "Fond animé";
-                        description: "Lueur colorée lente derrière l'interface. Désactivé par défaut : il redessine l'écran en continu (jamais pendant une partie lancée par Halcyon).";
+                        title: @tr("Fond animé");
+                        description: @tr("Lueur colorée lente derrière l'interface. Désactivé par défaut : il redessine l'écran en continu (jamais pendant une partie lancée par Halcyon).");
                         Toggle { y: (parent.height - self.height) / 2; checked: ThemeUi.animated-background; toggled(v) => { ThemeUi.set-animated(v); } }
                     }
                 }
@@ -231,8 +231,8 @@ export component AppearancePage inherits Rectangle {
                         padding: 22px;
                         spacing: 10px;
                         alignment: start;
-                        SectionTitle { text: "Entrées affichées"; }
-                        Text { text: "Onglets des espaces Activité et Outils, et bouton Console du menu : gardez seulement ce que vous utilisez."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                        SectionTitle { text: @tr("Entrées affichées"); }
+                        Text { text: @tr("Onglets des espaces Activité et Outils, et bouton Console du menu : gardez seulement ce que vous utilisez."); color: Theme.text-dim; font-size: Theme.t-caption; }
                         for n in ThemeUi.nav-items: HorizontalLayout {
                             height: 34px;
                             Text { text: n.label; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
@@ -246,60 +246,60 @@ export component AppearancePage inherits Rectangle {
                         padding: 22px;
                         spacing: 10px;
                         alignment: start;
-                        SectionTitle { text: "Accueil"; }
-                        Text { text: "Widgets de l'accueil : ordre et affichage. Taille et disposition : bouton crayon de l'accueil."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                        SectionTitle { text: @tr("Accueil"); }
+                        Text { text: @tr("Widgets de l'accueil : ordre et affichage. Taille et disposition : bouton crayon de l'accueil."); color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                         for sec[i] in ThemeUi.sections: HorizontalLayout {
                             height: 34px;
                             spacing: 4px;
                             Text { text: sec.label; color: sec.visible ? Theme.text : Theme.text-dim; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
-                            IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-up; tooltip: "Monter"; clicked => { ThemeUi.move-section(i, -1); } }
-                            IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-down; tooltip: "Descendre"; clicked => { ThemeUi.move-section(i, 1); } }
+                            IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-up; tooltip: @tr("Monter"); clicked => { ThemeUi.move-section(i, -1); } }
+                            IconButton { size: 30px; icon-size: 15px; icon: Icons.chevron-down; tooltip: @tr("Descendre"); clicked => { ThemeUi.move-section(i, 1); } }
                             Toggle { y: (parent.height - self.height) / 2; checked: sec.visible; toggled => { ThemeUi.toggle-section(i); } }
                         }
                     }
                 }
             }
 
-            SectionTitle { text: "Profils d'interface"; }
+            SectionTitle { text: @tr("Profils d'interface"); }
             Panel {
                 VerticalLayout {
                     padding: 22px;
                     spacing: 12px;
-                    Text { text: "Enregistrez l'apparence actuelle (thème, couleurs, densité, animations, fond, menu, accueil) sous un nom, puis basculez d'un profil à l'autre : « Bureau », « Salon », « Portable sur batterie »… Le mode Performance en cours n'est pas modifié."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    Text { text: @tr("Enregistrez l'apparence actuelle (thème, couleurs, densité, animations, fond, menu, accueil) sous un nom, puis basculez d'un profil à l'autre : « Bureau », « Salon », « Portable sur batterie »… Le mode Performance en cours n'est pas modifié."); color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                     for name[i] in ThemeUi.ui-profiles: HorizontalLayout {
                         height: 40px;
                         spacing: 8px;
                         Text { text: name; color: Theme.text; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                        SecondaryButton { y: 3px; h: 34px; text: "Appliquer"; clicked => { ThemeUi.apply-profile(i); } }
-                        IconButton { y: 3px; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer le profil"; clicked => { ThemeUi.delete-profile(i); } }
+                        SecondaryButton { y: 3px; h: 34px; text: @tr("Appliquer"); clicked => { ThemeUi.apply-profile(i); } }
+                        IconButton { y: 3px; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Supprimer le profil"); clicked => { ThemeUi.delete-profile(i); } }
                     }
                     HorizontalLayout {
                         spacing: 8px;
-                        TextField { text <=> root.profile-name; placeholder: "Nom du profil (ex. Salon)"; }
-                        PrimaryButton { h: 36px; text: "Enregistrer l'apparence actuelle"; enabled: root.profile-name != ""; clicked => { ThemeUi.save-profile(root.profile-name); root.profile-name = ""; } }
+                        TextField { text <=> root.profile-name; placeholder: @tr("Nom du profil (ex. Salon)"); }
+                        PrimaryButton { h: 36px; text: @tr("Enregistrer l'apparence actuelle"); enabled: root.profile-name != ""; clicked => { ThemeUi.save-profile(root.profile-name); root.profile-name = ""; } }
                     }
                 }
             }
 
-            SectionTitle { text: "Importer ou exporter un thème"; }
+            SectionTitle { text: @tr("Importer ou exporter un thème"); }
             Panel {
                 VerticalLayout {
                     padding: 22px;
                     spacing: 14px;
-                    Text { text: "Un thème est un petit fichier JSON (couleurs). Les extensions peuvent aussi en fournir."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    Text { text: @tr("Un thème est un petit fichier JSON (couleurs). Les extensions peuvent aussi en fournir."); color: Theme.text-dim; font-size: Theme.t-caption; }
                     HorizontalLayout {
                         spacing: 8px;
-                        TextField { text <=> root.import-path; mono: true; placeholder: "Fichier de thème .json"; }
+                        TextField { text <=> root.import-path; mono: true; placeholder: @tr("Fichier de thème .json"); }
                         if AppUi.can-browse: SecondaryButton {
-                            text: "Parcourir…";
+                            text: @tr("Parcourir…");
                             h: 36px;
                             clicked => {
                                 let p = AppUi.browse-file();
                                 if (p != "") { root.import-path = p; }
                             }
                         }
-                        SecondaryButton { h: 36px; text: "Importer"; enabled: root.import-path != ""; clicked => { ThemeUi.import-theme(root.import-path); root.import-path = ""; } }
-                        PrimaryButton { h: 36px; text: "Exporter le thème actuel"; icon: Icons.upload; has-icon: true; clicked => { ThemeUi.export-theme(); } }
+                        SecondaryButton { h: 36px; text: @tr("Importer"); enabled: root.import-path != ""; clicked => { ThemeUi.import-theme(root.import-path); root.import-path = ""; } }
+                        PrimaryButton { h: 36px; text: @tr("Exporter le thème actuel"); icon: Icons.upload; has-icon: true; clicked => { ThemeUi.export-theme(); } }
                     }
                     if ThemeUi.status != "": Text { text: ThemeUi.status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                 }

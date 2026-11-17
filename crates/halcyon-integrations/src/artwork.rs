@@ -19,7 +19,7 @@ pub enum FetchError {
 impl std::fmt::Display for FetchError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Network(e) => write!(f, "réseau : {e}"),
+            Self::Network(e) => write!(f, "{}", tr!("réseau : {e}", e = e)),
             Self::Unavailable(e) => write!(f, "indisponible : {e}"),
         }
     }
@@ -28,9 +28,9 @@ impl std::fmt::Display for FetchError {
 fn classify(e: ureq::Error) -> FetchError {
     match e {
         ureq::Error::StatusCode(401) | ureq::Error::StatusCode(403) => {
-            FetchError::Unavailable("accès refusé (clé d'API invalide ou profil privé)".into())
+            FetchError::Unavailable(tr!("accès refusé (clé d'API invalide ou profil privé)").into())
         }
-        ureq::Error::StatusCode(429) => FetchError::Network("trop de requêtes, réessai plus tard".into()),
+        ureq::Error::StatusCode(429) => FetchError::Network(tr!("trop de requêtes, réessai plus tard").into()),
         ureq::Error::StatusCode(code) => FetchError::Unavailable(format!("HTTP {code}")),
         other => FetchError::Network(other.to_string()),
     }
@@ -68,7 +68,7 @@ impl Downloader {
         }
         let mut resp = req.call().map_err(classify)?;
         let bytes = resp.body_mut().with_config().limit(MAX_BYTES).read_to_vec().map_err(classify)?;
-        serde_json::from_slice(&bytes).map_err(|e| FetchError::Unavailable(format!("JSON invalide : {e}")))
+        serde_json::from_slice(&bytes).map_err(|e| FetchError::Unavailable(tr!("JSON invalide : {e}", e = e)))
     }
 
     /// Télécharge un fichier quelconque (icônes, captures) vers `dest`.
@@ -76,14 +76,14 @@ impl Downloader {
         let mut resp = self.agent.get(url).call().map_err(classify)?;
         let bytes = resp.body_mut().with_config().limit(MAX_BYTES).read_to_vec().map_err(classify)?;
         let tmp = dest.with_extension("part");
-        std::fs::write(&tmp, &bytes).map_err(|e| FetchError::Network(format!("écriture : {e}")))?;
-        std::fs::rename(&tmp, dest).map_err(|e| FetchError::Network(format!("écriture : {e}")))
+        std::fs::write(&tmp, &bytes).map_err(|e| FetchError::Network(tr!("écriture : {e}", e = e)))?;
+        std::fs::rename(&tmp, dest).map_err(|e| FetchError::Network(tr!("écriture : {e}", e = e)))
     }
 
     /// Essaie chaque URL dans l'ordre ; enregistre la première image valide sous
     /// `dest_stem` + extension déduite du type MIME.
     pub fn fetch_first(&self, urls: &[String], dest_stem: &Path) -> Result<PathBuf, FetchError> {
-        let mut last_err = FetchError::Unavailable("aucune URL".into());
+        let mut last_err = FetchError::Unavailable(tr!("aucune URL").into());
         for url in urls {
             match self.fetch(url, dest_stem) {
                 Ok(p) => return Ok(p),
@@ -107,15 +107,15 @@ impl Downloader {
             "image/jpeg" | "image/jpg" => "jpg",
             "image/png" => "png",
             "image/webp" => "webp",
-            other => return Err(unavailable(format!("type de contenu inattendu « {other} »"))),
+            other => return Err(unavailable(tr!("type de contenu inattendu « {other} »", other = other))),
         };
         let bytes = resp.body_mut().with_config().limit(MAX_BYTES).read_to_vec().map_err(classify)?;
         if bytes.len() < 64 {
-            return Err(unavailable("image vide".into()));
+            return Err(unavailable(tr!("image vide").into()));
         }
         let dest = dest_stem.with_extension(ext);
         let tmp = dest_stem.with_extension("part");
-        let disk = |e: std::io::Error| FetchError::Network(format!("écriture : {e}"));
+        let disk = |e: std::io::Error| FetchError::Network(tr!("écriture : {e}", e = e));
         let mut f = std::fs::File::create(&tmp).map_err(disk)?;
         f.write_all(&bytes).map_err(disk)?;
         drop(f);

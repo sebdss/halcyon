@@ -110,8 +110,8 @@ impl Controller {
         self.save_settings();
         self.apply_ui_modes();
         self.sound(halcyon_audio::Cue::Mode);
-        let label = ["standard", "minimaliste", "cinéma"][mode as usize];
-        self.toast(format!("Mode {label}"), false);
+        let label = match mode as usize { 1 => tr!("Mode minimaliste"), 2 => tr!("Mode cinéma"), _ => tr!("Mode standard") };
+        self.toast(label, false);
         self.refresh_home();
     }
 
@@ -131,7 +131,7 @@ impl Controller {
         self.sound(if on { halcyon_audio::Cue::ToggleOn } else { halcyon_audio::Cue::ToggleOff });
         self.apply_ui_modes();
         self.on_performance_changed();
-        self.toast(if on { "Mode Performance activé" } else { "Mode Performance désactivé" }, false);
+        self.toast(if on { tr!("Mode Performance activé") } else { tr!("Mode Performance désactivé") }, false);
     }
 
     /// Mode Performance actif (manuel ou automatique).
@@ -291,16 +291,16 @@ impl Controller {
                 progress: t.progress,
                 state: t.state.code(),
                 time: match t.state {
-                    State::Running if elapsed >= 60 => format!("{} min", elapsed / 60),
-                    State::Running => format!("{elapsed} s"),
+                    State::Running if elapsed >= 60 => tr!("{v} min", v = elapsed / 60),
+                    State::Running => tr!("{elapsed} s", elapsed = elapsed),
                     _ => clock(t.ended.unwrap_or(t.started)),
                 }
                 .into(),
                 action: match &t.action {
                     Action::None => SharedString::new(),
-                    Action::OpenPage(_) => "Ouvrir".into(),
-                    Action::OpenGame(_) => "Voir la fiche".into(),
-                    Action::OpenFolder(_) => "Ouvrir le dossier".into(),
+                    Action::OpenPage(_) => tr!("Ouvrir").into(),
+                    Action::OpenGame(_) => tr!("Voir la fiche").into(),
+                    Action::OpenFolder(_) => tr!("Ouvrir le dossier").into(),
                 },
             }
         };

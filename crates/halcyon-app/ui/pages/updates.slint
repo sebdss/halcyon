@@ -14,11 +14,11 @@ export component UpdatesPage inherits Rectangle {
             alignment: start;
 
             PageHeader {
-                title: "Mises à jour";
-                subtitle: "Les mises à jour sont téléchargées et installées par la plateforme d'origine ; Halcyon les détecte et suit leur progression.";
+                title: @tr("Mises à jour");
+                subtitle: @tr("Les mises à jour sont téléchargées et installées par la plateforme d'origine ; Halcyon les détecte et suit leur progression.");
                 SecondaryButton {
                     y: 6px;
-                    text: "Actualiser";
+                    text: @tr("Actualiser");
                     icon: Icons.refresh;
                     has-icon: true;
                     clicked => { UpdatesUi.refresh(); }
@@ -26,8 +26,8 @@ export component UpdatesPage inherits Rectangle {
             }
 
             SettingRow {
-                label: "Notifications de mise à jour";
-                description: "Notification système quand une mise à jour est détectée lors d'une analyse.";
+                label: @tr("Notifications de mise à jour");
+                description: @tr("Notification système quand une mise à jour est détectée lors d'une analyse.");
                 Toggle {
                     y: (parent.height - self.height) / 2;
                     checked: UpdatesUi.notify;
@@ -35,9 +35,9 @@ export component UpdatesPage inherits Rectangle {
                 }
             }
 
-            Rubric { title: "En attente"; note: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length + " jeu(x)" : ""; }
+            Rubric { title: @tr("En attente"); note: UpdatesUi.pending.length > 0 ? @tr("{n} jeu" | "{n} jeux" % UpdatesUi.pending.length) : ""; }
             if UpdatesUi.pending.length == 0: Text {
-                text: "Tous vos jeux sont à jour, d'après les informations fournies par les plateformes.";
+                text: @tr("Tous vos jeux sont à jour, d'après les informations fournies par les plateformes.");
                 color: Theme.text-dim;
                 font-size: Theme.t-small;
             }
@@ -83,19 +83,19 @@ export component UpdatesPage inherits Rectangle {
                     }
                     SecondaryButton {
                         y: (parent.height - self.height) / 2;
-                        text: "Fiche";
+                        text: @tr("Fiche");
                         clicked => { Actions.open-game(u.id); }
                     }
                 }
             }
 
             Notice {
-                text: "Steam : état et progression lus dans les manifestes du client. Heroic / Legendary : comparaison avec la dernière version connue du cache Legendary. Le launcher Epic Games n'indique pas localement les mises à jour en attente : seule la version installée est affichée. Jeux autonomes et émulés : aucune source de mise à jour.";
+                text: @tr("Steam : état et progression lus dans les manifestes du client. Heroic / Legendary : comparaison avec la dernière version connue du cache Legendary. Le launcher Epic Games n'indique pas localement les mises à jour en attente : seule la version installée est affichée. Jeux autonomes et émulés : aucune source de mise à jour.");
             }
 
-            Rubric { title: "Historique des versions"; }
+            Rubric { title: @tr("Historique des versions"); }
             if UpdatesUi.changes.length == 0: Text {
-                text: "Aucun changement de version observé pour l'instant.";
+                text: @tr("Aucun changement de version observé pour l'instant.");
                 color: Theme.text-dim;
                 font-size: Theme.t-small;
             }

@@ -3,6 +3,9 @@
 // Pas de console noire derrière la fenêtre en version publiée sous Windows.
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 mod controller;
 mod ctl_achievements;
 mod ctl_assistant;
@@ -11,6 +14,7 @@ mod ctl_bigpicture;
 mod ctl_downloads;
 mod ctl_emulators;
 mod ctl_home;
+mod ctl_lang;
 mod ctl_library;
 mod ctl_palette;
 mod ctl_minecraft;
@@ -32,6 +36,7 @@ mod dialogs;
 mod gamepad;
 mod images;
 mod instance;
+mod lang;
 mod models;
 mod nav;
 mod notify;
@@ -62,7 +67,12 @@ fn main() {
     halcyon_storage::audit::init(&paths.logs_dir);
     log::info!("Halcyon {} — données : {}", env!("CARGO_PKG_VERSION"), paths.data_dir.display());
 
-    let settings = Settings::load(&paths.settings_path());
+    let first_run = !paths.settings_path().exists();
+    let mut settings = Settings::load(&paths.settings_path());
+    lang::init(&mut settings, first_run);
+    if first_run && settings.language.is_some() {
+        let _ = settings.save(&paths.settings_path());
+    }
     // Mise à jour : reprise d'une installation interrompue, ou installation de la version en
     // attente ; l'updater prend alors le relais et relance Halcyon.
     if ctl_update::early_start(&settings, args.hus_health.as_deref(), args.hus_rolled_back) {
@@ -87,6 +97,7 @@ fn main() {
             std::process::exit(1);
         }
     };
+    lang::apply_to_ui();
     app.window().set_size(slint::LogicalSize::new(settings.window_width as f32, settings.window_height as f32));
     if settings.window_maximized {
         app.window().set_maximized(true);

@@ -5,6 +5,9 @@
 //! authentification n'est contournée, aucun DRM n'est touché. Le lancement des
 //! jeux Steam/Epic passe toujours par le client officiel (URI de protocole).
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod archive;
 pub mod artwork;
 pub mod config_archive;

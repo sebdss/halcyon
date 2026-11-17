@@ -51,8 +51,8 @@ export component JournalPage inherits Rectangle {
         spacing: 20px;
 
         PageHeader {
-            title: "Journal d'activité";
-            subtitle: "Historique lisible de vos sessions, succès, installations et mises à jour. Les journaux techniques restent dans le dossier des journaux.";
+            title: @tr("Journal d'activité");
+            subtitle: @tr("Historique lisible de vos sessions, succès, installations et mises à jour. Les journaux techniques restent dans le dossier des journaux.");
         }
 
         HorizontalLayout {
@@ -60,7 +60,7 @@ export component JournalPage inherits Rectangle {
             TextField {
                 width: 300px;
                 text <=> JournalUi.search;
-                placeholder: "Rechercher dans le journal";
+                placeholder: @tr("Rechercher dans le journal");
                 icon: Icons.search;
                 has-icon: true;
                 edited => { JournalUi.search-changed(); }
@@ -72,7 +72,7 @@ export component JournalPage inherits Rectangle {
             }
             Rectangle { horizontal-stretch: 1; }
             Text {
-                text: JournalUi.count + (JournalUi.count < JournalUi.total ? " sur " + JournalUi.total : "") + " entrées";
+                text: JournalUi.count < JournalUi.total ? @tr("{} sur {} entrées", JournalUi.count, JournalUi.total) : @tr("{n} entrée" | "{n} entrées" % JournalUi.count);
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 vertical-alignment: center;
@@ -84,7 +84,7 @@ export component JournalPage inherits Rectangle {
             spacing: 12px;
             vertical-stretch: 1;
             Text {
-                text: JournalUi.total == 0 ? "Le journal est vide pour l'instant." : "Aucune entrée ne correspond à ces filtres.";
+                text: JournalUi.total == 0 ? @tr("Le journal est vide pour l'instant.") : @tr("Aucune entrée ne correspond à ces filtres.");
                 color: Theme.text;
                 font-family: Theme.display;
                 font-size: Theme.t-subheading;
@@ -92,14 +92,14 @@ export component JournalPage inherits Rectangle {
                 horizontal-alignment: center;
             }
             if JournalUi.total == 0: Text {
-                text: "Vos sessions, succès, installations et mises à jour s'y inscriront au fil de l'eau.";
+                text: @tr("Vos sessions, succès, installations et mises à jour s'y inscriront au fil de l'eau.");
                 color: Theme.text-muted;
                 font-size: Theme.t-small;
                 horizontal-alignment: center;
             }
             if JournalUi.total > 0: HorizontalLayout {
                 alignment: center;
-                SecondaryButton { text: "Effacer les filtres"; clicked => { JournalUi.clear-filters(); } }
+                SecondaryButton { text: @tr("Effacer les filtres"); clicked => { JournalUi.clear-filters(); } }
             }
         }
 

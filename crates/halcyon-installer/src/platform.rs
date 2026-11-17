@@ -182,9 +182,10 @@ pub mod linux {
             let setup = dir.join(super::maintenance_exe_name());
             let m = maintenance_entry(env);
             let content = format!(
-                "[Desktop Entry]\nType=Application\nName=Gérer l'installation de Halcyon\n\
-                 Comment=Réparer, mettre à jour ou désinstaller Halcyon\nExec={}\nIcon={icon_name}\nTerminal=false\nCategories=Settings;\n",
-                desktop_quote(&setup.display().to_string())
+                "[Desktop Entry]\nType=Application\nName={name}\nComment={comment}\nExec={}\nIcon={icon_name}\nTerminal=false\nCategories=Settings;\n",
+                desktop_quote(&setup.display().to_string()),
+                name = tr!("Gérer l'installation de Halcyon"),
+                comment = tr!("Réparer, mettre à jour ou désinstaller Halcyon"),
             );
             write(&m, content.as_bytes(), 0o644)?;
             created.push(m);
@@ -282,8 +283,8 @@ pub mod windows {
             .env("H_DIR", exe.parent().unwrap_or(exe))
             .creation_flags(CREATE_NO_WINDOW)
             .status()
-            .map_err(|e| format!("PowerShell indisponible : {e}"))?;
-        if status.success() && lnk.is_file() { Ok(()) } else { Err(format!("raccourci {} non créé", lnk.display())) }
+            .map_err(|e| tr!("PowerShell indisponible : {e}", e = e))?;
+        if status.success() && lnk.is_file() { Ok(()) } else { Err(tr!("raccourci {lnk} non créé", lnk = lnk.display())) }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -315,9 +316,9 @@ pub mod windows {
             }
         }
         let r = root(all_users);
-        let (key, _) = r.create_subkey(UNINSTALL_KEY).map_err(|e| format!("registre : {e}"))?;
+        let (key, _) = r.create_subkey(UNINSTALL_KEY).map_err(|e| tr!("registre : {e}", e = e))?;
         let q = |p: &Path| format!("\"{}\"", p.display());
-        let set = |k: &RegKey, n: &str, v: &str| k.set_value(n, &v.to_string()).map_err(|e| format!("registre : {e}"));
+        let set = |k: &RegKey, n: &str, v: &str| k.set_value(n, &v.to_string()).map_err(|e| tr!("registre : {e}", e = e));
         set(&key, "DisplayName", "Halcyon")?;
         set(&key, "DisplayVersion", version)?;
         set(&key, "Publisher", "Sebi")?;
@@ -329,11 +330,11 @@ pub mod windows {
         key.set_value("NoRepair", &0u32).map_err(|e| e.to_string())?;
         // Associations des thèmes et extensions (confirmation demandée par Halcyon à l'ouverture).
         let classes = "Software\\Classes";
-        for (ext, prog, label) in [(".halcyontheme", "Halcyon.Theme", "Thème Halcyon"), (".halcyonplugin", "Halcyon.Plugin", "Extension Halcyon")] {
+        for (ext, prog, label) in [(".halcyontheme", "Halcyon.Theme", tr!("Thème Halcyon")), (".halcyonplugin", "Halcyon.Plugin", tr!("Extension Halcyon"))] {
             let (k, _) = r.create_subkey(format!("{classes}\\{ext}")).map_err(|e| e.to_string())?;
             set(&k, "", prog)?;
             let (k, _) = r.create_subkey(format!("{classes}\\{prog}")).map_err(|e| e.to_string())?;
-            set(&k, "", label)?;
+            set(&k, "", &label)?;
             let (k, _) = r.create_subkey(format!("{classes}\\{prog}\\DefaultIcon")).map_err(|e| e.to_string())?;
             set(&k, "", &format!("{},0", exe.display()))?;
             let (k, _) = r.create_subkey(format!("{classes}\\{prog}\\shell\\open\\command")).map_err(|e| e.to_string())?;

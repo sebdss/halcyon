@@ -35,7 +35,7 @@ export component AchievementsPage inherits Rectangle {
                     horizontal-stretch: 1;
                     alignment: center;
                     spacing: 10px;
-                    Text { text: "Complétion globale, " + AchUi.unlocked + " succès débloqués sur " + AchUi.total; color: Theme.text; font-size: Theme.t-subheading; font-weight: 500; wrap: word-wrap; }
+                    Text { text: @tr("Complétion globale, {n} succès débloqué sur {}" | "Complétion globale, {n} succès débloqués sur {}" % AchUi.unlocked, AchUi.total); color: Theme.text; font-size: Theme.t-subheading; font-weight: 500; wrap: word-wrap; }
                     Rectangle {
                         height: 4px;
                         background: Theme.surface-active;
@@ -46,7 +46,7 @@ export component AchievementsPage inherits Rectangle {
                 VerticalLayout {
                     alignment: center;
                     PrimaryButton {
-                        text: AchUi.syncing ? "Synchronisation…" : "Synchroniser";
+                        text: AchUi.syncing ? @tr("Synchronisation…") : @tr("Synchroniser");
                         icon: Icons.refresh;
                         has-icon: true;
                         enabled: !AchUi.syncing && (AchUi.steam-ready || AchUi.ra-ready);
@@ -58,9 +58,9 @@ export component AchievementsPage inherits Rectangle {
             HorizontalLayout {
                 spacing: 48px;
                 alignment: start;
-                BigStat { value: AchUi.completed; label: "jeux terminés à 100 %"; }
-                BigStat { value: AchUi.games; label: "jeux suivis"; }
-                if AchUi.points > 0: BigStat { value: AchUi.points; label: "points RetroAchievements"; }
+                BigStat { value: AchUi.completed; label: @tr("jeux terminés à 100 %"); }
+                BigStat { value: AchUi.games; label: @tr("jeux suivis"); }
+                if AchUi.points > 0: BigStat { value: AchUi.points; label: @tr("points RetroAchievements"); }
             }
 
             if !AchUi.steam-ready || !AchUi.ra-ready: HorizontalLayout {
@@ -68,20 +68,20 @@ export component AchievementsPage inherits Rectangle {
                 Notice {
                     horizontal-stretch: 1;
                     warning: true;
-                    text: (!AchUi.steam-ready ? "Steam : ajoutez votre clé Web API pour synchroniser vos succès Steam. " : "")
-                        + (!AchUi.ra-ready ? "RetroAchievements : renseignez votre nom d'utilisateur et votre clé Web API pour les jeux émulés. " : "")
-                        + "Epic Games ne fournit pas d'API publique de succès : ils ne sont pas affichés.";
+                    text: (!AchUi.steam-ready ? @tr("Steam : ajoutez votre clé Web API pour synchroniser vos succès Steam. ") : "")
+                        + (!AchUi.ra-ready ? @tr("RetroAchievements : renseignez votre nom d'utilisateur et votre clé Web API pour les jeux émulés. ") : "")
+                        + @tr("Epic Games ne fournit pas d'API publique de succès : ils ne sont pas affichés.");
                 }
-                TextButton { y: 2px; text: "Configurer les comptes"; clicked => { Nav.go(Page.settings); } }
+                TextButton { y: 2px; text: @tr("Configurer les comptes"); clicked => { Nav.go(Page.settings); } }
             }
 
             HorizontalLayout {
                 spacing: Theme.s6;
                 Rubric {
                     horizontal-stretch: 1;
-                    title: "Par plateforme";
+                    title: @tr("Par plateforme");
                     if AchUi.providers.length == 0: Text {
-                        text: "Aucun succès synchronisé pour l'instant.";
+                        text: @tr("Aucun succès synchronisé pour l'instant.");
                         color: Theme.text-dim;
                         font-size: Theme.t-small;
                     }
@@ -100,9 +100,9 @@ export component AchievementsPage inherits Rectangle {
                 }
                 Rubric {
                     horizontal-stretch: 1;
-                    title: "Déblocages par mois";
+                    title: @tr("Déblocages par mois");
                     if AchUi.months.length == 0: Text {
-                        text: "La chronologie apparaîtra après vos premiers déblocages.";
+                        text: @tr("La chronologie apparaîtra après vos premiers déblocages.");
                         color: Theme.text-dim;
                         font-size: Theme.t-small;
                     }
@@ -128,17 +128,17 @@ export component AchievementsPage inherits Rectangle {
             }
 
             if AchUi.recent.length > 0: Rubric {
-                title: "Récemment débloqués";
+                title: @tr("Récemment débloqués");
                 for a in AchUi.recent: AchievementItem { item: a; reveal: true; show-game: true; }
             }
 
             if AchUi.rarest.length > 0: Rubric {
-                title: "Les plus rares";
+                title: @tr("Les plus rares");
                 for a in AchUi.rarest: AchievementItem { item: a; reveal: true; show-game: true; }
             }
 
             if AchUi.completed-games.length > 0: Rubric {
-                title: "Terminés à 100 %";
+                title: @tr("Terminés à 100 %");
                 Rectangle {
                     height: 140px * 1.5 + 56px;
                     for g[i] in AchUi.completed-games: GameTile {

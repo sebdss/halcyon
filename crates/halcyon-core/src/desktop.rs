@@ -22,13 +22,14 @@ pub fn safe_file_name(name: &str) -> String {
         .collect();
     let s = s.split_whitespace().collect::<Vec<_>>().join(" ");
     let s = s.trim_matches('.').to_string();
-    if s.is_empty() { "Jeu".into() } else { s.chars().take(80).collect() }
+    if s.is_empty() { tr!("Jeu").into() } else { s.chars().take(80).collect() }
 }
 
 /// Entrée de démarrage automatique (`~/.config/autostart/halcyon.desktop`).
 pub fn autostart_entry(exe: &str) -> String {
     format!(
-        "[Desktop Entry]\nType=Application\nName=Halcyon\nComment=Launcher de jeux\nExec={} --minimized\nIcon=halcyon\nTerminal=false\nX-GNOME-Autostart-enabled=true\n",
+        "[Desktop Entry]\nType=Application\nName=Halcyon\nComment={}\nExec={} --minimized\nIcon=halcyon\nTerminal=false\nX-GNOME-Autostart-enabled=true\n",
+        tr!("Launcher de jeux"),
         desktop_quote(exe)
     )
 }
@@ -36,13 +37,18 @@ pub fn autostart_entry(exe: &str) -> String {
 /// Entrée de menu principale de Halcyon.
 pub fn app_entry(exe: &str, icon: &str) -> String {
     let q = desktop_quote(exe);
+    let generic = tr!("Launcher de jeux");
+    let comment = tr!("Tous vos jeux Steam, Epic, standalone et émulés au même endroit");
+    let keywords = tr!("jeux;games;steam;epic;emulateur;launcher;");
+    let quick = tr!("Lancement rapide");
+    let console = tr!("Mode console");
     format!(
-        "[Desktop Entry]\nType=Application\nName=Halcyon\nGenericName=Launcher de jeux\n\
-         Comment=Tous vos jeux Steam, Epic, standalone et émulés au même endroit\nExec={q} %f\nIcon={icon}\n\
-         Terminal=false\nCategories=Game;\nKeywords=jeux;games;steam;epic;emulateur;launcher;\n\
+        "[Desktop Entry]\nType=Application\nName=Halcyon\nGenericName={generic}\n\
+         Comment={comment}\nExec={q} %f\nIcon={icon}\n\
+         Terminal=false\nCategories=Game;\nKeywords={keywords}\n\
          MimeType=application/x-halcyon-theme;application/x-halcyon-plugin;\nStartupWMClass=halcyon\n\
-         Actions=quick;bigpicture;\n\n[Desktop Action quick]\nName=Lancement rapide\nExec={q} --quick\n\n\
-         [Desktop Action bigpicture]\nName=Big Picture\nExec={q} --big-picture\n"
+         Actions=quick;bigpicture;\n\n[Desktop Action quick]\nName={quick}\nExec={q} --quick\n\n\
+         [Desktop Action bigpicture]\nName={console}\nExec={q} --big-picture\n"
     )
 }
 

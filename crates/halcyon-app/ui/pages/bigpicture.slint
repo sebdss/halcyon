@@ -78,7 +78,7 @@ component InfoCards inherits HorizontalLayout {
         VerticalLayout {
             padding: 24 * root.u;
             spacing: 6 * root.u;
-            Text { text: "Temps de jeu"; color: #ffffffaa; font-size: 19 * root.u; }
+            Text { text: @tr("Temps de jeu"); color: #ffffffaa; font-size: 19 * root.u; }
             Text { text: BpUi.focused.playtime; color: #ffffff; font-family: Theme.display; font-size: 36 * root.u; font-weight: 700; }
             Text { text: BpUi.focused.last-played; color: #ffffffaa; font-size: 18 * root.u; overflow: elide; }
         }
@@ -90,8 +90,8 @@ component InfoCards inherits HorizontalLayout {
         VerticalLayout {
             padding: 24 * root.u;
             spacing: 8 * root.u;
-            Text { text: "Succès"; color: #ffffffaa; font-size: 19 * root.u; }
-            Text { text: BpUi.focused-ach-ratio >= 0 ? BpUi.focused-ach : "Non suivis"; color: #ffffff; font-family: Theme.display; font-size: 36 * root.u; font-weight: 700; }
+            Text { text: @tr("Succès"); color: #ffffffaa; font-size: 19 * root.u; }
+            Text { text: BpUi.focused-ach-ratio >= 0 ? BpUi.focused-ach : @tr("Non suivis"); color: #ffffff; font-family: Theme.display; font-size: 36 * root.u; font-weight: 700; }
             if BpUi.focused-ach-ratio >= 0: Rectangle {
                 height: 8 * root.u;
                 border-radius: 4 * root.u;
@@ -107,7 +107,7 @@ component InfoCards inherits HorizontalLayout {
         VerticalLayout {
             padding: 24 * root.u;
             spacing: 6 * root.u;
-            Text { text: "État"; color: #ffffffaa; font-size: 19 * root.u; }
+            Text { text: @tr("État"); color: #ffffffaa; font-size: 19 * root.u; }
             Text { text: BpUi.focused-state; color: #ffffff; font-family: Theme.display; font-size: 26 * root.u; font-weight: 700; wrap: word-wrap; }
             if BpUi.focused-update != "": Text { text: BpUi.focused-update; color: Theme.warm; font-size: 18 * root.u; font-weight: 600; }
         }
@@ -176,7 +176,7 @@ export component BigPicturePage inherits Rectangle {
         width: root.width - 2 * root.side;
         height: 56 * u;
         spacing: 44 * u;
-        for name[i] in ["Jouer", "Bibliothèque", "Recherche"]: Rectangle {
+        for name[i] in [@tr("Jouer"), @tr("Bibliothèque"), @tr("Recherche")]: Rectangle {
             width: label.preferred-width;
             label := Text {
                 text: name;
@@ -270,7 +270,7 @@ export component BigPicturePage inherits Rectangle {
                 alignment: center;
                 spacing: 10 * root.u;
                 HorizontalLayout { alignment: center; Icon { source: Icons.grid; size: 40 * root.u; tint: #ffffff; } }
-                Text { text: "Bibliothèque"; color: #ffffff; font-size: 20 * root.u; font-weight: 600; horizontal-alignment: center; }
+                Text { text: @tr("Bibliothèque"); color: #ffffff; font-size: 20 * root.u; font-weight: 600; horizontal-alignment: center; }
             }
             FocusFrame { u: root.u; corner: 18 * root.u; shown: libtile.active && play.strip-focus; }
             TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("tile:" + parent.j); } }
@@ -317,7 +317,7 @@ export component BigPicturePage inherits Rectangle {
                             tint: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-warm : #ffffffaa;
                         }
                         Text {
-                            text: BpUi.focused.installed ? "Jouer" : "Non installé";
+                            text: BpUi.focused.installed ? @tr("Jouer") : @tr("Non installé");
                             color: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-warm : #ffffffaa;
                             font-family: Theme.display;
                             font-size: 28 * root.u;
@@ -341,7 +341,7 @@ export component BigPicturePage inherits Rectangle {
         if BpUi.strip.length == 0: Text {
             x: root.side;
             y: 430 * root.u;
-            text: "Aucun jeu pour l'instant. Ouvrez la bibliothèque, ou analysez vos sources depuis le centre de contrôle.";
+            text: @tr("Aucun jeu pour l'instant. Ouvrez la bibliothèque, ou analysez vos sources depuis le centre de contrôle.");
             color: #ffffffcc;
             font-size: 26 * root.u;
             width: root.width * 0.5;
@@ -412,7 +412,7 @@ export component BigPicturePage inherits Rectangle {
         if BpUi.filters.length == 0: Text {
             x: parent.grid-x;
             y: 240 * root.u;
-            text: "La bibliothèque est vide.";
+            text: @tr("La bibliothèque est vide.");
             color: #ffffffcc;
             font-size: 26 * root.u;
         }
@@ -434,7 +434,7 @@ export component BigPicturePage inherits Rectangle {
                 spacing: 18 * root.u;
                 Icon { y: (parent.height - self.height) / 2; source: Icons.search; size: 34 * root.u; tint: #ffffffaa; }
                 Text {
-                    text: BpUi.query == "" ? "Rechercher un jeu" : BpUi.query;
+                    text: BpUi.query == "" ? @tr("Rechercher un jeu") : BpUi.query;
                     color: BpUi.query == "" ? #ffffff80 : #ffffff;
                     font-family: Theme.display;
                     font-size: 40 * root.u;
@@ -503,7 +503,7 @@ export component BigPicturePage inherits Rectangle {
                 spacing: 20 * root.u;
                 alignment: start;
                 padding-top: 10 * root.u;
-                for label[i] in [BpUi.focused.installed ? "Jouer" : "Non installé", BpUi.focused.favorite ? "Favori" : "Ajouter aux favoris", "Succès"]: Rectangle {
+                for label[i] in [BpUi.focused.installed ? @tr("Jouer") : @tr("Non installé"), BpUi.focused.favorite ? @tr("Favori") : @tr("Ajouter aux favoris"), @tr("Succès")]: Rectangle {
                     property <bool> active: BpUi.sheet-button == i;
                     width: lt.preferred-width + 64 * root.u;
                     height: 72 * root.u;
@@ -549,10 +549,10 @@ export component BigPicturePage inherits Rectangle {
                 spacing: 12 * root.u;
                 alignment: start;
                 HorizontalLayout {
-                    Text { text: "Succès"; color: #ffffff; font-family: Theme.display; font-size: 30 * root.u; font-weight: 700; horizontal-stretch: 1; }
+                    Text { text: @tr("Succès"); color: #ffffff; font-family: Theme.display; font-size: 30 * root.u; font-weight: 700; horizontal-stretch: 1; }
                     Text { text: BpUi.focused-ach; color: #ffffffaa; font-family: Theme.display; font-size: 24 * root.u; vertical-alignment: center; }
                 }
-                if BpUi.ach-count == 0: Text { text: "Aucun succès suivi pour ce jeu."; color: #ffffffaa; font-size: 21 * root.u; wrap: word-wrap; }
+                if BpUi.ach-count == 0: Text { text: @tr("Aucun succès suivi pour ce jeu."); color: #ffffffaa; font-size: 21 * root.u; wrap: word-wrap; }
                 for a[i] in BpUi.achievements: Rectangle {
                     height: 76 * root.u;
                     border-radius: 6 * root.u;
@@ -589,12 +589,12 @@ export component BigPicturePage inherits Rectangle {
         height: 40 * u;
         spacing: 34 * u;
         alignment: start;
-        Hint { u: root.u; key: "A"; label: BpUi.section == 0 && BpUi.zone == 2 && BpUi.button == 0 ? "Jouer" : "Valider"; }
-        Hint { u: root.u; key: "B"; label: "Retour"; }
-        if !BpUi.menu-open && !BpUi.options-open && BpUi.has-focused: Hint { u: root.u; key: "X"; label: "Favori"; }
-        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open && BpUi.has-focused: Hint { u: root.u; key: "Select"; label: "Options du jeu"; }
-        Hint { u: root.u; key: "Start"; label: "Centre de contrôle"; }
-        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open: Hint { u: root.u; key: "LB  RB"; label: BpUi.section == 1 && BpUi.zone == 2 ? "Filtre" : "Section"; }
+        Hint { u: root.u; key: @tr("A"); label: BpUi.section == 0 && BpUi.zone == 2 && BpUi.button == 0 ? @tr("Jouer") : @tr("Valider"); }
+        Hint { u: root.u; key: @tr("B"); label: @tr("Retour"); }
+        if !BpUi.menu-open && !BpUi.options-open && BpUi.has-focused: Hint { u: root.u; key: @tr("X"); label: @tr("Favori"); }
+        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open && BpUi.has-focused: Hint { u: root.u; key: @tr("Select"); label: @tr("Options du jeu"); }
+        Hint { u: root.u; key: @tr("Start"); label: @tr("Centre de contrôle"); }
+        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open: Hint { u: root.u; key: @tr("LB  RB"); label: BpUi.section == 1 && BpUi.zone == 2 ? @tr("Filtre") : @tr("Section"); }
     }
 
     // ------------------------------------------------------------------ menu d'options
@@ -642,7 +642,7 @@ export component BigPicturePage inherits Rectangle {
             Text {
                 x: root.side;
                 y: 40 * root.u;
-                text: "Centre de contrôle";
+                text: @tr("Centre de contrôle");
                 color: #ffffff;
                 font-family: Theme.display;
                 font-size: 30 * root.u;

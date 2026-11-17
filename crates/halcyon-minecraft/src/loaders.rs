@@ -160,18 +160,18 @@ pub fn version_id(loader: Loader, mc: &str, lv: &str) -> String {
 #[allow(clippy::too_many_arguments)]
 pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str, java: Option<&Path>, cancel: &AtomicBool, sink: Sink) -> Result<String> {
     if lv.contains(['/', '\\']) || lv.contains("..") || mc.contains(['/', '\\']) {
-        return Err(Error::Invalid("version refusée".into()));
+        return Err(Error::Invalid(tr!("version refusée").into()));
     }
     match loader {
         Loader::Vanilla => Ok(mc.to_string()),
         Loader::Fabric | Loader::Quilt => {
-            sink(Event::Step(format!("Profil {} {lv}", loader.name())));
+            sink(Event::Step(tr!("Profil {name} {lv}", name = loader.name(), lv = lv)));
             let base = if loader == Loader::Fabric { FABRIC_META } else { QUILT_META };
             let url = format!("{base}/versions/loader/{}/{}/profile/json", crate::http::encode(mc), crate::http::encode(lv));
             let profile = http.get_json(&url, &[])?;
-            let id = profile.get("id").and_then(|i| i.as_str()).ok_or_else(|| Error::Invalid("profil sans identifiant".into()))?.to_string();
+            let id = profile.get("id").and_then(|i| i.as_str()).ok_or_else(|| Error::Invalid(tr!("profil sans identifiant").into()))?.to_string();
             if id.contains(['/', '\\']) || id.contains("..") {
-                return Err(Error::Invalid(format!("identifiant refusé : {id}")));
+                return Err(Error::Invalid(tr!("identifiant refusé : {id}", id = id)));
             }
             let path = layout.version_json(&id);
             std::fs::create_dir_all(layout.version_dir(&id)).map_err(|e| Error::Disk(e.to_string()))?;
@@ -179,14 +179,14 @@ pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str,
             Ok(id)
         }
         Loader::Forge | Loader::NeoForge => {
-            let java = java.ok_or_else(|| Error::Invalid("Java est nécessaire pour l'installateur officiel".into()))?;
+            let java = java.ok_or_else(|| Error::Invalid(tr!("Java est nécessaire pour l'installateur officiel").into()))?;
             let (url, name) = if loader == Loader::Forge {
                 let full = format!("{mc}-{lv}");
                 (format!("{FORGE_MAVEN}/{full}/forge-{full}-installer.jar"), format!("forge-{full}-installer.jar"))
             } else {
                 (format!("{NEOFORGE_MAVEN}/{lv}/neoforge-{lv}-installer.jar"), format!("neoforge-{lv}-installer.jar"))
             };
-            sink(Event::Step(format!("Téléchargement de l'installateur officiel {}", loader.name())));
+            sink(Event::Step(tr!("Téléchargement de l'installateur officiel {name}", name = loader.name())));
             // Empreinte publiée par le dépôt Maven officiel.
             let sha1 = http.get_bytes(&format!("{url}.sha1")).ok().map(|b| String::from_utf8_lossy(&b).trim().chars().take(40).collect::<String>());
             let installer = layout.cache().join("installers").join(&name);
@@ -197,7 +197,7 @@ pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str,
                 std::fs::write(&profiles, r#"{"profiles":{},"selectedProfile":null}"#).map_err(|e| Error::Disk(e.to_string()))?;
             }
             let before = crate::install::installed(layout);
-            sink(Event::Step(format!("Installateur officiel {} (cela peut prendre quelques minutes)", loader.name())));
+            sink(Event::Step(tr!("Installateur officiel {name} (cela peut prendre quelques minutes)", name = loader.name())));
             let mut last = String::new();
             let mut ok = false;
             for flag in ["--installClient", "--install-client"] {
@@ -213,7 +213,7 @@ pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str,
             }
             if !ok {
                 let tail: Vec<&str> = last.lines().rev().take(8).collect::<Vec<_>>().into_iter().rev().collect();
-                return Err(Error::Invalid(format!("l'installateur {} a échoué :\n{}", loader.name(), tail.join("\n"))));
+                return Err(Error::Invalid(tr!("l'installateur {name} a échoué :\n{v}", name = loader.name(), v = tail.join("\n"))));
             }
             let expected = version_id(loader, mc, lv);
             if layout.version_json(&expected).is_file() {
@@ -223,7 +223,7 @@ pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str,
             created
                 .into_iter()
                 .find(|id| read_json(&layout.version_json(id)).ok().and_then(|v| v.get("inheritsFrom").and_then(|p| p.as_str()).map(|p| p == mc)).unwrap_or(false))
-                .ok_or_else(|| Error::Invalid(format!("installateur {} terminé, mais aucune version {expected} créée", loader.name())))
+                .ok_or_else(|| Error::Invalid(tr!("installateur {name} terminé, mais aucune version {expected} créée", name = loader.name(), expected = expected)))
         }
     }
 }
@@ -237,7 +237,7 @@ fn run_installer(java: &Path, jar: &Path, flag: &str, root: &Path, cancel: &Atom
         use std::os::windows::process::CommandExt;
         cmd.creation_flags(0x0800_0000);
     }
-    let mut child = cmd.spawn().map_err(|e| Error::Invalid(format!("Java introuvable ({}) : {e}", java.display())))?;
+    let mut child = cmd.spawn().map_err(|e| Error::Invalid(tr!("Java introuvable ({java}) : {e}", java = java.display(), e = e)))?;
     let stderr = child.stderr.take();
     let err_thread = std::thread::spawn(move || {
         let mut s = String::new();

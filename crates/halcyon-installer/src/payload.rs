@@ -119,7 +119,7 @@ impl Seek for Slice {
             SeekFrom::Current(d) => self.pos as i64 + d,
         };
         if new < 0 {
-            return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "position négative"));
+            return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, tr!("position négative")));
         }
         self.pos = new as u64;
         Ok(self.pos)
@@ -153,7 +153,7 @@ impl Payload {
         let offset = u64::from_le_bytes(foot[8..16].try_into().unwrap_or_default());
         let len = u64::from_le_bytes(foot[16..24].try_into().unwrap_or_default());
         if offset.checked_add(len).is_none_or(|e| e != footer_pos) {
-            return Err("charge utile incohérente : fichier d'installation endommagé".into());
+            return Err(tr!("charge utile incohérente : fichier d'installation endommagé").into());
         }
         Self::open(exe, offset, len).map(Some)
     }
@@ -167,14 +167,14 @@ impl Payload {
     fn open(file: &Path, offset: u64, len: u64) -> Result<Payload, String> {
         let mut p = Payload { file: file.to_path_buf(), offset, len, manifest: empty_manifest() };
         let mut zip = p.archive()?;
-        let mut m = zip.by_name("manifest.json").map_err(|_| "manifeste absent de la charge utile".to_string())?;
+        let mut m = zip.by_name("manifest.json").map_err(|_| tr!("manifeste absent de la charge utile"))?;
         let mut text = String::new();
         m.read_to_string(&mut text).map_err(|e| e.to_string())?;
         drop(m);
-        p.manifest = serde_json::from_str(&text).map_err(|e| format!("manifeste illisible : {e}"))?;
+        p.manifest = serde_json::from_str(&text).map_err(|e| tr!("manifeste illisible : {e}", e = e))?;
         for f in &p.manifest.files {
             if safe_relative(&f.path).is_none() {
-                return Err(format!("chemin refusé dans la charge utile : {}", f.path));
+                return Err(tr!("chemin refusé dans la charge utile : {path}", path = f.path));
             }
         }
         Ok(p)
@@ -182,14 +182,14 @@ impl Payload {
 
     fn archive(&self) -> Result<zip::ZipArchive<Slice>, String> {
         let f = File::open(&self.file).map_err(|e| e.to_string())?;
-        zip::ZipArchive::new(Slice { f, start: self.offset, len: self.len, pos: 0 }).map_err(|e| format!("archive illisible : {e}"))
+        zip::ZipArchive::new(Slice { f, start: self.offset, len: self.len, pos: 0 }).map_err(|e| tr!("archive illisible : {e}", e = e))
     }
 
     /// Extrait un fichier vers `dest` en vérifiant son empreinte ; `progress(octets)` est
     /// appelé au fil de l'écriture réelle.
     pub fn extract(&self, entry: &FileEntry, dest: &Path, progress: &mut dyn FnMut(u64)) -> Result<(), String> {
         let mut zip = self.archive()?;
-        let mut src = zip.by_name(&format!("files/{}", entry.path)).map_err(|_| format!("{} absent de la charge utile", entry.path))?;
+        let mut src = zip.by_name(&format!("files/{}", entry.path)).map_err(|_| tr!("{path} absent de la charge utile", path = entry.path))?;
         if let Some(dir) = dest.parent() {
             std::fs::create_dir_all(dir).map_err(|e| format!("{} : {e}", dir.display()))?;
         }
@@ -207,7 +207,7 @@ impl Payload {
         }
         out.sync_all().map_err(|e| format!("{} : {e}", dest.display()))?;
         if hex(&h.finalize()) != entry.sha256 {
-            return Err(format!("{} : empreinte incorrecte (charge utile endommagée)", entry.path));
+            return Err(tr!("{path} : empreinte incorrecte (charge utile endommagée)", path = entry.path));
         }
         #[cfg(unix)]
         if entry.executable {
@@ -250,7 +250,7 @@ pub fn pack(stub: &Path, dir: &Path, mut manifest: Manifest, out: &Path) -> Resu
             zip.write_all(&bytes).map_err(|e| e.to_string())?;
         }
         if !manifest.files.iter().any(|f| f.path == manifest.main) {
-            return Err(format!("exécutable principal {} absent du dossier", manifest.main));
+            return Err(tr!("exécutable principal {main} absent du dossier", main = manifest.main));
         }
         zip.start_file("manifest.json", opts).map_err(|e| e.to_string())?;
         zip.write_all(serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?.as_bytes()).map_err(|e| e.to_string())?;

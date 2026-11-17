@@ -20,12 +20,12 @@ pub enum DisplayMode {
 
 impl DisplayMode {
     pub const ALL: [DisplayMode; 4] = [Self::Default, Self::Windowed, Self::Fullscreen, Self::Borderless];
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Default => "Réglage du jeu",
-            Self::Windowed => "Fenêtré",
-            Self::Fullscreen => "Plein écran",
-            Self::Borderless => "Fenêtré sans bordure",
+            Self::Default => tr!("Réglage du jeu"),
+            Self::Windowed => tr!("Fenêtré"),
+            Self::Fullscreen => tr!("Plein écran"),
+            Self::Borderless => tr!("Fenêtré sans bordure"),
         }
     }
 }
@@ -42,11 +42,11 @@ pub enum GpuPreference {
 
 impl GpuPreference {
     pub const ALL: [GpuPreference; 3] = [Self::Default, Self::HighPerformance, Self::PowerSaving];
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Default => "Choix du système",
-            Self::HighPerformance => "Haute performance (GPU dédié)",
-            Self::PowerSaving => "Économie d'énergie (GPU intégré)",
+            Self::Default => tr!("Choix du système"),
+            Self::HighPerformance => tr!("Haute performance (GPU dédié)"),
+            Self::PowerSaving => tr!("Économie d'énergie (GPU intégré)"),
         }
     }
 }
@@ -63,13 +63,13 @@ pub enum ProcessPriority {
 
 impl ProcessPriority {
     pub const ALL: [ProcessPriority; 5] = [Self::Low, Self::BelowNormal, Self::Normal, Self::AboveNormal, Self::High];
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Low => "Basse",
-            Self::BelowNormal => "Inférieure à la normale",
-            Self::Normal => "Normale",
-            Self::AboveNormal => "Supérieure à la normale",
-            Self::High => "Haute",
+            Self::Low => tr!("Basse"),
+            Self::BelowNormal => tr!("Inférieure à la normale"),
+            Self::Normal => tr!("Normale"),
+            Self::AboveNormal => tr!("Supérieure à la normale"),
+            Self::High => tr!("Haute"),
         }
     }
     /// Valeur « nice » Unix équivalente.
@@ -137,13 +137,13 @@ pub enum Engine {
 }
 
 impl Engine {
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Unknown => "moteur non reconnu",
-            Self::Unity => "Unity",
-            Self::Unreal => "Unreal Engine",
-            Self::Source => "Source",
-            Self::Godot => "Godot",
+            Self::Unknown => tr!("moteur non reconnu"),
+            Self::Unity => "Unity".into(),
+            Self::Unreal => "Unreal Engine".into(),
+            Self::Source => "Source".into(),
+            Self::Godot => "Godot".into(),
         }
     }
 }
@@ -193,7 +193,7 @@ impl LaunchProfile {
     pub fn engine_args(&self, engine: Engine, notes: &mut Vec<String>) -> Vec<String> {
         let mut out: Vec<String> = Vec::new();
         let unsupported = |what: &str, notes: &mut Vec<String>| {
-            notes.push(format!("{what} : non applicable automatiquement ({}).", engine.label()));
+            notes.push(tr!("{what} : non applicable automatiquement ({label}).", what = what, label = engine.label()));
         };
         if let Some((w, h)) = self.resolution {
             match engine {
@@ -201,7 +201,7 @@ impl LaunchProfile {
                 Engine::Unreal => out.extend([format!("-ResX={w}"), format!("-ResY={h}")]),
                 Engine::Source => out.extend(["-w".into(), w.to_string(), "-h".into(), h.to_string()]),
                 Engine::Godot => out.extend(["--resolution".into(), format!("{w}x{h}")]),
-                Engine::Unknown => unsupported("Résolution", notes),
+                Engine::Unknown => unsupported(&tr!("Résolution"), notes),
             }
         }
         let display: &[&str] = match (engine, self.display) {
@@ -217,7 +217,7 @@ impl LaunchProfile {
             (Engine::Godot, DisplayMode::Windowed) => &["--windowed"],
             (Engine::Godot, DisplayMode::Fullscreen) => &["--fullscreen"],
             _ => {
-                unsupported(&format!("Mode « {} »", self.display.label()), notes);
+                unsupported(&tr!("Mode « {mode} »", mode = self.display.label()), notes);
                 &[]
             }
         };
@@ -244,7 +244,7 @@ impl LaunchProfile {
         if !args.is_empty() || self.replace_args {
             match kind {
                 LaunchKind::PlatformClient => {
-                    notes.push("Arguments non transmis : ce client ne permet pas de passer des options au jeu.".into());
+                    notes.push(tr!("Arguments non transmis : ce client ne permet pas de passer des options au jeu.").into());
                 }
                 _ => {
                     let mut all = if self.replace_args { Vec::new() } else { split_args(base_args) };
@@ -254,7 +254,7 @@ impl LaunchProfile {
             }
         }
         if kind == LaunchKind::Steam && plan.args.as_ref().is_some_and(|a| !a.is_empty()) {
-            notes.push("Steam demandera de confirmer les arguments au premier lancement.".into());
+            notes.push(tr!("Steam demandera de confirmer les arguments au premier lancement.").into());
         }
 
         let direct = kind == LaunchKind::Direct;
@@ -263,22 +263,18 @@ impl LaunchProfile {
             if direct && host.via_wine {
                 env.push(("DXVK_FRAME_RATE".into(), fps.to_string()));
             } else {
-                notes.push(
-                    "Limite d'images : non applicable automatiquement ici ; utilisez le réglage du jeu, \
-                     du pilote graphique, MangoHud ou RTSS."
-                        .into(),
-                );
+                notes.push(tr!("Limite d'images : non applicable automatiquement ici ; utilisez le réglage du jeu, du pilote graphique, MangoHud ou RTSS."));
             }
         }
         match self.gpu {
             GpuPreference::Default => {}
             pref if host.windows => {
                 if !direct {
-                    notes.push("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.".into());
+                    notes.push(tr!("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.").into());
                 } else if self.allow_gpu_registry {
                     plan.gpu_registry = Some(pref);
                 } else {
-                    notes.push("Choix du GPU : autorisation de modifier la préférence graphique Windows requise.".into());
+                    notes.push(tr!("Choix du GPU : autorisation de modifier la préférence graphique Windows requise.").into());
                 }
             }
             GpuPreference::HighPerformance if direct => {
@@ -291,27 +287,27 @@ impl LaunchProfile {
                 }
             }
             GpuPreference::PowerSaving if direct => env.push(("DRI_PRIME".into(), "0".into())),
-            _ => notes.push("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.".into()),
+            _ => notes.push(tr!("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.").into()),
         }
         if !env.is_empty() {
             if direct {
                 plan.env = env;
             } else {
-                notes.push("Variables d'environnement : non transmises au client de la plateforme.".into());
+                notes.push(tr!("Variables d'environnement : non transmises au client de la plateforme.").into());
             }
         }
         if self.priority != ProcessPriority::Normal {
             if direct {
                 plan.priority = Some(self.priority);
             } else {
-                notes.push("Priorité : uniquement pour les jeux lancés directement par Halcyon.".into());
+                notes.push(tr!("Priorité : uniquement pour les jeux lancés directement par Halcyon.").into());
             }
         }
         if let Some(wd) = &self.working_dir {
             if direct {
                 plan.working_dir = Some(wd.clone());
             } else {
-                notes.push("Répertoire de travail : géré par le client de la plateforme.".into());
+                notes.push(tr!("Répertoire de travail : géré par le client de la plateforme.").into());
             }
         }
         plan.notes = notes;

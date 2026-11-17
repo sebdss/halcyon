@@ -39,7 +39,7 @@ pub enum DownloadError {
 impl std::fmt::Display for DownloadError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DownloadError::Cancelled => f.write_str("téléchargement annulé"),
+            DownloadError::Cancelled => f.write_str(&tr!("téléchargement annulé")),
             DownloadError::Failed(e) => f.write_str(e),
         }
     }
@@ -115,7 +115,7 @@ pub fn download(net: &Net, url: &str, pkg: &Package, dir: &Path, cancel: &Atomic
         match fetch_into(net, url, &part, pkg.size, cancel, on) {
             Ok(()) => break,
             Err(DownloadError::Cancelled) => return Err(DownloadError::Cancelled),
-            Err(DownloadError::Failed(e)) if attempt >= retry.attempts => return Err(fail(format!("{e} (après {attempt} essais ; le téléchargement reprendra où il s'est arrêté)"))),
+            Err(DownloadError::Failed(e)) if attempt >= retry.attempts => return Err(fail(tr!("{e} (après {attempt} essais ; le téléchargement reprendra où il s'est arrêté)", e = e, attempt = attempt))),
             Err(DownloadError::Failed(_)) => {
                 // Attente interruptible avant de reprendre là où le transfert s'est arrêté.
                 let until = Instant::now() + retry.delay * attempt;
@@ -134,7 +134,7 @@ pub fn download(net: &Net, url: &str, pkg: &Package, dir: &Path, cancel: &Atomic
     if len != pkg.size || actual != pkg.sha256 {
         let _ = std::fs::remove_file(&part);
         let _ = std::fs::remove_file(&meta_path);
-        return Err(fail(format!("{} : empreinte SHA-256 différente du manifeste signé, fichier altéré supprimé", pkg.name)));
+        return Err(fail(tr!("{name} : empreinte SHA-256 différente du manifeste signé, fichier altéré supprimé", name = pkg.name)));
     }
     std::fs::rename(&part, &dest).map_err(|e| fail(e.to_string()))?;
     let _ = std::fs::remove_file(&meta_path);
@@ -171,7 +171,7 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
                 == Some(have);
             if !ok {
                 let _ = std::fs::remove_file(part);
-                return Err(fail("reprise refusée par le serveur (plage incohérente) : nouvel essai depuis le début".into()));
+                return Err(fail(tr!("reprise refusée par le serveur (plage incohérente) : nouvel essai depuis le début").into()));
             }
             true
         }
@@ -182,9 +182,9 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
         }
         416 => {
             let _ = std::fs::remove_file(part);
-            return Err(fail("reprise refusée par le serveur : nouvel essai depuis le début".into()));
+            return Err(fail(tr!("reprise refusée par le serveur : nouvel essai depuis le début").into()));
         }
-        s => return Err(fail(format!("téléchargement : réponse HTTP {s}"))),
+        s => return Err(fail(tr!("téléchargement : réponse HTTP {s}", s = s))),
     };
     let mut file = std::fs::OpenOptions::new()
         .create(true)
@@ -209,15 +209,15 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
             Ok(n) => n,
             Err(e) => {
                 let _ = file.flush();
-                return Err(fail(format!("connexion interrompue : {e}")));
+                return Err(fail(tr!("connexion interrompue : {e}", e = e)));
             }
         };
         if done + n as u64 > total {
             drop(file);
             let _ = std::fs::remove_file(part);
-            return Err(fail("le serveur envoie plus de données que la taille signée : refusé".into()));
+            return Err(fail(tr!("le serveur envoie plus de données que la taille signée : refusé").into()));
         }
-        file.write_all(&buf[..n]).map_err(|e| fail(format!("écriture : {e}")))?;
+        file.write_all(&buf[..n]).map_err(|e| fail(tr!("écriture : {e}", e = e)))?;
         done += n as u64;
         if last.elapsed() >= Duration::from_millis(200) || done == total {
             last = Instant::now();
@@ -229,7 +229,7 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
     file.flush().map_err(|e| fail(e.to_string()))?;
     file.sync_all().map_err(|e| fail(e.to_string()))?;
     if done < total {
-        return Err(fail(format!("connexion interrompue à {done} octets sur {total}")));
+        return Err(fail(tr!("connexion interrompue à {done} octets sur {total}", done = done, total = total)));
     }
     Ok(())
 }
@@ -241,23 +241,22 @@ pub fn format_speed(bps: u64) -> String {
 
 pub fn format_bytes(b: u64) -> String {
     let f = b as f64;
-    let s = if f >= 1024.0 * 1024.0 * 1024.0 {
-        format!("{:.1} Go", f / (1024.0 * 1024.0 * 1024.0))
+    if f >= 1024.0 * 1024.0 * 1024.0 {
+        tr!("{v} Go", v = halcyon_i18n::decimal(f / (1024.0 * 1024.0 * 1024.0), 1))
     } else if f >= 1024.0 * 1024.0 {
-        format!("{:.1} Mo", f / (1024.0 * 1024.0))
+        tr!("{v} Mo", v = halcyon_i18n::decimal(f / (1024.0 * 1024.0), 1))
     } else if f >= 1024.0 {
-        format!("{:.0} Ko", f / 1024.0)
+        tr!("{v} Ko", v = halcyon_i18n::number((f / 1024.0).round() as u64))
     } else {
-        format!("{b} o")
-    };
-    s.replace('.', ",")
+        tr!("{v} o", v = b)
+    }
 }
 
 pub fn format_eta(secs: u64) -> String {
     match secs {
-        0..=59 => format!("{secs} s"),
-        60..=3599 => format!("{} min {:02} s", secs / 60, secs % 60),
-        _ => format!("{} h {:02} min", secs / 3600, (secs % 3600) / 60),
+        0..=59 => tr!("{secs} s", secs = secs),
+        60..=3599 => tr!("{v} min {v2} s", v = secs / 60, v2 = format!("{:02}", secs % 60)),
+        _ => tr!("{v} h {v2} min", v = secs / 3600, v2 = format!("{:02}", (secs % 3600) / 60)),
     }
 }
 

@@ -77,15 +77,15 @@ export global LibraryUi {
     in-out property <string> search;
     /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres (standalone + manuels)
     in-out property <int> source;
-    in property <[string]> collection-labels: ["Toutes les collections"];
+    in property <[string]> collection-labels: [@tr("Toutes les collections")];
     in-out property <int> collection;
-    in property <[string]> genre-labels: ["Tous les genres"];
+    in property <[string]> genre-labels: [@tr("Tous les genres")];
     in-out property <int> genre;
     in-out property <bool> installed-only;
     in-out property <bool> favorites-only;
     in-out property <bool> show-hidden;
     in-out property <int> sort;
-    in property <[string]> sort-labels: ["Nom", "Dernier lancement", "Ajout récent", "Temps de jeu"];
+    in property <[string]> sort-labels: [@tr("Nom"), @tr("Dernier lancement"), @tr("Ajout récent"), @tr("Temps de jeu")];
     in-out property <bool> list-view;
     /// Vue : 0 grille, 1 liste, 2 carrousel, 3 immersive, 4 compacte.
     in-out property <int> view-mode;
@@ -172,7 +172,7 @@ export global DetailUi {
     in property <string> ach-status;
     in property <bool> ach-syncing;
     in-out property <bool> show-hidden-ach;
-    in property <[string]> emulator-options: ["Par défaut"];
+    in property <[string]> emulator-options: [@tr("Par défaut")];
     in-out property <int> emulator-index;
     callback save-launch(int, string, string, string, string);
     callback save-metadata(int, string, string, string, string, string, string);
@@ -201,7 +201,7 @@ export global DetailUi {
 
     // Profils de lancement
     in property <[ProfileRow]> profiles;
-    in property <[string]> profile-labels: ["Sans profil"];
+    in property <[string]> profile-labels: [@tr("Sans profil")];
     in-out property <int> profile-index;
     in property <string> engine;
     in property <[string]> profile-notes;
@@ -248,9 +248,9 @@ export global DetailUi {
     in-out property <int> mod-adapter;
     in-out property <string> mod-target;
     in property <string> mod-hint;
-    in property <[string]> mod-profile-labels: ["Par défaut"];
+    in property <[string]> mod-profile-labels: [@tr("Par défaut")];
     in-out property <int> mod-profile;
-    in property <[string]> mod-launch-labels: ["Ne pas changer les mods"];
+    in property <[string]> mod-launch-labels: [@tr("Ne pas changer les mods")];
     in property <string> mod-status;
     in property <[string]> mod-conflicts;
     in property <[string]> mod-external;
@@ -272,7 +272,7 @@ export global DetailUi {
     /// Liens fournis par les extensions.
     in property <[LinkRow]> links;
     /// Profil de manette associé aux profils de lancement (0 : aucun).
-    in property <[string]> pad-profile-labels: ["Aucun"];
+    in property <[string]> pad-profile-labels: [@tr("Aucun")];
     // Jeu à distance
     in property <bool> can-publish;
     callback publish-sunshine(int);
@@ -568,9 +568,20 @@ export global BpUi {
 
 export global SettingsUi {
     /// Sections affichées (recherche, filtre) : Plateformes, Dossiers, Comptes, Comportement,
-    /// Hors ligne, Système, Raccourcis, Configuration, Mises à jour, Stockage, Son.
-    in property <[bool]> shown: [true, true, true, true, true, true, true, true, true, true, true];
-    in property <int> match-count: 11;
+    /// Hors ligne, Système, Raccourcis, Configuration, Mises à jour, Stockage, Son, Langue.
+    in property <[bool]> shown: [true, true, true, true, true, true, true, true, true, true, true, true];
+    in property <int> match-count: 12;
+    /// Langues proposées : « Automatique (…) » puis chaque langue sous son nom natif.
+    in property <[string]> languages;
+    /// Index dans `languages` (0 : automatique).
+    in property <int> language-index;
+    /// Langue détectée sur le système (affichée sous « Automatique »).
+    in property <string> language-detected;
+    /// La langue du système n'est pas proposée : l'anglais est utilisé.
+    in property <bool> language-fallback;
+    /// Code de la langue du système (« ja-JP »…).
+    in property <string> language-system;
+    callback set-language(int);
     // Son : général, navigation, interactions, notifications, actions importantes.
     in property <bool> sound-enabled: true;
     in property <bool> sound-muted;
@@ -653,7 +664,7 @@ export global AppUi {
     in-out property <bool> confirm-open;
     in property <string> confirm-title;
     in property <string> confirm-text;
-    in property <string> confirm-button: "Confirmer";
+    in property <string> confirm-button: @tr("Confirmer");
     callback confirm-accepted();
     /// Mode d'interface : 0 standard, 1 minimaliste, 2 cinéma.
     in property <int> ui-mode;

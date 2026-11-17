@@ -33,19 +33,19 @@ pub fn value_for(pref: GpuPreference) -> Option<&'static str> {
 pub fn apply(exe: &Path, pref: GpuPreference) -> Result<GpuGuard, String> {
     use winreg::enums::{HKEY_CURRENT_USER, KEY_READ, KEY_WRITE};
     use winreg::RegKey;
-    let value = value_for(pref).ok_or("aucune préférence à appliquer")?;
+    let value = value_for(pref).ok_or(tr!("aucune préférence à appliquer"))?;
     let (key, _) = RegKey::predef(HKEY_CURRENT_USER)
         .create_subkey_with_flags(KEY, KEY_READ | KEY_WRITE)
-        .map_err(|e| format!("préférence graphique inaccessible : {e}"))?;
+        .map_err(|e| tr!("préférence graphique inaccessible : {e}", e = e))?;
     let name = exe.to_string_lossy().into_owned();
     let previous: Option<String> = key.get_value(&name).ok();
-    key.set_value(&name, &value).map_err(|e| format!("préférence graphique non modifiée : {e}"))?;
+    key.set_value(&name, &value).map_err(|e| tr!("préférence graphique non modifiée : {e}", e = e))?;
     Ok(GpuGuard { exe: name, previous })
 }
 
 #[cfg(not(windows))]
 pub fn apply(_exe: &Path, _pref: GpuPreference) -> Result<GpuGuard, String> {
-    Err("préférence graphique du système : Windows uniquement".into())
+    Err(tr!("préférence graphique du système : Windows uniquement").into())
 }
 
 impl GpuGuard {

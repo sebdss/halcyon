@@ -14,7 +14,7 @@ pub fn decode_wav(bytes: &[u8]) -> Result<Vec<f32>, String> {
     let le16 = |b: &[u8], i: usize| u16::from_le_bytes([b[i], b[i + 1]]);
     let le32 = |b: &[u8], i: usize| u32::from_le_bytes([b[i], b[i + 1], b[i + 2], b[i + 3]]);
     if bytes.len() < 12 || &bytes[0..4] != b"RIFF" || &bytes[8..12] != b"WAVE" {
-        return Err("fichier WAV invalide".into());
+        return Err(tr!("fichier WAV invalide").into());
     }
     let mut i = 12;
     let mut fmt_ok = false;
@@ -23,21 +23,21 @@ pub fn decode_wav(bytes: &[u8]) -> Result<Vec<f32>, String> {
         let size = le32(bytes, i + 4) as usize;
         let body = i + 8;
         if body + size > bytes.len() {
-            return Err("WAV tronqué".into());
+            return Err(tr!("WAV tronqué").into());
         }
         if id == b"fmt " {
             if size < 16 {
-                return Err("en-tête fmt invalide".into());
+                return Err(tr!("en-tête fmt invalide").into());
             }
             let (format, channels, rate, bits) =
                 (le16(bytes, body), le16(bytes, body + 2), le32(bytes, body + 4), le16(bytes, body + 14));
             if format != 1 || channels != 1 || bits != 16 || rate != SOURCE_RATE {
-                return Err(format!("format non pris en charge ({format}, {channels} canal, {rate} Hz, {bits} bits)"));
+                return Err(tr!("format non pris en charge ({format}, {channels} canal, {rate} Hz, {bits} bits)", format = format, channels = channels, rate = rate, bits = bits));
             }
             fmt_ok = true;
         } else if id == b"data" {
             if !fmt_ok {
-                return Err("données avant l'en-tête fmt".into());
+                return Err(tr!("données avant l'en-tête fmt").into());
             }
             return Ok(bytes[body..body + size]
                 .chunks_exact(2)
@@ -46,7 +46,7 @@ pub fn decode_wav(bytes: &[u8]) -> Result<Vec<f32>, String> {
         }
         i = body + size + (size & 1);
     }
-    Err("aucune donnée audio".into())
+    Err(tr!("aucune donnée audio").into())
 }
 
 /// Comportement pendant une partie lancée par Halcyon.

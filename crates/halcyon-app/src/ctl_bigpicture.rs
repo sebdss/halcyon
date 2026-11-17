@@ -152,11 +152,11 @@ impl Controller {
         }
 
         let mut filters: Vec<(String, Vec<GameId>)> = vec![
-            ("Installés".into(), ids(&visible.iter().copied().filter(|g| g.installed).collect::<Vec<_>>())),
-            ("Tous".into(), ids(&visible)),
-            ("Favoris".into(), ids(&visible.iter().copied().filter(|g| g.favorite).collect::<Vec<_>>())),
-            ("Récents".into(), ids(&recent)),
-            ("Émulation".into(), ids(&visible.iter().copied().filter(|g| g.source == GameSource::Emulated).collect::<Vec<_>>())),
+            (tr!("Installés").into(), ids(&visible.iter().copied().filter(|g| g.installed).collect::<Vec<_>>())),
+            (tr!("Tous").into(), ids(&visible)),
+            (tr!("Favoris").into(), ids(&visible.iter().copied().filter(|g| g.favorite).collect::<Vec<_>>())),
+            (tr!("Récents").into(), ids(&recent)),
+            (tr!("Émulation").into(), ids(&visible.iter().copied().filter(|g| g.source == GameSource::Emulated).collect::<Vec<_>>())),
         ];
         drop(lib);
         for c in self.collections.borrow().iter() {
@@ -236,13 +236,13 @@ impl Controller {
             ui.set_focused_ach_ratio(p.map(|p| p.percent() / 100.0).unwrap_or(-1.0));
             ui.set_focused_state(
                 if g.installed {
-                    g.size_bytes.map(|b| format!("Installé · {}", halcyon_core::util::format_size(b))).unwrap_or_else(|| "Installé".into())
+                    g.size_bytes.map(|b| tr!("Installé · {b}", b = halcyon_core::util::format_size(b))).unwrap_or_else(|| tr!("Installé").into())
                 } else {
-                    "Non installé".into()
+                    tr!("Non installé").into()
                 }
                 .into(),
             );
-            ui.set_focused_update(if g.update.state.pending() { "Mise à jour disponible".into() } else { SharedString::new() });
+            ui.set_focused_update(if g.update.state.pending() { tr!("Mise à jour disponible").into() } else { SharedString::new() });
         }
 
         let (section, strip, strip_index, button) = {
@@ -279,7 +279,7 @@ impl Controller {
             let start = col.saturating_sub(2);
             let window: Vec<GameId> = results.iter().skip(start).take(8).copied().collect();
             ui.set_results(BpRow {
-                title: if query.is_empty() { "Tapez un nom de jeu".into() } else { format!("{} résultat{}", results.len(), if results.len() > 1 { "s" } else { "" }).into() },
+                title: if query.is_empty() { tr!("Tapez un nom de jeu").into() } else { trn!(results.len(), "{n} résultat", "{n} résultats").into() },
                 items: ModelRc::new(VecModel::from(self.bp_cards(&window))),
                 focus: if zone == 2 { (col - start) as i32 } else { -1 },
                 count: results.len() as i32,
@@ -309,13 +309,13 @@ impl Controller {
             let labels: Vec<SharedString> = opts
                 .iter()
                 .map(|o| match o {
-                    Opt::Play => "Jouer".into(),
-                    Opt::Sheet => "Ouvrir la fiche du jeu".into(),
-                    Opt::Favorite if g.favorite => "Retirer des favoris".into(),
-                    Opt::Favorite => "Ajouter aux favoris".into(),
-                    Opt::Hide => "Masquer de la bibliothèque".into(),
-                    Opt::Desktop => "Ouvrir sur le bureau".into(),
-                    Opt::Close => "Fermer".into(),
+                    Opt::Play => tr!("Jouer").into(),
+                    Opt::Sheet => tr!("Ouvrir la fiche du jeu").into(),
+                    Opt::Favorite if g.favorite => tr!("Retirer des favoris").into(),
+                    Opt::Favorite => tr!("Ajouter aux favoris").into(),
+                    Opt::Hide => tr!("Masquer de la bibliothèque").into(),
+                    Opt::Desktop => tr!("Ouvrir sur le bureau").into(),
+                    Opt::Close => tr!("Fermer").into(),
                 })
                 .collect();
             ui.set_options(ModelRc::new(VecModel::from(labels)));
@@ -338,25 +338,25 @@ impl Controller {
         let t = halcyon_core::transfer::global();
         let kv = |label: &str, value: String| KeyValue { label: label.into(), value: value.into(), ratio: 1.0 };
         vec![
-            kv("Mode Performance", if self.performance_active() { "Activé" } else { "Désactivé" }.into()),
+            kv(&tr!("Mode Performance"), if self.performance_active() { tr!("Activé") } else { tr!("Désactivé") }),
             kv(
-                "Téléchargements",
+                &tr!("Téléchargements"),
                 if t.is_paused() {
-                    "En pause".into()
+                    tr!("En pause").into()
                 } else if t.active() > 0 {
-                    format!("{} en cours", t.active())
+                    tr!("{active} en cours", active = t.active())
                 } else {
-                    "Aucun".into()
+                    tr!("Aucun").into()
                 },
             ),
-            kv("Son", if muted { "Coupé" } else { "Activé" }.into()),
-            kv("Mouvement", ["Complet", "Réduit", "Aucun"][usize::from(a.motion().min(2))].into()),
-            kv("Taille du texte", format!("{:.0} %", a.text_scale * 100.0)),
-            kv("Thème", theme),
-            kv("Analyser les sources", if self.scanning.get() { "En cours…".into() } else { String::new() }),
-            kv("Synchroniser les succès", if self.ach_syncing.get() { "En cours…".into() } else { String::new() }),
-            kv("Paramètres complets", "Sur le bureau".into()),
-            kv("Quitter le mode console", String::new()),
+            kv(&tr!("Son"), if muted { tr!("Coupé") } else { tr!("Activé") }),
+            kv(&tr!("Mouvement"), match a.motion() { 0 => tr!("Complet"), 1 => tr!("Réduit"), _ => tr!("Aucun") }),
+            kv(&tr!("Taille du texte"), tr!("{percent} %", percent = halcyon_i18n::number((a.text_scale * 100.0).round() as u64))),
+            kv(&tr!("Thème"), theme),
+            kv(&tr!("Analyser les sources"), if self.scanning.get() { tr!("En cours…").into() } else { String::new() }),
+            kv(&tr!("Synchroniser les succès"), if self.ach_syncing.get() { tr!("En cours…").into() } else { String::new() }),
+            kv(&tr!("Paramètres complets"), tr!("Sur le bureau").into()),
+            kv(&tr!("Quitter le mode console"), String::new()),
         ]
     }
 
