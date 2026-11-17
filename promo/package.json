@@ -1,0 +1,21 @@
+{
+  "name": "halcyon-promo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Film promotionnel de Halcyon (Remotion)",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Promo out/halcyon-promo-video.mp4",
+    "still": "remotion still"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.544",
+    "@remotion/media-utils": "^4.0.544",
+    "@remotion/paths": "^4.0.544",
+    "@types/react": "^18.3.31",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.544",
+    "typescript": "^5.9.3"
+  }
+}
