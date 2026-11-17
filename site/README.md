@@ -40,9 +40,9 @@ tant qu'aucune version stable n'existe) et les fichiers proposés pour chaque sy
 ## Captures d'écran
 
 `assets/img/screens/` contient de vraies captures de Halcyon 1.0.0-alpha.4 (binaire Linux
-de la version publiée), prises avec la bibliothèque de démonstration de
-`tools/make_demo_fixture.py` : les jeux et leurs visuels sont fictifs, ce que la page
-indique. Chaque écran existe en 1440 et 2880 px de large (`-1440`, `-2880`) et en recadrage
+de la version publiée), prises avec une bibliothèque Steam d'exemple (`promo/tools/real-games.py` : quinze jeux
+populaires et leurs visuels de bibliothèque officiels). Ces visuels appartiennent à leurs
+éditeurs, ce que la page et les mentions légales indiquent. Chaque écran existe en 1440 et 2880 px de large (`-1440`, `-2880`) et en recadrage
 pour téléphone (`-m`).
 
 ## Mise en ligne
