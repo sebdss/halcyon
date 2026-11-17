@@ -8,47 +8,44 @@ component SuggestList inherits VerticalLayout {
     in property <string> title;
     in property <string> empty;
     in property <[SuggestRow]> items;
-    spacing: 10px;
+    spacing: 14px;
+    Rectangle { height: 1px; background: Theme.border-strong; }
     SectionTitle { text: root.title; }
     if root.items.length == 0: Text { text: root.empty; color: Theme.text-dim; font-size: Theme.t-small; }
     if root.items.length > 0: Flickable {
-        height: 112px;
+        height: 120px;
         content-width: row.preferred-width;
         row := HorizontalLayout {
-        spacing: 14px;
-        alignment: start;
-        for s in root.items: Rectangle {
-            width: 230px;
-            height: 112px;
-            border-radius: Theme.radius-lg;
-            background: ta.has-hover ? Theme.surface-hover : Theme.surface;
-            ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(s.id); } double-clicked => { Actions.play(s.id); } }
-            HorizontalLayout {
-                padding: 10px;
-                spacing: 12px;
-                GameCover {
-                    width: 61px;
-                    height: 92px;
-                    source: s.card.cover;
-                    has-image: s.card.has-cover;
-                    color-a: s.card.color-a;
-                    color-b: s.card.color-b;
-                    initials: s.card.initials;
-                    title: s.card.title;
-                    show-title: false;
-                    corner: 6px;
-                }
-                VerticalLayout {
-                    alignment: center;
-                    spacing: 6px;
-                    Text { text: s.card.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; wrap: word-wrap; max-height: 36px; overflow: elide; }
-                    Text { text: s.reason; color: Theme.text-dim; font-size: Theme.t-overline; wrap: word-wrap; }
+            spacing: 28px;
+            alignment: start;
+            // Chaque suggestion : jaquette, titre, et la raison qui la justifie.
+            for s in root.items: Rectangle {
+                width: 260px;
+                height: 120px;
+                ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(s.id); } double-clicked => { Actions.play(s.id); } }
+                HorizontalLayout {
+                    spacing: 14px;
+                    GameCover {
+                        width: 80px;
+                        height: 120px;
+                        source: s.card.cover;
+                        has-image: s.card.has-cover;
+                        color-a: s.card.color-a;
+                        color-b: s.card.color-b;
+                        initials: s.card.initials;
+                        title: s.card.title;
+                        show-title: false;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 8px;
+                        Text { text: s.card.title; color: ta.has-hover ? Theme.accent : Theme.text; font-size: Theme.t-small; font-weight: 650; wrap: word-wrap; max-height: 36px; overflow: elide; }
+                        Text { text: s.reason; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+                    }
                 }
             }
         }
     }
-    }
-
 }
 
 export component AssistantPage inherits Rectangle {
@@ -57,8 +54,8 @@ export component AssistantPage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 24px;
-            spacing: 24px;
+            padding-top: 28px;
+            spacing: 32px;
             alignment: start;
 
             PageHeader {

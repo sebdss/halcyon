@@ -1,23 +1,27 @@
-// Accueil 0.4 : tableau de bord de widgets.
+// Accueil : « Reprendre » en tête, puis les widgets choisis par l'utilisateur.
 //
 // La disposition (rangées de 3 colonnes, largeur de chaque widget) est calculée en Rust
 // d'après la configuration enregistrée ; seuls les widgets affichés reçoivent des données.
 // Codes des widgets : voir `halcyon_storage::settings::widget`.
+//
+// Composition « Berge » : pas de cartes. Les étagères de jaquettes reposent sur la page ;
+// les widgets de données sont des colonnes ouvertes par un filet et un titre, comme les
+// rubriques d'un carnet. En mode édition seulement, chaque widget montre son cadre.
 
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Icons, Art } from "../theme.slint";
+import { Theme, Icons } from "../theme.slint";
 import { GameCard, WidgetSlot, KeyValue } from "../types.slint";
 import { Nav, Page, Actions, HomeUi, AppUi, LibraryUi, GameMenu, QuickUi } from "../state.slint";
 import {
-    GameTile, PrimaryButton, SecondaryButton, SectionTitle, Icon, Badge, IconButton, BarChart, MeterRow, BigStat,
-    EmptyState, Chip, Overline
+    GameTile, PrimaryButton, PlayButton, SecondaryButton, TextButton, SectionTitle, Icon, IconButton, BarChart, MeterRow, BigStat,
+    Chip, Overline
 } from "../components.slint";
 
 /// Rangée de jaquettes : n'affiche que celles qui tiennent sur la largeur.
 component Shelf inherits Rectangle {
     in property <[GameCard]> games;
     in property <length> tile: 150px;
-    property <length> gap: 18px;
+    property <length> gap: 20px;
     height: root.tile * 1.5 + 52px;
     for g[i] in root.games: GameTile {
         x: i * (root.tile + root.gap);
@@ -32,98 +36,101 @@ component Shelf inherits Rectangle {
     }
 }
 
-/// Bandeau « Reprendre » : le dernier jeu installé lancé, en pleine largeur, illustration à
-/// droite et texte à gauche. En carte quand l'accueil le place ailleurs qu'en tête.
+/// Fait d'une fiche : légende au-dessus, valeur composée dans la police d'affichage.
+component Fact inherits VerticalLayout {
+    in property <string> label;
+    in property <string> value;
+    spacing: 4px;
+    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; }
+    Text { text: root.value == "" ? "—" : root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading; font-weight: 700; overflow: elide; }
+}
+
+/// Planche du jeu à reprendre : bannière, sinon jaquette recadrée, sinon planche générée.
+component HeroArt inherits Rectangle {
+    clip: true;
+    border-radius: Theme.radius-cover;
+    background: HomeUi.hero.color-a.mix(#101215, 0.55);
+    if HomeUi.hero.has-banner: Image { width: parent.width; height: parent.height; source: HomeUi.hero.banner; image-fit: cover; }
+    if !HomeUi.hero.has-banner && HomeUi.hero.has-cover: Image { width: parent.width; height: parent.height; source: HomeUi.hero.cover; image-fit: cover; }
+    if !HomeUi.hero.has-banner && !HomeUi.hero.has-cover: Rectangle {
+        y: 0;
+        height: 4px;
+        background: HomeUi.hero.color-b;
+    }
+    if !HomeUi.hero.has-banner && !HomeUi.hero.has-cover: Text {
+        x: 28px;
+        y: 18px;
+        text: HomeUi.hero.initials;
+        color: #ffffff24;
+        font-family: Theme.display;
+        font-size: parent.height * 0.5;
+        font-weight: 800;
+    }
+    // Logo officiel du jeu, posé en bas à gauche de la planche.
+    if HomeUi.hero.has-logo: Image {
+        x: 24px;
+        y: parent.height - self.height - 22px;
+        width: min(parent.width * 0.42, 320px);
+        height: parent.height * 0.32;
+        source: HomeUi.hero.logo;
+        image-fit: contain;
+        horizontal-alignment: left;
+        vertical-alignment: bottom;
+    }
+    Rectangle { border-radius: Theme.radius-cover; border-width: 1px; border-color: #ffffff12; }
+}
+
+/// « Reprendre » : le dernier jeu installé lancé. En tête de page : texte à gauche, planche
+/// à droite ; en widget (`card`) ou dans une fenêtre étroite : planche au-dessus, texte dessous.
 component Hero inherits Rectangle {
     in property <bool> card: false;
-    in property <length> top-inset: 0px;
-    height: card ? 340px : 500px;
-    clip: true;
-    border-radius: card ? Theme.radius-lg : 0px;
-    background: Theme.bg;
+    property <bool> stacked: root.card || root.width < 860px;
+    height: root.stacked ? root.width * 0.42 + text-col.preferred-height + 20px : 380px;
 
-    // Sans bannière : dégradé des couleurs du jeu et jaquette agrandie, estompée.
-    if !HomeUi.hero.has-banner: Rectangle {
-        x: 0; y: 0;
-        width: root.width;
-        height: root.height;
-        background: @linear-gradient(125deg, HomeUi.hero.color-a 0%, HomeUi.hero.color-b 100%);
-        opacity: 0.5;
+    art := HeroArt {
+        x: root.stacked ? 0px : root.width * 0.42;
+        y: 0px;
+        width: root.stacked ? root.width : root.width * 0.58;
+        height: root.stacked ? root.width * 0.42 : root.height;
     }
-    if !HomeUi.hero.has-banner && HomeUi.hero.has-cover: Image {
-        x: root.width * 0.42;
-        y: 0;
-        width: root.width * 0.58;
-        height: root.height;
-        source: HomeUi.hero.cover;
-        image-fit: cover;
-        opacity: 0.55;
-    }
-    if HomeUi.hero.has-banner: Image {
-        x: 0; y: 0;
-        width: root.width;
-        height: root.height;
-        source: HomeUi.hero.banner;
-        image-fit: cover;
-    }
-    // Voiles (masques teintés, sans ligne de raccord en rendu logiciel).
-    Image { x: 0; y: 0; width: root.width * 0.78; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bg; }
-    Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bg; }
-    if !root.card: Image { x: 0; y: 0; width: root.width; height: 140px; source: Art.fade-top; image-fit: fill; colorize: Theme.bg; opacity: 0.8; }
+    text-col := VerticalLayout {
+        x: 0px;
+        y: root.stacked ? art.height + 20px : 0px;
+        width: root.stacked ? root.width : root.width * 0.42 - 40px;
+        height: root.stacked ? self.preferred-height : root.height;
+        spacing: 14px;
+        alignment: root.stacked ? LayoutAlignment.start : LayoutAlignment.end;
 
-    VerticalLayout {
-        x: root.card ? Theme.s6 : Theme.page-padding;
-        y: 0;
-        width: min(680px, root.width - 2 * self.x);
-        height: root.height;
-        padding-bottom: root.card ? Theme.s6 : 32px;
-        spacing: Theme.s3;
-        alignment: end;
-
-        HorizontalLayout {
-            spacing: 10px;
-            alignment: start;
-            Rectangle { y: 9px; width: 28px; height: 2px; border-radius: 1px; background: Theme.horizon; }
-            Text { text: HomeUi.hero-kicker; color: Theme.accent; font-size: Theme.t-small; font-weight: 650; }
-        }
-        if HomeUi.hero.has-logo: Image {
-            height: root.card ? 90px : 132px;
-            source: HomeUi.hero.logo;
-            image-fit: contain;
-            horizontal-alignment: left;
-            vertical-alignment: bottom;
-        }
-        if !HomeUi.hero.has-logo: Text {
+        Text { text: HomeUi.hero-kicker; color: Theme.accent; font-size: Theme.t-small; font-weight: 600; }
+        Text {
             text: HomeUi.hero.title;
             color: Theme.text;
             font-family: Theme.display;
-            font-size: root.card ? 36px : 54px;
-            font-weight: 700;
+            font-size: root.card ? Theme.t-heading + 4px : Theme.t-title + 6px;
+            font-weight: 800;
             wrap: word-wrap;
-            letter-spacing: -1.2px;
         }
-        Text {
-            text: HomeUi.hero-meta;
-            color: Theme.text-muted;
-            font-size: Theme.t-body;
-            overflow: elide;
+        HorizontalLayout {
+            padding-top: 6px;
+            padding-bottom: 10px;
+            spacing: 28px;
+            alignment: start;
+            Fact { label: "Temps de jeu"; value: HomeUi.hero.playtime; }
+            Fact { label: "Dernière partie"; value: HomeUi.hero.last-played; }
+            if !root.card: Fact { label: "Source"; value: HomeUi.hero.source; }
         }
         HorizontalLayout {
             spacing: Theme.s3;
             alignment: start;
-            padding-top: 10px;
-            PrimaryButton {
+            PlayButton {
+                big: !root.card;
                 text: HomeUi.hero.installed ? "Jouer" : "Non installé";
-                icon: Icons.play;
-                has-icon: HomeUi.hero.installed;
                 enabled: HomeUi.hero.installed;
-                h: 50px;
-                font-size: Theme.t-body + 2px;
                 clicked => { Actions.play(HomeUi.hero.id); }
             }
             SecondaryButton {
                 text: "Voir la fiche";
-                h: 50px;
+                h: root.card ? Theme.control-height : 48px;
                 clicked => { Actions.open-game(HomeUi.hero.id); }
             }
         }
@@ -131,66 +138,53 @@ component Hero inherits Rectangle {
 }
 
 /// Première ouverture : aucune donnée, on propose de détecter les jeux.
-component Welcome inherits VerticalLayout {
-    alignment: center;
-    spacing: 18px;
-    padding: 40px;
-    HorizontalLayout {
+component Welcome inherits Rectangle {
+    VerticalLayout {
+        x: Theme.page-padding;
+        width: min(660px, root.width - 2 * Theme.page-padding);
         alignment: center;
-        Image { source: Icons.logo; width: 72px; height: 72px; }
-    }
-    Text {
-        text: "Bienvenue dans Halcyon";
-        color: Theme.text;
-        font-size: Theme.t-title;
-        font-weight: 800;
-        horizontal-alignment: center;
-    }
-    Text {
-        text: "Toute votre ludothèque au même endroit. Halcyon détecte les jeux installés via Steam et Epic Games,\net les jeux rangés dans vos propres dossiers.";
-        color: Theme.text-muted;
-        font-size: Theme.t-body;
-        horizontal-alignment: center;
-        wrap: word-wrap;
-    }
-    HorizontalLayout {
-        alignment: center;
-        spacing: 12px;
-        padding-top: 8px;
-        PrimaryButton {
-            text: AppUi.scanning ? "Analyse en cours…" : "Rechercher mes jeux";
-            icon: Icons.refresh;
-            has-icon: true;
-            enabled: !AppUi.scanning;
-            h: 44px;
-            clicked => { Actions.rescan(); }
+        spacing: 16px;
+        Image { source: Icons.logo; width: 56px; height: 56px; horizontal-alignment: left; }
+        Text {
+            text: "Bienvenue dans Halcyon";
+            color: Theme.text;
+            font-family: Theme.display;
+            font-size: Theme.t-title;
+            font-weight: 800;
         }
-        SecondaryButton {
-            text: "Ajouter un dossier de jeux";
-            icon: Icons.folder;
-            has-icon: true;
-            h: 44px;
-            clicked => { Nav.go(Page.settings); }
+        Text {
+            text: "Toute votre ludothèque au même endroit. Halcyon détecte les jeux installés via Steam et Epic Games, et les jeux rangés dans vos propres dossiers.";
+            color: Theme.text-muted;
+            font-size: Theme.t-body;
+            wrap: word-wrap;
         }
-        SecondaryButton {
-            text: "Ajouter un jeu";
-            icon: Icons.plus;
-            has-icon: true;
-            h: 44px;
-            clicked => { AppUi.add-dialog-open = true; }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 12px;
+            padding-top: 10px;
+            PrimaryButton {
+                text: AppUi.scanning ? "Analyse en cours…" : "Rechercher mes jeux";
+                icon: Icons.refresh;
+                has-icon: true;
+                enabled: !AppUi.scanning;
+                h: 40px;
+                clicked => { Actions.rescan(); }
+            }
+            SecondaryButton {
+                text: "Ajouter un dossier de jeux";
+                icon: Icons.folder;
+                has-icon: true;
+                h: 40px;
+                clicked => { Nav.go(Page.settings); }
+            }
+            SecondaryButton {
+                text: "Ajouter un jeu";
+                icon: Icons.plus;
+                has-icon: true;
+                h: 40px;
+                clicked => { AppUi.add-dialog-open = true; }
+            }
         }
-    }
-}
-
-/// Petit texte cliquable (« Tout voir »).
-component LinkText inherits Text {
-    callback clicked;
-    color: lt-ta.has-hover ? Theme.accent : Theme.text-muted;
-    font-size: Theme.t-small;
-    font-weight: 600;
-    lt-ta := TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
     }
 }
 
@@ -199,8 +193,9 @@ component KvLine inherits HorizontalLayout {
     in property <string> label;
     in property <string> value;
     spacing: Theme.s2;
-    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-small; horizontal-stretch: 1; overflow: elide; }
-    Text { text: root.value; color: Theme.text; font-size: Theme.t-small; font-weight: 600; }
+    height: 28px;
+    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-small; horizontal-stretch: 1; overflow: elide; vertical-alignment: center; }
+    Text { text: root.value; color: Theme.text; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; }
 }
 
 /// Note d'absence de données, sans valeur inventée.
@@ -210,32 +205,35 @@ component NoData inherits Text {
     wrap: word-wrap;
 }
 
-/// Cadre d'un widget : titre, action, barre d'édition (déplacer, taille, masquer).
+/// Cadre d'un widget : filet de tête, titre, action, barre d'édition (déplacer, taille,
+/// masquer). Les étagères de jeux (`bare`) n'ont pas de filet : les jaquettes suffisent.
 component WidgetFrame inherits Rectangle {
     in property <WidgetSlot> slot;
     in property <bool> first;
     in property <bool> last;
     in property <string> action;
-    /// Sans cadre : les étagères de jeux reposent sur le fond, seules les données ont un panneau.
     in property <bool> bare;
-    property <bool> framed: !root.bare || HomeUi.editing;
     callback action-clicked;
-    border-radius: Theme.radius-lg;
-    background: root.framed ? Theme.surface.with-alpha(0.78) : transparent;
-    border-width: root.framed ? 1px : 0px;
-    border-color: HomeUi.editing ? Theme.accent.with-alpha(0.45) : Theme.border;
+    border-radius: Theme.radius;
+    border-width: HomeUi.editing ? 1px : 0px;
+    border-color: Theme.accent.with-alpha(0.5);
+    background: HomeUi.editing ? Theme.accent.with-alpha(0.04) : transparent;
+    if !root.bare && !HomeUi.editing: Rectangle { y: 0; height: 1px; background: Theme.border-strong; }
 
     VerticalLayout {
-        padding: root.framed ? Theme.s5 : 0px;
+        padding-left: HomeUi.editing ? Theme.s4 : 0px;
+        padding-right: HomeUi.editing ? Theme.s4 : 0px;
+        padding-bottom: HomeUi.editing ? Theme.s4 : 0px;
+        padding-top: HomeUi.editing ? Theme.s4 : root.bare ? 0px : 14px;
         spacing: Theme.s4;
         alignment: start;
         HorizontalLayout {
             spacing: Theme.s2;
             height: 30px;
-            Text { text: root.slot.title; color: Theme.text; font-family: Theme.display; font-size: root.framed ? 17px : 21px; font-weight: 650; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-            if !HomeUi.editing && root.action != "": LinkText {
+            Text { text: root.slot.title; color: Theme.text; font-family: Theme.display; font-size: root.bare ? Theme.t-subheading + 2px : Theme.t-subheading; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+            if !HomeUi.editing && root.action != "": TextButton {
+                y: 1px;
                 text: root.action;
-                vertical-alignment: center;
                 clicked => { root.action-clicked(); }
             }
             if HomeUi.editing: IconButton {
@@ -277,42 +275,44 @@ export component HomePage inherits Rectangle {
     /// Largeur utile et gouttière : la largeur de chaque widget en découle (pas de
     /// dépendance au contenu, donc pas de boucle de mise en page).
     property <length> pad: Theme.page-padding;
-    property <length> gap: Theme.s5;
+    property <length> gap: Theme.s6;
     property <length> inner: root.width - 2 * root.pad;
     property <length> colw: (root.inner - 2 * root.gap) / 3;
-    property <length> top-pad: HomeUi.hero-first && HomeUi.has-hero && !HomeUi.minimal && !HomeUi.editing ? 0px : 72px;
+    property <bool> hero-on-top: HomeUi.hero-first && HomeUi.has-hero && !HomeUi.minimal && !HomeUi.editing;
 
     if HomeUi.stats.total == 0: Welcome { }
 
     if HomeUi.stats.total > 0: sv := ScrollView {
         content-height: content.preferred-height;
-        // Barre supérieure opaque une fois le bandeau dépassé.
-        scrolled => { AppUi.top-solid = self.content-y < -40px; }
         content := VerticalLayout {
             width: root.width;
-            spacing: root.gap;
-            padding-top: root.top-pad;
+            spacing: Theme.s7 - 8px;
+            padding-top: Theme.s6;
             padding-bottom: 48px;
 
-            if HomeUi.hero-first && HomeUi.has-hero && !HomeUi.minimal && !HomeUi.editing: Hero { top-inset: 60px; }
+            if root.hero-on-top: HorizontalLayout {
+                padding-left: root.pad;
+                padding-right: root.pad;
+                Hero { }
+            }
 
             // Mode minimaliste : recherche immédiate et lancement en un clic.
             if HomeUi.minimal: HorizontalLayout {
                 padding-left: root.pad;
                 padding-right: root.pad;
-                spacing: Theme.s3;
                 Rectangle {
                     height: 52px;
-                    border-radius: 26px;
+                    border-radius: Theme.radius;
                     background: ms-ta.has-hover ? Theme.surface-hover : Theme.surface;
                     border-width: 1px;
                     border-color: Theme.border-strong;
                     HorizontalLayout {
-                        padding-left: 20px;
-                        padding-right: 20px;
+                        padding-left: 18px;
+                        padding-right: 18px;
                         spacing: 12px;
                         Icon { source: Icons.search; size: 20px; tint: Theme.text-muted; }
-                        Text { text: "Lancer un jeu… (Ctrl+K)"; color: Theme.text-muted; font-size: Theme.t-subheading; vertical-alignment: center; }
+                        Text { text: "Lancer un jeu"; color: Theme.text-muted; font-size: Theme.t-subheading; vertical-alignment: center; horizontal-stretch: 1; }
+                        Text { text: "Ctrl K"; color: Theme.text-dim; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
                     }
                     ms-ta := TouchArea {
                         mouse-cursor: pointer;
@@ -321,14 +321,13 @@ export component HomePage inherits Rectangle {
                 }
             }
 
-            // Barre d'édition de l'accueil.
-            HorizontalLayout {
+            // Mode édition : consigne et actions, en tête de page.
+            if HomeUi.editing: HorizontalLayout {
                 padding-left: root.pad;
                 padding-right: root.pad;
                 spacing: Theme.s2;
-                alignment: end;
-                height: HomeUi.editing ? 38px : 30px;
-                if HomeUi.editing: Text {
+                height: 36px;
+                Text {
                     text: "Personnalisation de l'accueil : déplacez, redimensionnez ou masquez les widgets.";
                     color: Theme.text-muted;
                     font-size: Theme.t-small;
@@ -336,27 +335,17 @@ export component HomePage inherits Rectangle {
                     horizontal-stretch: 1;
                     overflow: elide;
                 }
-                if HomeUi.editing: SecondaryButton {
+                SecondaryButton {
                     text: "Réinitialiser";
                     icon: Icons.restore;
                     has-icon: true;
-                    h: 36px;
                     clicked => { HomeUi.widgets-reset(); }
                 }
-                if HomeUi.editing: PrimaryButton {
+                PrimaryButton {
                     text: "Terminé";
                     icon: Icons.check;
                     has-icon: true;
-                    h: 36px;
                     clicked => { HomeUi.editing = false; }
-                }
-                if !HomeUi.editing && !HomeUi.minimal: IconButton {
-                    icon: Icons.edit;
-                    size: 30px;
-                    icon-size: 16px;
-                    glass: true;
-                    tooltip: "Personnaliser l'accueil";
-                    clicked => { HomeUi.editing = true; }
                 }
             }
 
@@ -365,7 +354,7 @@ export component HomePage inherits Rectangle {
                 padding-left: root.pad;
                 padding-right: root.pad;
                 spacing: Theme.s2;
-                Overline { text: "Widgets masqués — cliquer pour ajouter"; }
+                Overline { text: "Widgets masqués : cliquer pour ajouter"; }
                 for hr in HomeUi.hidden-widgets: HorizontalLayout {
                     spacing: Theme.s2;
                     alignment: start;
@@ -392,15 +381,15 @@ export component HomePage inherits Rectangle {
                     property <bool> is-first: ri == 0 && si == 0;
                     property <bool> is-last: ri == HomeUi.widget-rows.length - 1 && si == row.slots.length - 1;
 
-                    // « Continuer à jouer » en carte (quand il n'est pas en tête de page).
+                    // « Continuer à jouer » ailleurs qu'en tête de page.
                     if s.kind == 0: VerticalLayout {
-                        if HomeUi.has-hero: Hero { card: true; }
+                        if HomeUi.has-hero && !HomeUi.editing: Hero { card: s.span < 3; }
                         if HomeUi.editing: WidgetFrame {
                             slot: s;
                             first: is-first;
                             last: is-last;
                         }
-                        if !HomeUi.has-hero: WidgetFrame {
+                        if !HomeUi.has-hero && !HomeUi.editing: WidgetFrame {
                             slot: s;
                             first: is-first;
                             last: is-last;
@@ -437,7 +426,7 @@ export component HomePage inherits Rectangle {
                             }
                         }
                         property <[GameCard]> games: s.kind == 1 ? HomeUi.recent : s.kind == 2 ? HomeUi.favorites : s.kind == 11 ? HomeUi.suggested : s.kind == 12 ? HomeUi.added : HomeUi.playing;
-                        if self.games.length > 0: Shelf { games: parent.games; tile: AppUi.ui-mode == 1 ? 120px : 150px; }
+                        if self.games.length > 0: Shelf { games: parent.games; tile: AppUi.ui-mode == 1 ? 120px : 148px; }
                         if self.games.length == 0: NoData {
                             text: s.kind == 1 ? "Aucun jeu lancé depuis Halcyon pour l'instant." : s.kind == 2 ? "Aucun favori. Ajoutez-en depuis le menu d'un jeu (clic droit)." : s.kind == 11 ? "Pas assez de données pour proposer des suggestions." : s.kind == 13 ? "Aucun jeu marqué « En cours »." : "Aucun jeu.";
                         }
@@ -473,7 +462,7 @@ export component HomePage inherits Rectangle {
                         for a in HomeUi.recent-achievements: Rectangle {
                             height: 48px;
                             border-radius: Theme.radius-sm;
-                            background: a-ta.has-hover ? Theme.surface-hover : transparent;
+                            background: a-ta.has-hover ? Theme.surface : transparent;
                             a-ta := TouchArea {
                                 mouse-cursor: pointer;
                                 clicked => { Actions.open-game(a.game-id); }
@@ -481,20 +470,24 @@ export component HomePage inherits Rectangle {
                             HorizontalLayout {
                                 spacing: Theme.s3;
                                 Rectangle {
-                                    width: 40px;
-                                    height: 40px;
-                                    y: 4px;
+                                    width: 36px;
+                                    height: 36px;
+                                    y: 6px;
                                     border-radius: Theme.radius-sm;
                                     clip: true;
                                     background: Theme.surface-active;
-                                    if a.has-icon: Image { source: a.icon; width: 40px; height: 40px; image-fit: cover; }
-                                    if !a.has-icon: Icon { source: Icons.trophy; size: 20px; tint: Theme.warm; }
+                                    if a.has-icon: Image { source: a.icon; width: 36px; height: 36px; image-fit: cover; }
+                                    if !a.has-icon: Icon { source: Icons.trophy; size: 18px; tint: Theme.warm; }
                                 }
                                 VerticalLayout {
                                     alignment: center;
                                     spacing: 2px;
                                     Text { text: a.name; color: Theme.text; font-size: Theme.t-small; font-weight: 600; overflow: elide; }
-                                    Text { text: a.game + "  ·  " + a.date; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                                    HorizontalLayout {
+                                        spacing: 10px;
+                                        Text { text: a.game; color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; horizontal-stretch: 1; }
+                                        Text { text: a.date; color: Theme.text-dim; font-size: Theme.t-caption; }
+                                    }
                                 }
                             }
                         }
@@ -571,29 +564,37 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        property <int> per-row: max(1, floor((w - 2 * Theme.s5 + Theme.s2) / (200px + Theme.s2)));
-                        property <length> thumb: (w - 2 * Theme.s5 - (self.per-row - 1) * Theme.s2) / self.per-row;
+                        property <length> inner-w: w - (HomeUi.editing ? 2 * Theme.s4 : 0px);
+                        property <int> per-row: max(1, floor((self.inner-w + Theme.s2) / (200px + Theme.s2)));
+                        property <length> thumb: (self.inner-w - (self.per-row - 1) * Theme.s2) / self.per-row;
                         if HomeUi.captures.length == 0: NoData { text: HomeUi.captures-note; }
                         if HomeUi.captures.length > 0: Rectangle {
                             height: ceil(min(HomeUi.captures.length, parent.per-row * 2) / parent.per-row) * (parent.thumb * 9 / 16 + Theme.s2) - Theme.s2;
                             for c[i] in HomeUi.captures: Rectangle {
-                                property <int> pr: max(1, floor((w - 2 * Theme.s5 + Theme.s2) / (200px + Theme.s2)));
-                                property <length> tw: (w - 2 * Theme.s5 - (self.pr - 1) * Theme.s2) / self.pr;
+                                property <length> iw: w - (HomeUi.editing ? 2 * Theme.s4 : 0px);
+                                property <int> pr: max(1, floor((self.iw + Theme.s2) / (200px + Theme.s2)));
+                                property <length> tw: (self.iw - (self.pr - 1) * Theme.s2) / self.pr;
                                 visible: i < self.pr * 2;
                                 x: mod(i, self.pr) * (self.tw + Theme.s2);
                                 y: floor(i / self.pr) * (self.tw * 9 / 16 + Theme.s2);
                                 width: self.tw;
                                 height: self.tw * 9 / 16;
-                                border-radius: Theme.radius-sm;
+                                border-radius: Theme.radius-cover;
                                 clip: true;
                                 background: Theme.surface-active;
                                 Image { source: c.image; width: parent.width; height: parent.height; image-fit: cover; }
                                 Rectangle {
-                                    y: parent.height - 24px;
-                                    height: 24px;
+                                    y: parent.height - 26px;
+                                    height: 26px;
                                     background: Theme.scrim;
                                     opacity: cap-ta.has-hover ? 1 : 0;
-                                    Text { x: 8px; width: parent.width - 16px; text: c.title + "  ·  " + c.date; color: #fff; font-size: Theme.t-caption; overflow: elide; vertical-alignment: center; }
+                                    HorizontalLayout {
+                                        padding-left: 8px;
+                                        padding-right: 8px;
+                                        spacing: 8px;
+                                        Text { text: c.title; color: #fff; font-size: Theme.t-caption; overflow: elide; vertical-alignment: center; horizontal-stretch: 1; }
+                                        Text { text: c.date; color: #ffffffb0; font-size: Theme.t-caption; vertical-alignment: center; }
+                                    }
                                 }
                                 cap-ta := TouchArea {
                                     mouse-cursor: pointer;
@@ -602,6 +603,19 @@ export component HomePage inherits Rectangle {
                             }
                         }
                     }
+                }
+            }
+
+            // Personnalisation : en pied de page, discrète.
+            if !HomeUi.editing && !HomeUi.minimal: HorizontalLayout {
+                padding-left: root.pad;
+                padding-right: root.pad;
+                alignment: start;
+                SecondaryButton {
+                    text: "Personnaliser l'accueil";
+                    icon: Icons.edit;
+                    has-icon: true;
+                    clicked => { HomeUi.editing = true; }
                 }
             }
         }

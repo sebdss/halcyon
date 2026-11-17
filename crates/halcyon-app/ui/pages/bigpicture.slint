@@ -37,7 +37,7 @@ component Hint inherits HorizontalLayout {
         y: (parent.height - self.height) / 2;
         width: max(34 * u, k.preferred-width + 18 * u);
         height: 34 * u;
-        border-radius: 17 * u;
+        border-radius: 6 * u;
         background: #ffffff1f;
         k := Text { text: root.key; color: #ffffff; font-size: 16 * u; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
     }
@@ -53,7 +53,7 @@ component RoundAction inherits Rectangle {
     callback clicked;
     width: 76 * u;
     height: 76 * u;
-    border-radius: self.height / 2;
+    border-radius: 6 * root.u;
     background: focused ? #ffffff : #ffffff26;
     Icon {
         x: (parent.width - self.width) / 2;
@@ -73,7 +73,7 @@ component InfoCards inherits HorizontalLayout {
     alignment: start;
     Rectangle {
         width: 340 * root.u;
-        border-radius: 20 * root.u;
+        border-radius: 6 * root.u;
         background: #0000004d;
         VerticalLayout {
             padding: 24 * root.u;
@@ -85,7 +85,7 @@ component InfoCards inherits HorizontalLayout {
     }
     Rectangle {
         width: 340 * root.u;
-        border-radius: 20 * root.u;
+        border-radius: 6 * root.u;
         background: #0000004d;
         VerticalLayout {
             padding: 24 * root.u;
@@ -96,13 +96,13 @@ component InfoCards inherits HorizontalLayout {
                 height: 8 * root.u;
                 border-radius: 4 * root.u;
                 background: #ffffff26;
-                Rectangle { x: 0; width: parent.width * BpUi.focused-ach-ratio; border-radius: 4 * root.u; background: Theme.horizon; }
+                Rectangle { x: 0; width: parent.width * BpUi.focused-ach-ratio; border-radius: 4 * root.u; background: Theme.accent; }
             }
         }
     }
     Rectangle {
         width: 340 * root.u;
-        border-radius: 20 * root.u;
+        border-radius: 6 * root.u;
         background: #0000004d;
         VerticalLayout {
             padding: 24 * root.u;
@@ -152,7 +152,7 @@ export component BigPicturePage inherits Rectangle {
         image-fit: cover;
     }
     if BpUi.has-focused && !BpUi.focused.has-banner: Rectangle {
-        background: @linear-gradient(135deg, BpUi.focused.color-a.darker(0.35) 0%, BpUi.focused.color-b.darker(0.6) 70%, Theme.bp-bg 100%);
+        background: BpUi.focused.color-a.mix(Theme.bp-bg, 0.3);
         if BpUi.focused.has-cover: Image {
             x: 0;
             y: 0;
@@ -192,7 +192,7 @@ export component BigPicturePage inherits Rectangle {
                 height: 4 * root.u;
                 border-radius: 2 * root.u;
                 width: BpUi.section == i ? parent.width : 0px;
-                background: Theme.horizon;
+                background: Theme.accent;
             }
             FocusFrame { u: root.u; corner: 12 * root.u; shown: BpUi.zone == 0 && BpUi.section == i && !BpUi.sheet-open; }
             TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("section:" + i); } }
@@ -263,7 +263,7 @@ export component BigPicturePage inherits Rectangle {
             y: 140 * root.u;
             width: self.size;
             height: self.size;
-            border-radius: 18 * root.u;
+            border-radius: 6 * root.u;
             background: self.active ? #ffffff2e : #ffffff17;
             animate x, width, height { duration: Theme.fast; easing: ease-out; }
             VerticalLayout {
@@ -295,7 +295,6 @@ export component BigPicturePage inherits Rectangle {
                 font-family: Theme.display;
                 font-size: 76 * root.u;
                 font-weight: 800;
-                letter-spacing: -1.5 * root.u;
                 wrap: word-wrap;
             }
             Text { text: BpUi.focused-meta; color: #ffffffcc; font-size: 24 * root.u; overflow: elide; }
@@ -306,8 +305,8 @@ export component BigPicturePage inherits Rectangle {
                 Rectangle {
                     width: 300 * root.u;
                     height: 76 * root.u;
-                    border-radius: self.height / 2;
-                    background: BpUi.zone == 2 && BpUi.button == 0 ? #ffffff : BpUi.focused.installed ? Theme.accent : #ffffff26;
+                    border-radius: 6 * root.u;
+                    background: BpUi.zone == 2 && BpUi.button == 0 ? #ffffff : BpUi.focused.installed ? Theme.warm : #ffffff26;
                     HorizontalLayout {
                         alignment: center;
                         spacing: 14 * root.u;
@@ -315,11 +314,11 @@ export component BigPicturePage inherits Rectangle {
                             y: (parent.height - self.height) / 2;
                             source: Icons.play;
                             size: 28 * root.u;
-                            tint: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-accent : #ffffffaa;
+                            tint: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-warm : #ffffffaa;
                         }
                         Text {
                             text: BpUi.focused.installed ? "Jouer" : "Non installé";
-                            color: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-accent : #ffffffaa;
+                            color: BpUi.zone == 2 && BpUi.button == 0 ? Theme.bp-bg : BpUi.focused.installed ? Theme.on-warm : #ffffffaa;
                             font-family: Theme.display;
                             font-size: 28 * root.u;
                             font-weight: 700;
@@ -365,7 +364,7 @@ export component BigPicturePage inherits Rectangle {
             spacing: 14 * root.u;
             for f[i] in BpUi.filters: Rectangle {
                 width: ft.preferred-width + 40 * root.u;
-                border-radius: self.height / 2;
+                border-radius: 6 * root.u;
                 background: BpUi.filter == i ? (BpUi.zone == 1 ? #ffffff : #ffffff33) : #ffffff14;
                 ft := Text {
                     horizontal-alignment: center;
@@ -428,7 +427,7 @@ export component BigPicturePage inherits Rectangle {
         alignment: start;
         Rectangle {
             height: 92 * root.u;
-            border-radius: 46 * root.u;
+            border-radius: 8 * root.u;
             background: #ffffff1a;
             HorizontalLayout {
                 padding-left: 34 * root.u;
@@ -453,7 +452,7 @@ export component BigPicturePage inherits Rectangle {
                 y: floor(i / 10) * 84 * root.u;
                 width: 72 * root.u;
                 height: 72 * root.u;
-                border-radius: 14 * root.u;
+                border-radius: 6 * root.u;
                 background: self.active ? #ffffff : #ffffff1a;
                 Text { text: k; color: parent.active ? Theme.bp-bg : #ffffff; font-family: Theme.display; font-size: 28 * root.u; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; }
             }
@@ -508,13 +507,13 @@ export component BigPicturePage inherits Rectangle {
                     property <bool> active: BpUi.sheet-button == i;
                     width: lt.preferred-width + 64 * root.u;
                     height: 72 * root.u;
-                    border-radius: self.height / 2;
-                    background: self.active ? #ffffff : i == 0 && BpUi.focused.installed ? Theme.accent : #ffffff26;
+                    border-radius: 6 * root.u;
+                    background: self.active ? #ffffff : i == 0 && BpUi.focused.installed ? Theme.warm : #ffffff26;
                     lt := Text {
                         horizontal-alignment: center;
                         vertical-alignment: center;
                         text: label;
-                        color: parent.active ? Theme.bp-bg : i == 0 && BpUi.focused.installed ? Theme.on-accent : #ffffff;
+                        color: parent.active ? Theme.bp-bg : i == 0 && BpUi.focused.installed ? Theme.on-warm : #ffffff;
                         font-family: Theme.display;
                         font-size: 25 * root.u;
                         font-weight: 700;
@@ -543,7 +542,7 @@ export component BigPicturePage inherits Rectangle {
             width: root.width * 0.42 - root.side;
             // S'arrête au-dessus des cartes d'informations.
             height: root.height - 500 * root.u;
-            border-radius: 24 * root.u;
+            border-radius: 6 * root.u;
             background: #00000066;
             VerticalLayout {
                 padding: 30 * root.u;
@@ -556,14 +555,14 @@ export component BigPicturePage inherits Rectangle {
                 if BpUi.ach-count == 0: Text { text: "Aucun succès suivi pour ce jeu."; color: #ffffffaa; font-size: 21 * root.u; wrap: word-wrap; }
                 for a[i] in BpUi.achievements: Rectangle {
                     height: 76 * root.u;
-                    border-radius: 14 * root.u;
+                    border-radius: 6 * root.u;
                     background: i == BpUi.ach-index ? #ffffff26 : transparent;
                     HorizontalLayout {
                         padding: 10 * root.u;
                         spacing: 16 * root.u;
                         Rectangle {
                             width: 56 * root.u;
-                            border-radius: 10 * root.u;
+                            border-radius: 6 * root.u;
                             background: #ffffff14;
                             clip: true;
                             if a.has-icon: Image { width: parent.width; height: parent.height; source: a.icon; image-fit: cover; opacity: a.unlocked ? 1 : 0.4; }
@@ -607,7 +606,7 @@ export component BigPicturePage inherits Rectangle {
             y: (root.height - self.height) / 2;
             width: 560 * root.u;
             height: col.preferred-height;
-            border-radius: 28 * root.u;
+            border-radius: 6 * root.u;
             background: Theme.surface;
             col := VerticalLayout {
                 padding: 26 * root.u;
@@ -615,7 +614,7 @@ export component BigPicturePage inherits Rectangle {
                 Text { text: BpUi.focused.title; color: #ffffffaa; font-size: 20 * root.u; overflow: elide; height: 44 * root.u; vertical-alignment: center; x: 18 * root.u; }
                 for o[i] in BpUi.options: Rectangle {
                     height: 70 * root.u;
-                    border-radius: 16 * root.u;
+                    border-radius: 6 * root.u;
                     background: i == BpUi.option-index ? #ffffff : transparent;
                     Text {
                         x: 22 * root.u;
@@ -639,7 +638,7 @@ export component BigPicturePage inherits Rectangle {
             y: root.height - self.height;
             height: 420 * root.u;
             background: Theme.surface;
-            Rectangle { height: 3 * root.u; y: 0; background: Theme.horizon; }
+            Rectangle { height: 3 * root.u; y: 0; background: Theme.accent; }
             Text {
                 x: root.side;
                 y: 40 * root.u;
@@ -656,7 +655,7 @@ export component BigPicturePage inherits Rectangle {
                 y: 108 * root.u + floor(i / 5) * 130 * root.u;
                 width: self.w;
                 height: 112 * root.u;
-                border-radius: 22 * root.u;
+                border-radius: 6 * root.u;
                 background: self.active ? #ffffff : #ffffff12;
                 HorizontalLayout {
                     padding: 22 * root.u;

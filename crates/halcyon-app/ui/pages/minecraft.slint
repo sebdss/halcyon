@@ -5,7 +5,24 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { McProfileRow, McVersionRow, McModRow, McProjectRow } from "../types.slint";
 import { McUi, AppUi } from "../state.slint";
-import { Panel, PrimaryButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown, Tabs, ProgressBar, Notice, EmptyState, Segmented } from "../components.slint";
+import { Panel, PrimaryButton, PlayButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown, Tabs, ProgressBar, Notice, EmptyState, Segmented } from "../components.slint";
+
+/// Bloc d'herbe dessiné au pixel (6 × 6) : l'emblème de la page, net à toute échelle.
+component GrassBlock inherits Rectangle {
+    in property <length> size: 64px;
+    property <length> px: root.size / 6;
+    property <[int]> shade: [0, 1, 0, 2, 1, 0, 2, 0, 1, 0, 2, 1, 1, 3, 0, 4, 3, 1, 3, 4, 5, 3, 4, 3, 4, 5, 3, 4, 3, 5, 3, 3, 4, 5, 3, 4];
+    property <[color]> colors: [#5f9e3d, #6db347, #4f8a33, #86603d, #6f4e31, #9a7048];
+    width: root.size;
+    height: root.size;
+    for v[i] in root.shade: Rectangle {
+        x: mod(i, 6) * root.px;
+        y: floor(i / 6) * root.px;
+        width: root.px;
+        height: root.px;
+        background: root.colors[v];
+    }
+}
 
 component Caption inherits Text {
     color: Theme.text-muted;
@@ -37,12 +54,11 @@ component TaskBar inherits VerticalLayout {
         }
     }
     if McUi.error != "": Rectangle {
-        border-radius: Theme.radius;
-        background: Theme.danger.with-alpha(0.10);
-        border-width: 1px;
-        border-color: Theme.danger.with-alpha(0.45);
+        background: Theme.danger.with-alpha(0.08);
+        Rectangle { x: 0; width: 2px; background: Theme.danger; }
         HorizontalLayout {
             padding: 12px;
+            padding-left: 16px;
             spacing: 10px;
             Icon { source: Icons.alert; size: 16px; tint: Theme.danger; }
             Text { text: McUi.error; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; horizontal-stretch: 1; }
@@ -60,9 +76,9 @@ component ProjectCard inherits Panel {
         padding: 14px;
         spacing: 14px;
         Rectangle {
-            width: 52px;
-            height: 52px;
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            border-radius: 0px;
             background: Theme.surface-active;
             clip: true;
             if root.p.has-icon: Image { source: root.p.icon; width: parent.width; height: parent.height; image-fit: cover; }
@@ -79,7 +95,7 @@ component ProjectCard inherits Panel {
                 Rectangle { horizontal-stretch: 1; }
             }
             Text { text: root.p.description; color: Theme.text-muted; font-size: Theme.t-small; overflow: elide; }
-            Text { text: root.p.downloads + " téléchargements · " + (root.p.source == 0 ? "Modrinth" : "CurseForge"); color: Theme.text-dim; font-size: Theme.t-caption; }
+            Text { text: root.p.downloads + " téléchargements, " + (root.p.source == 0 ? "Modrinth" : "CurseForge"); color: Theme.text-dim; font-size: Theme.t-caption; }
         }
         IconButton { y: (parent.height - self.height) / 2; icon: Icons.external; icon-size: 15px; tooltip: "Page du projet"; clicked => { McUi.open-url(root.p.url); } }
         if root.p.installed: Badge { y: (parent.height - self.height) / 2; text: "Installé"; tint: Theme.success; }
@@ -130,13 +146,7 @@ component PlayTab inherits VerticalLayout {
             spacing: 14px;
             HorizontalLayout {
                 spacing: 16px;
-                Rectangle {
-                    width: 64px;
-                    height: 64px;
-                    border-radius: 16px;
-                    background: @linear-gradient(140deg, #3f8f3a 0%, #2b6326 60%, #6b4a2b 100%);
-                    Icon { source: Icons.cube; size: 30px; tint: white; }
-                }
+                GrassBlock { y: (parent.height - self.height) / 2; size: 60px; }
                 VerticalLayout {
                     alignment: center;
                     spacing: 4px;
@@ -150,19 +160,17 @@ component PlayTab inherits VerticalLayout {
                         overflow: elide;
                     }
                     Text {
-                        text: McUi.profiles.length > 0 ? McUi.profiles[McUi.selected-profile].version + " · " + McUi.profiles[McUi.selected-profile].loader + " · " + McUi.profiles[McUi.selected-profile].detail : "Installez une version, un loader ou un modpack pour commencer.";
+                        text: McUi.profiles.length > 0 ? McUi.profiles[McUi.selected-profile].version + ", " + McUi.profiles[McUi.selected-profile].loader + ", " + McUi.profiles[McUi.selected-profile].detail : "Installez une version, un loader ou un modpack pour commencer.";
                         color: Theme.text-muted;
                         font-size: Theme.t-small;
                         overflow: elide;
                     }
                 }
-                PrimaryButton {
+                PlayButton {
                     y: (parent.height - self.height) / 2;
-                    text: McUi.playing ? "En cours…" : "Jouer";
-                    icon: Icons.play;
-                    has-icon: true;
-                    h: 52px;
-                    font-size: 17px;
+                    big: true;
+                    text: McUi.playing ? "En jeu" : "Jouer";
+                    busy: McUi.playing;
                     enabled: McUi.profiles.length > 0 && !McUi.busy && !McUi.playing;
                     clicked => { McUi.play(); }
                 }
@@ -212,7 +220,7 @@ component PlayTab inherits VerticalLayout {
                         padding: 12px;
                         spacing: 12px;
                         Text {
-                            text: "Autoriser Halcyon à ajouter ses installations (profils « Halcyon · … ») au launcher officiel ? Une copie de launcher_profiles.json est faite avant la première modification ; vos autres profils ne sont pas touchés.";
+                            text: "Autoriser Halcyon à ajouter ses installations (profils « Halcyon, … ») au launcher officiel ? Une copie de launcher_profiles.json est faite avant la première modification ; vos autres profils ne sont pas touchés.";
                             color: Theme.text;
                             font-size: Theme.t-small;
                             wrap: word-wrap;
@@ -244,7 +252,7 @@ component PlayTab inherits VerticalLayout {
                         spacing: 4px;
                         horizontal-stretch: 1;
                         Text { text: "Ouvrez " + McUi.login-url + " et saisissez ce code :"; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; }
-                        Text { text: McUi.login-code; color: Theme.text; font-size: 28px; font-weight: 800; letter-spacing: 3px; font-family: "monospace"; }
+                        Text { text: McUi.login-code; color: Theme.text; font-size: 28px; font-weight: 800; font-family: "monospace"; }
                     }
                     SecondaryButton { y: (parent.height - self.height) / 2; text: "Ouvrir la page"; h: 36px; clicked => { McUi.open-url(McUi.login-url); } }
                     SecondaryButton { y: (parent.height - self.height) / 2; text: "Annuler"; h: 36px; clicked => { McUi.cancel(); } }
@@ -273,7 +281,7 @@ component PlayTab inherits VerticalLayout {
             spacing: 12px;
             Icon { source: p.modpack ? Icons.layers : Icons.cube; size: 18px; tint: Theme.text-muted; y: (parent.height - self.height) / 2; }
             Text { text: p.name; color: Theme.text; font-size: Theme.t-body; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-            Text { text: p.version + " · " + p.loader; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+            Text { text: p.version + ", " + p.loader; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
             Text { text: p.detail; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
         }
         pta := TouchArea { clicked => { McUi.select-profile(i); } }
@@ -301,13 +309,14 @@ component VersionsTab inherits VerticalLayout {
             Toggle { y: (parent.height - self.height) / 2; checked <=> McUi.show-old; toggled(v) => { McUi.set-bool("show_old", v); } }
             Text { text: "Anciennes (alpha, bêta)"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
         }
-        SecondaryButton { text: "Actualiser"; icon: Icons.refresh; has-icon: true; h: 38px; clicked => { McUi.refresh(); } }
+        SecondaryButton { text: "Actualiser"; icon: Icons.refresh; has-icon: true; h: 36px; clicked => { McUi.refresh(); } }
     }
     Hint { text: McUi.latest; }
     for v in McUi.versions: Rectangle {
         height: 48px;
         border-radius: Theme.radius;
-        background: vta.has-hover ? Theme.surface-hover : Theme.surface;
+        background: vta.has-hover ? Theme.surface : transparent;
+                Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
         vta := TouchArea { }
         HorizontalLayout {
             padding-left: 16px;
@@ -369,7 +378,7 @@ component ModsTab inherits VerticalLayout {
                     alignment: center;
                     horizontal-stretch: 1;
                     Text { text: m.name; color: m.enabled ? Theme.text : Theme.text-dim; font-size: Theme.t-small; font-weight: 700; overflow: elide; }
-                    Text { text: m.file + (m.version != "" ? " · " + m.version : ""); color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                    Text { text: m.file + (m.version != "" ? ", " + m.version : ""); color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
                 }
                 if m.dependency: Badge { y: (parent.height - self.height) / 2; text: "Dépendance"; }
                 if m.update != "": Badge { y: (parent.height - self.height) / 2; text: "Mise à jour : " + m.update; tint: Theme.accent; }
@@ -388,7 +397,7 @@ component ModsTab inherits VerticalLayout {
                 icon: Icons.search;
                 accepted(t) => { McUi.search(t); }
             }
-            SecondaryButton { text: "Rechercher"; h: 38px; clicked => { McUi.search(root.query); } }
+            SecondaryButton { text: "Rechercher"; h: 36px; clicked => { McUi.search(root.query); } }
         }
         Hint { text: McUi.results-info; }
         for r[i] in McUi.results: ProjectCard { p: r; index: i; }
@@ -404,7 +413,7 @@ component PacksTab inherits VerticalLayout {
         spacing: 10px;
         SourcePicker { }
         TextField { text <=> root.query; placeholder: "Rechercher un modpack"; has-icon: true; icon: Icons.search; accepted(t) => { McUi.search-packs(t); } }
-        SecondaryButton { text: "Rechercher"; h: 38px; clicked => { McUi.search-packs(root.query); } }
+        SecondaryButton { text: "Rechercher"; h: 36px; clicked => { McUi.search-packs(root.query); } }
     }
     HorizontalLayout {
         spacing: 10px;
@@ -464,7 +473,7 @@ component SettingField inherits VerticalLayout {
     HorizontalLayout {
         spacing: 8px;
         TextField { text <=> root.edit; placeholder: root.placeholder; mono: root.mono; accepted(t) => { McUi.set-text(root.key, t); } }
-        SecondaryButton { text: "Enregistrer"; h: 38px; clicked => { McUi.set-text(root.key, root.edit); } }
+        SecondaryButton { text: "Enregistrer"; h: 36px; clicked => { McUi.set-text(root.key, root.edit); } }
     }
     if root.hint != "": Hint { text: root.hint; }
 }
@@ -489,7 +498,7 @@ component SettingsTab inherits VerticalLayout {
         VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            Caption { text: "Mémoire (Mo) · " + McUi.ram-total + " Mo installés"; }
+            Caption { text: "Mémoire (Mo), " + McUi.ram-total + " Mo installés"; }
             HorizontalLayout {
                 spacing: 10px;
                 SettingField { label: "Minimum"; key: "ram_min"; value: McUi.ram-min; mono: true; }
@@ -549,17 +558,26 @@ export component MinecraftPage inherits Rectangle {
             width: root.width;
             padding: Theme.page-padding;
             padding-top: 32px;
-            spacing: 18px;
+            spacing: 22px;
             alignment: start;
             HorizontalLayout {
                 spacing: 14px;
-                Text { text: "Minecraft"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title; font-weight: 700; letter-spacing: -0.8px; }
-                Text { text: "Java Edition"; color: Theme.text-muted; font-size: Theme.t-body; vertical-alignment: center; horizontal-stretch: 1; }
+                Text { text: "Minecraft"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title; font-weight: 800; }
+                Text { text: "Java Edition"; color: Theme.text-dim; font-family: Theme.display; font-size: Theme.t-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                if McUi.playing: Text { text: "En jeu"; color: Theme.warm; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; }
             }
-            Tabs {
-                items: ["Jouer", "Versions", "Mods", "Modpacks", "Loaders", "Paramètres"];
-                selected: McUi.tab;
-                activated(i) => { McUi.set-tab(i); }
+            VerticalLayout {
+                Tabs {
+                    items: ["Jouer", "Versions", "Mods", "Modpacks", "Loaders", "Paramètres"];
+                    selected: McUi.tab;
+                    activated(i) => { McUi.set-tab(i); }
+                }
+                // Strate herbe et terre : le filet sous les onglets prend les couleurs du jeu.
+                Rectangle {
+                    height: 4px;
+                    Rectangle { y: 0; height: 2px; background: #5f9e3d; }
+                    Rectangle { y: 2px; height: 2px; background: #6f4e31; }
+                }
             }
             TaskBar { }
             if McUi.tab == 0: PlayTab { }

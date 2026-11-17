@@ -65,6 +65,18 @@ pub fn builtin_themes() -> Vec<ThemeDef> {
     let t = |id: &str, name: &str, colors: Palette| ThemeDef { id: id.into(), name: name.into(), author: "Halcyon".into(), colors, source: String::new() };
     vec![
         t("halcyon", "Halcyon", Palette::default()),
+        // Apparence des premières préversions 1.0 (« Alcyon »), conservée telle quelle.
+        t("alcyon", "Alcyon (1.0 préversion)", Palette {
+            border: "#9cc3ff12".into(),
+            border_strong: "#9cc3ff26".into(),
+            text: "#e9f0f8".into(),
+            text_muted: "#9fb3cc".into(),
+            text_dim: "#7b93b3".into(),
+            warm: "#ff8b3d".into(),
+            danger: "#ff6b78".into(),
+            success: "#4fd6a0".into(),
+            ..palette("#0c1726", "#091220", "#13223a", "#1a2d4a", "#22395c", "#32b4ff", "#04203a", "#070f1b")
+        }),
         // Apparence des versions 0.4 et 0.5, conservée telle quelle.
         t("nocturne", "Nocturne (0.5)", Palette {
             border: "#9cc3ff12".into(),
@@ -86,7 +98,7 @@ pub fn builtin_themes() -> Vec<ThemeDef> {
 
 /// Couleurs d'accent proposées (nom, valeur).
 pub const ACCENTS: [(&str, &str); 9] = [
-    ("Martin-pêcheur", "#32b4ff"),
+    ("Martin-pêcheur", "#3d9be9"),
     ("Turquoise", "#2fd4c5"),
     ("Bleu", "#5b8cff"),
     ("Violet", "#a77bff"),
@@ -220,22 +232,22 @@ impl Controller {
         let themes = self.all_themes();
         let def = themes.iter().find(|t| t.id == a.theme).cloned().unwrap_or_else(|| themes[0].clone());
         let base = Palette {
-            bg: "#0c1726".into(),
-            sidebar: "#091220".into(),
-            surface: "#13223a".into(),
-            surface_hover: "#1a2d4a".into(),
-            surface_active: "#22395c".into(),
-            border: "#ffffff12".into(),
-            border_strong: "#ffffff22".into(),
-            text: "#e9f0f8".into(),
-            text_muted: "#9fb3cc".into(),
-            text_dim: "#7b93b3".into(),
-            accent: "#32b4ff".into(),
-            on_accent: "#04203a".into(),
-            warm: "#ff8b3d".into(),
-            danger: "#ff6b78".into(),
-            success: "#4fd6a0".into(),
-            bp_bg: "#070f1b".into(),
+            bg: "#14171c".into(),
+            sidebar: "#0f1115".into(),
+            surface: "#1b1f25".into(),
+            surface_hover: "#232830".into(),
+            surface_active: "#2b313a".into(),
+            border: "#ffffff14".into(),
+            border_strong: "#ffffff26".into(),
+            text: "#eceef1".into(),
+            text_muted: "#a3abb6".into(),
+            text_dim: "#7e8793".into(),
+            accent: "#3d9be9".into(),
+            on_accent: "#04121f".into(),
+            warm: "#f08a24".into(),
+            danger: "#e5534b".into(),
+            success: "#3fb27f".into(),
+            bp_bg: "#0e1014".into(),
         };
         let c = &def.colors;
         let pick = |v: &str, fallback: &str| parse_hex(v).or_else(|| parse_hex(fallback)).unwrap_or_default();
@@ -326,14 +338,14 @@ impl Controller {
         app.global::<ThemeUi>().set_ui_profiles(ModelRc::new(VecModel::from(names)));
         let a = self.settings.borrow().appearance.clone();
         let ui = app.global::<ThemeUi>();
-        let base_accent = parse_hex("#32b4ff").unwrap_or_default();
+        let base_accent = parse_hex("#3d9be9").unwrap_or_default();
         let rows: Vec<ThemeRow> = themes
             .iter()
             .map(|t| ThemeRow {
                 id: t.id.clone().into(),
                 name: t.name.clone().into(),
-                bg: parse_hex(&t.colors.bg).unwrap_or_else(|| parse_hex("#0c1726").unwrap_or_default()),
-                surface: parse_hex(&t.colors.surface).unwrap_or_else(|| parse_hex("#13223a").unwrap_or_default()),
+                bg: parse_hex(&t.colors.bg).unwrap_or_else(|| parse_hex("#14171c").unwrap_or_default()),
+                surface: parse_hex(&t.colors.surface).unwrap_or_else(|| parse_hex("#1b1f25").unwrap_or_default()),
                 accent: parse_hex(&t.colors.accent).unwrap_or(base_accent),
                 source: t.source.clone().into(),
             })

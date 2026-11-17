@@ -1,24 +1,21 @@
 import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { RemoteUi } from "../state.slint";
-import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Badge, Notice, IconButton, Icon } from "../components.slint";
+import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Badge, Notice, IconButton, Icon, ListItem, Rubric } from "../components.slint";
 
 component ToolCard inherits Rectangle {
-    background: Theme.surface;
-    border-radius: Theme.radius-lg;
-    border-width: 1px;
-    border-color: Theme.border;
+    Rectangle { y: 0; height: 1px; background: Theme.border-strong; }
     in property <string> title;
     in property <string> description;
     in property <bool> found;
     in property <string> via;
     horizontal-stretch: 1;
     VerticalLayout {
-        padding: 20px;
+        padding-top: 14px;
         spacing: 8px;
         HorizontalLayout {
-            spacing: 8px;
-            Text { text: root.title; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; }
+            spacing: 10px;
+            Text { text: root.title; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading; font-weight: 700; }
             Badge { text: root.found ? "Détecté" : "Absent"; tint: root.found ? Theme.success : Theme.text-muted; solid: root.found; }
             Rectangle { horizontal-stretch: 1; }
         }
@@ -52,7 +49,7 @@ export component RemotePage inherits Rectangle {
                     title: "Sunshine (serveur)";
                     description: "Non détecté sur ce PC. Installez Sunshine (LizardByte) pour diffuser les jeux de cette machine.";
                     found: RemoteUi.sunshine;
-                    via: RemoteUi.sunshine-via + (RemoteUi.sunshine-running ? " · en cours d'exécution" : " · arrêté");
+                    via: RemoteUi.sunshine-via + (RemoteUi.sunshine-running ? ", en cours d'exécution" : ", arrêté");
                     if RemoteUi.sunshine: HorizontalLayout {
                         alignment: start;
                         SecondaryButton { h: 34px; text: "Ouvrir la configuration"; clicked => { RemoteUi.open-sunshine(); } }
@@ -67,16 +64,15 @@ export component RemotePage inherits Rectangle {
                     HorizontalLayout {
                         spacing: 8px;
                         TextField { text <=> root.ml-path; mono: true; placeholder: "Chemin de Moonlight (facultatif)"; }
-                        SecondaryButton { h: 38px; text: "Utiliser"; clicked => { RemoteUi.set-moonlight-path(root.ml-path); } }
+                        SecondaryButton { h: 36px; text: "Utiliser"; clicked => { RemoteUi.set-moonlight-path(root.ml-path); } }
                     }
                 }
             }
 
-            SectionTitle { text: "Machines"; }
-            for h[i] in RemoteUi.hosts: Rectangle {
+            Rubric { title: "Machines"; }
+            for h[i] in RemoteUi.hosts: ListItem {
                 height: 58px;
-                border-radius: Theme.radius;
-                background: RemoteUi.selected-host == i ? Theme.surface-active : Theme.surface;
+                active: RemoteUi.selected-host == i;
                 TouchArea { mouse-cursor: pointer; clicked => { RemoteUi.select-host(i); } }
                 HorizontalLayout {
                     padding-left: 16px;
@@ -87,7 +83,7 @@ export component RemotePage inherits Rectangle {
                         alignment: center;
                         horizontal-stretch: 1;
                         Text { text: h.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
-                        Text { text: h.address + (h.online ? " · disponible" : " · injoignable"); color: Theme.text-dim; font-size: Theme.t-caption; }
+                        Text { text: h.address + (h.online ? ", disponible" : ", injoignable"); color: Theme.text-dim; font-size: Theme.t-caption; }
                     }
                     SecondaryButton { y: (parent.height - self.height) / 2; h: 34px; text: "Appairer"; enabled: RemoteUi.moonlight; clicked => { RemoteUi.pair(i); } }
                     SecondaryButton { y: (parent.height - self.height) / 2; h: 34px; text: "Jeux"; enabled: RemoteUi.moonlight; clicked => { RemoteUi.select-host(i); } }
@@ -99,7 +95,7 @@ export component RemotePage inherits Rectangle {
                 spacing: 8px;
                 TextField { width: 220px; text <=> root.host-name; placeholder: "Nom (ex. PC du salon)"; }
                 TextField { text <=> root.host-address; mono: true; placeholder: "Adresse IP ou nom réseau"; }
-                SecondaryButton { h: 38px; text: "Ajouter"; icon: Icons.plus; has-icon: true; enabled: root.host-address != ""; clicked => { RemoteUi.add-host(root.host-name, root.host-address); root.host-name = ""; root.host-address = ""; } }
+                SecondaryButton { h: 36px; text: "Ajouter"; icon: Icons.plus; has-icon: true; enabled: root.host-address != ""; clicked => { RemoteUi.add-host(root.host-name, root.host-address); root.host-name = ""; root.host-address = ""; } }
             }
 
             if RemoteUi.selected-host >= 0: SectionTitle { text: "Jeux disponibles sur " + RemoteUi.hosts[RemoteUi.selected-host].name; }
@@ -108,10 +104,8 @@ export component RemotePage inherits Rectangle {
                 color: Theme.text-dim;
                 font-size: Theme.t-small;
             }
-            for a in RemoteUi.apps: Rectangle {
+            for a in RemoteUi.apps: ListItem {
                 height: 48px;
-                border-radius: Theme.radius;
-                background: Theme.surface;
                 HorizontalLayout {
                     padding-left: 16px;
                     padding-right: 8px;

@@ -11,7 +11,7 @@ component Row inherits HorizontalLayout {
         horizontal-stretch: 1;
         spacing: 3px;
         alignment: center;
-        Text { text: root.title; color: Theme.text; font-size: Theme.t-body; font-weight: 600; }
+        Text { text: root.title; color: Theme.text; font-size: Theme.t-body; font-weight: 500; wrap: word-wrap; }
         if root.description != "": Text { text: root.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
     }
     @children
@@ -27,8 +27,9 @@ export component AppearancePage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 24px;
-            spacing: 20px;
+            padding-right: max(Theme.page-padding, root.width - Theme.page-padding - 960px);
+            padding-top: 28px;
+            spacing: 22px;
             alignment: start;
 
             PageHeader {
@@ -38,22 +39,37 @@ export component AppearancePage inherits Rectangle {
             }
 
             SectionTitle { text: "Thème"; }
-            HorizontalLayout {
-                spacing: 14px;
-                alignment: start;
-                for t[i] in ThemeUi.themes: Rectangle {
-                    width: 168px;
-                    height: 118px;
-                    border-radius: Theme.radius-lg;
-                    background: t.bg;
-                    border-width: ThemeUi.selected == i ? 2px : 1px;
-                    border-color: ThemeUi.selected == i ? t.accent : Theme.border;
-                    clip: true;
-                    Rectangle { x: 14px; y: 14px; width: parent.width - 28px; height: 40px; border-radius: 8px; background: t.surface; }
-                    Rectangle { x: 14px; y: 64px; width: 54px; height: 10px; border-radius: 5px; background: t.accent; }
-                    Text { x: 14px; y: t.source != "" ? parent.height - 40px : parent.height - 30px; text: t.name; color: #eceff4; font-size: Theme.t-small; font-weight: 650; }
-                    if t.source != "": Text { x: 14px; y: parent.height - 21px; width: parent.width - 28px; text: t.source; color: #9aa3b3; font-size: Theme.t-overline - 1px; overflow: elide; }
-                    ta := TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.select-theme(i); } }
+            // Chaque thème en miniature : colonne de navigation, perche, jaquettes, « Jouer ».
+            Flickable {
+                height: 140px;
+                content-width: swatches.preferred-width;
+                swatches := HorizontalLayout {
+                    spacing: 18px;
+                    alignment: start;
+                    for t[i] in ThemeUi.themes: Rectangle {
+                        width: 168px;
+                        height: 140px;
+                        ta := TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.select-theme(i); } }
+                        Rectangle {
+                            y: 0;
+                            height: 100px;
+                            border-radius: Theme.radius;
+                            background: t.bg;
+                            clip: true;
+                            border-width: ThemeUi.selected == i ? 2px : 1px;
+                            border-color: ThemeUi.selected == i ? Theme.focus : ta.has-hover ? Theme.border-strong : Theme.border;
+                            Rectangle { x: 0; width: 34px; background: t.bg.darker(0.25); }
+                            Rectangle { x: 0; y: 22px; width: 3px; height: 12px; background: t.accent; }
+                            Rectangle { x: 10px; y: 24px; width: 16px; height: 4px; background: t.accent.with-alpha(0.7); }
+                            Rectangle { x: 10px; y: 40px; width: 14px; height: 4px; background: t.surface.brighter(0.4); }
+                            Rectangle { x: 10px; y: 52px; width: 14px; height: 4px; background: t.surface.brighter(0.4); }
+                            Rectangle { x: 46px; y: 16px; width: 60px; height: 8px; background: t.surface.brighter(0.6); }
+                            for k in 3: Rectangle { x: 46px + k * 36px; y: 34px; width: 30px; height: 45px; border-radius: 2px; background: t.surface; }
+                            Rectangle { x: parent.width - 30px; y: parent.height - 20px; width: 20px; height: 10px; border-radius: 2px; background: #f08a24; }
+                        }
+                        Text { x: 0; y: 108px; text: t.name; color: ThemeUi.selected == i ? Theme.text : Theme.text-muted; font-size: Theme.t-small; font-weight: ThemeUi.selected == i ? 650 : 500; }
+                        if t.source != "": Text { x: 0; y: 126px; width: parent.width; text: t.source; color: Theme.text-dim; font-size: Theme.t-overline; overflow: elide; }
+                    }
                 }
             }
 
@@ -69,15 +85,22 @@ export component AppearancePage inherits Rectangle {
                         spacing: 10px;
                         alignment: start;
                         for c[i] in ThemeUi.accents: Rectangle {
-                            width: 34px;
-                            height: 34px;
-                            border-radius: 17px;
-                            background: c;
-                            border-width: Theme.accent == c ? 3px : 0px;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: Theme.radius-sm;
+                            border-width: Theme.accent == c ? 2px : 0px;
                             border-color: Theme.text;
+                            Rectangle {
+                                x: Theme.accent == c ? 4px : 0px;
+                                y: Theme.accent == c ? 4px : 0px;
+                                width: parent.width - 2 * self.x;
+                                height: parent.height - 2 * self.y;
+                                border-radius: 2px;
+                                background: c;
+                            }
                             TouchArea { mouse-cursor: pointer; clicked => { ThemeUi.set-accent(ThemeUi.accent-hexes[i]); } }
                         }
-                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: "#32b4ff"; accepted(t) => { ThemeUi.set-accent(t); } }
+                        TextField { width: 140px; text <=> root.accent-hex; mono: true; placeholder: "#3d9be9"; accepted(t) => { ThemeUi.set-accent(t); } }
                         SecondaryButton { h: 34px; text: "Appliquer"; clicked => { ThemeUi.set-accent(root.accent-hex); } }
                     }
                     Rectangle { height: 1px; background: Theme.border; }
@@ -170,14 +193,14 @@ export component AppearancePage inherits Rectangle {
                         TextField { text <=> root.bg-path; mono: true; placeholder: "Image (.jpg, .png, .webp) affichée en fond, assombrie"; }
                         if AppUi.can-browse: SecondaryButton {
                             text: "Parcourir…";
-                            h: 38px;
+                            h: 36px;
                             clicked => {
                                 let p = AppUi.browse-file();
                                 if (p != "") { root.bg-path = p; ThemeUi.set-background(root.bg-path); }
                             }
                         }
-                        SecondaryButton { h: 38px; text: "Appliquer"; clicked => { ThemeUi.set-background(root.bg-path); } }
-                        if ThemeUi.background != "": SecondaryButton { h: 38px; text: "Retirer"; clicked => { root.bg-path = ""; ThemeUi.set-background(""); } }
+                        SecondaryButton { h: 36px; text: "Appliquer"; clicked => { ThemeUi.set-background(root.bg-path); } }
+                        if ThemeUi.background != "": SecondaryButton { h: 36px; text: "Retirer"; clicked => { root.bg-path = ""; ThemeUi.set-background(""); } }
                     }
                     if ThemeUi.background != "": Row {
                         title: "Intensité du fond";
@@ -253,7 +276,7 @@ export component AppearancePage inherits Rectangle {
                     HorizontalLayout {
                         spacing: 8px;
                         TextField { text <=> root.profile-name; placeholder: "Nom du profil (ex. Salon)"; }
-                        PrimaryButton { h: 38px; text: "Enregistrer l'apparence actuelle"; enabled: root.profile-name != ""; clicked => { ThemeUi.save-profile(root.profile-name); root.profile-name = ""; } }
+                        PrimaryButton { h: 36px; text: "Enregistrer l'apparence actuelle"; enabled: root.profile-name != ""; clicked => { ThemeUi.save-profile(root.profile-name); root.profile-name = ""; } }
                     }
                 }
             }
@@ -269,14 +292,14 @@ export component AppearancePage inherits Rectangle {
                         TextField { text <=> root.import-path; mono: true; placeholder: "Fichier de thème .json"; }
                         if AppUi.can-browse: SecondaryButton {
                             text: "Parcourir…";
-                            h: 38px;
+                            h: 36px;
                             clicked => {
                                 let p = AppUi.browse-file();
                                 if (p != "") { root.import-path = p; }
                             }
                         }
-                        SecondaryButton { h: 38px; text: "Importer"; enabled: root.import-path != ""; clicked => { ThemeUi.import-theme(root.import-path); root.import-path = ""; } }
-                        PrimaryButton { h: 38px; text: "Exporter le thème actuel"; icon: Icons.upload; has-icon: true; clicked => { ThemeUi.export-theme(); } }
+                        SecondaryButton { h: 36px; text: "Importer"; enabled: root.import-path != ""; clicked => { ThemeUi.import-theme(root.import-path); root.import-path = ""; } }
+                        PrimaryButton { h: 36px; text: "Exporter le thème actuel"; icon: Icons.upload; has-icon: true; clicked => { ThemeUi.export-theme(); } }
                     }
                     if ThemeUi.status != "": Text { text: ThemeUi.status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                 }

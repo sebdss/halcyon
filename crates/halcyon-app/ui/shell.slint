@@ -1,76 +1,106 @@
-// Coque de l'application : rail de six espaces, barre d'espace à onglets, barre supérieure (historique,
-// recherche universelle, modes, centre de commandes) et centre de commandes.
+// Coque de l'application : colonne de navigation (six espaces), barre d'espace à onglets,
+// barre supérieure (historique, recherche universelle, état, modes, centre de commandes)
+// et centre de commandes.
 
-import { Theme, Icons } from "theme.slint";
+import { Theme, Icons, Art } from "theme.slint";
 import { TaskRow } from "types.slint";
 import { Nav, Page, Actions, AppUi, LibraryUi, AchUi, EmuUi, UpdatesUi, PadsUi, QuickUi, CommandUi, SystemUi, McUi } from "state.slint";
-import { Icon, IconButton, Overline, ProgressBar, Spinner, SecondaryButton, Badge } from "components.slint";
+import { Icon, IconButton, Overline, ProgressBar, Spinner, SecondaryButton, TextButton } from "components.slint";
 import { DownloadsUi } from "downloads_state.slint";
 
-/// Entrée de navigation. Repliée : icône seule, libellé en infobulle.
-/// Entrée du rail : icône, libellé court dessous, ligne d'horizon pour l'espace actif.
-component RailItem inherits Rectangle {
+/// Entrée de la colonne de navigation. Étendue : icône et libellé ; repliée : icône seule,
+/// libellé en infobulle. L'espace actif prend la teinte de la page (il « entre » dans la
+/// page) et porte la perche d'accent.
+component NavItem inherits Rectangle {
     in property <string> text;
     in property <image> icon;
     in property <bool> active;
-    in property <bool> labels: true;
-    /// Pastille (compteur, état) affichée sur l'icône.
+    in property <bool> collapsed;
+    /// Secondaire (Console, Analyser) : plus discret.
+    in property <bool> quiet;
+    /// Compteur (téléchargements, mises à jour) ou repère d'état.
     in property <string> badge;
     in property <bool> warm-badge;
     callback clicked;
 
-    height: root.labels ? 64px : 52px;
+    height: root.quiet ? 36px : 40px;
     accessible-role: button;
     accessible-label: text;
     accessible-action-default => { root.clicked(); }
     forward-focus: fs;
 
-    pill := Rectangle {
-        x: (parent.width - self.width) / 2;
-        y: root.labels ? 4px : (parent.height - self.height) / 2;
-        width: 52px;
-        height: 36px;
-        border-radius: 18px;
-        background: root.active ? Theme.accent.with-alpha(0.16) : ta.has-hover || fs.has-focus ? Theme.surface-hover : transparent;
-        border-width: fs.has-focus ? Theme.focus-width : 0px;
-        border-color: Theme.focus;
+    bg := Rectangle {
+        x: 8px;
+        width: parent.width - 8px;
+        border-radius: Theme.radius;
+        background: root.active ? Theme.bg : ta.has-hover ? Theme.surface : transparent;
         animate background { duration: Theme.fast; }
-        Icon {
-            x: (parent.width - self.width) / 2;
-            y: (parent.height - self.height) / 2;
-            source: root.icon;
-            size: 22px;
-            tint: root.active ? Theme.accent : ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
-        }
     }
-    // Signature : la ligne d'horizon marque l'espace actif, au bord du rail.
+    // L'entrée active rejoint la page sans arrondi à droite.
+    if root.active: Rectangle { x: parent.width - 8px; width: 8px; background: Theme.bg; }
+    if fs.has-focus: Rectangle {
+        x: 6px;
+        width: parent.width - 10px;
+        y: -2px;
+        height: parent.height + 4px;
+        border-radius: Theme.radius + 1px;
+        border-width: Theme.focus-width;
+        border-color: Theme.focus;
+    }
+    // La perche.
     Rectangle {
-        x: 0;
-        y: pill.y + 6px;
-        width: 3px;
-        height: root.active ? pill.height - 12px : 0px;
-        border-radius: 2px;
-        background: Theme.horizon-v;
+        x: 8px;
+        y: (parent.height - self.height) / 2;
+        width: Theme.perch;
+        height: root.active ? 18px : 0px;
+        background: Theme.accent;
         animate height { duration: Theme.normal; easing: ease-out; }
     }
-    if root.badge != "": Rectangle {
-        x: pill.x + pill.width - self.width + 4px;
-        y: pill.y - 3px;
-        width: max(18px, bt.preferred-width + 10px);
-        height: 18px;
-        border-radius: 9px;
-        background: root.warm-badge ? Theme.warm : Theme.accent;
-        bt := Text { text: root.badge; color: Theme.on-accent; font-size: 10px; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
+    ico := Icon {
+        x: root.collapsed ? (parent.width + 8px - self.width) / 2 : 24px;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        size: root.quiet ? 16px : 18px;
+        tint: root.active ? Theme.accent : ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
     }
-    if root.labels: Text {
-        y: pill.y + pill.height + 4px;
-        width: parent.width;
+    if !root.collapsed: Text {
+        x: 54px;
+        width: parent.width - 54px - 44px;
+        height: parent.height;
         text: root.text;
-        color: root.active ? Theme.text : Theme.text-muted;
-        font-size: 11px;
+        color: root.active || ta.has-hover || fs.has-focus ? Theme.text : root.quiet ? Theme.text-dim : Theme.text-muted;
+        font-size: root.quiet ? Theme.t-small : Theme.t-body;
         font-weight: root.active ? 650 : 500;
-        horizontal-alignment: center;
+        vertical-alignment: center;
         overflow: elide;
+    }
+    // Compteur : chiffre dans la police d'affichage, sans pastille.
+    if root.badge != "" && !root.collapsed: Text {
+        x: parent.width - self.width - 16px;
+        width: self.preferred-width;
+        height: parent.height;
+        text: root.badge;
+        color: root.warm-badge ? Theme.warm : Theme.accent;
+        font-family: Theme.display;
+        font-size: Theme.t-caption;
+        font-weight: 700;
+        vertical-alignment: center;
+    }
+    if root.badge != "" && root.collapsed: Rectangle {
+        x: ico.x + ico.width - 2px;
+        y: ico.y - 4px;
+        width: 7px;
+        height: 7px;
+        background: root.warm-badge ? Theme.warm : Theme.accent;
+    }
+    if root.collapsed && (ta.has-hover || fs.has-focus): Rectangle {
+        x: parent.width + 6px;
+        y: (parent.height - self.height) / 2;
+        width: tip.preferred-width + 16px;
+        height: 26px;
+        border-radius: Theme.radius-sm;
+        background: Theme.text;
+        tip := Text { text: root.text; color: Theme.bg; font-size: Theme.t-caption; font-weight: 500; }
     }
     ta := TouchArea {
         mouse-cursor: pointer;
@@ -117,11 +147,10 @@ export global Spaces {
     }
 }
 
-/// Rail de navigation : six espaces, puis le mode console et l'analyse des sources.
+/// Colonne de navigation : les six espaces, puis le mode console et l'analyse des sources.
 export component Sidebar inherits Rectangle {
-    /// Vrai : icônes seules (réglage « Libellés du menu » désactivé).
+    /// Vrai : icônes seules (réglage « Libellés du menu » désactivé, fenêtre étroite).
     in property <bool> collapsed;
-    property <bool> labels: !root.collapsed;
     background: Theme.sidebar;
     // Mémorise l'onglet ouvert dans chaque espace à onglets.
     property <Page> page: Nav.page;
@@ -131,93 +160,99 @@ export component Sidebar inherits Rectangle {
         if (Spaces.of(self.page) == 5) { Spaces.last-system = self.page; }
     }
 
-    Rectangle {
-        x: parent.width - 1px;
-        width: 1px;
-        background: Theme.border;
-    }
-
     VerticalLayout {
-        padding-top: 16px;
-        padding-bottom: 14px;
-        spacing: 6px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        spacing: 2px;
 
-        HorizontalLayout {
-            alignment: center;
-            padding-bottom: 14px;
-            Image { source: Icons.logo; width: 34px; height: 34px; }
+        // Marque : logo et nom composé dans la police d'affichage.
+        Rectangle {
+            height: 60px;
+            Image {
+                x: root.collapsed ? (parent.width - self.width) / 2 + 4px : 22px;
+                y: 8px;
+                source: Icons.logo;
+                width: 28px;
+                height: 28px;
+            }
+            if !root.collapsed: Text {
+                x: 60px;
+                y: 8px;
+                height: 28px;
+                text: "Halcyon";
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 15px;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
         }
-        RailItem { labels: root.labels; text: "Accueil"; icon: Icons.home; active: Spaces.current == 0; clicked => { Spaces.open(0); } }
-        RailItem { labels: root.labels; text: "Bibliothèque"; icon: Icons.library; active: Spaces.current == 1; clicked => { Spaces.open(1); } }
-        RailItem { labels: root.labels; text: "Minecraft"; icon: Icons.cube; active: Spaces.current == 2; badge: McUi.playing ? "●" : ""; warm-badge: true; clicked => { Spaces.open(2); } }
-        RailItem { labels: root.labels; text: "Activité"; icon: Icons.chart; active: Spaces.current == 3; clicked => { Spaces.open(3); } }
-        RailItem {
-            labels: root.labels;
+        NavItem { collapsed: root.collapsed; text: "Accueil"; icon: Icons.home; active: Spaces.current == 0; clicked => { Spaces.open(0); } }
+        NavItem { collapsed: root.collapsed; text: "Bibliothèque"; icon: Icons.library; active: Spaces.current == 1; clicked => { Spaces.open(1); } }
+        NavItem { collapsed: root.collapsed; text: "Minecraft"; icon: Icons.cube; active: Spaces.current == 2; badge: McUi.playing ? "en jeu" : ""; warm-badge: true; clicked => { Spaces.open(2); } }
+        NavItem { collapsed: root.collapsed; text: "Activité"; icon: Icons.chart; active: Spaces.current == 3; clicked => { Spaces.open(3); } }
+        NavItem {
+            collapsed: root.collapsed;
             text: "Outils";
             icon: Icons.layers;
             active: Spaces.current == 4;
             badge: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : "";
-            warm-badge: DownloadsUi.active.length == 0;
+            warm-badge: DownloadsUi.active.length > 0;
             clicked => { Spaces.open(4); }
         }
-        RailItem { labels: root.labels; text: "Système"; icon: Icons.sliders; active: Spaces.current == 5; badge: AppUi.update-version != "" ? "1" : ""; warm-badge: true; clicked => { Spaces.open(5); } }
+        NavItem { collapsed: root.collapsed; text: "Système"; icon: Icons.sliders; active: Spaces.current == 5; badge: AppUi.update-version != "" ? "1" : ""; warm-badge: false; clicked => { Spaces.open(5); } }
         Rectangle { vertical-stretch: 1; }
-        if AppUi.nav.big-picture: RailItem { labels: root.labels; text: "Console"; icon: Icons.tv; clicked => { Actions.enter-big-picture(); } }
-        RailItem { labels: root.labels; text: AppUi.scanning ? "Analyse…" : "Analyser"; icon: Icons.refresh; clicked => { if (!AppUi.scanning) { Actions.rescan(); } } }
+        if AppUi.nav.big-picture: NavItem { quiet: true; collapsed: root.collapsed; text: "Console"; icon: Icons.tv; clicked => { Actions.enter-big-picture(); } }
+        NavItem { quiet: true; collapsed: root.collapsed; text: AppUi.scanning ? "Analyse…" : "Analyser"; icon: Icons.refresh; clicked => { if (!AppUi.scanning) { Actions.rescan(); } } }
     }
 }
 
-/// Onglet d'un espace.
+/// Onglet d'un espace : libellé, compteur discret, perche sous l'onglet actif.
 component SpaceTab inherits Rectangle {
     in property <string> text;
     in property <bool> active;
     in property <string> count;
+    /// Compteur signalant une action à faire (orange).
+    in property <bool> warm;
     callback clicked;
-    // Positions calculées (pas de mise en page automatique) : la pastille du compteur
-    // reste dans le bouton quelle que soit la mise à l'échelle de l'écran ou la police.
-    property <length> count-w: root.count == "" ? 0px : max(20px, cm.preferred-width + 12px);
-    height: 36px;
-    width: 14px + tt.preferred-width + (root.count == "" ? 0px : 7px + root.count-w) + 14px;
-    border-radius: 18px;
-    background: root.active ? Theme.surface-active : ta.has-hover || fs.has-focus ? Theme.surface : transparent;
-    border-width: fs.has-focus ? Theme.focus-width : 0px;
-    border-color: Theme.focus;
+    // Positions calculées : le compteur reste collé au libellé à toute échelle.
+    height: 56px;
+    width: tt.preferred-width + (root.count == "" ? 0px : 6px + cn.preferred-width);
     accessible-role: tab;
     accessible-label: text;
     accessible-action-default => { root.clicked(); }
     forward-focus: fs;
-    cm := Text { visible: false; text: root.count; font-size: 11px; font-weight: 650; }
     tt := Text {
-        x: 14px;
-        y: 0px;
+        x: 0px;
         width: self.preferred-width;
         height: root.height;
         text: root.text;
-        color: root.active ? Theme.text : Theme.text-muted;
-        font-size: Theme.t-small;
+        color: root.active || ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
+        font-size: Theme.t-body;
         font-weight: root.active ? 650 : 500;
         vertical-alignment: center;
     }
-    if root.count != "": Rectangle {
-        x: tt.x + tt.width + 7px;
-        y: (root.height - self.height) / 2;
-        width: root.count-w;
-        height: 20px;
-        border-radius: 10px;
-        background: root.active ? Theme.accent.with-alpha(0.22) : Theme.surface-active;
-        Text {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: parent.height;
-            text: root.count;
-            color: root.active ? Theme.accent : Theme.text-muted;
-            font-size: 11px;
-            font-weight: 650;
-            vertical-alignment: center;
-            horizontal-alignment: center;
-        }
+    cn := Text {
+        visible: root.count != "";
+        x: tt.width + 6px;
+        width: self.preferred-width;
+        height: root.height;
+        text: root.count;
+        color: root.warm ? Theme.warm : Theme.text-dim;
+        font-family: Theme.display;
+        font-size: Theme.t-caption;
+        font-weight: 700;
+        vertical-alignment: center;
     }
+    Rectangle {
+        x: 0;
+        y: root.height - 2px;
+        height: 2px;
+        width: root.active ? root.width : 0px;
+        background: Theme.accent;
+        animate width { duration: Theme.normal; easing: ease-out; }
+    }
+    if fs.has-focus: Rectangle { x: -6px; width: root.width + 12px; y: 12px; height: root.height - 24px; border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
     ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
     fs := FocusScope {
         focus-on-click: false;
@@ -231,67 +266,66 @@ component SpaceTab inherits Rectangle {
 /// Barre d'un espace à onglets (Activité, Outils, Système) : titre et onglets communs, sous
 /// la barre supérieure. Les pages n'y répètent pas leur titre (`Layout.tabbed`).
 export component SpaceBar inherits Rectangle {
-    height: 76px;
+    height: 56px;
     background: Theme.bg;
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
     HorizontalLayout {
         padding-left: Theme.page-padding;
         padding-right: Theme.page-padding;
-        padding-top: 14px;
-        padding-bottom: 14px;
-        spacing: 28px;
+        spacing: 36px;
         Text {
             text: Spaces.current == 3 ? "Activité" : Spaces.current == 4 ? "Outils" : "Système";
             color: Theme.text;
             font-family: Theme.display;
-            font-size: 26px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             vertical-alignment: center;
         }
         HorizontalLayout {
-            spacing: 4px;
+            spacing: 26px;
             alignment: start;
             horizontal-stretch: 1;
-            if Spaces.current == 3 && AppUi.nav.assistant: SpaceTab { y: 6px; text: "Que jouer ?"; active: Nav.page == Page.assistant; clicked => { Nav.go(Page.assistant); } }
-            if Spaces.current == 3 && AppUi.nav.achievements: SpaceTab { y: 6px; text: "Succès"; active: Nav.page == Page.achievements; count: AchUi.unlocked > 0 ? AchUi.unlocked : ""; clicked => { Nav.go(Page.achievements); } }
-            if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { y: 6px; text: "Statistiques"; active: Nav.page == Page.stats; clicked => { Nav.go(Page.stats); } }
-            if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { y: 6px; text: "Journal"; active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
-            if Spaces.current == 4: SpaceTab { y: 6px; text: "Téléchargements"; active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; clicked => { Nav.go(Page.downloads); } }
-            if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { y: 6px; text: "Mises à jour"; active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; clicked => { Nav.go(Page.updates); } }
-            if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { y: 6px; text: "Sauvegardes"; active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
-            if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { y: 6px; text: "Émulateurs"; active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
-            if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { y: 6px; text: "Manettes"; active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }
-            if Spaces.current == 4 && AppUi.nav.remote: SpaceTab { y: 6px; text: "Jeu à distance"; active: Nav.page == Page.remote; clicked => { Nav.go(Page.remote); } }
-            if Spaces.current == 4 && AppUi.nav.plugins: SpaceTab { y: 6px; text: "Extensions"; active: Nav.page == Page.plugins; clicked => { Nav.go(Page.plugins); } }
-            if Spaces.current == 5: SpaceTab { y: 6px; text: "Performances"; active: Nav.page == Page.performance; clicked => { Nav.go(Page.performance); } }
-            if Spaces.current == 5: SpaceTab { y: 6px; text: "Apparence"; active: Nav.page == Page.appearance; clicked => { Nav.go(Page.appearance); } }
-            if Spaces.current == 5: SpaceTab { y: 6px; text: "Paramètres"; active: Nav.page == Page.settings; count: AppUi.update-version != "" ? "Nouvelle version" : ""; clicked => { Nav.go(Page.settings); } }
+            if Spaces.current == 3 && AppUi.nav.assistant: SpaceTab { text: "Que jouer ?"; active: Nav.page == Page.assistant; clicked => { Nav.go(Page.assistant); } }
+            if Spaces.current == 3 && AppUi.nav.achievements: SpaceTab { text: "Succès"; active: Nav.page == Page.achievements; count: AchUi.unlocked > 0 ? AchUi.unlocked : ""; clicked => { Nav.go(Page.achievements); } }
+            if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { text: "Statistiques"; active: Nav.page == Page.stats; clicked => { Nav.go(Page.stats); } }
+            if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { text: "Journal"; active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
+            if Spaces.current == 4: SpaceTab { text: "Téléchargements"; active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; warm: true; clicked => { Nav.go(Page.downloads); } }
+            if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { text: "Mises à jour"; active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; warm: true; clicked => { Nav.go(Page.updates); } }
+            if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { text: "Sauvegardes"; active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
+            if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { text: "Émulateurs"; active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
+            if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { text: "Manettes"; active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }
+            if Spaces.current == 4 && AppUi.nav.remote: SpaceTab { text: "Jeu à distance"; active: Nav.page == Page.remote; clicked => { Nav.go(Page.remote); } }
+            if Spaces.current == 4 && AppUi.nav.plugins: SpaceTab { text: "Extensions"; active: Nav.page == Page.plugins; clicked => { Nav.go(Page.plugins); } }
+            if Spaces.current == 5: SpaceTab { text: "Performances"; active: Nav.page == Page.performance; clicked => { Nav.go(Page.performance); } }
+            if Spaces.current == 5: SpaceTab { text: "Apparence"; active: Nav.page == Page.appearance; clicked => { Nav.go(Page.appearance); } }
+            if Spaces.current == 5: SpaceTab { text: "Paramètres"; active: Nav.page == Page.settings; count: AppUi.update-version != "" ? "nouvelle version" : ""; clicked => { Nav.go(Page.settings); } }
         }
     }
-    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
 }
 
-/// Pastille de recherche universelle : ouvre la palette de commandes.
+/// Champ de recherche universelle : ouvre la palette de commandes.
 component SearchPill inherits Rectangle {
     in property <bool> compact;
-    height: 38px;
+    in property <bool> on-image;
+    height: 34px;
     accessible-role: button;
     accessible-label: "Rechercher";
     accessible-action-default => { QuickUi.open = true; }
     forward-focus: fs;
     bg := Rectangle {
-        border-radius: 19px;
-        background: ta.has-hover || fs.has-focus ? Theme.surface-hover : Theme.surface.with-alpha(0.85);
+        border-radius: Theme.radius;
+        background: root.on-image ? #000000a0 : ta.has-hover ? Theme.surface-hover : Theme.surface;
         border-width: fs.has-focus ? Theme.focus-width : 1px;
-        border-color: fs.has-focus ? Theme.focus : Theme.border;
+        border-color: fs.has-focus ? Theme.focus : root.on-image ? #ffffff1f : Theme.border;
         animate background { duration: Theme.fast; }
     }
     HorizontalLayout {
-        padding-left: 14px;
-        padding-right: 10px;
+        padding-left: 11px;
+        padding-right: 6px;
         spacing: 10px;
-        Icon { source: Icons.search; size: 18px; tint: Theme.text-muted; }
+        Icon { source: Icons.search; size: 16px; tint: Theme.text-muted; }
         if !root.compact: Text {
-            text: "Rechercher un jeu, une page, un réglage…";
+            text: "Rechercher un jeu, une page, un réglage";
             color: Theme.text-dim;
             font-size: Theme.t-small;
             vertical-alignment: center;
@@ -299,12 +333,13 @@ component SearchPill inherits Rectangle {
             overflow: elide;
         }
         if !root.compact: Rectangle {
-            width: kbd.preferred-width + 14px;
+            width: kbd.preferred-width + 12px;
             height: 22px;
-            y: 8px;
-            border-radius: 6px;
-            background: Theme.surface-active;
-            kbd := Text { text: "Ctrl K"; color: Theme.text-muted; font-size: Theme.t-overline; font-weight: 700; }
+            y: 6px;
+            border-radius: Theme.radius-sm;
+            border-width: 1px;
+            border-color: Theme.border-strong;
+            kbd := Text { text: "Ctrl K"; color: Theme.text-muted; font-size: Theme.t-overline; font-weight: 600; }
         }
     }
     ta := TouchArea { mouse-cursor: pointer; clicked => { QuickUi.open = true; } }
@@ -320,82 +355,84 @@ component SearchPill inherits Rectangle {
     }
 }
 
-/// Barre supérieure : précédent / suivant, recherche universelle, modes, centre de commandes.
+/// État affiché dans la barre supérieure : repère carré et libellé.
+component StatusMark inherits HorizontalLayout {
+    in property <string> text;
+    in property <color> tint;
+    spacing: 8px;
+    Rectangle { y: (parent.height - 7px) / 2; width: 7px; height: 7px; background: root.tint; }
+    Text { text: root.text; color: Theme.text; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; overflow: elide; }
+}
+
+/// Barre supérieure : précédent / suivant, recherche universelle, état, modes, centre de commandes.
 export component TopBar inherits Rectangle {
     in property <bool> transparent-bg;
     in property <bool> narrow;
-    height: 60px;
-    // Fond verre sur les pages ordinaires ; dégradé discret sur les pages à grande illustration.
-    background: root.transparent-bg ? @linear-gradient(180deg, Theme.bg.with-alpha(0.55) 0%, transparent 100%) : Theme.bg.with-alpha(0.92);
-    if !root.transparent-bg: Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+    height: 56px;
+    // Fond de page ; sur les pages à grande illustration, voile progressif (masque teinté).
+    background: root.transparent-bg ? transparent : Theme.bg;
+    if root.transparent-bg: Image {
+        width: parent.width;
+        height: parent.height + 24px;
+        source: Art.fade-top;
+        image-fit: fill;
+        colorize: #000000a0;
+    }
     HorizontalLayout {
         padding-left: 16px;
         padding-right: 16px;
-        spacing: 8px;
+        spacing: 4px;
         IconButton {
-            y: 12px;
+            y: 11px;
             icon: Icons.chevron-left;
+            glass: root.transparent-bg;
             enabled: Nav.can-back;
-            tint: Nav.can-back ? Theme.text-muted : Theme.text-dim.with-alpha(0.5);
             tooltip: "Précédent (Alt+←)";
             clicked => { Nav.history(-1); }
         }
         IconButton {
-            y: 12px;
+            y: 11px;
             icon: Icons.chevron-right;
+            glass: root.transparent-bg;
             enabled: Nav.can-forward;
-            tint: Nav.can-forward ? Theme.text-muted : Theme.text-dim.with-alpha(0.5);
             tooltip: "Suivant (Alt+→)";
             clicked => { Nav.history(1); }
         }
-        Rectangle { width: 8px; }
+        Rectangle { width: 12px; }
         SearchPill {
             y: 11px;
             compact: root.narrow;
-            width: root.narrow ? 38px : min(520px, max(240px, root.width * 0.38));
+            on-image: root.transparent-bg;
+            width: root.narrow ? 34px : min(460px, max(240px, root.width * 0.36));
         }
         Rectangle { horizontal-stretch: 1; }
-        if AppUi.playing != "": Rectangle {
-            y: 13px;
-            height: 34px;
-            width: pl.preferred-width + 24px;
-            border-radius: 17px;
-            background: Theme.success.with-alpha(0.12);
-            border-width: 1px;
-            border-color: Theme.success.with-alpha(0.35);
-            pl := HorizontalLayout {
-                padding-left: 12px;
-                padding-right: 12px;
-                spacing: 8px;
-                Rectangle { y: 13px; width: 8px; height: 8px; border-radius: 4px; background: Theme.success; }
-                Text { text: root.narrow ? "En jeu" : "En jeu : " + AppUi.playing; color: Theme.text; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; overflow: elide; }
-            }
+        HorizontalLayout {
+            spacing: 20px;
+            padding-right: 16px;
+            if AppUi.playing != "": StatusMark { text: root.narrow ? "En jeu" : "En jeu : " + AppUi.playing; tint: Theme.warm; }
+            if AppUi.performance: StatusMark { text: AppUi.performance-auto ? "Performance (auto)" : "Performance"; tint: Theme.accent; }
+            if !AppUi.online: StatusMark { text: "Hors ligne"; tint: Theme.text-dim; }
         }
-        if AppUi.performance: Badge {
-            y: 19px;
-            text: AppUi.performance-auto ? "Performance · auto" : "Performance";
-            tint: Theme.warm;
-            solid: true;
-        }
-        if !AppUi.online: Badge { y: 19px; text: "Hors ligne"; tint: Theme.warm; }
         IconButton {
-            y: 12px;
+            y: 11px;
             icon: Icons.gauge;
+            glass: root.transparent-bg;
             active: AppUi.performance;
-            active-tint: Theme.warm;
             tooltip: AppUi.performance ? "Quitter le mode Performance" : "Mode Performance";
             clicked => { AppUi.set-performance(!AppUi.performance); }
         }
         IconButton {
-            y: 12px;
+            y: 11px;
             icon: AppUi.ui-mode == 1 ? Icons.minimal : AppUi.ui-mode == 2 ? Icons.film : Icons.sidebar;
+            glass: root.transparent-bg;
             active: AppUi.ui-mode != 0;
             tooltip: AppUi.ui-mode == 0 ? "Mode standard (clic : minimaliste)" : AppUi.ui-mode == 1 ? "Mode minimaliste (clic : cinéma)" : "Mode cinéma (clic : standard)";
             clicked => { AppUi.set-ui-mode(mod(AppUi.ui-mode + 1, 3)); }
         }
         IconButton {
-            y: 12px;
+            y: 11px;
             icon: Icons.bell;
+            glass: root.transparent-bg;
             active: CommandUi.open;
             badge: CommandUi.running > 0 ? CommandUi.running : CommandUi.unread > 0 ? "•" : "";
             tooltip: "Centre de commandes";
@@ -405,20 +442,32 @@ export component TopBar inherits Rectangle {
             }
         }
     }
+    if !root.transparent-bg: Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
 }
 
 component TaskItem inherits Rectangle {
     in property <TaskRow> task;
     height: col.preferred-height;
+    // État : repère vertical à gauche (accent en cours, rouge en erreur).
+    Rectangle {
+        x: 0;
+        y: 14px;
+        width: 2px;
+        height: parent.height - 28px;
+        background: root.task.state == 0 ? Theme.accent : root.task.state == 2 ? Theme.danger : transparent;
+    }
     col := VerticalLayout {
-        padding: 12px;
+        padding-left: 18px;
+        padding-right: 18px;
+        padding-top: 12px;
+        padding-bottom: 12px;
         spacing: 6px;
         HorizontalLayout {
             spacing: 10px;
-            if root.task.state == 0: Spinner { y: 1px; size: 16px; }
-            if root.task.state == 1: Icon { source: Icons.check; size: 16px; tint: Theme.success; }
-            if root.task.state == 2: Icon { source: Icons.alert; size: 16px; tint: Theme.danger; }
-            if root.task.state == 3: Icon { source: Icons.info; size: 16px; tint: Theme.text-muted; }
+            if root.task.state == 0: Spinner { size: 15px; }
+            if root.task.state == 1: Icon { source: Icons.check; size: 15px; tint: Theme.success; }
+            if root.task.state == 2: Icon { source: Icons.alert; size: 15px; tint: Theme.danger; }
+            if root.task.state == 3: Icon { source: Icons.info; size: 15px; tint: Theme.text-dim; }
             Text {
                 text: root.task.title;
                 color: Theme.text;
@@ -426,8 +475,9 @@ component TaskItem inherits Rectangle {
                 font-weight: 600;
                 horizontal-stretch: 1;
                 overflow: elide;
+                vertical-alignment: center;
             }
-            Text { text: root.task.time; color: Theme.text-dim; font-size: Theme.t-overline; }
+            Text { text: root.task.time; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
         }
         if root.task.detail != "": Text {
             text: root.task.detail;
@@ -439,32 +489,33 @@ component TaskItem inherits Rectangle {
         if root.task.state == 0 && root.task.progress < 0: ProgressBar { value: -1; }
         if root.task.action != "": HorizontalLayout {
             alignment: start;
-            SecondaryButton { h: 30px; text: root.task.action; clicked => { CommandUi.task-action(root.task.id); } }
+            SecondaryButton { h: 28px; text: root.task.action; clicked => { CommandUi.task-action(root.task.id); } }
         }
     }
-    Rectangle { y: parent.height - 1px; x: 12px; width: parent.width - 24px; height: 1px; background: Theme.border; }
 }
 
-/// Centre de commandes (panneau latéral droit).
+/// Centre de commandes : tiroir à droite, sous la barre supérieure.
 export component CommandCenter inherits Rectangle {
-    width: 400px;
+    width: 380px;
     background: Theme.surface;
-    border-width: 1px;
-    border-color: Theme.border-strong;
-    drop-shadow-blur: 40px;
-    drop-shadow-color: #000000a0;
+    drop-shadow-blur: Theme.effects ? 24px : 0px;
+    drop-shadow-color: #00000080;
+    Rectangle { x: 0; width: 1px; background: Theme.border-strong; }
     TouchArea { }
     VerticalLayout {
         HorizontalLayout {
-            padding: 18px;
-            padding-bottom: 10px;
+            padding-left: 18px;
+            padding-right: 12px;
+            padding-top: 16px;
+            padding-bottom: 12px;
             spacing: 8px;
             VerticalLayout {
                 horizontal-stretch: 1;
-                Text { text: "Centre de commandes"; color: Theme.text; font-size: Theme.t-heading; font-weight: 750; }
+                spacing: 4px;
+                Text { text: "Centre de commandes"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading; font-weight: 700; }
                 Text {
-                    text: (CommandUi.running > 0 ? CommandUi.running + " tâche(s) en cours" : "Aucune tâche en cours") + (CommandUi.errors > 0 ? "  ·  " + CommandUi.errors + " erreur(s) récente(s)" : "");
-                    color: Theme.text-dim;
+                    text: (CommandUi.running > 0 ? CommandUi.running + " tâche(s) en cours" : "Aucune tâche en cours") + (CommandUi.errors > 0 ? ", " + CommandUi.errors + " erreur(s) récente(s)" : "");
+                    color: CommandUi.errors > 0 ? Theme.danger.brighter(0.2) : Theme.text-dim;
                     font-size: Theme.t-caption;
                 }
             }
@@ -475,20 +526,18 @@ export component CommandCenter inherits Rectangle {
             content-height: list.preferred-height;
             list := VerticalLayout {
                 width: parent.width;
-                padding-left: 6px;
-                padding-right: 6px;
                 padding-bottom: 18px;
                 alignment: start;
-                if CommandUi.active.length > 0: HorizontalLayout { padding-left: 12px; height: 28px; Overline { vertical-alignment: center; text: "En cours"; } }
+                if CommandUi.active.length > 0: HorizontalLayout { padding-left: 18px; height: 30px; Overline { vertical-alignment: center; text: "En cours"; } }
                 for t in CommandUi.active: TaskItem { task: t; }
                 HorizontalLayout {
-                    padding-left: 12px;
-                    padding-right: 12px;
-                    height: 40px;
+                    padding-left: 18px;
+                    padding-right: 18px;
+                    height: 38px;
                     Overline { text: "Récent"; vertical-alignment: center; horizontal-stretch: 1; }
-                    if CommandUi.history.length > 0: SecondaryButton { y: 6px; h: 28px; text: "Effacer"; clicked => { CommandUi.clear-history(); } }
+                    if CommandUi.history.length > 0: TextButton { y: 5px; text: "Effacer"; clicked => { CommandUi.clear-history(); } }
                 }
-                if CommandUi.history.length == 0: HorizontalLayout { padding-left: 12px; padding-right: 12px; Text {
+                if CommandUi.history.length == 0: HorizontalLayout { padding-left: 18px; padding-right: 18px; Text {
                     text: "Les analyses, téléchargements, synchronisations, sauvegardes, notifications et erreurs apparaîtront ici.";
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;

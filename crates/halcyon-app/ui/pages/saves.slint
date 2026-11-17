@@ -12,13 +12,13 @@ component FolderField inherits HorizontalLayout {
     TextField { text <=> root.value; mono: true; placeholder: root.placeholder; accepted(t) => { root.submit(t); } }
     if AppUi.can-browse: SecondaryButton {
         text: "Parcourir…";
-        h: 38px;
+        h: 36px;
         clicked => {
             let p = AppUi.browse-folder();
             if (p != "") { root.value = p; }
         }
     }
-    SecondaryButton { text: root.button; h: 38px; clicked => { root.submit(root.value); } }
+    SecondaryButton { text: root.button; h: 36px; clicked => { root.submit(root.value); } }
 }
 
 export component SavesPage inherits Rectangle {
@@ -86,7 +86,7 @@ export component SavesPage inherits Rectangle {
                         }
                         VerticalLayout {
                             alignment: end;
-                            SecondaryButton { text: "Enregistrer"; h: 38px; clicked => { SavesUi.set-keep(keep.text); SavesUi.set-machine(machine.text); } }
+                            SecondaryButton { text: "Enregistrer"; h: 36px; clicked => { SavesUi.set-keep(keep.text); SavesUi.set-machine(machine.text); } }
                         }
                     }
                     Text { text: "Les sauvegardes manuelles ne sont jamais supprimées automatiquement."; color: Theme.text-dim; font-size: Theme.t-caption; }
@@ -107,7 +107,8 @@ export component SavesPage inherits Rectangle {
             for g in SavesUi.games: Rectangle {
                 height: 64px;
                 border-radius: Theme.radius;
-                background: ta.has-hover ? Theme.surface-hover : Theme.surface;
+                background: ta.has-hover ? Theme.surface : transparent;
+                Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
                 ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(g.id); } }
                 HorizontalLayout {
                     padding: 8px;
@@ -123,7 +124,7 @@ export component SavesPage inherits Rectangle {
                         initials: g.card.initials;
                         title: g.title;
                         show-title: false;
-                        corner: 4px;
+                        corner: 2px;
                     }
                     VerticalLayout {
                         alignment: center;
@@ -135,7 +136,7 @@ export component SavesPage inherits Rectangle {
                             if g.other-machine: Badge { text: "dernière sauvegarde : autre PC"; tint: Theme.warm; }
                             Rectangle { horizontal-stretch: 1; }
                         }
-                        Text { text: g.count + " sauvegarde(s) · " + g.size + " · dernière : " + g.last; color: Theme.text-dim; font-size: Theme.t-caption; }
+                        Text { text: g.count + " sauvegarde(s), " + g.size + ", dernière : " + g.last; color: Theme.text-dim; font-size: Theme.t-caption; }
                     }
                 }
             }

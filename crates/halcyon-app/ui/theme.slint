@@ -1,56 +1,68 @@
-// Design system « Alcyon » de Halcyon 1.0 (successeur de « Nocturne », 0.4) — voir
-// docs/DESIGN-SYSTEM.md. Halcyon est le martin-pêcheur ; les « jours alcyoniens » sont la mer
-// calme d'hiver : fonds bleu d'eau profonde, accent cobalt (plumes), orange (poitrail) réservé
-// à ce qui est vivant, et une seule signature, la ligne d'horizon cobalt → orange.
+// Système de design « Berge » de Halcyon (1.0, successeur d'« Alcyon ») — voir
+// docs/DESIGN-SYSTEM.md.
+//
+// Le martin-pêcheur se tient immobile sur sa branche au-dessus de l'eau, puis plonge d'un
+// geste net. L'interface suit ce caractère :
+// - matière mate : ardoise neutre, aucun verre, aucun dégradé décoratif, ombres réservées
+//   aux éléments qui flottent réellement (menus, dialogues) ;
+// - deux couleurs, celles du logo, chacune avec un rôle : le bleu du plumage indique où
+//   l'on est (sélection, focus, progression), l'orange des pattes est le geste (Jouer, en
+//   jeu, ce qui est vivant) ;
+// - une voix typographique : Archivo Expanded pour les titres et les chiffres, Archivo
+//   pour le texte ; la hiérarchie vient de la taille et de la graisse, pas des boîtes ;
+// - une géométrie droite : petits rayons, alignements sur une grille de 4 px, la
+//   « perche » (trait d'accent court) marque l'élément actif.
 //
 // Toutes les valeurs visuelles passent par ce fichier : couleurs (modifiables depuis Rust
-// pour les thèmes et l'accent), échelle typographique, espacements, rayons, élévations et
-// mouvement. Les noms de la 0.3 sont conservés : les thèmes importés restent compatibles.
+// pour les thèmes et l'accent), typographie, espacements, rayons et mouvement. Les noms
+// de couleur des versions précédentes sont conservés : les thèmes importés restent valides.
 
 export global Theme {
     // ---------------------------------------------------------------- couleurs
-    // Couches : bg (fond) < sidebar < surface (cartes) < surface-hover < surface-active.
-    in-out property <color> bg: #0c1726;
-    in-out property <color> sidebar: #091220;
-    in-out property <color> surface: #13223a;
-    in-out property <color> surface-hover: #1a2d4a;
-    in-out property <color> surface-active: #22395c;
-    in-out property <color> border: #9cc3ff12;
-    in-out property <color> border-strong: #9cc3ff26;
-    /// Verre : panneaux posés sur une illustration (opacité modérée, sans flou coûteux).
-    out property <color> glass: self.bg.with-alpha(0.72);
-    out property <color> glass-strong: self.bg.with-alpha(0.88);
-    /// Voile pour le texte sur une image.
+    // Couches : sidebar (colonne de navigation) < bg (page) < surface (groupes, menus)
+    // < surface-hover < surface-active.
+    in-out property <color> bg: #14171c;
+    in-out property <color> sidebar: #0f1115;
+    in-out property <color> surface: #1b1f25;
+    in-out property <color> surface-hover: #232830;
+    in-out property <color> surface-active: #2b313a;
+    in-out property <color> border: #ffffff14;
+    in-out property <color> border-strong: #ffffff26;
+    /// Voile pour le texte posé sur une image.
     out property <color> scrim: #000000a6;
 
-    in-out property <color> text: #e9f0f8;
-    in-out property <color> text-muted: #9fb3cc;
-    in-out property <color> text-dim: #7b93b3;
+    in-out property <color> text: #eceef1;
+    in-out property <color> text-muted: #a3abb6;
+    in-out property <color> text-dim: #7e8793;
 
-    in-out property <color> accent: #32b4ff;
-    out property <color> accent-hover: self.accent.brighter(0.15);
+    /// Plumage : sélection, focus, liens, progression.
+    in-out property <color> accent: #3d9be9;
+    out property <color> accent-hover: self.accent.brighter(0.12);
     out property <color> accent-pressed: self.accent.darker(0.15);
-    in-out property <color> on-accent: #04203a;
-    out property <color> accent-soft: self.accent.with-alpha(0.12);
-    out property <color> accent-glow: self.accent.with-alpha(0.35);
-    /// Ligne d'horizon : la signature visuelle (sélection active, progression).
-    out property <brush> horizon: @linear-gradient(90deg, self.accent 0%, self.warm 100%);
-    out property <brush> horizon-v: @linear-gradient(180deg, self.accent 0%, self.warm 100%);
+    in-out property <color> on-accent: #04121f;
+    out property <color> accent-soft: self.accent.with-alpha(0.14);
     /// Anneau de focus (clavier, manette) : toujours visible, jamais seul indicateur d'état.
     out property <color> focus: self.accent;
 
-    in-out property <color> warm: #ff8b3d;
-    in-out property <color> danger: #ff6b78;
-    in-out property <color> success: #4fd6a0;
-    /// Fond du mode Big Picture.
-    in-out property <color> bp-bg: #070f1b;
+    /// Pattes : le geste (Jouer), ce qui est vivant (en jeu, en cours).
+    in-out property <color> warm: #f08a24;
+    out property <color> warm-hover: self.warm.brighter(0.1);
+    out property <color> on-warm: #1f0e00;
+    in-out property <color> danger: #e5534b;
+    in-out property <color> success: #3fb27f;
+    /// Fond du mode console.
+    in-out property <color> bp-bg: #0e1014;
 
     // ---------------------------------------------------------------- forme
-    out property <length> radius-sm: 6px;
-    out property <length> radius: 10px;
-    out property <length> radius-lg: 18px;
-    out property <length> radius-xl: 26px;
+    out property <length> radius-sm: 3px;
+    out property <length> radius: 5px;
+    out property <length> radius-lg: 8px;
+    out property <length> radius-xl: 10px;
+    /// Jaquettes : presque droites, comme une planche imprimée.
+    out property <length> radius-cover: 3px;
     out property <length> focus-width: 2px;
+    /// La perche : trait d'accent qui marque l'élément actif.
+    out property <length> perch: 3px;
 
     // ---------------------------------------------------------------- espacements (grille de 4 px)
     /// Densité : 0 confortable, 1 compacte.
@@ -62,17 +74,21 @@ export global Theme {
     out property <length> s5: self.density == 1 ? 20px : 24px;
     out property <length> s6: self.density == 1 ? 26px : 32px;
     out property <length> s7: self.density == 1 ? 36px : 48px;
-    out property <length> page-padding: self.density == 1 ? 24px : 36px;
-    out property <length> nav-height: self.density == 1 ? 34px : 40px;
-    out property <length> control-height: self.density == 1 ? 34px : 40px;
+    out property <length> page-padding: self.density == 1 ? 28px : 40px;
+    out property <length> nav-height: self.density == 1 ? 34px : 38px;
+    out property <length> control-height: self.density == 1 ? 32px : 36px;
+    /// Hauteur d'une rangée de liste ou de réglage.
+    out property <length> row-height: self.density == 1 ? 44px : 52px;
 
     // ---------------------------------------------------------------- typographie
-    /// Police d'affichage (titres, chiffres, mode console) ; Inter pour le texte courant.
-    out property <string> display: "Sora";
+    /// Police d'affichage : titres, chiffres, mode console.
+    out property <string> display: "Archivo Expanded";
+    /// Police du texte.
+    out property <string> font: "Archivo";
     /// Facteur de taille du texte (accessibilité) : 0,9 à 1,3.
     in-out property <float> text-scale: 1.0;
-    out property <length> t-display: 48px * self.text-scale;
-    out property <length> t-title: 34px * self.text-scale;
+    out property <length> t-display: 44px * self.text-scale;
+    out property <length> t-title: 30px * self.text-scale;
     out property <length> t-heading: 20px * self.text-scale;
     out property <length> t-subheading: 16px * self.text-scale;
     out property <length> t-body: 14px * self.text-scale;
@@ -85,11 +101,11 @@ export global Theme {
     in-out property <int> motion: 0;
     /// Compatibilité 0.3 : vrai sauf en mode « aucun ».
     in-out property <bool> animations: true;
-    out property <duration> fast: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 70ms : 120ms;
-    out property <duration> normal: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 100ms : 200ms;
-    out property <duration> slow: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 140ms : 320ms;
+    out property <duration> fast: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 60ms : 90ms;
+    out property <duration> normal: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 90ms : 160ms;
+    out property <duration> slow: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 120ms : 240ms;
     /// Amplitude des déplacements animés (0 en mouvement réduit).
-    out property <length> motion-distance: self.motion == 0 && self.animations ? 12px : 0px;
+    out property <length> motion-distance: self.motion == 0 && self.animations ? 6px : 0px;
     /// Effets coûteux (ombres larges, fond animé) : coupés en mode Performance.
     in-out property <bool> effects: true;
 

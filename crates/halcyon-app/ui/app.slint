@@ -1,12 +1,12 @@
 // Fenêtre principale de Halcyon.
 
-import "fonts/Inter-Regular.ttf";
-import "fonts/Inter-Medium.ttf";
-import "fonts/Inter-SemiBold.ttf";
-import "fonts/Inter-Bold.ttf";
-import "fonts/Sora-SemiBold.ttf";
-import "fonts/Sora-Bold.ttf";
-import "fonts/Sora-ExtraBold.ttf";
+import "fonts/Archivo-Regular.ttf";
+import "fonts/Archivo-Medium.ttf";
+import "fonts/Archivo-SemiBold.ttf";
+import "fonts/Archivo-Bold.ttf";
+import "fonts/ArchivoExpanded-SemiBold.ttf";
+import "fonts/ArchivoExpanded-Bold.ttf";
+import "fonts/ArchivoExpanded-ExtraBold.ttf";
 
 import { Theme, Icons, Layout } from "theme.slint";
 import { Sound } from "sound.slint";
@@ -21,7 +21,7 @@ import {
     Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
     UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu
 } from "state.slint";
-import { Icon, PrimaryButton, SecondaryButton, TextField, TextArea, Badge, Panel, GameCover, IconButton } from "components.slint";
+import { Icon, PrimaryButton, SecondaryButton, TextField, TextArea, Badge, Panel, GameCover, IconButton, ModalPanel, Overline } from "components.slint";
 import { HomePage } from "pages/home.slint";
 import { LibraryPage } from "pages/library.slint";
 import { GamePage } from "pages/game.slint";
@@ -80,12 +80,12 @@ component GameMenuOverlay inherits Rectangle {
         x: max(8px, min(GameMenu.x, root.width - self.width - 8px));
         y: max(8px, min(GameMenu.y, root.height - self.height - 8px));
         background: Theme.surface-hover;
-        border-radius: Theme.radius;
+        border-radius: Theme.radius-lg;
         border-width: 1px;
         border-color: Theme.border-strong;
-        drop-shadow-blur: Theme.effects ? 28px : 0px;
-        drop-shadow-color: #000000a8;
-        drop-shadow-offset-y: 10px;
+        drop-shadow-blur: Theme.effects ? 18px : 0px;
+        drop-shadow-color: #00000080;
+        drop-shadow-offset-y: 6px;
         TouchArea { }
         scope := FocusScope {
             capture-key-pressed(event) => {
@@ -112,16 +112,15 @@ component GameMenuOverlay inherits Rectangle {
             }
         }
         col := VerticalLayout {
-            padding: 6px;
+            padding: 5px;
             spacing: 1px;
             Text {
                 text: GameMenu.title;
                 color: Theme.text-dim;
-                font-size: Theme.t-overline;
-                font-weight: 700;
-                letter-spacing: 0px;
+                font-size: Theme.t-caption;
+                font-weight: 600;
                 overflow: elide;
-                height: 26px;
+                height: 28px;
                 vertical-alignment: center;
                 x: 10px;
                 width: parent.width - 20px;
@@ -129,11 +128,10 @@ component GameMenuOverlay inherits Rectangle {
             for e[i] in GameMenu.entries: VerticalLayout {
                 if e.separator-before: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.border; } }
                 Rectangle {
-                    height: 34px;
+                    height: 32px;
                     border-radius: Theme.radius-sm;
-                    background: !e.enabled ? transparent : GameMenu.selected == i ? (e.danger ? Theme.danger.with-alpha(0.18) : Theme.accent-soft) : m-ta.has-hover ? Theme.surface-active : transparent;
-                    border-width: GameMenu.selected == i && e.enabled ? 1px : 0px;
-                    border-color: e.danger ? Theme.danger.with-alpha(0.5) : Theme.focus.with-alpha(0.6);
+                    background: !e.enabled ? transparent : GameMenu.selected == i ? (e.danger ? Theme.danger.with-alpha(0.16) : Theme.surface-active) : m-ta.has-hover ? Theme.surface-active : transparent;
+                    if GameMenu.selected == i && e.enabled: Rectangle { x: 0; width: Theme.perch; y: 7px; height: parent.height - 14px; background: e.danger ? Theme.danger : Theme.accent; }
                     HorizontalLayout {
                         padding-left: 10px;
                         padding-right: 10px;
@@ -168,24 +166,22 @@ component AddGameDialog inherits Rectangle {
     in-out property <string> args;
     in-out property <string> wd;
 
-    background: #000000b0;
+    background: #000000a8;
     // Bloque les clics vers l'arrière-plan.
     TouchArea { }
 
-    Panel {
+    ModalPanel {
         width: 560px;
         height: form.preferred-height;
-        background: Theme.surface-hover;
-        drop-shadow-blur: 60px;
-        drop-shadow-color: #000000cc;
         form := VerticalLayout {
             padding: 28px;
             spacing: 16px;
             Text {
                 text: "Ajouter un jeu";
                 color: Theme.text;
-                font-size: Theme.t-heading + 2px;
-                font-weight: 800;
+                font-family: Theme.display;
+                font-size: Theme.t-heading;
+                font-weight: 700;
             }
             Text {
                 text: "Exécutable (.exe), script (.bat) ou raccourci (.lnk, .url).";
@@ -259,22 +255,17 @@ component AddGameDialog inherits Rectangle {
 }
 
 component ConfirmDialog inherits Rectangle {
-    background: #000000b0;
+    background: #000000a8;
     TouchArea { }
-    Panel {
+    ModalPanel {
         width: 480px;
         height: box.preferred-height;
-        background: Theme.surface-hover;
-        drop-shadow-blur: 60px;
-        drop-shadow-color: #000000cc;
+        // Repère d'alerte : bande orange en tête du dialogue.
+        Rectangle { y: 0; height: 3px; background: Theme.warm; }
         box := VerticalLayout {
             padding: 26px;
-            spacing: 14px;
-            HorizontalLayout {
-                spacing: 12px;
-                Icon { source: Icons.alert; size: 22px; tint: Theme.warm; }
-                Text { text: AppUi.confirm-title; color: Theme.text; font-size: 19px; font-weight: 800; wrap: word-wrap; horizontal-stretch: 1; }
-            }
+            spacing: 12px;
+            Text { text: AppUi.confirm-title; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading + 2px; font-weight: 700; wrap: word-wrap; }
             Text { text: AppUi.confirm-text; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
             HorizontalLayout {
                 padding-top: 6px;
@@ -294,32 +285,29 @@ component ConfirmDialog inherits Rectangle {
 }
 
 component Toast inherits Rectangle {
-    height: 46px;
+    height: 44px;
     width: min(row.preferred-width, 720px);
-    border-radius: 23px;
-    background: Theme.surface-active;
-    border-width: 1px;
-    border-color: AppUi.toast-error ? Theme.danger.with-alpha(0.5) : Theme.border-strong;
-    drop-shadow-blur: Theme.effects ? 30px : 0px;
-    drop-shadow-color: #00000099;
+    border-radius: Theme.radius;
+    background: Theme.text;
+    drop-shadow-blur: Theme.effects ? 20px : 0px;
+    drop-shadow-color: #00000080;
     clip: true;
-    // Ligne d'horizon : la signature de Halcyon sur chaque confirmation.
-    Rectangle { x: 0; y: parent.height - 2px; width: parent.width; height: 2px; background: AppUi.toast-error ? Theme.danger : Theme.horizon; }
+    // Perche : la confirmation porte la couleur de son état.
+    Rectangle { x: 0; width: 4px; background: AppUi.toast-error ? Theme.danger : Theme.accent; }
     row := HorizontalLayout {
-        padding-left: 16px;
+        padding-left: 18px;
         padding-right: 20px;
         spacing: 10px;
         Icon {
             source: AppUi.toast-error ? Icons.alert : Icons.check;
             size: 18px;
-            tint: AppUi.toast-error ? Theme.danger : Theme.accent;
-            y: (parent.height - self.height) / 2;
+            tint: AppUi.toast-error ? Theme.danger.darker(0.2) : Theme.accent.darker(0.25);
         }
         Text {
             text: AppUi.toast;
-            color: Theme.text;
+            color: Theme.bg;
             font-size: Theme.t-small;
-            font-weight: 550;
+            font-weight: 600;
             vertical-alignment: center;
             overflow: elide;
         }
@@ -338,11 +326,11 @@ component QuickLaunch inherits Rectangle {
     init => { field.focus(); }
     panel := Rectangle {
         x: (parent.width - self.width) / 2;
-        y: 90px;
+        y: 80px;
         width: min(680px, parent.width - 80px);
         height: col.preferred-height;
         border-radius: Theme.radius-lg;
-        background: Theme.surface-hover;
+        background: Theme.surface;
         border-width: 1px;
         border-color: Theme.border-strong;
         drop-shadow-blur: 30px;
@@ -381,9 +369,10 @@ component QuickLaunch inherits Rectangle {
                     edited(t) => { QuickUi.selected = 0; QuickUi.query-changed(t); }
                 }
                 for r[i] in QuickUi.rows: Rectangle {
-                    height: 52px;
-                    border-radius: Theme.radius;
-                    background: QuickUi.selected == i ? Theme.accent-soft : rta.has-hover ? Theme.surface-active : transparent;
+                    height: 50px;
+                    border-radius: Theme.radius-sm;
+                    background: QuickUi.selected == i ? Theme.surface-active : rta.has-hover ? Theme.surface-hover : transparent;
+                    if QuickUi.selected == i: Rectangle { x: 0; width: Theme.perch; y: 10px; height: parent.height - 20px; background: Theme.accent; }
                     rta := TouchArea {
                         mouse-cursor: pointer;
                         clicked => { QuickUi.activate(i, false); }
@@ -393,7 +382,7 @@ component QuickLaunch inherits Rectangle {
                         padding-right: 12px;
                         spacing: 12px;
                         if r.kind == 0: GameCover {
-                            y: 6px;
+                            y: 5px;
                             width: 27px;
                             height: 40px;
                             source: r.card.cover;
@@ -403,7 +392,7 @@ component QuickLaunch inherits Rectangle {
                             initials: r.card.initials;
                             title: r.card.title;
                             show-title: false;
-                            corner: 4px;
+                            corner: 2px;
                         }
                         if r.kind >= 1: Rectangle {
                             width: 27px;
@@ -447,7 +436,7 @@ export component AppWindow inherits Window {
     preferred-width: 1440px;
     preferred-height: 900px;
     background: Theme.bg;
-    default-font-family: "Inter";
+    default-font-family: "Archivo";
     default-font-size: Theme.t-body;
     forward-focus: keys;
 
@@ -455,12 +444,12 @@ export component AppWindow inherits Window {
     // (sinon un champ masqué garderait le focus et avalerait Échap).
     property <Page> current-page: Nav.page;
     /// Pages à grande illustration : la barre supérieure se pose dessus.
-    property <bool> overlay-top: Nav.page == Page.home || Nav.page == Page.game || (Nav.page == Page.library && LibraryUi.view-mode == 3);
+    property <bool> overlay-top: Nav.page == Page.game || (Nav.page == Page.library && LibraryUi.view-mode == 3);
     /// Barre latérale repliée : choix de l'utilisateur, mode minimaliste ou fenêtre étroite.
     // Rail : libellés sous les icônes, sauf réglage « icônes seules », mode minimaliste ou
     // fenêtre basse ; masqué en mode cinéma.
-    property <bool> sidebar-collapsed: AppUi.sidebar-collapsed || AppUi.ui-mode == 1 || root.height < 620px;
-    property <length> sidebar-width: AppUi.ui-mode == 2 ? 0px : root.sidebar-collapsed ? 68px : 88px;
+    property <bool> sidebar-collapsed: AppUi.sidebar-collapsed || AppUi.ui-mode == 1 || root.width < 1080px;
+    property <length> sidebar-width: AppUi.ui-mode == 2 ? 0px : root.sidebar-collapsed ? 64px : 212px;
     // Espaces à onglets (Activité, Outils, Système) : barre d'espace sous la barre supérieure.
     property <bool> tabbed: Spaces.current >= 3;
     changed tabbed => { Layout.tabbed = self.tabbed; }
@@ -623,7 +612,7 @@ export component AppWindow inherits Window {
                 // Pages : sous la barre supérieure, sauf les pages à grande illustration (accueil,
                 // fiche) qui passent dessous. Apparition progressive à chaque changement de page.
                 pages := Rectangle {
-                    y: root.overlay-top ? 0px : root.tabbed ? 136px : 60px;
+                    y: root.overlay-top ? 0px : root.tabbed ? 112px : 56px;
                     height: parent.height - self.y;
                     states [
                         // Masquage instantané, apparition animée (états Slint : seule la sortie anime).
@@ -662,7 +651,7 @@ export component AppWindow inherits Window {
                 }
                 if root.tabbed: SpaceBar {
                     width: parent.width;
-                    y: 60px;
+                    y: 56px;
                 }
                 TopBar {
                     width: parent.width;
@@ -675,10 +664,9 @@ export component AppWindow inherits Window {
                     TouchArea { clicked => { CommandUi.open = false; } }
                 }
                 cc := CommandCenter {
-                    x: CommandUi.open ? parent.width - self.width - 12px : parent.width + 20px;
-                    y: 68px;
-                    height: parent.height - 80px;
-                    border-radius: Theme.radius-lg;
+                    x: CommandUi.open ? parent.width - self.width : parent.width + 30px;
+                    y: 56px;
+                    height: parent.height - 56px;
                     visible: self.x < parent.width;
                     animate x { duration: Theme.normal; easing: ease-out; }
                 }
@@ -699,11 +687,12 @@ export component AppWindow inherits Window {
         width: 380px;
         height: 84px;
         border-radius: Theme.radius-lg;
-        background: #1a1f29f5;
+        background: Theme.surface-hover;
         border-width: 1px;
-        border-color: Theme.accent.with-alpha(0.45);
-        drop-shadow-blur: 30px;
-        drop-shadow-color: #000000a0;
+        border-color: Theme.border-strong;
+        drop-shadow-blur: 24px;
+        drop-shadow-color: #00000090;
+        Rectangle { x: 0; width: 4px; background: Theme.warm; }
         animate y { duration: Theme.animations ? 320ms : 0ms; easing: ease-out; }
         HorizontalLayout {
             padding: 14px;
@@ -711,16 +700,16 @@ export component AppWindow inherits Window {
             Rectangle {
                 width: 56px;
                 height: 56px;
-                border-radius: 10px;
+                border-radius: Theme.radius;
                 clip: true;
-                background: Theme.accent-soft;
+                background: Theme.surface-active;
                 if AppUi.ach-toast.has-icon: Image { width: parent.width; height: parent.height; source: AppUi.ach-toast.icon; }
-                if !AppUi.ach-toast.has-icon: Icon { source: Icons.trophy; size: 26px; tint: Theme.accent; }
+                if !AppUi.ach-toast.has-icon: Icon { source: Icons.trophy; size: 26px; tint: Theme.warm; }
             }
             VerticalLayout {
                 alignment: center;
                 spacing: 2px;
-                Text { text: "Succès débloqué" + (AppUi.ach-toast.has-rarity ? "  ·  " + AppUi.ach-toast.rarity : ""); color: Theme.accent; font-size: Theme.t-overline; font-weight: 700; }
+                Text { text: "Succès débloqué" + (AppUi.ach-toast.has-rarity ? ", " + AppUi.ach-toast.rarity : ""); color: Theme.warm; font-size: Theme.t-caption; font-weight: 600; }
                 Text { text: AppUi.ach-toast.name; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; }
                 Text { text: AppUi.ach-toast.game; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
             }
@@ -738,7 +727,7 @@ export component AppWindow inherits Window {
     }
 
     toast := Toast {
-        x: (parent.width - self.width) / 2 + 116px;
+        x: (parent.width - self.width) / 2 + root.sidebar-width / 2;
         y: AppUi.toast-visible ? parent.height - self.height - 28px : parent.height + 20px;
         opacity: AppUi.toast-visible ? 1 : 0;
         animate y, opacity { duration: Theme.animations ? 260ms : 0ms; easing: ease-out; }
@@ -778,7 +767,7 @@ export component MiniWindow inherits Window {
     width: 340px;
     height: 520px;
     background: Theme.bg;
-    default-font-family: "Inter";
+    default-font-family: "Archivo";
     in property <bool> on-top: true;
     in-out property <string> query;
     in property <[MiniRow]> favorites;
@@ -837,7 +826,7 @@ export component CompanionWindow inherits Window {
     width: 300px;
     height: 340px;
     background: Theme.bg;
-    default-font-family: "Inter";
+    default-font-family: "Archivo";
     in property <string> game;
     in property <string> elapsed;
     in property <string> achievements;
@@ -852,7 +841,7 @@ export component CompanionWindow inherits Window {
             Text { text: root.game; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; overflow: elide; horizontal-stretch: 1; vertical-alignment: center; }
             IconButton { size: 30px; icon-size: 15px; icon: Icons.eye-off; tooltip: "Masquer jusqu'à la prochaine partie"; clicked => { root.hide-window(); } }
         }
-        Text { text: root.elapsed; color: Theme.accent; font-size: Theme.t-title; font-weight: 800; }
+        Text { text: root.elapsed; color: Theme.warm; font-family: Theme.display; font-size: Theme.t-title; font-weight: 800; }
         Text { text: "Session en cours"; color: Theme.text-dim; font-size: Theme.t-overline; }
         if root.achievements != "": Text { text: root.achievements; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
         Text { text: "Notes"; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; }

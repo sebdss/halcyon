@@ -3,39 +3,59 @@ import { Theme, Icons, Art } from "../theme.slint";
 import { AchievementRow, ProfileRow, ModRow } from "../types.slint";
 import { Nav, Page, Actions, DetailUi, AppUi, SystemUi, GameMenu } from "../state.slint";
 import {
-    GameCover, PrimaryButton, SecondaryButton, IconButton, Badge, Panel, InfoRow, TextField, Icon, SectionTitle, Chip,
-    Dropdown, TextArea, Toggle, Notice, Segmented
+    GameCover, PrimaryButton, PlayButton, SecondaryButton, TextButton, IconButton, Badge, Panel, InfoRow, TextField, Icon,
+    SectionTitle, Chip, Dropdown, TextArea, Toggle, Notice, Segmented, Overline
 } from "../components.slint";
 
+/// Onglet de la fiche : texte, compteur discret, perche sous l'onglet actif.
 component Tab inherits Rectangle {
     in property <string> text;
     in property <bool> selected;
     in property <string> badge;
     callback clicked;
-    height: 40px;
-    HorizontalLayout {
-        spacing: 8px;
-        Text {
-            text: root.text;
-            color: root.selected ? Theme.text : ta.has-hover ? Theme.text-muted : Theme.text-dim;
-            font-size: Theme.t-body;
-            font-weight: root.selected ? 700 : 550;
-            vertical-alignment: center;
-        }
-        if root.badge != "": Badge {
-            y: (parent.height - self.height) / 2;
-            text: root.badge;
-        }
+    height: 48px;
+    width: lbl.preferred-width + (root.badge != "" ? 6px + cnt.preferred-width : 0px);
+    accessible-role: tab;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    forward-focus: fs;
+    lbl := Text {
+        x: 0;
+        text: root.text;
+        color: root.selected || ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
+        font-size: Theme.t-body;
+        font-weight: root.selected ? 650 : 500;
+        vertical-alignment: center;
+    }
+    cnt := Text {
+        visible: root.badge != "";
+        x: lbl.preferred-width + 6px;
+        text: root.badge;
+        color: Theme.text-dim;
+        font-family: Theme.display;
+        font-size: Theme.t-caption;
+        font-weight: 700;
+        vertical-alignment: center;
     }
     Rectangle {
-        y: root.height - 3px;
-        height: 3px;
-        border-radius: 2px;
-        background: root.selected ? Theme.horizon : transparent;
+        x: 0;
+        y: root.height - 2px;
+        height: 2px;
+        width: root.selected ? root.width : 0px;
+        background: Theme.accent;
+        animate width { duration: Theme.normal; easing: ease-out; }
     }
+    if fs.has-focus: Rectangle { x: -6px; width: root.width + 12px; y: 10px; height: root.height - 20px; border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+    }
+    fs := FocusScope {
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == " ") { root.clicked(); return accept; }
+            reject
+        }
     }
 }
 
@@ -67,7 +87,7 @@ component PathField inherits HorizontalLayout {
     TextField { text <=> root.value; mono: true; placeholder: root.placeholder; }
     if AppUi.can-browse: SecondaryButton {
         text: "Parcourir…";
-        h: 38px;
+        h: 36px;
         clicked => {
             let p = root.image ? DetailUi.browse-image() : root.folder ? AppUi.browse-folder() : AppUi.browse-file();
             if (p != "") { root.value = p; }
@@ -127,7 +147,7 @@ component EmulationSettings inherits VerticalLayout {
             TextField { text <=> root.name; }
             SecondaryButton {
                 text: "Renommer";
-                h: 38px;
+                h: 36px;
                 clicked => { DetailUi.save-launch(DetailUi.game.id, root.name, "", "", ""); }
             }
         }
@@ -153,7 +173,7 @@ component EmulationSettings inherits VerticalLayout {
             TextField { text <=> root.ra; placeholder: "ex. 1446"; }
             SecondaryButton {
                 text: "Associer";
-                h: 38px;
+                h: 36px;
                 clicked => { DetailUi.set-ra-id(DetailUi.game.id, root.ra); }
             }
         }
@@ -208,7 +228,7 @@ component MetadataSettings inherits VerticalLayout {
         HorizontalLayout {
             spacing: 8px;
             PathField { value <=> root.cover; image: true; placeholder: "Fichier image (.jpg, .png, .webp)"; }
-            SecondaryButton { text: "Appliquer"; h: 38px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "cover", root.cover); } }
+            SecondaryButton { text: "Appliquer"; h: 36px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "cover", root.cover); } }
         }
     }
     Field {
@@ -216,7 +236,7 @@ component MetadataSettings inherits VerticalLayout {
         HorizontalLayout {
             spacing: 8px;
             PathField { value <=> root.banner; image: true; placeholder: "Fichier image (.jpg, .png, .webp)"; }
-            SecondaryButton { text: "Appliquer"; h: 38px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "banner", root.banner); } }
+            SecondaryButton { text: "Appliquer"; h: 36px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "banner", root.banner); } }
         }
     }
     if DetailUi.game.can-remove: HorizontalLayout {
@@ -235,19 +255,22 @@ export component AchievementItem inherits Rectangle {
     in property <AchievementRow> item;
     in property <bool> reveal;
     in property <bool> show-game;
-    height: 72px;
-    border-radius: Theme.radius;
-    background: ta.has-hover ? Theme.surface-hover : Theme.surface;
+    height: 68px;
+    border-radius: Theme.radius-sm;
+    background: ta.has-hover ? Theme.surface : transparent;
     ta := TouchArea { }
     property <bool> masked: root.item.hidden && !root.item.unlocked && !root.reveal;
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+    // Débloqué : perche orange (le succès est un moment vivant).
+    if root.item.unlocked: Rectangle { x: 0; y: 14px; width: Theme.perch; height: parent.height - 28px; background: Theme.warm; }
 
     HorizontalLayout {
         padding: 12px;
         spacing: 14px;
         Rectangle {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: Theme.radius-sm;
             clip: true;
             background: Theme.surface-active;
             opacity: root.item.unlocked ? 1 : 0.45;
@@ -260,7 +283,7 @@ export component AchievementItem inherits Rectangle {
             if !root.item.has-icon || root.masked: Icon {
                 source: root.masked ? Icons.eye-off : Icons.trophy;
                 size: 22px;
-                tint: root.item.unlocked ? Theme.accent : Theme.text-dim;
+                tint: root.item.unlocked ? Theme.warm : Theme.text-dim;
             }
         }
         VerticalLayout {
@@ -277,24 +300,22 @@ export component AchievementItem inherits Rectangle {
                     overflow: elide;
                 }
                 if root.item.hardcore: Badge { text: "Hardcore"; tint: Theme.warm; solid: true; }
-                if root.item.custom: Badge { text: "Personnalisé · non vérifié"; }
+                if root.item.custom: Badge { text: "Personnalisé, non vérifié"; }
                 Rectangle { horizontal-stretch: 1; }
             }
             Text {
-                text: root.show-game ? root.item.game + (root.masked ? "" : "  ·  " + root.item.description)
+                text: root.show-game ? root.item.game + (root.masked ? "" : " : " + root.item.description)
                     : root.masked ? "Débloquez-le pour découvrir sa description." : root.item.description;
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 overflow: elide;
             }
             if root.item.has-progress: Rectangle {
-                height: 4px;
-                border-radius: 2px;
+                height: 3px;
                 background: Theme.surface-active;
                 Rectangle {
                     x: 0;
                     width: parent.width * root.item.progress;
-                    border-radius: 2px;
                     background: Theme.accent;
                 }
             }
@@ -305,7 +326,7 @@ export component AchievementItem inherits Rectangle {
             width: 170px;
             Text {
                 text: root.item.unlocked ? root.item.date : "Verrouillé";
-                color: root.item.unlocked ? Theme.success : Theme.text-dim;
+                color: root.item.unlocked ? Theme.text : Theme.text-dim;
                 font-size: Theme.t-caption;
                 font-weight: 600;
                 horizontal-alignment: right;
@@ -347,10 +368,19 @@ component AchievementsTab inherits VerticalLayout {
     in-out property <string> new-desc;
     spacing: 14px;
 
-    Panel {
-        HorizontalLayout {
-            padding: 20px;
+    Rectangle {
+        height: ach-head.preferred-height;
+        ach-head := HorizontalLayout {
+            padding-bottom: 8px;
             spacing: 18px;
+            if DetailUi.ach-percent >= 0: Text {
+                text: round(DetailUi.ach-percent * 100) + " %";
+                color: DetailUi.ach-percent >= 1 ? Theme.warm : Theme.text;
+                font-family: Theme.display;
+                font-size: Theme.t-title + 6px;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
             VerticalLayout {
                 alignment: center;
                 spacing: 8px;
@@ -359,17 +389,15 @@ component AchievementsTab inherits VerticalLayout {
                     text: DetailUi.ach-summary;
                     color: Theme.text;
                     font-size: Theme.t-subheading;
-                    font-weight: 700;
+                    font-weight: 600;
                     wrap: word-wrap;
                 }
                 if DetailUi.ach-percent >= 0: Rectangle {
-                    height: 6px;
-                    border-radius: 3px;
+                    height: 4px;
                     background: Theme.surface-active;
                     Rectangle {
                         x: 0;
                         width: parent.width * DetailUi.ach-percent;
-                        border-radius: 3px;
                         background: DetailUi.ach-percent >= 1 ? Theme.warm : Theme.accent;
                     }
                 }
@@ -438,7 +466,7 @@ component AchievementsTab inherits VerticalLayout {
                     text: "Ajouter";
                     icon: Icons.plus;
                     has-icon: true;
-                    h: 38px;
+                    h: 36px;
                     enabled: root.new-name != "";
                     clicked => {
                         DetailUi.add-custom-achievement(DetailUi.game.id, root.new-name, root.new-desc);
@@ -477,7 +505,7 @@ component TrackingTab inherits VerticalLayout {
             spacing: 12px;
             HorizontalLayout {
                 spacing: 10px;
-                Text { text: DetailUi.game.playtime; color: Theme.text; font-size: Theme.t-title - 4px; font-weight: 800; }
+                Text { text: DetailUi.game.playtime; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 2px; font-weight: 800; }
                 if DetailUi.game.playtime-origin != "": Badge { y: 8px; text: DetailUi.game.playtime-origin; tint: DetailUi.game.has-manual ? Theme.warm : Theme.accent; }
                 Rectangle { horizontal-stretch: 1; }
             }
@@ -492,13 +520,13 @@ component TrackingTab inherits VerticalLayout {
                 TextField { text <=> root.manual; placeholder: "Temps réel, ex. 12h30 ou 45m"; mono: true; }
                 SecondaryButton {
                     text: "Corriger";
-                    h: 38px;
+                    h: 36px;
                     enabled: root.manual != "";
                     clicked => { DetailUi.set-manual-playtime(DetailUi.game.id, root.manual); root.manual = ""; }
                 }
                 if DetailUi.game.has-manual: SecondaryButton {
                     text: "Revenir au temps calculé";
-                    h: 38px;
+                    h: 36px;
                     clicked => { DetailUi.set-manual-playtime(DetailUi.game.id, ""); }
                 }
             }
@@ -701,7 +729,7 @@ component ProfileEditor inherits Panel {
                 Chip { y: 3px; text: "Fermer après"; checked: root.comp-close; toggled => { root.comp-close = !root.comp-close; } }
                 SecondaryButton {
                     text: "Ajouter";
-                    h: 38px;
+                    h: 36px;
                     enabled: root.comp-path != "";
                     clicked => { DetailUi.add-companion(root.comp-path, root.comp-args, root.comp-close); root.comp-path = ""; root.comp-args = ""; }
                 }
@@ -850,7 +878,7 @@ component SavesTab inherits VerticalLayout {
             VerticalLayout {
                 alignment: center;
                 horizontal-stretch: 1;
-                Text { text: c.reason + (c.confident ? "" : "  ·  correspondance approximative"); color: Theme.text; font-size: Theme.t-caption; font-weight: 600; overflow: elide; }
+                Text { text: c.reason + (c.confident ? "" : ", correspondance approximative"); color: Theme.text; font-size: Theme.t-caption; font-weight: 600; overflow: elide; }
                 Text { text: c.path; color: Theme.text-dim; font-size: Theme.t-overline; font-family: "monospace"; overflow: elide; }
             }
             SecondaryButton { y: (parent.height - self.height) / 2; h: 32px; text: "Associer"; clicked => { DetailUi.save-associate(DetailUi.game.id, i); } }
@@ -859,7 +887,7 @@ component SavesTab inherits VerticalLayout {
     HorizontalLayout {
         spacing: 8px;
         PathField { value <=> root.new-path; folder: true; placeholder: "Ajouter un dossier ou fichier de sauvegarde"; }
-        SecondaryButton { text: "Ajouter"; h: 38px; enabled: root.new-path != ""; clicked => { DetailUi.save-add-location(DetailUi.game.id, root.new-path); root.new-path = ""; } }
+        SecondaryButton { text: "Ajouter"; h: 36px; enabled: root.new-path != ""; clicked => { DetailUi.save-add-location(DetailUi.game.id, root.new-path); root.new-path = ""; } }
     }
     HorizontalLayout {
         spacing: 22px;
@@ -910,7 +938,7 @@ component SavesTab inherits VerticalLayout {
                     Rectangle { horizontal-stretch: 1; }
                 }
                 Text {
-                    text: sn.files + " fichier(s) · " + sn.size + (sn.note != "" ? " · " + sn.note : "") + (sn.other-machine ? "" : " · " + sn.machine);
+                    text: sn.files + " fichier(s), " + sn.size + (sn.note != "" ? ", " + sn.note : "") + (sn.other-machine ? "" : ", " + sn.machine);
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                     overflow: elide;
@@ -974,7 +1002,7 @@ component ModsTab inherits VerticalLayout {
                 HorizontalLayout {
                     spacing: 8px;
                     TextField { width: 260px; text <=> DetailUi.mod-target; mono: true; placeholder: DetailUi.mod-adapter == 2 ? "MonJeu/Content/Paks" : "ex. data"; }
-                    SecondaryButton { h: 38px; text: "Appliquer"; clicked => { DetailUi.mod-set-adapter(DetailUi.game.id, DetailUi.mod-adapter, DetailUi.mod-target); } }
+                    SecondaryButton { h: 36px; text: "Appliquer"; clicked => { DetailUi.mod-set-adapter(DetailUi.game.id, DetailUi.mod-adapter, DetailUi.mod-target); } }
                 }
             }
         }
@@ -1023,7 +1051,7 @@ component ModsTab inherits VerticalLayout {
                             if m.conflicts > 0 && m.enabled: Badge { text: m.conflicts + " conflit(s)"; tint: Theme.warm; }
                             Rectangle { horizontal-stretch: 1; }
                         }
-                        Text { text: m.files + " fichier(s) · " + m.size + (m.nexus-id != "" ? " · Nexus " + m.nexus-id : ""); color: Theme.text-dim; font-size: Theme.t-overline; }
+                        Text { text: m.files + " fichier(s), " + m.size + (m.nexus-id != "" ? ", Nexus " + m.nexus-id : ""); color: Theme.text-dim; font-size: Theme.t-overline; }
                     }
                     IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.chevron-down; tooltip: "Descendre"; clicked => { DetailUi.mod-move(DetailUi.game.id, m.id, 1); } }
                     IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.chevron-up; tooltip: "Monter"; clicked => { DetailUi.mod-move(DetailUi.game.id, m.id, -1); } }
@@ -1046,7 +1074,7 @@ component ModsTab inherits VerticalLayout {
                 padding-left: 12px;
                 TextField { width: 160px; text <=> root.edit-version; placeholder: "Version"; }
                 TextField { width: 200px; text <=> root.edit-nexus; placeholder: "ID Nexus Mods"; mono: true; }
-                SecondaryButton { h: 38px; text: "Enregistrer"; clicked => { DetailUi.mod-save-info(DetailUi.game.id, m.id, root.edit-version, root.edit-nexus); root.editing-id = ""; } }
+                SecondaryButton { h: 36px; text: "Enregistrer"; clicked => { DetailUi.mod-save-info(DetailUi.game.id, m.id, root.edit-version, root.edit-nexus); root.editing-id = ""; } }
                 Rectangle { horizontal-stretch: 1; }
             }
         }
@@ -1055,7 +1083,7 @@ component ModsTab inherits VerticalLayout {
             spacing: 8px;
             PathField { value <=> root.import-path; placeholder: "Archive .zip ou dossier du mod"; }
             TextField { width: 200px; text <=> root.import-name; placeholder: "Nom (facultatif)"; }
-            SecondaryButton { h: 38px; text: "Importer"; icon: Icons.plus; has-icon: true; enabled: root.import-path != ""; clicked => { DetailUi.mod-import(DetailUi.game.id, root.import-path, root.import-name); root.import-path = ""; root.import-name = ""; } }
+            SecondaryButton { h: 36px; text: "Importer"; icon: Icons.plus; has-icon: true; enabled: root.import-path != ""; clicked => { DetailUi.mod-import(DetailUi.game.id, root.import-path, root.import-name); root.import-path = ""; root.import-name = ""; } }
         }
 
         Panel {
@@ -1080,7 +1108,7 @@ component ModsTab inherits VerticalLayout {
         HorizontalLayout {
             spacing: 8px;
             TextField { width: 280px; text <=> DetailUi.mod-nexus-domain; placeholder: "Jeu sur Nexus (ex. stardewvalley)"; mono: true; }
-            SecondaryButton { h: 38px; text: "Vérifier les versions sur Nexus Mods"; icon: Icons.refresh; has-icon: true; clicked => { DetailUi.mod-check(DetailUi.game.id, DetailUi.mod-nexus-domain); } }
+            SecondaryButton { h: 36px; text: "Vérifier les versions sur Nexus Mods"; icon: Icons.refresh; has-icon: true; clicked => { DetailUi.mod-check(DetailUi.game.id, DetailUi.mod-nexus-domain); } }
             Rectangle { horizontal-stretch: 1; }
         }
     }
@@ -1092,7 +1120,7 @@ component Overview inherits VerticalLayout {
     SectionTitle { text: "À propos"; }
     Text {
         text: DetailUi.game.description != "" ? DetailUi.game.description : "Aucune description disponible pour ce jeu.";
-        color: DetailUi.game.description != "" ? #c9ced8 : Theme.text-dim;
+        color: DetailUi.game.description != "" ? Theme.text.mix(Theme.text-muted, 0.4) : Theme.text-dim;
         font-size: Theme.t-body;
         wrap: word-wrap;
     }
@@ -1127,13 +1155,16 @@ component Overview inherits VerticalLayout {
     if DetailUi.news-status != "": Text { text: DetailUi.news-status; color: Theme.text-dim; font-size: Theme.t-small; }
     for n in DetailUi.news: Rectangle {
         height: news-col.preferred-height;
-        border-radius: Theme.radius;
-        background: news-touch.has-hover ? Theme.surface-hover : Theme.surface;
+        border-radius: Theme.radius-sm;
+        background: news-touch.has-hover ? Theme.surface : transparent;
+        Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
         news-touch := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-url(n.url); } }
         news-col := VerticalLayout {
-            padding: 14px;
+            padding-top: 12px;
+            padding-bottom: 14px;
+            padding-left: 2px;
             spacing: 4px;
-            Text { text: n.title; color: Theme.text; font-size: Theme.t-body; font-weight: 650; wrap: word-wrap; }
+            Text { text: n.title; color: news-touch.has-hover ? Theme.accent : Theme.text; font-size: Theme.t-body; font-weight: 600; wrap: word-wrap; }
             Text { text: n.meta; color: Theme.text-dim; font-size: Theme.t-overline; }
             if n.excerpt != "": Text { text: n.excerpt; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
         }
@@ -1170,7 +1201,6 @@ component Overview inherits VerticalLayout {
             text: "Créer et ajouter";
             icon: Icons.plus;
             has-icon: true;
-            h: 38px;
             enabled: root.new-collection != "";
             clicked => {
                 DetailUi.create-collection(DetailUi.game.id, root.new-collection);
@@ -1194,7 +1224,7 @@ component CapturesTab inherits VerticalLayout {
             y: floor(i / root.per-row) * (root.tw * 9 / 16 + 12px);
             width: root.tw;
             height: root.tw * 9 / 16;
-            border-radius: Theme.radius-sm;
+            border-radius: Theme.radius-cover;
             clip: true;
             background: Theme.surface;
             Image { width: parent.width; height: parent.height; source: c.image; image-fit: cover; }
@@ -1230,19 +1260,28 @@ component CapturesTab inherits VerticalLayout {
     }
 }
 
-/// Chiffre clé du bandeau.
+/// Fait de l'en-tête : valeur dans la police d'affichage, légende dessous.
 component HeroStat inherits VerticalLayout {
     in property <string> label;
     in property <string> value;
-    spacing: 2px;
-    Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading + 2px; font-weight: 650; overflow: elide; }
-    Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-caption; }
+    spacing: 3px;
+    Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading + 2px; font-weight: 700; overflow: elide; }
+    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; }
+}
+
+/// Groupe de la fiche technique (colonne de droite) : petit titre et lignes.
+component FactGroup inherits VerticalLayout {
+    in property <string> title;
+    spacing: 10px;
+    Overline { text: root.title; }
+    @children
 }
 
 export component GamePage inherits Rectangle {
-    /// Bandeau cinématographique : plus de la moitié de la fenêtre, borné.
-    property <length> banner-height: clamp(root.height * 0.58, 380px, 640px);
+    /// Bande illustrée en tête de fiche : hauteur bornée.
+    property <length> band-height: clamp(root.height * 0.36, 220px, 360px);
     property <bool> wide: root.width > 1100px;
+    property <length> cover-w: root.wide ? 188px : 132px;
     property <bool> has-ach: DetailUi.ach-mode != "unsupported";
     property <bool> has-captures: DetailUi.captures.length > 0 || DetailUi.screenshots.length > 0;
     // Onglets : 0 Aperçu, 2 Succès, 3 Statistiques, 7 Captures, 5 Sauvegardes, 6 Mods,
@@ -1251,80 +1290,88 @@ export component GamePage inherits Rectangle {
 
     sv := ScrollView {
         content-height: content.preferred-height;
-        scrolled => { AppUi.top-solid = self.content-y < -40px; }
+        scrolled => { AppUi.top-solid = self.content-y < -(root.band-height - 60px); }
         content := VerticalLayout {
             width: root.width;
 
-            // Bandeau
+            // En-tête : bande illustrée nette, jaquette qui chevauche son bord, titre dessous.
             Rectangle {
-                height: root.banner-height;
-                clip: true;
-                Rectangle {
-                    x: 0; y: 0;
-                    width: parent.width;
-                    height: parent.height;
-                    background: @linear-gradient(125deg, DetailUi.game.color-a 0%, DetailUi.game.color-b 100%);
-                    opacity: DetailUi.game.has-banner ? 0 : 0.5;
+                height: root.band-height + head.preferred-height + 24px;
+                band := Rectangle {
+                    y: 0;
+                    height: root.band-height;
+                    clip: true;
+                    background: DetailUi.game.color-a.mix(#101215, 0.45);
+                    if DetailUi.game.has-banner: Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: DetailUi.game.banner;
+                        image-fit: cover;
+                    }
+                    if !DetailUi.game.has-banner: Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: DetailUi.ambient;
+                        image-fit: cover;
+                        image-rendering: smooth;
+                        opacity: 0.7;
+                    }
+                    // Badges d'état posés sur la bande, en bas à droite.
+                    HorizontalLayout {
+                        x: parent.width - self.preferred-width - Theme.page-padding;
+                        y: parent.height - 34px;
+                        height: 22px;
+                        spacing: 6px;
+                        Rectangle {
+                            width: st.preferred-width + 14px;
+                            background: #000000b8;
+                            border-radius: Theme.radius-sm;
+                            st := Text { text: DetailUi.game.install-state; color: DetailUi.game.installed ? Theme.success.brighter(0.3) : #ffffffc0; font-size: Theme.t-overline; font-weight: 600; }
+                        }
+                        if DetailUi.game.update-pending: Rectangle {
+                            width: up.preferred-width + 14px;
+                            background: #000000b8;
+                            border-radius: Theme.radius-sm;
+                            up := Text { text: DetailUi.game.update-state; color: Theme.warm; font-size: Theme.t-overline; font-weight: 600; }
+                        }
+                        if DetailUi.game.hidden: Rectangle {
+                            width: hd.preferred-width + 14px;
+                            background: #000000b8;
+                            border-radius: Theme.radius-sm;
+                            hd := Text { text: "Masqué"; color: #ffffffc0; font-size: Theme.t-overline; font-weight: 600; }
+                        }
+                    }
                 }
-                if DetailUi.game.has-banner: Image {
-                    x: 0; y: 0;
-                    width: parent.width;
-                    height: parent.height;
-                    source: DetailUi.game.banner;
-                    image-fit: cover;
-                }
-                if !DetailUi.game.has-banner: Image {
-                    x: 0; y: 0;
-                    width: parent.width;
-                    height: parent.height;
-                    source: DetailUi.ambient;
-                    image-fit: cover;
-                    image-rendering: smooth;
-                    opacity: 0.75;
-                }
-                // Voiles (masques teintés) : texte lisible à gauche, raccord au contenu en bas.
-                Image { x: 0; y: 0; width: parent.width * 0.75; height: parent.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bg; }
-                Image { x: 0; y: 0; width: parent.width; height: parent.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bg; }
-                Image { x: 0; y: 0; width: parent.width; height: 140px; source: Art.fade-top; image-fit: fill; colorize: Theme.bg; opacity: 0.8; }
-                // Jaquette à droite (grandes fenêtres).
-                if root.wide: GameCover {
-                    x: parent.width - self.width - Theme.page-padding;
-                    y: parent.height - self.height - 36px;
-                    width: 200px;
-                    height: 300px;
+                jacket := GameCover {
+                    x: Theme.page-padding;
+                    y: root.band-height - self.height * 0.55;
+                    width: root.cover-w;
+                    height: root.cover-w * 1.5;
                     source: DetailUi.game.cover;
                     has-image: DetailUi.game.has-cover;
                     color-a: DetailUi.game.color-a;
                     color-b: DetailUi.game.color-b;
                     initials: DetailUi.game.initials;
                     title: DetailUi.game.title;
-                    corner: Theme.radius-lg;
-                    drop-shadow-blur: Theme.effects ? 40px : 0px;
-                    drop-shadow-offset-y: 16px;
-                    drop-shadow-color: #000000b0;
+                    drop-shadow-blur: Theme.effects ? 24px : 0px;
+                    drop-shadow-offset-y: 8px;
+                    drop-shadow-color: #00000090;
                 }
-
-                VerticalLayout {
-                    x: Theme.page-padding;
-                    width: parent.width - 2 * Theme.page-padding - (root.wide ? 240px : 0px);
-                    padding-bottom: 32px;
-                    spacing: 14px;
-                    alignment: end;
+                head := VerticalLayout {
+                    x: Theme.page-padding + root.cover-w + 32px;
+                    y: root.band-height + 20px;
+                    width: root.width - self.x - Theme.page-padding;
+                    height: self.preferred-height;
+                    spacing: 10px;
+                    // Source et plateforme, en texte : la provenance n'a pas besoin de boîte.
                     HorizontalLayout {
-                        spacing: 8px;
+                        spacing: 14px;
                         alignment: start;
-                        Badge { text: DetailUi.game.source; tint: Theme.accent; solid: true; }
-                        if DetailUi.game.platform != "": Badge { text: DetailUi.game.platform; tint: Theme.accent; solid: true; }
-                        Badge {
-                            text: DetailUi.game.install-state;
-                            tint: DetailUi.game.installed ? Theme.success : Theme.text-muted;
-                            solid: DetailUi.game.installed;
-                        }
-                        if DetailUi.game.update-pending: Badge { text: DetailUi.game.update-state; tint: Theme.warm; }
-                        if DetailUi.game.hidden: Badge { text: "Masqué"; }
+                        Text { text: DetailUi.game.source; color: Theme.accent; font-size: Theme.t-small; font-weight: 600; }
+                        if DetailUi.game.platform != "": Text { text: DetailUi.game.platform; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; }
                     }
                     if DetailUi.game.has-logo: Image {
-                        height: min(150px, root.banner-height * 0.26);
+                        height: min(96px, root.band-height * 0.3);
                         source: DetailUi.game.logo;
                         image-fit: contain;
                         horizontal-alignment: left;
@@ -1334,68 +1381,39 @@ export component GamePage inherits Rectangle {
                         text: DetailUi.game.title;
                         color: Theme.text;
                         font-family: Theme.display;
-                        font-size: Theme.t-display + 6px;
-                        font-weight: 700;
-                        letter-spacing: -1.2px;
+                        font-size: root.wide ? Theme.t-display - 6px : Theme.t-title;
+                        font-weight: 800;
                         wrap: word-wrap;
                     }
-                    if DetailUi.game.developer != "" || DetailUi.game.genres != "": Text {
-                        text: DetailUi.game.developer + (DetailUi.game.developer != "" && DetailUi.game.genres != "" ? "  ·  " : "") + DetailUi.game.genres;
-                        color: Theme.text-muted;
-                        font-size: Theme.t-body;
-                        overflow: elide;
-                    }
-                    // Chiffres réels uniquement : une valeur inconnue n'est pas affichée.
-                    HorizontalLayout {
-                        spacing: Theme.s6;
+                    if DetailUi.game.developer != "" || DetailUi.game.genres != "": HorizontalLayout {
+                        spacing: 14px;
                         alignment: start;
-                        padding-top: 4px;
-                        HeroStat { label: "Temps de jeu"; value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
-                        HeroStat { label: "Dernière session"; value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : "Jamais"; }
-                        if DetailUi.ach-percent >= 0: VerticalLayout {
-                            spacing: 6px;
-                            width: 170px;
-                            HeroStat { label: "Succès"; value: DetailUi.ach-summary; }
-                            Rectangle {
-                                height: 4px;
-                                border-radius: 2px;
-                                background: Theme.text.with-alpha(0.15);
-                                Rectangle {
-                                    x: 0;
-                                    width: parent.width * clamp(DetailUi.ach-percent, 0, 1);
-                                    border-radius: 2px;
-                                    background: Theme.accent;
-                                }
-                            }
-                        }
+                        if DetailUi.game.developer != "": Text { text: DetailUi.game.developer; color: Theme.text-muted; font-size: Theme.t-body; overflow: elide; }
+                        if DetailUi.game.genres != "": Text { text: DetailUi.game.genres; color: Theme.text-dim; font-size: Theme.t-body; overflow: elide; }
                     }
+                    // Actions à gauche, chiffres réels à droite (une valeur inconnue s'affiche « — »).
                     HorizontalLayout {
-                        spacing: 10px;
-                        alignment: start;
-                        padding-top: 8px;
-                        PrimaryButton {
+                        padding-top: 12px;
+                        spacing: 8px;
+                        PlayButton {
+                            big: true;
                             text: DetailUi.game.installed ? "Jouer" : DetailUi.game.can-install ? "Installer via Steam" : "Non installé";
-                            icon: Icons.play;
-                            has-icon: DetailUi.game.installed;
                             enabled: DetailUi.game.installed || DetailUi.game.can-install;
-                            h: 52px;
-                            font-size: Theme.t-subheading + 1px;
-                            min-width: 180px;
                             clicked => { DetailUi.play-with(DetailUi.game.id, -1); }
                         }
                         if DetailUi.game.installed && DetailUi.profiles.length > 0: Dropdown {
-                            y: 9px;
-                            prefix: "Profil :";
+                            y: 8px;
+                            prefix: "Profil";
                             align-left: true;
                             popup-width: 240px;
                             options: DetailUi.profile-labels;
                             selected <=> DetailUi.profile-index;
                         }
+                        Rectangle { width: 4px; }
                         IconButton {
-                            y: 2px;
-                            size: 48px;
-                            icon-size: 20px;
-                            glass: true;
+                            y: 3px;
+                            size: 42px;
+                            icon-size: 19px;
                             icon: DetailUi.game.favorite ? Icons.star-filled : Icons.star;
                             tint: DetailUi.game.favorite ? Theme.warm : Theme.text-muted;
                             active-tint: Theme.warm;
@@ -1403,23 +1421,28 @@ export component GamePage inherits Rectangle {
                             clicked => { Actions.toggle-favorite(DetailUi.game.id); }
                         }
                         IconButton {
-                            y: 2px;
-                            size: 48px;
-                            icon-size: 20px;
-                            glass: true;
+                            y: 3px;
+                            size: 42px;
+                            icon-size: 19px;
                             icon: Icons.folder;
                             enabled: DetailUi.game.install-dir != "";
                             tooltip: DetailUi.game.install-dir != "" ? "Ouvrir le dossier du jeu" : "Aucun dossier connu";
                             clicked => { Actions.open-folder(DetailUi.game.install-dir); }
                         }
                         IconButton {
-                            y: 2px;
-                            size: 48px;
-                            icon-size: 20px;
-                            glass: true;
+                            y: 3px;
+                            size: 42px;
+                            icon-size: 19px;
                             icon: Icons.more;
                             tooltip: "Plus d'actions";
-                            clicked => { GameMenu.request(DetailUi.game.id, self.absolute-position.x, self.absolute-position.y + 54px); }
+                            clicked => { GameMenu.request(DetailUi.game.id, self.absolute-position.x, self.absolute-position.y + 48px); }
+                        }
+                        Rectangle { horizontal-stretch: 1; }
+                        if root.width > 1180px: HorizontalLayout {
+                            spacing: Theme.s6;
+                            HeroStat { label: "Temps de jeu"; value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
+                            HeroStat { label: "Dernière session"; value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : "Jamais"; }
+                            if DetailUi.ach-percent >= 0: HeroStat { label: "Succès"; value: round(DetailUi.ach-percent * 100) + " %"; }
                         }
                     }
                 }
@@ -1429,7 +1452,8 @@ export component GamePage inherits Rectangle {
             HorizontalLayout {
                 padding-left: Theme.page-padding;
                 padding-right: Theme.page-padding;
-                spacing: root.width < 1000px ? 16px : 28px;
+                padding-top: 8px;
+                spacing: root.width < 1000px ? 18px : 28px;
                 alignment: start;
                 Tab { text: "Aperçu"; selected: root.tab == 0; clicked => { DetailUi.tab = 0; } }
                 if root.has-ach: Tab {
@@ -1464,19 +1488,20 @@ export component GamePage inherits Rectangle {
                     clicked => { DetailUi.tab = 1; }
                 }
             }
-            Rectangle {
-                height: 1px;
-                background: Theme.border;
+            HorizontalLayout {
+                padding-left: Theme.page-padding;
+                padding-right: Theme.page-padding;
+                Rectangle { height: 1px; background: Theme.border; }
             }
 
             HorizontalLayout {
                 padding: Theme.page-padding;
-                padding-top: 28px;
-                spacing: 32px;
+                padding-top: 32px;
+                spacing: 48px;
 
                 VerticalLayout {
                     horizontal-stretch: 1;
-                    spacing: 28px;
+                    spacing: 32px;
                     alignment: start;
                     if root.tab == 0: Overview { }
                     if root.tab == 1 && !DetailUi.game.is-emulated: LaunchSettings { }
@@ -1490,55 +1515,54 @@ export component GamePage inherits Rectangle {
                     if root.tab == 7: CapturesTab { }
                 }
 
-                // Informations : sur l'aperçu seulement, pour laisser la place aux autres onglets.
-                if root.tab == 0 && root.width > 900px: Panel {
-                    width: 340px;
-                    VerticalLayout {
-                        padding: 22px;
-                        spacing: 14px;
-                        alignment: start;
+                // Fiche technique : sur l'aperçu seulement, pour laisser la place aux autres onglets.
+                if root.tab == 0 && root.width > 900px: VerticalLayout {
+                    width: 300px;
+                    spacing: 28px;
+                    alignment: start;
+                    FactGroup {
+                        title: "Suivi";
                         InfoRow { label: "Temps de jeu"; value: DetailUi.game.playtime + (DetailUi.game.playtime-origin != "" ? " (" + DetailUi.game.playtime-origin + ")" : ""); }
                         if DetailUi.game.status != 0: InfoRow { label: "Statut"; value: ["", "À jouer", "En cours", "Terminé", "Abandonné"][DetailUi.game.status]; }
-                        if DetailUi.game.update-pending: InfoRow { label: "Mise à jour"; value: DetailUi.game.update-state; }
                         InfoRow { label: "Dernier lancement"; value: DetailUi.game.last-played; }
                         InfoRow { label: "Sessions (Halcyon)"; value: DetailUi.game.sessions; }
-                        Rectangle { height: 1px; background: Theme.border; }
+                        if DetailUi.game.update-pending: InfoRow { label: "Mise à jour"; value: DetailUi.game.update-state; }
+                    }
+                    FactGroup {
+                        title: "Installation";
                         InfoRow { label: "Source"; value: DetailUi.game.source; }
                         if DetailUi.game.platform != "": InfoRow { label: "Plateforme"; value: DetailUi.game.platform; }
                         InfoRow { label: "Lancement"; value: DetailUi.game.launch-mode; }
                         InfoRow { label: "Taille"; value: DetailUi.game.size; }
-                        InfoRow { label: "Développeur"; value: DetailUi.game.developer; }
-                        InfoRow { label: "Éditeur"; value: DetailUi.game.publisher; }
-                        InfoRow { label: "Sortie"; value: DetailUi.game.release; }
-                        Rectangle { height: 1px; background: Theme.border; }
                         Text {
-                            text: "Emplacement";
+                            text: DetailUi.game.install-dir != "" ? DetailUi.game.install-dir : "Emplacement inconnu";
                             color: Theme.text-dim;
-                            font-size: Theme.t-small;
-                        }
-                        Text {
-                            text: DetailUi.game.install-dir != "" ? DetailUi.game.install-dir : "—";
-                            color: Theme.text-muted;
                             font-size: Theme.t-caption;
                             wrap: word-wrap;
                         }
-                        if DetailUi.links.length > 0: Rectangle { height: 1px; background: Theme.border; }
-                        if DetailUi.links.length > 0: Text { text: "Liens"; color: Theme.text-dim; font-size: Theme.t-small; }
-                        for l in DetailUi.links: Text {
-                            text: l.label + " ↗";
-                            color: link-ta.has-hover ? Theme.accent-hover : Theme.accent;
-                            font-size: Theme.t-small;
-                            link-ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-url(l.url); } }
+                    }
+                    FactGroup {
+                        title: "Édition";
+                        InfoRow { label: "Développeur"; value: DetailUi.game.developer; }
+                        InfoRow { label: "Éditeur"; value: DetailUi.game.publisher; }
+                        InfoRow { label: "Sortie"; value: DetailUi.game.release; }
+                    }
+                    if DetailUi.links.length > 0: FactGroup {
+                        title: "Liens";
+                        for l in DetailUi.links: HorizontalLayout {
+                            alignment: start;
+                            TextButton { text: l.label + " ↗"; clicked => { Actions.open-url(l.url); } }
                         }
+                    }
+                    VerticalLayout {
+                        spacing: 8px;
                         SecondaryButton {
-                            h: 34px;
                             text: "Créer un raccourci sur le Bureau";
                             icon: Icons.plus;
                             has-icon: true;
                             clicked => { SystemUi.create-shortcut(DetailUi.game.id); }
                         }
                         if DetailUi.can-publish: SecondaryButton {
-                            h: 34px;
                             text: "Publier dans Sunshine…";
                             icon: Icons.monitor;
                             has-icon: true;

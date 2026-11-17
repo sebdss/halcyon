@@ -1,7 +1,7 @@
 import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { PadsUi } from "../state.slint";
-import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Badge, Notice, IconButton, Dropdown, Icon } from "../components.slint";
+import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Badge, Notice, IconButton, Dropdown, Icon, ListItem, Rubric } from "../components.slint";
 
 export component ControllersPage inherits Rectangle {
     ScrollView {
@@ -18,14 +18,11 @@ export component ControllersPage inherits Rectangle {
                 subtitle: "Manettes connectées, profils de touches pour la navigation (Big Picture) et options transmises aux émulateurs.";
             }
 
-            SectionTitle { text: "Connectées (" + PadsUi.pads.length + ")"; }
+            Rubric { title: "Connectées"; note: PadsUi.pads.length > 0 ? PadsUi.pads.length + " manette(s)" : ""; }
             if PadsUi.pads.length == 0: Text { text: "Aucune manette détectée. Branchez-en une ou appairez-la en Bluetooth : elle apparaîtra ici automatiquement."; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
-            for p in PadsUi.pads: Rectangle {
+            for p in PadsUi.pads: ListItem {
                 height: 58px;
-                border-radius: Theme.radius;
-                background: Theme.surface;
-                border-width: p.last-used ? 1px : 0px;
-                border-color: Theme.accent.with-alpha(0.5);
+                active: p.last-used;
                 HorizontalLayout {
                     padding-left: 16px;
                     padding-right: 16px;
@@ -47,7 +44,7 @@ export component ControllersPage inherits Rectangle {
                 }
             }
 
-            SectionTitle { text: "Profils de manette"; }
+            Rubric { title: "Profils de manette"; }
             Notice {
                 text: "Un profil change les touches de navigation de Halcyon et peut ajouter des options à la ligne de commande d'un émulateur (ex. RetroArch : --appendconfig=…). Associez-le à un jeu depuis l'onglet Profils de sa fiche. Pour les jeux PC, la configuration des touches reste celle du jeu, de Steam Input ou de votre pilote : Halcyon n'intercepte pas la manette pendant une partie.";
             }
@@ -64,10 +61,9 @@ export component ControllersPage inherits Rectangle {
                 }
                 SecondaryButton { h: 34px; text: "Nouveau profil"; icon: Icons.plus; has-icon: true; clicked => { PadsUi.new-profile(); } }
             }
-            for pr in PadsUi.profiles: Rectangle {
+            for pr in PadsUi.profiles: ListItem {
                 height: 54px;
-                border-radius: Theme.radius;
-                background: Theme.surface;
+                active: pr.active;
                 HorizontalLayout {
                     padding-left: 16px;
                     padding-right: 8px;

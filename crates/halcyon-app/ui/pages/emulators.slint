@@ -2,9 +2,10 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { EmulatorRow, PlatformRow, PlatformChoice } from "../types.slint";
 import { EmuUi, AppUi, Actions } from "../state.slint";
-import { Panel, PrimaryButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown } from "../components.slint";
+import { Panel, PrimaryButton, SecondaryButton, IconButton, SectionTitle, Icon, Badge, TextField, Toggle, Dropdown, ListItem, Rubric } from "../components.slint";
 
-component EmulatorCard inherits Panel {
+component EmulatorCard inherits ListItem {
+    active: root.emu.detected;
     in property <EmulatorRow> emu;
     in-out property <string> path: emu.path-override;
     in-out property <string> args: emu.extra-args;
@@ -16,10 +17,9 @@ component EmulatorCard inherits Panel {
         HorizontalLayout {
             spacing: 12px;
             Rectangle {
-                width: 10px;
-                height: 10px;
+                width: 8px;
+                height: 8px;
                 y: (parent.height - self.height) / 2;
-                border-radius: 5px;
                 background: root.emu.detected ? Theme.success : Theme.text-dim;
             }
             VerticalLayout {
@@ -32,7 +32,7 @@ component EmulatorCard inherits Panel {
                     if root.emu.custom: Badge { text: "Ajouté par vous"; tint: Theme.accent; }
                 }
                 Text {
-                    text: root.emu.detected ? root.emu.path + "  ·  " + root.emu.via : "Non détecté — indiquez son exécutable si il est installé ailleurs";
+                    text: root.emu.detected ? root.emu.path + ", " + root.emu.via : "Non détecté : indiquez son exécutable s'il est installé ailleurs";
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                     overflow: elide;
@@ -63,19 +63,19 @@ component EmulatorCard inherits Panel {
                 TextField { text <=> root.path; mono: true; placeholder: "Chemin de l'émulateur"; }
                 if AppUi.can-browse: SecondaryButton {
                     text: "Parcourir…";
-                    h: 38px;
+                    h: 36px;
                     clicked => {
                         let p = AppUi.browse-file();
                         if (p != "") { root.path = p; }
                     }
                 }
-                SecondaryButton { text: "Appliquer"; h: 38px; clicked => { EmuUi.set-path(root.emu.id, root.path); } }
+                SecondaryButton { text: "Appliquer"; h: 36px; clicked => { EmuUi.set-path(root.emu.id, root.path); } }
             }
             Text { text: "Arguments supplémentaires (profil)"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
             HorizontalLayout {
                 spacing: 8px;
                 TextField { text <=> root.args; mono: true; placeholder: "Ajoutés avant les arguments de lancement"; }
-                SecondaryButton { text: "Appliquer"; h: 38px; clicked => { EmuUi.set-args(root.emu.id, root.args); } }
+                SecondaryButton { text: "Appliquer"; h: 36px; clicked => { EmuUi.set-args(root.emu.id, root.args); } }
             }
             HorizontalLayout {
                 spacing: 12px;
@@ -95,7 +95,7 @@ component EmulatorCard inherits Panel {
     }
 }
 
-component PlatformCard inherits Panel {
+component PlatformCard inherits ListItem {
     in property <PlatformRow> platform;
     VerticalLayout {
         padding: 18px;
@@ -150,7 +150,7 @@ component EmulatorForm inherits Panel {
             TextField { text <=> EmuUi.form-exe; mono: true; placeholder: "Chemin complet du programme de l'émulateur"; }
             if AppUi.can-browse: SecondaryButton {
                 text: "Parcourir…";
-                h: 38px;
+                h: 36px;
                 clicked => {
                     let p = AppUi.browse-file();
                     if (p != "") { EmuUi.form-exe = p; }
@@ -199,7 +199,7 @@ component EmulatorForm inherits Panel {
             TextField { text <=> root.new-platform-exts; mono: true; placeholder: "Extensions des jeux (ex. iso, xiso)"; }
             SecondaryButton {
                 text: "Ajouter la plateforme";
-                h: 38px;
+                h: 36px;
                 clicked => {
                     EmuUi.add-platform(root.new-platform-name, root.new-platform-exts);
                     root.new-platform-name = "";
@@ -211,7 +211,7 @@ component EmulatorForm inherits Panel {
         Text { text: "Arguments de lancement"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
         TextField { text <=> EmuUi.form-args; mono: true; placeholder: "{rom}"; }
         Text {
-            text: "{rom} : chemin du jeu · {rom_dir} : son dossier · {rom_name} : son nom sans extension · {emu_dir} : dossier de l'émulateur. Les chemins avec des espaces sont gérés : inutile d'ajouter des guillemets.";
+            text: "{rom} : chemin du jeu, {rom_dir} : son dossier, {rom_name} : son nom sans extension, {emu_dir} : dossier de l'émulateur. Les chemins avec des espaces sont gérés : inutile d'ajouter des guillemets.";
             color: Theme.text-dim;
             font-size: Theme.t-caption;
             wrap: word-wrap;
@@ -278,7 +278,7 @@ export component EmulatorsPage inherits Rectangle {
 
             if EmuUi.form-open: EmulatorForm { }
 
-            SectionTitle { text: "Bibliothèques de ROM"; }
+            Rubric { title: "Bibliothèques de ROM"; }
             Panel {
                 HorizontalLayout {
                     padding: 18px;
@@ -291,7 +291,7 @@ export component EmulatorsPage inherits Rectangle {
                     TextField { text <=> root.new-folder; mono: true; placeholder: "Dossier contenant les ROM de cette plateforme"; }
                     if AppUi.can-browse: SecondaryButton {
                         text: "Parcourir…";
-                        h: 38px;
+                        h: 36px;
                         clicked => {
                             let p = AppUi.browse-folder();
                             if (p != "") { root.new-folder = p; }
@@ -301,7 +301,7 @@ export component EmulatorsPage inherits Rectangle {
                         text: "Ajouter";
                         icon: Icons.plus;
                         has-icon: true;
-                        h: 38px;
+                        h: 36px;
                         enabled: root.new-folder != "";
                         clicked => {
                             EmuUi.add-folder(root.new-platform, root.new-folder);
@@ -312,7 +312,7 @@ export component EmulatorsPage inherits Rectangle {
             }
             for p in EmuUi.platforms: PlatformCard { platform: p; }
 
-            SectionTitle { text: "Émulateurs"; }
+            Rubric { title: "Émulateurs"; }
             for e in EmuUi.emulators: EmulatorCard { emu: e; }
         }
     }

@@ -1,11 +1,12 @@
-// Installateur de Halcyon : interface sur mesure (design system « Nocturne » de l'application).
+// Installateur de Halcyon : interface sur mesure (système de design « Berge » de l'application).
 // Toutes les valeurs affichées (vérifications, progression, fichiers) viennent du moteur
 // d'installation en Rust : rien n'est simulé.
 
-import "../../halcyon-app/ui/fonts/Inter-Regular.ttf";
-import "../../halcyon-app/ui/fonts/Inter-Medium.ttf";
-import "../../halcyon-app/ui/fonts/Inter-SemiBold.ttf";
-import "../../halcyon-app/ui/fonts/Inter-Bold.ttf";
+import "../../halcyon-app/ui/fonts/Archivo-Regular.ttf";
+import "../../halcyon-app/ui/fonts/Archivo-Medium.ttf";
+import "../../halcyon-app/ui/fonts/Archivo-SemiBold.ttf";
+import "../../halcyon-app/ui/fonts/ArchivoExpanded-Bold.ttf";
+import "../../halcyon-app/ui/fonts/Archivo-Bold.ttf";
 import { Theme, Icons } from "../../halcyon-app/ui/theme.slint";
 import { PrimaryButton, SecondaryButton, Toggle, TextField, ProgressBar, Icon, Badge } from "../../halcyon-app/ui/components.slint";
 
@@ -80,40 +81,17 @@ export global Setup {
     callback drag();
 }
 
-/// Fond : nuit profonde et deux halos de lumière qui dérivent lentement (accueil et fin).
+/// Fond : la teinte de la colonne de navigation de Halcyon, mate et immobile (« Berge »).
 component Aurora inherits Rectangle {
     in property <bool> alive;
-    property <float> t: root.alive && Theme.motion < 2 ? mod(animation-tick() / 1ms, 24000) / 24000 : 0.25;
-    background: @linear-gradient(160deg, #070a10 0%, #0b1018 55%, #060709 100%);
-    Rectangle {
-        x: root.width * (0.10 + 0.08 * sin(root.t * 360deg));
-        y: root.height * (-0.35 + 0.05 * cos(root.t * 360deg));
-        width: root.width * 0.9;
-        height: root.width * 0.9;
-        border-radius: self.width / 2;
-        background: @radial-gradient(circle, Theme.accent.with-alpha(0.16) 0%, transparent 70%);
-    }
-    Rectangle {
-        x: root.width * (0.45 - 0.06 * cos(root.t * 360deg));
-        y: root.height * (0.35 + 0.06 * sin(root.t * 360deg));
-        width: root.width * 0.8;
-        height: root.width * 0.8;
-        border-radius: self.width / 2;
-        background: @radial-gradient(circle, #6a5cff22 0%, transparent 70%);
-    }
-    // Trame fine : profondeur sans image.
-    for i in 24: Rectangle {
-        x: i * root.width / 24;
-        width: 1px;
-        background: #ffffff05;
-    }
+    background: Theme.sidebar;
 }
 
 component Title inherits Text {
     color: Theme.text;
-    font-size: Theme.t-display - 6px;
-    font-weight: 800;
-    letter-spacing: -0.8px;
+    font-family: Theme.display;
+    font-size: Theme.t-display - 8px;
+    font-weight: 700;
     wrap: word-wrap;
 }
 
@@ -125,9 +103,8 @@ component Lead inherits Text {
 
 component Kicker inherits Text {
     color: Theme.accent;
-    font-size: Theme.t-overline;
-    font-weight: 700;
-    letter-spacing: 0px;
+    font-size: Theme.t-small;
+    font-weight: 600;
 }
 
 /// Carte de choix (opération sur une installation existante).
@@ -141,7 +118,7 @@ component Choice inherits Rectangle {
     callback clicked;
     height: 76px;
     border-radius: Theme.radius-lg;
-    background: !root.enabled ? Theme.surface.with-alpha(0.4) : ta.has-hover || fs.has-focus ? Theme.surface-hover : Theme.surface.with-alpha(0.75);
+    background: !root.enabled ? Theme.surface.with-alpha(0.4) : ta.has-hover || fs.has-focus ? Theme.surface-hover : Theme.surface;
     border-width: root.recommended || fs.has-focus ? 1px : 0px;
     border-color: fs.has-focus ? Theme.focus : Theme.accent.with-alpha(0.6);
     HorizontalLayout {
@@ -151,7 +128,7 @@ component Choice inherits Rectangle {
             width: 44px;
             height: 44px;
             y: (parent.height - self.height) / 2 - 16px;
-            border-radius: 12px;
+            border-radius: Theme.radius;
             background: root.danger ? Theme.danger.with-alpha(0.14) : Theme.accent-soft;
             Icon { source: root.icon; size: 22px; tint: root.danger ? Theme.danger : Theme.accent; }
         }
@@ -218,7 +195,7 @@ component Rail inherits VerticalLayout {
             width: 22px;
             height: 22px;
             y: 6px;
-            border-radius: 11px;
+            border-radius: Theme.radius-sm;
             background: i < root.active ? Theme.accent : i == root.active ? Theme.accent-soft : transparent;
             border-width: i == root.active ? 2px : i < root.active ? 0px : 1px;
             border-color: i == root.active ? Theme.accent : Theme.border-strong;
@@ -244,7 +221,7 @@ export component SetupWindow inherits Window {
     min-height: 600px;
     no-frame: true;
     background: #07090d;
-    default-font-family: "Inter";
+    default-font-family: "Archivo";
 
     property <int> rail: Setup.screen <= 1 ? 0 : Setup.screen == 2 ? 1 : Setup.screen == 3 ? 2 : Setup.screen == 4 ? 3 : Setup.screen == 5 ? 4 : 5;
     property <bool> uninstall-flow: Setup.screen == 7 || Setup.screen == 8;
@@ -303,7 +280,7 @@ export component SetupWindow inherits Window {
                 VerticalLayout {
                     alignment: center;
                     Text { text: "Halcyon"; color: Theme.text; font-size: Theme.t-heading; font-weight: 800; }
-                    Text { text: Setup.mode-noun + " · " + Setup.version; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    Text { text: Setup.mode-noun + ", " + Setup.version; color: Theme.text-dim; font-size: Theme.t-caption; }
                 }
             }
             Rail { active: root.rail; }
@@ -325,17 +302,7 @@ export component SetupWindow inherits Window {
             alignment: center;
             HorizontalLayout {
                 alignment: start;
-                logo := Rectangle {
-                    width: 92px;
-                    height: 92px;
-                    border-radius: 26px;
-                    background: @linear-gradient(140deg, Theme.accent.with-alpha(0.25) 0%, #6a5cff33 100%);
-                    border-width: 1px;
-                    border-color: #ffffff1a;
-                    drop-shadow-blur: Theme.effects ? 40px : 0px;
-                    drop-shadow-color: Theme.accent-glow;
-                    Image { source: Icons.logo; width: 60px; height: 60px; }
-                }
+                logo := Image { source: Icons.logo; width: 64px; height: 64px; }
             }
             Rectangle { height: 8px; }
             Kicker { text: "Bienvenue"; }
@@ -500,7 +467,7 @@ export component SetupWindow inherits Window {
                                 width: 24px;
                                 height: 24px;
                                 y: 2px;
-                                border-radius: 12px;
+                                border-radius: Theme.radius;
                                 background: c.level == 3 ? Theme.danger.with-alpha(0.16) : c.level == 2 ? Theme.warm.with-alpha(0.16) : Theme.success.with-alpha(0.14);
                                 Icon {
                                     source: c.level >= 2 ? Icons.alert : c.level == 1 ? Icons.info : Icons.check;
@@ -667,7 +634,7 @@ export component SetupWindow inherits Window {
                 Rectangle {
                     width: 72px;
                     height: 72px;
-                    border-radius: 36px;
+                    border-radius: Theme.radius-lg;
                     background: Theme.accent-soft;
                     border-width: 1px;
                     border-color: Theme.accent.with-alpha(0.5);

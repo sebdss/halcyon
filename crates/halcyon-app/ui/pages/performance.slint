@@ -12,12 +12,11 @@ component Curve inherits Rectangle {
     in property <[float]> values;
     in property <color> tint: Theme.accent;
     height: 64px;
-    border-radius: 6px;
-    background: Theme.bg.with-alpha(0.45);
     clip: true;
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border-strong; }
     HorizontalLayout {
         alignment: end;
-        padding: 4px;
+        padding-bottom: 1px;
         spacing: 2px;
         for v in root.values: Rectangle {
             width: 5px;
@@ -37,12 +36,13 @@ component MeasureCard inherits Rectangle {
     in property <string> value;
     in property <string> caption;
     horizontal-stretch: 1;
-    Panel { }
+    // Instrument : filet de tête, nom, valeur en grand.
+    Rectangle { y: 0; height: 2px; background: Theme.text; }
     VerticalLayout {
-        padding: 18px;
+        padding-top: 16px;
         spacing: 10px;
         Text { text: root.title; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; }
-        Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: 40px; font-weight: 700; letter-spacing: -1px; }
+        Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-display; font-weight: 800; }
         if root.caption != "": Text { text: root.caption; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
         @children
     }
@@ -54,18 +54,24 @@ export component PerformancePage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 24px;
-            spacing: 18px;
+            padding-top: 28px;
+            spacing: 28px;
             alignment: start;
 
             PageHeader {
                 title: "Performances";
                 subtitle: "Processeur, mémoire, carte graphique et stockage de ce PC, mesurés pendant que cette page est ouverte. Halcyon ne ferme aucun programme et ne modifie aucun réglage du système.";
-                Badge { y: 10px; text: PerfUi.sampling ? "Mesure en direct" : "En pause"; tint: PerfUi.sampling ? Theme.success : Theme.text-muted; solid: PerfUi.sampling; }
+                HorizontalLayout {
+                    y: 10px;
+                    height: 20px;
+                    spacing: 8px;
+                    Rectangle { y: 6px; width: 8px; height: 8px; background: PerfUi.sampling ? Theme.success : Theme.text-dim; }
+                    Text { text: PerfUi.sampling ? "Mesure en direct" : "En pause"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
+                }
             }
 
             HorizontalLayout {
-                spacing: 18px;
+                spacing: Theme.s6;
                 MeasureCard {
                     title: "Processeur";
                     value: PerfUi.cpu-text;
@@ -102,7 +108,7 @@ export component PerformancePage inherits Rectangle {
                     for g in PerfUi.gpus: VerticalLayout {
                         spacing: 4px;
                         if PerfUi.gpus.length > 1: Text { text: g.name; color: Theme.text; font-size: Theme.t-small; font-weight: 600; overflow: elide; }
-                        Text { text: g.usage-text + (g.vram != "" ? " · " + g.vram : ""); color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                        Text { text: g.usage-text + (g.vram != "" ? ", " + g.vram : ""); color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
                     }
                 }
             }
@@ -112,9 +118,10 @@ export component PerformancePage inherits Rectangle {
             if PerfUi.recos-ready && PerfUi.recos.length == 0: Notice { text: "Rien à signaler : mémoire, processeur et stockage laissent de la marge pour jouer."; }
             for r in PerfUi.recos: Rectangle {
                 height: row.preferred-height;
-                Panel { }
+                Rectangle { x: 0; width: 2px; background: r.warning ? Theme.warm : Theme.accent; }
                 row := HorizontalLayout {
-                    padding: 14px;
+                    padding-top: 6px;
+                    padding-bottom: 6px;
                     padding-left: 16px;
                     spacing: 12px;
                     Icon { source: r.warning ? Icons.alert : Icons.info; size: 18px; tint: r.warning ? Theme.warm : Theme.accent; }
@@ -189,7 +196,8 @@ export component PerformancePage inherits Rectangle {
             for s in PerfUi.sessions: Rectangle {
                 height: 54px;
                 border-radius: Theme.radius;
-                background: touch.has-hover ? Theme.surface-hover : Theme.surface;
+                background: touch.has-hover ? Theme.surface : transparent;
+                Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
                 touch := TouchArea { mouse-cursor: pointer; clicked => { Nav.go(Page.library); } }
                 HorizontalLayout {
                     padding-left: 16px;
@@ -199,7 +207,7 @@ export component PerformancePage inherits Rectangle {
                         alignment: center;
                         horizontal-stretch: 2;
                         Text { text: s.game; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
-                        Text { text: s.date + " · " + s.duration; color: Theme.text-dim; font-size: Theme.t-overline; overflow: elide; }
+                        Text { text: s.date + ", " + s.duration; color: Theme.text-dim; font-size: Theme.t-overline; overflow: elide; }
                     }
                     VerticalLayout {
                         alignment: center;
@@ -217,7 +225,7 @@ export component PerformancePage inherits Rectangle {
                         alignment: center;
                         horizontal-stretch: 1;
                         Text { text: "Carte graphique"; color: Theme.text-dim; font-size: Theme.t-overline; }
-                        Text { text: s.gpu + (s.vram != "" ? " · " + s.vram : ""); color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
+                        Text { text: s.gpu + (s.vram != "" ? ", " + s.vram : ""); color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
                     }
                 }
             }

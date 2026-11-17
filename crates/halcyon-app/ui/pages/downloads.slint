@@ -4,7 +4,7 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { Nav, Page, McUi } from "../state.slint";
 import { DownloadsUi } from "../downloads_state.slint";
-import { Panel, SectionTitle, Overline, PageHeader, SecondaryButton, PrimaryButton, Badge, Notice, Dropdown, ProgressBar, BigStat, Icon } from "../components.slint";
+import { Panel, SectionTitle, Overline, PageHeader, SecondaryButton, PrimaryButton, Badge, Notice, Dropdown, ProgressBar, BigStat, Icon, Rubric } from "../components.slint";
 
 component TaskLine inherits Rectangle {
     in property <string> title;
@@ -15,10 +15,14 @@ component TaskLine inherits Rectangle {
     in property <bool> cancellable;
     callback cancel();
     height: col.preferred-height;
-    Panel { }
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+    // Transfert actif : perche d'accent.
+    if root.state == 0: Rectangle { x: 0; y: 14px; width: Theme.perch; height: parent.height - 28px; background: Theme.accent; }
     col := VerticalLayout {
-        padding: 14px;
+        padding-top: 14px;
+        padding-bottom: 14px;
         padding-left: 16px;
+        padding-right: 4px;
         spacing: 8px;
         HorizontalLayout {
             spacing: 10px;
@@ -29,7 +33,8 @@ component TaskLine inherits Rectangle {
                 Text { text: root.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
                 Text { text: root.detail; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
             }
-            Text { text: root.time; color: Theme.text-dim; font-size: Theme.t-overline; vertical-alignment: center; }
+            if root.state == 0 && root.progress >= 0: Text { text: round(root.progress * 100) + " %"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
+            Text { text: root.time; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
             if root.cancellable: SecondaryButton { h: 32px; text: "Annuler"; clicked => { root.cancel(); } }
         }
         if root.state == 0: ProgressBar { value: root.progress; }
@@ -42,8 +47,8 @@ export component DownloadsPage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 24px;
-            spacing: 18px;
+            padding-top: 28px;
+            spacing: 24px;
             alignment: start;
 
             PageHeader {
@@ -55,10 +60,8 @@ export component DownloadsPage inherits Rectangle {
 
             Rectangle {
                 height: stats.preferred-height;
-                Panel { }
                 stats := HorizontalLayout {
-                    padding: 18px;
-                    spacing: 36px;
+                    spacing: 40px;
                     BigStat { value: DownloadsUi.speed; label: "vitesse actuelle"; }
                     BigStat { value: DownloadsUi.running; label: "en cours"; }
                     BigStat { value: DownloadsUi.received; label: "reçus depuis l'ouverture"; }
@@ -89,8 +92,8 @@ export component DownloadsPage inherits Rectangle {
             }
             if DownloadsUi.paused: Notice { warning: true; text: "En pause : les transferts en cours attendent sans rien perdre et reprennent là où ils se sont arrêtés."; }
 
-            SectionTitle { text: "En cours et en attente"; }
-            if DownloadsUi.active.length == 0: Text { text: "Aucun téléchargement en cours."; color: Theme.text-dim; font-size: Theme.t-small; }
+            Rubric { title: "En cours et en attente"; note: DownloadsUi.active.length > 0 ? DownloadsUi.active.length + " élément(s)" : ""; }
+            if DownloadsUi.active.length == 0: Text { text: "Aucun téléchargement en cours. Les installations Minecraft, mods, modpacks et mises à jour de Halcyon apparaîtront ici."; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
             for t in DownloadsUi.active: TaskLine {
                 title: t.title;
                 detail: t.detail;
@@ -101,12 +104,10 @@ export component DownloadsPage inherits Rectangle {
                 cancel => { DownloadsUi.cancel-minecraft(); }
             }
 
-            SectionTitle { text: "Jeux des plateformes"; }
+            Rubric { title: "Jeux des plateformes"; }
             Rectangle {
                 height: plat.preferred-height;
-                Panel { }
                 plat := HorizontalLayout {
-                    padding: 16px;
                     spacing: 12px;
                     Icon { source: Icons.layers; size: 20px; tint: Theme.accent; }
                     Text {
@@ -121,7 +122,7 @@ export component DownloadsPage inherits Rectangle {
                 }
             }
 
-            if DownloadsUi.history.length > 0: SectionTitle { text: "Terminés récemment"; }
+            if DownloadsUi.history.length > 0: Rubric { title: "Terminés récemment"; }
             for t in DownloadsUi.history: TaskLine {
                 title: t.title;
                 detail: t.detail;

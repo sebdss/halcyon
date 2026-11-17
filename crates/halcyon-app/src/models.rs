@@ -123,14 +123,12 @@ fn hsv(h: f32, s: f32, v: f32) -> Color {
     Color::from_rgb_u8(to(r), to(g), to(b))
 }
 
+/// Provenance du jeu. Le temps de jeu a sa propre place dans les légendes (tuile, liste) :
+/// la ligne de source ne le répète pas.
 fn source_line(g: &Game) -> String {
-    let src = match &g.platform {
+    match &g.platform {
         Some(p) => platform_names(p).1,
         None => g.source.label().to_string(),
-    };
-    match g.effective_playtime() {
-        0 => src,
-        s => format!("{src}  ·  {}", util::format_playtime(s)),
     }
 }
 
