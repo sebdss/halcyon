@@ -56,6 +56,9 @@ pub struct PlatformDef {
     /// Jeux distribués sous forme de dossier (ex. « ps3 » : `PS3_GAME/USRDIR/EBOOT.BIN`).
     #[serde(default)]
     pub folder_game: Option<String>,
+    /// Nom du système dans libretro-thumbnails (visuels sans clé), ex. « Sony - PlayStation ».
+    #[serde(default)]
+    pub libretro: Option<String>,
 }
 
 fn default_hash() -> String {

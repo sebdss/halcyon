@@ -54,6 +54,10 @@ const RETRY_SECS: i64 = 7 * 86_400;
 const METADATA_PER_RUN: usize = 150;
 /// Jeux interrogés sur SteamGridDB par passe (4 requêtes chacun au plus).
 const SGDB_PER_RUN: usize = 60;
+/// Recherches dans la boutique Steam par passage (elle limite à ~200 requêtes / 5 min).
+const STORE_PER_RUN: usize = 40;
+/// Jeux émulés cherchés dans libretro-thumbnails par passage.
+const LIBRETRO_PER_RUN: usize = 80;
 
 pub struct Controller {
     pub(crate) app: slint::Weak<AppWindow>,
@@ -1426,6 +1430,12 @@ impl Controller {
         failures.retain(|_, t| now - *t < RETRY_SECS);
         let mut art_jobs: Vec<(GameId, ArtworkKind, Vec<String>, PathBuf, String)> = Vec::new();
         let mut meta_jobs: Vec<(GameId, u64, String)> = Vec::new();
+        // Sans clé : boutique Steam (jeux standalone et ajoutés à la main) et libretro-thumbnails
+        // (jeux émulés). SteamGridDB, avec une clé, ne complète que ce qui manque encore.
+        #[allow(clippy::type_complexity)]
+        let mut store_jobs: Vec<(GameId, String, [bool; 3], PathBuf, String)> = Vec::new();
+        #[allow(clippy::type_complexity)]
+        let mut libretro_jobs: Vec<(GameId, String, Vec<String>, [bool; 2], PathBuf, String)> = Vec::new();
         // SteamGridDB : jeux standalone et ajoutés à la main sans visuel ni adresse connue.
         let sgdb_key = s.steamgriddb_api_key.trim().to_string();
         #[allow(clippy::type_complexity)]
@@ -1455,6 +1465,25 @@ impl Controller {
                                 art_jobs.push((g.id, kind, url_candidates(url), dir.join(&key), key));
                             }
                         }
+                    }
+                }
+                let need = |local: &Option<PathBuf>, url: &Option<String>| local.as_ref().is_none_or(|p| !p.is_file()) && url.is_none();
+                if s.online_artwork && matches!(g.source, GameSource::Standalone | GameSource::Manual) && store_jobs.len() < STORE_PER_RUN {
+                    let a = &g.artwork;
+                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url), need(&a.logo, &a.logo_url)];
+                    let key = format!("steamstore-{stem}");
+                    if want.iter().any(|w| *w) && !failures.contains_key(&key) {
+                        store_jobs.push((g.id, g.name.clone(), want, dir.join(&stem), key));
+                    }
+                }
+                if s.online_artwork && g.source == GameSource::Emulated && libretro_jobs.len() < LIBRETRO_PER_RUN {
+                    let system = g.platform.as_deref().and_then(|p| self.registry.borrow().platform(p).and_then(|d| d.libretro.clone()));
+                    let a = &g.artwork;
+                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url)];
+                    let key = format!("libretro-{stem}");
+                    if let (Some(system), true, false) = (system, want.iter().any(|w| *w), failures.contains_key(&key)) {
+                        let titles = halcyon_integrations::libretro::titles(g.executable.as_deref(), &g.name);
+                        libretro_jobs.push((g.id, system, titles, want, dir.join(&stem), key));
                     }
                 }
                 if s.online_artwork
@@ -1491,16 +1520,27 @@ impl Controller {
                 }
             }
         }
-        if art_jobs.is_empty() && meta_jobs.is_empty() && plugin_jobs.is_empty() && sgdb_jobs.is_empty() {
+        if art_jobs.is_empty() && meta_jobs.is_empty() && plugin_jobs.is_empty() && sgdb_jobs.is_empty() && store_jobs.is_empty() && libretro_jobs.is_empty() {
             self.downloading.store(false, Ordering::SeqCst);
             return;
         }
-        log::info!("en ligne : {} visuels, {} jeux sur SteamGridDB, {} fiches à récupérer", art_jobs.len(), sgdb_jobs.len(), meta_jobs.len());
+        log::info!(
+            "en ligne : {} visuels, {} jeux dans la boutique Steam, {} sur libretro-thumbnails, {} sur SteamGridDB, {} fiches à récupérer",
+            art_jobs.len(),
+            store_jobs.len(),
+            libretro_jobs.len(),
+            sgdb_jobs.len(),
+            meta_jobs.len()
+        );
         let task = self.task_start("online", tr!("Visuels et fiches en ligne"));
         self.task_update(
             task,
             None,
-            Some(&tr!("Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}", sgdb_jobs = art_jobs.len() + sgdb_jobs.len(), plugin_jobs = meta_jobs.len() + plugin_jobs.len())),
+            Some(&tr!(
+                "Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}",
+                sgdb_jobs = art_jobs.len() + store_jobs.len() + libretro_jobs.len() + sgdb_jobs.len(),
+                plugin_jobs = meta_jobs.len() + plugin_jobs.len()
+            )),
         );
         let db = self.db.clone();
         let flag = self.downloading.clone();
@@ -1534,8 +1574,100 @@ impl Controller {
                         }
                     }
                 }
+                // Visuels obtenus sans clé, par jeu (cover, bannière, logo) : SteamGridDB ne
+                // cherche ensuite que ce qui manque encore.
+                let mut got: HashMap<GameId, [bool; 3]> = HashMap::new();
+                // Télécharge la première adresse qui répond et l'enregistre comme visuel du jeu.
+                let save = |id: GameId, kind: ArtworkKind, urls: &[String], dest: &Path| -> Result<bool, FetchError> {
+                    match dl.fetch_first(urls, dest) {
+                        Ok(path) => {
+                            if db.lock().unwrap_or_else(|e| e.into_inner()).set_artwork(id, kind, Some(&path), false).is_ok() {
+                                post(move |c| c.on_artwork_downloaded(id, kind, path));
+                            }
+                            Ok(true)
+                        }
+                        Err(FetchError::Unavailable(_)) => Ok(false),
+                        Err(e) => Err(e),
+                    }
+                };
+                let named = |stem: &Path, suffix: &str| stem.with_file_name(format!("{}-{suffix}", stem.file_name().and_then(|n| n.to_str()).unwrap_or("jeu")));
                 if network_errors < 3 {
-                    for (id, name, want, stem, key) in sgdb_jobs {
+                    'store: for (id, name, want, stem, key) in store_jobs {
+                        std::thread::sleep(std::time::Duration::from_millis(1600));
+                        match steam_web::store_search(&dl, &name) {
+                            Ok(Some(appid)) => {
+                                let urls = steam::cdn_artwork(appid);
+                                let mut found = [false; 3];
+                                for (i, (kind, suffix)) in [(ArtworkKind::Cover, "cover"), (ArtworkKind::Banner, "banner"), (ArtworkKind::Logo, "logo")].into_iter().enumerate() {
+                                    if !want[i] {
+                                        continue;
+                                    }
+                                    match save(id, kind, &url_candidates(&urls[i]), &named(&stem, suffix)) {
+                                        Ok(true) => {
+                                            found[i] = true;
+                                            ok += 1;
+                                        }
+                                        Ok(false) => {}
+                                        Err(e) => {
+                                            log::warn!("boutique Steam interrompue : {e}");
+                                            network_errors = 3;
+                                            break 'store;
+                                        }
+                                    }
+                                }
+                                log::info!("boutique Steam : « {name} » → {appid}");
+                                got.insert(id, found);
+                                if !found.iter().any(|f| *f) {
+                                    failures.insert(key, now_unix());
+                                }
+                            }
+                            Ok(None) | Err(FetchError::Unavailable(_)) => {
+                                failures.insert(key, now_unix());
+                            }
+                            Err(FetchError::Network(e)) => {
+                                log::warn!("boutique Steam interrompue : {e}");
+                                network_errors = 3;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if network_errors < 3 {
+                    'libretro: for (id, system, titles, want, stem, key) in libretro_jobs {
+                        use halcyon_integrations::libretro::{candidates, Thumb};
+                        let mut found = false;
+                        for (i, (kind, thumb, suffix)) in [(ArtworkKind::Cover, Thumb::Boxart, "cover"), (ArtworkKind::Banner, Thumb::Snap, "banner")].into_iter().enumerate() {
+                            if !want[i] {
+                                continue;
+                            }
+                            match save(id, kind, &candidates(&system, thumb, &titles), &named(&stem, suffix)) {
+                                Ok(true) => {
+                                    found = true;
+                                    ok += 1;
+                                }
+                                Ok(false) => {}
+                                Err(e) => {
+                                    log::warn!("libretro-thumbnails interrompu : {e}");
+                                    network_errors = 3;
+                                    break 'libretro;
+                                }
+                            }
+                        }
+                        if !found {
+                            failures.insert(key, now_unix());
+                        }
+                    }
+                }
+                if network_errors < 3 {
+                    for (id, name, mut want, stem, key) in sgdb_jobs {
+                        if let Some(done) = got.get(&id) {
+                            for (w, d) in want.iter_mut().zip(done) {
+                                *w &= !d;
+                            }
+                            if !want.iter().any(|w| *w) {
+                                continue;
+                            }
+                        }
                         std::thread::sleep(std::time::Duration::from_millis(250));
                         match halcyon_integrations::steamgriddb::find_art(&dl, &sgdb_key, &name, want) {
                             Ok(Some(art)) => {
@@ -1715,6 +1847,7 @@ impl Controller {
         sui.set_steam_key(s.steam_api_key.as_str().into());
         sui.set_steam_id(s.steam_id.as_str().into());
         sui.set_steam_id_detected(self.local_steam_id().map(|i| i.to_string()).unwrap_or_default().into());
+        sui.set_steam_local(self.steam_local().is_some());
         sui.set_ra_user(s.ra_user.as_str().into());
         sui.set_ra_key(s.ra_api_key.as_str().into());
         sui.set_online_metadata(s.online_metadata);

@@ -68,6 +68,19 @@ impl SteamWeb {
     }
 }
 
+/// Rareté publique des succès d'un jeu (pourcentage de joueurs), sans clé d'API.
+pub fn global_rarity(dl: &Downloader, appid: u64) -> Result<HashMap<String, f32>, FetchError> {
+    let v = dl.get_json(&format!("{API}/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2/?gameid={appid}"))?;
+    Ok(parse_rarity(&v))
+}
+
+pub fn parse_rarity(v: &Value) -> HashMap<String, f32> {
+    v.pointer("/achievementpercentages/achievements")
+        .and_then(Value::as_array)
+        .map(|list| list.iter().filter_map(|a| Some((a.get("name")?.as_str()?.to_string(), as_f32(a.get("percent")?)?))).collect())
+        .unwrap_or_default()
+}
+
 pub fn parse_owned(v: &Value) -> Vec<OwnedGame> {
     v.pointer("/response/games")
         .and_then(Value::as_array)
@@ -154,6 +167,26 @@ pub fn steam_language() -> &'static str {
     }
 }
 
+/// Cherche un jeu dans la boutique Steam par son nom (sans clé). Ne renvoie un numéro que si
+/// le nom correspond exactement (sans tenir compte des accents ni de la ponctuation) : mieux
+/// vaut aucune image que celles d'un autre jeu.
+pub fn store_search(dl: &Downloader, name: &str) -> Result<Option<u64>, FetchError> {
+    let v = dl.get_json(&format!("https://store.steampowered.com/api/storesearch/?term={}&l=english&cc=US", crate::plugins::encode(name)))?;
+    Ok(pick_store_match(&v, name))
+}
+
+pub fn pick_store_match(v: &Value, name: &str) -> Option<u64> {
+    let wanted = halcyon_core::util::search_key(name);
+    if wanted.is_empty() {
+        return None;
+    }
+    v.get("items")?.as_array()?.iter().find_map(|it| {
+        let is_app = it.get("type").and_then(Value::as_str).is_none_or(|t| t == "app");
+        let same = halcyon_core::util::search_key(it.get("name")?.as_str()?) == wanted;
+        (is_app && same).then(|| it.get("id")?.as_u64()).flatten()
+    })
+}
+
 /// Métadonnées publiques de la boutique (sans clé). `Ok(None)` : jeu absent de la boutique.
 pub fn store_metadata(dl: &Downloader, appid: u64) -> Result<Option<OnlineMetadata>, FetchError> {
     let v = dl.get_json(&format!("https://store.steampowered.com/api/appdetails?appids={appid}&l={}", steam_language()))?;
@@ -215,6 +248,19 @@ fn store_tags(d: &Value) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn store_search_requires_exact_name() {
+        let v = serde_json::json!({"total": 3, "items": [
+            {"type": "app", "name": "Hades II", "id": 1145350},
+            {"type": "app", "name": "HADES", "id": 1145360},
+            {"type": "sub", "name": "Hades", "id": 99}
+        ]});
+        assert_eq!(pick_store_match(&v, "Hadès"), Some(1145360));
+        assert_eq!(pick_store_match(&v, "Hades 3"), None);
+        assert_eq!(pick_store_match(&serde_json::json!({"items": [{"type": "sub", "name": "Hades", "id": 1}]}), "Hades"), None);
+    }
+
     use super::*;
     use serde_json::json;
 

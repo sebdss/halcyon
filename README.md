@@ -103,8 +103,11 @@ HALCYON_DATA_DIR=/tmp/halcyon-demo/data cargo run -p halcyon-app
 - **Heroic** : lancement par son protocole `heroic://launch` ; si Heroic n'est pas installé,
   la commande `legendary launch` est utilisée.
 - **Jeux à lanceur intermédiaire** : la durée mesurée peut être courte (le lanceur se ferme).
-- **Métadonnées des jeux non Steam** : pas de source sans clé d'API tierce ; édition manuelle et
-  jaquettes personnalisées disponibles.
+- **Métadonnées des jeux non Steam** : visuels trouvés sans clé (boutique Steam pour les jeux
+  autonomes, libretro-thumbnails pour les jeux émulés) quand le titre correspond ; pas de
+  description sans source tierce. Édition manuelle et jaquettes personnalisées disponibles.
+- **Succès Steam sans clé** : lus dans les fichiers du client Steam de ce PC ; un jeu jamais
+  lancé sur ce PC n'en a pas encore (une clé Web API facultative les récupère en ligne).
 - **Mise à jour de Halcyon sous Linux** : installé par le programme d'installation, Halcyon
   télécharge et lance le nouveau programme vérifié ; installé par le `.deb`, le paquet est
   installé par votre gestionnaire. Halcyon ne se remplace jamais lui-même en cours d'exécution.

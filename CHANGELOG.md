@@ -1,5 +1,18 @@
 # Journal des modifications
 
+## Non publié — Succès et visuels sans clé
+
+- **Succès Steam sans clé d'API** : lus dans les fichiers que le client Steam enregistre sur ce
+  PC (`appcache/stats`), compte détecté automatiquement, hors ligne compris. Noms et
+  descriptions dans la langue de Halcyon quand le jeu les fournit. Rareté mondiale ajoutée en
+  ligne, sans clé. Suivi pendant la partie toutes les 20 s depuis le disque.
+- **Visuels sans clé** : jeux autonomes et ajoutés à la main cherchés dans la boutique Steam (nom
+  identique exigé) ; jeux émulés illustrés par libretro-thumbnails (boîte et capture).
+- **Paramètres › Comptes et succès** simplifié : état de Steam affiché, clés d'API (Steam,
+  SteamGridDB, Nexus Mods) rangées dans **Réglages avancés**, toutes facultatives.
+- Un jeu Steam jamais lancé sur ce PC indique « pas encore enregistré par Steam » au lieu d'une
+  erreur.
+
 ## 1.0.0-alpha.4 — « Berge », refonte de l'interface
 
 Nouvelle direction artistique, appliquée à toute l'application, au mode console et à

@@ -282,18 +282,24 @@ fn running_from_registry(text: &str) -> Option<u64> {
     steam.get_u64("RunningAppID").filter(|&id| id != 0)
 }
 
+/// Adresses publiques (CDN Steam, sans clé) de la jaquette, de la bannière et du logo d'un jeu.
+pub fn cdn_artwork(appid: u64) -> [String; 3] {
+    let cdn = format!("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/{appid}");
+    [format!("{cdn}/library_600x900_2x.jpg"), format!("{cdn}/library_hero.jpg"), format!("{cdn}/logo.png")]
+}
+
 /// Visuels : fichiers déjà en cache dans le client Steam, et URL du CDN en secours.
 fn artwork_for(root: &Path, appid: u64) -> Artwork {
     let cache = root.join("appcache").join("librarycache");
     let find = |names: &[&str]| find_cached(&cache, appid, names);
-    let cdn = format!("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/{appid}");
+    let [cover_url, banner_url, logo_url] = cdn_artwork(appid);
     Artwork {
         cover: find(&["library_600x900_2x.jpg", "library_600x900.jpg", "library_capsule.jpg"]),
         banner: find(&["library_hero.jpg", "library_hero_2x.jpg"]),
         logo: find(&["logo.png", "logo_2x.png"]),
-        cover_url: Some(format!("{cdn}/library_600x900_2x.jpg")),
-        banner_url: Some(format!("{cdn}/library_hero.jpg")),
-        logo_url: Some(format!("{cdn}/logo.png")),
+        cover_url: Some(cover_url),
+        banner_url: Some(banner_url),
+        logo_url: Some(logo_url),
     }
 }
 

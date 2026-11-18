@@ -174,6 +174,7 @@ impl Database {
                         "ok" => SyncStatus::Ok,
                         "none" => SyncStatus::NoAchievements,
                         "unknown" => SyncStatus::NotRecognized,
+                        "notcached" => SyncStatus::NotCached,
                         _ => SyncStatus::Error(msg.unwrap_or_default()),
                     };
                     Ok((r.get(0)?, s))

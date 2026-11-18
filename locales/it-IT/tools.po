@@ -1211,95 +1211,95 @@ msgstr "percorso rifiutato: {rel}"
 msgid "{e} ; retour arrière incomplet : {r}"
 msgstr "{e}; ripristino incompleto: {r}"
 
-#: crates/halcyon-integrations/src/emulators.rs:154
+#: crates/halcyon-integrations/src/emulators.rs:157
 #, placeholders
 msgid "{source} : la plateforme intégrée « {id} » ne peut pas être remplacée"
 msgstr "{source}: la piattaforma integrata «{id}» non può essere sostituita"
 
-#: crates/halcyon-integrations/src/emulators.rs:160
+#: crates/halcyon-integrations/src/emulators.rs:163
 #, placeholders
 msgid "{source} : plateforme invalide ({e})"
 msgstr "{source}: piattaforma non valida ({e})"
 
-#: crates/halcyon-integrations/src/emulators.rs:166
+#: crates/halcyon-integrations/src/emulators.rs:169
 #, placeholders
 msgid "{source} : l'émulateur intégré « {id} » ne peut pas être remplacé"
 msgstr "{source}: l'emulatore integrato «{id}» non può essere sostituito"
 
-#: crates/halcyon-integrations/src/emulators.rs:172
+#: crates/halcyon-integrations/src/emulators.rs:175
 #, placeholders
 msgid "{source} : émulateur invalide ({e})"
 msgstr "{source}: emulatore non valido ({e})"
 
-#: crates/halcyon-integrations/src/emulators.rs:235
+#: crates/halcyon-integrations/src/emulators.rs:238
 msgid "manuel"
 msgstr "manuale"
 
-#: crates/halcyon-integrations/src/emulators.rs:243
+#: crates/halcyon-integrations/src/emulators.rs:246
 msgid "dossier"
 msgstr "cartella"
 
-#: crates/halcyon-integrations/src/emulators.rs:306
+#: crates/halcyon-integrations/src/emulators.rs:309
 #, placeholders
 msgid "{name} ne prend pas en charge cette plateforme"
 msgstr "{name} non supporta questa piattaforma"
 
-#: crates/halcyon-integrations/src/emulators.rs:308
+#: crates/halcyon-integrations/src/emulators.rs:311
 #, placeholders
 msgid "ROM introuvable : {rom}"
 msgstr "ROM non trovata: {rom}"
 
-#: crates/halcyon-integrations/src/emulators.rs:328
+#: crates/halcyon-integrations/src/emulators.rs:331
 #, placeholders
 msgid "cœur introuvable : {value} — installez-le depuis RetroArch (Menu principal › Charger un cœur › Télécharger un cœur)"
 msgstr "core non trovato: {value} — installalo da RetroArch (Menu principale › Carica core › Scarica un core)"
 
-#: crates/halcyon-integrations/src/emulators.rs:363
+#: crates/halcyon-integrations/src/emulators.rs:366
 msgid "indiquez le nom de l'émulateur"
 msgstr "indica il nome dell'emulatore"
 
-#: crates/halcyon-integrations/src/emulators.rs:366
+#: crates/halcyon-integrations/src/emulators.rs:369
 #, placeholders
 msgid "exécutable introuvable : {executable}"
 msgstr "eseguibile non trovato: {executable}"
 
-#: crates/halcyon-integrations/src/emulators.rs:369
+#: crates/halcyon-integrations/src/emulators.rs:372
 msgid "choisissez au moins une plateforme"
 msgstr "scegli almeno una piattaforma"
 
-#: crates/halcyon-integrations/src/emulators.rs:372
+#: crates/halcyon-integrations/src/emulators.rs:375
 #, placeholders
 msgid "plateforme inconnue : {p}"
 msgstr "piattaforma sconosciuta: {p}"
 
-#: crates/halcyon-integrations/src/emulators.rs:375
+#: crates/halcyon-integrations/src/emulators.rs:378
 #, placeholders
 msgid "les arguments doivent contenir {rom} (ou {rom_dir}, {rom_name}) pour transmettre le jeu"
 msgstr "gli argomenti devono contenere {rom} (o {rom_dir}, {rom_name}) per passare il gioco"
 
-#: crates/halcyon-integrations/src/emulators.rs:385
+#: crates/halcyon-integrations/src/emulators.rs:388
 #, placeholders
 msgid "« {id} » est un émulateur intégré : il ne peut pas être modifié ici"
 msgstr "«{id}» è un emulatore integrato: non può essere modificato qui"
 
-#: crates/halcyon-integrations/src/emulators.rs:413
+#: crates/halcyon-integrations/src/emulators.rs:416
 #, placeholders
 msgid "définition invalide : {err}"
 msgstr "definizione non valida: {err}"
 
-#: crates/halcyon-integrations/src/emulators.rs:446
+#: crates/halcyon-integrations/src/emulators.rs:449
 msgid "seuls les émulateurs ajoutés dans Halcyon peuvent être supprimés"
 msgstr "solo gli emulatori aggiunti in Halcyon possono essere eliminati"
 
-#: crates/halcyon-integrations/src/emulators.rs:456
+#: crates/halcyon-integrations/src/emulators.rs:459
 msgid "indiquez le nom de la plateforme"
 msgstr "indica il nome della piattaforma"
 
-#: crates/halcyon-integrations/src/emulators.rs:464
+#: crates/halcyon-integrations/src/emulators.rs:467
 msgid "indiquez au moins une extension de fichier (ex. iso, chd)"
 msgstr "indica almeno un'estensione di file (es. iso, chd)"
 
-#: crates/halcyon-integrations/src/emulators.rs:470
+#: crates/halcyon-integrations/src/emulators.rs:473
 #, placeholders
 msgid "plateforme invalide : {err}"
 msgstr "piattaforma non valida: {err}"

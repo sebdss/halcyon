@@ -4,13 +4,14 @@
 use crate::controller::{post, Controller};
 use crate::images::{ImageKey, Kind};
 use crate::{AchUi, AchievementRow, AppUi, DetailUi, MonthBar, ProviderStat};
-use halcyon_core::achievements::{rarity_label, Achievement, AchievementProvider, SyncStatus};
+use halcyon_core::achievements::{rarity_label, Achievement, AchievementData, AchievementProvider, SyncStatus};
 use halcyon_core::util;
 use halcyon_core::{Game, GameId, GameSource};
 use halcyon_integrations::artwork::{Downloader, FetchError};
 use halcyon_integrations::rahash;
 use halcyon_integrations::retro::RetroAchievements;
-use halcyon_integrations::steam_web::SteamWeb;
+use halcyon_integrations::steam_web::{self, SteamWeb};
+use halcyon_integrations::{steam, steam_stats};
 use halcyon_storage::{now_unix, Database};
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::collections::HashMap;
@@ -23,6 +24,8 @@ use std::time::{Duration, Instant};
 /// (sauf s'il a été lancé depuis).
 const RESYNC_SECS: i64 = 12 * 3600;
 const POLL_MAX: Duration = Duration::from_secs(8 * 3600);
+/// Surveillance par la lecture locale : un fichier relu, pas de requête.
+const POLL_LOCAL: Duration = Duration::from_secs(20);
 
 /// Jeu à synchroniser (copie autonome, envoyée au thread de travail).
 #[derive(Clone, Debug)]
@@ -40,11 +43,24 @@ pub(crate) struct Candidate {
 #[derive(Clone)]
 pub(crate) struct SyncConfig {
     steam: Option<SteamWeb>,
+    /// Succès Steam lus dans le cache du client (sans clé).
+    steam_local: Option<SteamLocal>,
+    /// Réseau autorisé (sinon : lecture locale seulement).
+    online: bool,
+    /// Rareté publique demandée à Steam (pas pendant la surveillance d'une partie).
+    rarity: bool,
     ra: Option<RetroAchievements>,
     /// plateforme → (console RetroAchievements, méthode d'empreinte)
     platforms: HashMap<String, (u32, String)>,
     cache_dir: PathBuf,
     remote_dir: PathBuf,
+}
+
+/// Client Steam de ce PC et compte connecté : de quoi lire les succès sur le disque.
+#[derive(Clone)]
+pub(crate) struct SteamLocal {
+    root: PathBuf,
+    account: u32,
 }
 
 /// Succès nouvellement débloqué, prêt à être notifié.
@@ -67,6 +83,20 @@ impl Controller {
         Some(SteamWeb { key, steam_id })
     }
 
+    /// Lecture locale des succès Steam : client Steam trouvé et compte connu (réglage, sinon
+    /// dernier compte connecté sur ce PC).
+    pub(crate) fn steam_local(&self) -> Option<SteamLocal> {
+        let s = self.settings.borrow();
+        if !s.steam_enabled {
+            return None;
+        }
+        let id = s.steam_id.trim().parse::<u64>().ok();
+        let root = steam::SteamScanner::new(s.steam_path.clone()).root()?;
+        drop(s);
+        let id = id.or_else(|| steam::local_steam_id64(&root))?;
+        root.join("appcache").join("stats").is_dir().then(|| SteamLocal { root, account: steam_stats::account_id(id) })
+    }
+
     fn retro(&self) -> Option<RetroAchievements> {
         let s = self.settings.borrow();
         (!s.ra_user.trim().is_empty() && !s.ra_api_key.trim().is_empty())
@@ -83,6 +113,9 @@ impl Controller {
             .collect();
         SyncConfig {
             steam: self.steam_web(),
+            steam_local: self.steam_local(),
+            online: self.net_allowed(),
+            rarity: true,
             ra: self.retro(),
             platforms,
             cache_dir: self.paths.cache_dir.join("retroachievements"),
@@ -93,7 +126,7 @@ impl Controller {
     /// Mode d'affichage de l'onglet Succès pour un jeu.
     pub(crate) fn ach_mode(&self, g: &Game) -> &'static str {
         match g.source {
-            GameSource::Steam if self.steam_web().is_some() => "steam",
+            GameSource::Steam if self.steam_web().is_some() || self.steam_local().is_some() => "steam",
             GameSource::Steam => "unconfigured",
             GameSource::Epic => "epic",
             GameSource::Emulated => {
@@ -134,14 +167,15 @@ impl Controller {
 
     /// Synchronise un jeu (`only`) ou toute la bibliothèque (incrémental sauf `force`).
     pub(crate) fn start_ach_sync(&self, only: Option<GameId>, force: bool) {
-        if !self.net_allowed() {
+        let cfg = self.sync_config();
+        // Hors ligne, seuls les succès Steam lus sur le disque restent disponibles.
+        if !cfg.online && cfg.steam_local.is_none() {
             if only.is_some() && force {
                 self.toast(tr!("Hors ligne : les succès seront synchronisés au retour de la connexion"), false);
             }
             return;
         }
-        let cfg = self.sync_config();
-        if cfg.steam.is_none() && cfg.ra.is_none() {
+        if cfg.steam.is_none() && cfg.steam_local.is_none() && cfg.ra.is_none() {
             if only.is_some() {
                 self.toast(tr!("Configurez vos comptes Steam / RetroAchievements dans les paramètres"), true);
             }
@@ -165,9 +199,9 @@ impl Controller {
                 .iter()
                 .filter(|g| only.is_none_or(|id| g.id == id))
                 .filter(|g| match g.source {
-                    GameSource::Steam => cfg.steam.is_some(),
+                    GameSource::Steam => cfg.steam_local.is_some() || (cfg.steam.is_some() && cfg.online),
                     GameSource::Emulated => {
-                        cfg.ra.is_some() && g.platform.as_ref().is_some_and(|p| cfg.platforms.contains_key(p)) && g.installed
+                        cfg.online && cfg.ra.is_some() && g.platform.as_ref().is_some_and(|p| cfg.platforms.contains_key(p)) && g.installed
                     }
                     _ => false,
                 })
@@ -176,9 +210,16 @@ impl Controller {
                         return true;
                     }
                     let times = if g.source == GameSource::Steam { &steam_times } else { &ra_times };
+                    // Progression locale réécrite par Steam depuis la dernière lecture.
+                    let local_changed = |t: i64| {
+                        g.source == GameSource::Steam
+                            && cfg.steam_local.as_ref().is_some_and(|l| {
+                                g.source_key.parse().ok().and_then(|appid| steam_stats::progress_modified(&l.root, l.account, appid)).is_some_and(|m| m > t)
+                            })
+                    };
                     match times.get(&g.id) {
                         None => g.installed || g.playtime_secs > 0,
-                        Some(&t) => now - t > RESYNC_SECS || g.last_played.is_some_and(|lp| lp > t),
+                        Some(&t) => now - t > RESYNC_SECS || g.last_played.is_some_and(|lp| lp > t) || local_changed(t),
                     }
                 })
                 .collect();
@@ -215,7 +256,10 @@ impl Controller {
                         }
                         Err(FetchError::Unavailable(e)) => errors.push(format!("{} : {e}", c.name)),
                     }
-                    std::thread::sleep(Duration::from_millis(if c.source == GameSource::Steam { 250 } else { 450 }));
+                    // Pauses entre les requêtes réseau (la lecture locale n'en a pas besoin).
+                    if cfg.online {
+                        std::thread::sleep(Duration::from_millis(if c.source == GameSource::Steam { 250 } else { 450 }));
+                    }
                 }
                 let games = db.lock().unwrap_or_else(|e| e.into_inner()).load_games();
                 post(move |ctl| ctl.on_ach_sync_done(unlocks, errors, total, games.ok()));
@@ -270,19 +314,23 @@ impl Controller {
     /// Vérifie périodiquement les succès du jeu lancé (s'il est pris en charge).
     pub(crate) fn start_polling(&self, id: GameId) {
         let generation = self.poll_generation.fetch_add(1, Ordering::SeqCst) + 1;
-        if !self.net_allowed() {
-            return;
-        }
         if !self.settings.borrow().achievement_polling {
             return;
         }
         let Some(game) = self.lib.borrow().get(id).cloned() else { return };
+        let mut cfg = self.sync_config();
+        // La rareté est déjà connue ; la surveillance ne relit que la progression.
+        cfg.rarity = false;
+        let local = cfg.steam_local.is_some() && cfg.steam.is_none();
+        if !cfg.online && !(game.source == GameSource::Steam && cfg.steam_local.is_some()) {
+            return;
+        }
         let interval = match self.ach_mode(&game) {
+            "steam" if local || !cfg.online => POLL_LOCAL,
             "steam" => Duration::from_secs(120),
             "retroachievements" => Duration::from_secs(90),
             _ => return,
         };
-        let cfg = self.sync_config();
         let cand = Self::candidate(&game);
         let db = self.db.clone();
         let current = self.poll_generation.clone();
@@ -408,7 +456,7 @@ impl Controller {
             ("epic", _) => tr!("Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici."),
             ("unsupported", _) => tr!("Cette plateforme n'est pas prise en charge par RetroAchievements."),
             ("unconfigured", _) if g.source == GameSource::Steam => {
-                tr!("Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam.")
+                tr!("Aucun compte Steam trouvé sur ce PC : ouvrez Steam une fois connecté, puis relancez une analyse.")
             }
             ("unconfigured", _) => tr!("Renseignez votre compte RetroAchievements dans les paramètres."),
             ("custom", 0) => tr!("Aucun succès personnalisé pour l'instant."),
@@ -430,6 +478,10 @@ impl Controller {
                     SyncStatus::NotRecognized => {
                         tr!("ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres.").into()
                     }
+                    SyncStatus::NotCached => tr!(
+                        "Steam n'a pas encore enregistré les succès de ce jeu sur ce PC : lancez-le une fois. Pour les jeux jamais lancés ici, une clé Steam Web API (Paramètres › Comptes, réglages avancés) les récupère en ligne."
+                    )
+                    .into(),
                     SyncStatus::Error(e) => tr!("Dernière tentative {when} : {e}", when = when, e = e),
                 }
             })
@@ -445,7 +497,7 @@ impl Controller {
     pub(crate) fn refresh_ach_page(&self) {
         let Some(app) = self.app() else { return };
         let ach = app.global::<AchUi>();
-        ach.set_steam_ready(self.steam_web().is_some());
+        ach.set_steam_ready(self.steam_web().is_some() || self.steam_local().is_some());
         ach.set_ra_ready(self.retro().is_some());
         let stats = self.db().achievement_stats().unwrap_or_default();
         ach.set_unlocked(stats.unlocked as i32);
@@ -556,9 +608,42 @@ fn sync_one(c: &Candidate, cfg: &SyncConfig, dl: &Downloader, db: &Arc<Mutex<Dat
     let lock = || db.lock().unwrap_or_else(|e| e.into_inner());
     let (provider, result) = match c.source {
         GameSource::Steam => {
-            let Some(web) = &cfg.steam else { return Ok(vec![]) };
             let Ok(appid) = c.key.parse::<u64>() else { return Ok(vec![]) };
-            (AchievementProvider::Steam, web.achievements(dl, appid).map(|o| o.unwrap_or_default()))
+            let local = || {
+                cfg.steam_local.as_ref().map(|l| steam_stats::local_achievements(&l.root, l.account, appid, steam_web::steam_language()))
+            };
+            // Rareté publique (sans clé), si le réseau est permis.
+            let with_rarity = |mut list: Vec<AchievementData>| {
+                if cfg.online && cfg.rarity && !list.is_empty() {
+                    if let Ok(rarity) = steam_web::global_rarity(dl, appid) {
+                        for a in &mut list {
+                            a.rarity = rarity.get(&a.api_name).copied();
+                        }
+                    }
+                }
+                list
+            };
+            let result = match (&cfg.steam, cfg.online) {
+                // Clé Web API : source complète (tous les jeux du compte). En cas d'échec (clé
+                // refusée, profil privé, réseau), la lecture locale prend le relais.
+                (Some(web), true) => match web.achievements(dl, appid) {
+                    Ok(list) => Ok(list.unwrap_or_default()),
+                    Err(e) => match local() {
+                        Some(Ok(Some(list))) => Ok(with_rarity(list)),
+                        _ => Err(e),
+                    },
+                },
+                _ => match local() {
+                    None => return Ok(vec![]),
+                    Some(Ok(None)) => {
+                        let _ = lock().set_sync_status(c.id, AchievementProvider::Steam, &SyncStatus::NotCached);
+                        return Ok(vec![]);
+                    }
+                    Some(Ok(Some(list))) => Ok(with_rarity(list)),
+                    Some(Err(e)) => Err(FetchError::Unavailable(e)),
+                },
+            };
+            (AchievementProvider::Steam, result)
         }
         GameSource::Emulated => {
             let Some(ra) = &cfg.ra else { return Ok(vec![]) };

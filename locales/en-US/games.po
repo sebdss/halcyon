@@ -762,138 +762,142 @@ msgstr "Create a desktop shortcut"
 msgid "Publier dans Sunshine…"
 msgstr "Publish to Sunshine…"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:139
+#: crates/halcyon-app/src/ctl_achievements.rs:174
 msgid "Hors ligne : les succès seront synchronisés au retour de la connexion"
 msgstr "Offline: achievements will sync when the connection is back"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:146
+#: crates/halcyon-app/src/ctl_achievements.rs:180
 msgid "Configurez vos comptes Steam / RetroAchievements dans les paramètres"
 msgstr "Set up your Steam / RetroAchievements accounts in the settings"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:152
+#: crates/halcyon-app/src/ctl_achievements.rs:186
 msgid "Une synchronisation est déjà en cours"
 msgstr "A sync is already in progress"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:192
+#: crates/halcyon-app/src/ctl_achievements.rs:233
 msgid "Rien à synchroniser pour ce jeu"
 msgstr "Nothing to sync for this game"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:196
+#: crates/halcyon-app/src/ctl_achievements.rs:237
 #, placeholders
 msgid "Synchronisation de {n} jeu…"
 msgid_plural "Synchronisation de {n} jeux…"
 msgstr[0] "Syncing {n} game…"
 msgstr[1] "Syncing {n} games…"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:207
+#: crates/halcyon-app/src/ctl_achievements.rs:248
 #, placeholders
 msgid "Succès : {v}/{total}"
 msgstr "Achievements: {v}/{total}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:228
+#: crates/halcyon-app/src/ctl_achievements.rs:272
 msgid "Synchronisation des succès"
 msgstr "Syncing achievements"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:247
+#: crates/halcyon-app/src/ctl_achievements.rs:291
 #, placeholders
 msgid "Jeux traités : {total} · erreurs : {errors} — {e}"
 msgstr "Games processed: {total} · errors: {errors} — {e}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:248
+#: crates/halcyon-app/src/ctl_achievements.rs:292
 #, placeholders
 msgid "Synchronisé à {clock_now} · {n} jeu"
 msgid_plural "Synchronisé à {clock_now} · {n} jeux"
 msgstr[0] "Synced at {clock_now} · {n} game"
 msgstr[1] "Synced at {clock_now} · {n} games"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:251
+#: crates/halcyon-app/src/ctl_achievements.rs:295
 #, placeholders
 msgid "{status} · {n} nouveau succès"
 msgid_plural "{status} · {n} nouveaux succès"
 msgstr[0] "{status} · {n} new achievement"
 msgstr[1] "{status} · {n} new achievements"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:333
+#: crates/halcyon-app/src/ctl_achievements.rs:381
 #, placeholders
 msgid "{n} succès débloqué"
 msgid_plural "{n} succès débloqués"
 msgstr[0] "{n} achievement unlocked"
 msgstr[1] "{n} achievements unlocked"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:372
+#: crates/halcyon-app/src/ctl_achievements.rs:420
 msgid "Débloqué"
 msgstr "Unlocked"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:389
+#: crates/halcyon-app/src/ctl_achievements.rs:437
 #, placeholders
 msgid "{n} point"
 msgid_plural "{n} points"
 msgstr[0] "{n} point"
 msgstr[1] "{n} points"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:408
+#: crates/halcyon-app/src/ctl_achievements.rs:456
 msgid "Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici."
 msgstr "Epic Games doesn't offer a public achievements API: they can't be shown here."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:409
+#: crates/halcyon-app/src/ctl_achievements.rs:457
 msgid "Cette plateforme n'est pas prise en charge par RetroAchievements."
 msgstr "This platform isn't supported by RetroAchievements."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:411
-msgid "Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam."
-msgstr "Add your Steam Web API key in the settings to show your Steam achievements."
+#: crates/halcyon-app/src/ctl_achievements.rs:459
+msgid "Aucun compte Steam trouvé sur ce PC : ouvrez Steam une fois connecté, puis relancez une analyse."
+msgstr "No Steam account found on this PC: open Steam once while signed in, then run a new scan."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:413
+#: crates/halcyon-app/src/ctl_achievements.rs:461
 msgid "Renseignez votre compte RetroAchievements dans les paramètres."
 msgstr "Enter your RetroAchievements account in the settings."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:414
+#: crates/halcyon-app/src/ctl_achievements.rs:462
 msgid "Aucun succès personnalisé pour l'instant."
 msgstr "No custom achievements yet."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:415
+#: crates/halcyon-app/src/ctl_achievements.rs:463
 msgid "Aucun succès synchronisé pour ce jeu."
 msgstr "No achievements synced for this game."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:416
+#: crates/halcyon-app/src/ctl_achievements.rs:464
 #, placeholders
 msgid "{unlocked} / {n} succès débloqué"
 msgid_plural "{unlocked} / {n} succès débloqués"
 msgstr[0] "{unlocked} / {n} achievement unlocked"
 msgstr[1] "{unlocked} / {n} achievements unlocked"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:428
+#: crates/halcyon-app/src/ctl_achievements.rs:476
 #, placeholders
 msgid "Synchronisé {when}"
 msgstr "Synced {when}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:429
+#: crates/halcyon-app/src/ctl_achievements.rs:477
 #, placeholders
 msgid "Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})"
 msgstr "This game has no achievements on this platform (checked {when})"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:431
+#: crates/halcyon-app/src/ctl_achievements.rs:479
 msgid "ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres."
 msgstr "ROM not recognized by RetroAchievements: enter the game's ID in the Settings tab."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:433
+#: crates/halcyon-app/src/ctl_achievements.rs:481
+msgid "Steam n'a pas encore enregistré les succès de ce jeu sur ce PC : lancez-le une fois. Pour les jeux jamais lancés ici, une clé Steam Web API (Paramètres › Comptes, réglages avancés) les récupère en ligne."
+msgstr "Steam hasn't saved this game's achievements on this PC yet: launch it once. For games never launched here, a Steam Web API key (Settings › Accounts, advanced settings) fetches them online."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:485
 #, placeholders
 msgid "Dernière tentative {when} : {e}"
 msgstr "Last attempt {when}: {e}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:436
+#: crates/halcyon-app/src/ctl_achievements.rs:488
 msgid "Succès locaux, non vérifiés par une plateforme."
 msgstr "Local achievements, not verified by a platform."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:534
+#: crates/halcyon-app/src/ctl_achievements.rs:586
 msgid "L'identifiant RetroAchievements est un nombre"
 msgstr "The RetroAchievements ID is a number"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:544
+#: crates/halcyon-app/src/ctl_achievements.rs:596
 msgid "Identifiant enregistré"
 msgstr "ID saved"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:605
+#: crates/halcyon-app/src/ctl_achievements.rs:690
 #, placeholders
 msgid "base de données : {e}"
 msgstr "database: {e}"

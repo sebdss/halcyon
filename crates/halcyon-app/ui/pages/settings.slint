@@ -2,7 +2,7 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { SourceInfo } from "../types.slint";
 import { SettingsUi, AppUi, Actions, SystemUi } from "../state.slint";
-import { Panel, Toggle, TextField, SecondaryButton, PrimaryButton, IconButton, Badge, Icon, SectionTitle, Chip, Dropdown, ValueSlider, Segmented, ProgressBar } from "../components.slint";
+import { Panel, Toggle, TextField, SecondaryButton, PrimaryButton, IconButton, Badge, Icon, SectionTitle, Chip, Dropdown, ValueSlider, Segmented, ProgressBar, Notice, TextButton } from "../components.slint";
 import { HusUi } from "../hus_state.slint";
 
 component SettingRow inherits HorizontalLayout {
@@ -317,6 +317,8 @@ component CategoryItem inherits Rectangle {
 }
 
 export component SettingsPage inherits Rectangle {
+    // Clés d'API repliées : ouvertes d'office si l'une est déjà renseignée.
+    property <bool> advanced-open: SettingsUi.steam-key != "" || SettingsUi.steamgriddb-key != "" || SettingsUi.nexus-key != "";
     property <string> new-folder;
     property <bool> two-pane: root.width > 940px;
     property <length> nav-width: root.two-pane ? 252px : 0px;
@@ -558,29 +560,25 @@ export component SettingsPage inherits Rectangle {
                     VerticalLayout {
                         padding: 22px;
                         spacing: 18px;
+                        // Ce qui marche sans rien configurer.
+                        Notice {
+                            text: SettingsUi.steam-local
+                                ? @tr("Succès Steam : lus directement dans le client Steam de ce PC (compte {}), sans clé ni configuration. Un jeu apparaît après sa première partie sur ce PC.", SettingsUi.steam-id-detected)
+                                : @tr("Succès Steam : aucun compte Steam trouvé sur ce PC. Ouvrez Steam une fois connecté : les succès seront ensuite lus directement, sans clé.");
+                            warning: !SettingsUi.steam-local;
+                        }
+                        Notice {
+                            text: @tr("Visuels : Steam, Epic Games et GOG fournissent jaquettes, bannières et logos sans configuration. Pour les jeux standalone, Halcyon cherche le jeu dans la boutique Steam ; pour les jeux émulés, dans libretro-thumbnails (projet RetroArch).");
+                        }
                         Text {
-                            text: @tr("Clés stockées uniquement sur cet ordinateur, dans le coffre de Halcyon (chiffré par Windows ; réservé à votre compte sous Linux), jamais dans settings.json. Les succès Epic Games ne sont pas disponibles : Epic ne propose pas d'API publique.");
+                            text: @tr("Les succès Epic Games ne sont pas disponibles : Epic ne propose pas d'API publique.");
                             color: Theme.text-dim;
                             font-size: Theme.t-caption;
                             wrap: word-wrap;
                         }
-                        TextSetting {
-                            key: "steam_api_key";
-                            label: @tr("Clé Steam Web API");
-                            hint: @tr("À obtenir sur steamcommunity.com/dev/apikey. Les détails de jeu de votre profil Steam doivent être publics. Ajoute aussi les jeux possédés non installés.");
-                            placeholder: @tr("32 caractères hexadécimaux");
-                            value: SettingsUi.steam-key;
-                        }
-                        TextSetting {
-                            key: "steam_id";
-                            label: @tr("SteamID64");
-                            hint: SettingsUi.steam-id-detected != "" ? @tr("Détecté sur cet ordinateur : {} (laisser vide pour l'utiliser).", SettingsUi.steam-id-detected) : @tr("Aucun compte Steam détecté sur cet ordinateur.");
-                            placeholder: "7656119…";
-                            value: SettingsUi.steam-id;
-                        }
                         HorizontalLayout {
                             spacing: 12px;
-                            TextSetting { key: "ra_user"; label: @tr("Utilisateur RetroAchievements"); placeholder: @tr("Pseudo"); value: SettingsUi.ra-user; }
+                            TextSetting { key: "ra_user"; label: @tr("Utilisateur RetroAchievements"); hint: @tr("Pour les succès des jeux émulés."); placeholder: @tr("Pseudo"); value: SettingsUi.ra-user; }
                             TextSetting {
                                 key: "ra_api_key";
                                 label: @tr("Clé Web API RetroAchievements");
@@ -589,23 +587,9 @@ export component SettingsPage inherits Rectangle {
                                 value: SettingsUi.ra-key;
                             }
                         }
-                        TextSetting {
-                            key: "nexus_api_key";
-                            label: @tr("Clé d'API Nexus Mods (facultative)");
-                            hint: @tr("nexusmods.com › Mon compte › Accès à l'API. Sert uniquement à vérifier les versions de vos mods.");
-                            placeholder: @tr("Clé personnelle");
-                            value: SettingsUi.nexus-key;
-                        }
-                        TextSetting {
-                            key: "steamgriddb_api_key";
-                            label: @tr("Clé d'API SteamGridDB (facultative)");
-                            hint: @tr("steamgriddb.com › Préférences › API. Jaquettes, bannières et logos des jeux standalone et ajoutés à la main (avec « Télécharger les visuels manquants »).");
-                            placeholder: @tr("Clé personnelle");
-                            value: SettingsUi.steamgriddb-key;
-                        }
                         SettingRow {
                             title: @tr("Synchroniser les succès au démarrage");
-                            description: @tr("Incrémentale : seuls les jeux non synchronisés depuis 12 h sont interrogés.");
+                            description: @tr("Incrémentale : seuls les jeux non synchronisés depuis 12 h, ou dont Steam a enregistré de nouveaux succès, sont relus.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.sync-on-startup;
@@ -614,7 +598,7 @@ export component SettingsPage inherits Rectangle {
                         }
                         SettingRow {
                             title: @tr("Surveiller les succès pendant une partie");
-                            description: @tr("Vérifie périodiquement le jeu lancé (Steam : 2 min, RetroAchievements : 90 s) pour vous notifier.");
+                            description: @tr("Vérifie le jeu lancé pour vous notifier : Steam toutes les 20 s depuis le disque (2 min en ligne avec une clé), RetroAchievements toutes les 90 s.");
                             Toggle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.polling;
@@ -628,6 +612,51 @@ export component SettingsPage inherits Rectangle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.notifications;
                                 toggled(v) => { SettingsUi.set-option("achievement_notifications", v); }
+                            }
+                        }
+                        // Réglages avancés : clés d'API facultatives.
+                        HorizontalLayout {
+                            alignment: start;
+                            TextButton {
+                                text: root.advanced-open ? @tr("Masquer les réglages avancés") : @tr("Réglages avancés : clés d'API facultatives");
+                                clicked => { root.advanced-open = !root.advanced-open; }
+                            }
+                        }
+                        if root.advanced-open: VerticalLayout {
+                            spacing: 18px;
+                            Text {
+                                text: @tr("Aucune de ces clés n'est nécessaire. Elles sont stockées uniquement sur cet ordinateur, dans le coffre de Halcyon (chiffré par Windows ; réservé à votre compte sous Linux), jamais dans settings.json.");
+                                color: Theme.text-dim;
+                                font-size: Theme.t-caption;
+                                wrap: word-wrap;
+                            }
+                            TextSetting {
+                                key: "steam_api_key";
+                                label: @tr("Clé Steam Web API");
+                                hint: @tr("Récupère en ligne les succès des jeux jamais lancés sur ce PC et ajoute les jeux possédés non installés. À créer sur steamcommunity.com/dev/apikey ; les détails de jeu de votre profil Steam doivent être publics.");
+                                placeholder: @tr("32 caractères hexadécimaux");
+                                value: SettingsUi.steam-key;
+                            }
+                            TextSetting {
+                                key: "steam_id";
+                                label: @tr("SteamID64");
+                                hint: SettingsUi.steam-id-detected != "" ? @tr("Détecté sur cet ordinateur : {} (laisser vide pour l'utiliser).", SettingsUi.steam-id-detected) : @tr("Aucun compte Steam détecté sur cet ordinateur.");
+                                placeholder: "7656119…";
+                                value: SettingsUi.steam-id;
+                            }
+                            TextSetting {
+                                key: "steamgriddb_api_key";
+                                label: @tr("Clé d'API SteamGridDB");
+                                hint: @tr("steamgriddb.com › Préférences › API. Visuels de secours pour les jeux standalone introuvables dans la boutique Steam.");
+                                placeholder: @tr("Clé personnelle");
+                                value: SettingsUi.steamgriddb-key;
+                            }
+                            TextSetting {
+                                key: "nexus_api_key";
+                                label: @tr("Clé d'API Nexus Mods");
+                                hint: @tr("nexusmods.com › Mon compte › Accès à l'API. Sert uniquement à vérifier les versions de vos mods.");
+                                placeholder: @tr("Clé personnelle");
+                                value: SettingsUi.nexus-key;
                             }
                         }
                     }
