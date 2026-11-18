@@ -17,10 +17,9 @@ use std::time::Duration;
 /// Jeux non lancés depuis ce délai : proposés à la désinstallation.
 const IDLE_SECS: i64 = 182 * 86_400;
 
-/// Application Discord « Halcyon » (identifiant public, pas un secret). Vide tant qu'elle
-/// n'est pas créée : le statut ne s'affiche alors qu'avec un identifiant saisi dans les
-/// réglages.
-const DISCORD_APP_ID: &str = "";
+/// Application Discord « Halcyon » (identifiant public, pas un secret ; logo : asset
+/// `halcyon`). Un identifiant saisi dans les réglages la remplace.
+const DISCORD_APP_ID: &str = "1572677279446995145";
 
 /// Fiche de configuration gardée en cache.
 const REQ_MAX_AGE: i64 = 30 * 86_400;

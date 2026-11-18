@@ -1908,7 +1908,7 @@ checksum = "b40ca9252762c466af32d0b1002e91e4e1bc5398f77455e55474deb466355ff5"
 
 [[package]]
 name = "halcyon-app"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "dirs",
  "gilrs",
@@ -1940,7 +1940,7 @@ dependencies = [
 
 [[package]]
 name = "halcyon-audio"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "cpal",
  "halcyon-i18n",
@@ -1949,7 +1949,7 @@ dependencies = [
 
 [[package]]
 name = "halcyon-core"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "halcyon-i18n",
  "serde",
@@ -1959,14 +1959,14 @@ dependencies = [
 
 [[package]]
 name = "halcyon-i18n"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "sys-locale",
 ]
 
 [[package]]
 name = "halcyon-installer"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "dirs",
  "halcyon-core",
@@ -1986,7 +1986,7 @@ dependencies = [
 
 [[package]]
 name = "halcyon-integrations"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "base64",
  "dirs",
@@ -2011,7 +2011,7 @@ dependencies = [
 
 [[package]]
 name = "halcyon-minecraft"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "base64",
  "dirs",
@@ -2030,7 +2030,7 @@ dependencies = [
 
 [[package]]
 name = "halcyon-storage"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "dirs",
  "halcyon-core",
@@ -2046,7 +2046,7 @@ dependencies = [
 
 [[package]]
 name = "halcyon-update"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "base64",
  "ed25519-compact",

@@ -1,6 +1,11 @@
 # Journal des modifications
 
-## Non publié — Sept launchers de plus
+## 1.0.0-alpha.5 — Le launcher le plus complet
+
+Sept launchers de plus, sauvegardes Ludusavi, récap et story, statut Discord,
+configuration requise, et les succès Steam sans clé.
+
+### Sept launchers de plus
 
 - **Ubisoft Connect, EA app, Xbox / Game Pass PC, Battle.net, Riot, Amazon Games** (Windows)
   et **itch.io** (Windows et Linux) : jeux installés lus sans compte ni configuration, lancés
@@ -74,7 +79,7 @@
 - Jamais de dossier trop large : ni racine (dossier du jeu, Documents, AppData), ni dossier
   partagé par plusieurs jeux (une restauration écraserait leurs sauvegardes).
 
-## Non publié — Succès et visuels sans clé
+### Succès et visuels sans clé
 
 - **Succès Steam sans clé d'API** : lus dans les fichiers que le client Steam enregistre sur ce
   PC (`appcache/stats`), compte détecté automatiquement, hors ligne compris. Noms et
