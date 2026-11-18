@@ -5,12 +5,13 @@ import {Reveal, body, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {ease, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 const ITEMS = [
-  {src: 'mises-a-jour', title: 'Mises à jour', line: 'Ce qui attend chez Steam, Epic et GOG, avec la progression réelle.'},
-  {src: 'que-jouer', title: 'Que jouer ?', line: 'Des suggestions calculées sur votre PC, chacune avec sa raison.'},
-  {src: 'statistiques', title: 'Statistiques', line: 'Votre temps de jeu, exportable en CSV ou en JSON.'},
-  {src: 'apparence', title: 'Apparence', line: 'Thèmes, accent, densité, mouvement, taille du texte.'},
+  {src: 'mises-a-jour'},
+  {src: 'que-jouer'},
+  {src: 'statistiques'},
+  {src: 'apparence'},
 ];
 const CROP = {x: 212, y: 0, w: 1228, h: 900};
 
@@ -21,6 +22,7 @@ const CROP = {x: 212, y: 0, w: 1228, h: 900};
 export const Tools: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
   const pw = (v ? 860 : 1060) * u; // largeur d'un panneau
   const gap = 130 * u;
   // position de caméra : avance d'un panneau à chaque mesure, avec arrivée douce
@@ -56,8 +58,8 @@ export const Tools: React.FC = () => {
               }}
             >
               <div style={{position: 'absolute', top: -118 * u, left: 0, width: pw}}>
-                <Reveal text={it.title} f={f} at={i * 60} stagger={3} dur={18} style={display(46 * u, C.text, 800)} />
-                <div style={{...body(24 * u, C.muted, 500), marginTop: 10 * u, opacity: tw(f, [i * 60 + 8, i * 60 + 26], [0, 1])}}>{it.line}</div>
+                <Reveal text={tr.tools[i].title} f={f} at={i * 60} stagger={3} dur={18} style={display(46 * u, C.text, 800)} />
+                <div style={{...body(24 * u, C.muted, 500), marginTop: 10 * u, opacity: tw(f, [i * 60 + 8, i * 60 + 26], [0, 1])}}>{tr.tools[i].line}</div>
               </div>
               <Panel src={it.src} crop={CROP} width={pw} radius={6 * u} />
             </div>

@@ -5,8 +5,8 @@ import {body, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {BEAT, ease, keys, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
-const NAMES = ['Steam', 'Epic Games', 'GOG', 'Heroic', 'Legendary', 'Vos dossiers', 'Émulateurs'];
 // jaquettes de la grille (capture « grille-m », repère de l'interface)
 const COVERS = [
   [480, 198], [716, 198], [951, 198], [1186, 198],
@@ -20,6 +20,8 @@ const COVERS = [
 export const Sources: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
+  const NAMES = tr.sources;
   // index continu de la bobine : saut net sur chaque temps
   let cur = 0;
   for (let i = 1; i < NAMES.length; i++) cur += tw(f, [i * BEAT - 4, i * BEAT + 10], [0, 1], ease.out);
@@ -54,7 +56,7 @@ export const Sources: React.FC = () => {
       {/* bobine */}
       <div style={{position: 'absolute', left: (v ? 80 : 150) * u, top: v ? 300 * u : H / 2 + 40 * u, opacity: 1 - exit}}>
         <div style={{...body(24 * u, C.muted, 600), position: 'absolute', top: -300 * u, whiteSpace: 'nowrap', opacity: enter}}>
-          Toutes vos sources, une bibliothèque
+          {tr.sourcesKicker}
         </div>
         {NAMES.map((name, i) => {
           const d = i - cur;

@@ -5,6 +5,7 @@ import {Reveal, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {BEAT, ease, keys, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 const WALL = [
   ['accueil', 'bibliotheque', 'fiche', 'liste'],
@@ -20,6 +21,7 @@ const WALL = [
 export const Immersion: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
   const pw = 640 * u;
   const ph = pw * 0.625;
   const gap = 46 * u;
@@ -27,7 +29,7 @@ export const Immersion: React.FC = () => {
   const enter = tw(f, [0, 40], [0, 1], ease.out);
   const dim = keys(f, [40, 70], [0, 0.5]);
   const exit = tw(f, [228, 240], [0, 1], ease.in);
-  const words = ['Natif.', 'Léger.', 'Hors ligne.'];
+  const words = tr.immersion;
   return (
     <AbsoluteFill style={{background: C.console, overflow: 'hidden', perspective: 1600}}>
       <div

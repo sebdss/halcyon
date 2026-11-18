@@ -5,6 +5,7 @@ import {Lower} from '../components/Lower';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {ease, keys, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 const VIEWS = [
   {src: 'bibliotheque', name: 'Grille'},
@@ -20,6 +21,7 @@ const VIEWS = [
 export const Views: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
   const zoom = keys(f, [0, 240], [(W / 1440) * (v ? 1.9 : 1.0), (W / 1440) * (v ? 2.0 : 1.07)]);
   const focus: [number, number] = v ? [900, 450] : [720, 450];
   return (
@@ -39,7 +41,7 @@ export const Views: React.FC = () => {
         );
       })}
       {VIEWS.map((view, i) => (
-        <Lower key={view.name} f={f} at={i * 60 + 2} out={i < 3 ? i * 60 + 52 : 228} kicker={`Bibliothèque · vue ${i + 1} sur 5`} title={view.name} />
+        <Lower key={view.name} f={f} at={i * 60 + 2} out={i < 3 ? i * 60 + 52 : 228} kicker={tr.viewKicker(i + 1)} title={tr.views[i]} />
       ))}
     </AbsoluteFill>
   );

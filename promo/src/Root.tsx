@@ -17,7 +17,7 @@ export const Root: React.FC = () => (
       fps={timeline.fps}
       width={1920}
       height={1080}
-      defaultProps={{audio: 'mix'} satisfies PromoProps}
+      defaultProps={{audio: 'mix', lang: 'fr'} satisfies PromoProps}
     />
     {/* Déclinaison verticale 9:16 : même montage, mises en page adaptées par useLayout() */}
     <Composition
@@ -27,7 +27,26 @@ export const Root: React.FC = () => (
       fps={timeline.fps}
       width={1080}
       height={1920}
-      defaultProps={{audio: 'mix'} satisfies PromoProps}
+      defaultProps={{audio: 'mix', lang: 'fr'} satisfies PromoProps}
+    />
+    {/* Version anglaise : même montage et même son, textes et captures en anglais */}
+    <Composition
+      id="PromoEN"
+      component={Promo}
+      durationInFrames={frames}
+      fps={timeline.fps}
+      width={1920}
+      height={1080}
+      defaultProps={{audio: 'mix', lang: 'en'} satisfies PromoProps}
+    />
+    <Composition
+      id="PromoVerticalEN"
+      component={Promo}
+      durationInFrames={frames}
+      fps={timeline.fps}
+      width={1080}
+      height={1920}
+      defaultProps={{audio: 'mix', lang: 'en'} satisfies PromoProps}
     />
   </>
 );

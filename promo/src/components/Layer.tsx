@@ -1,5 +1,5 @@
 import React from 'react';
-import {Img, staticFile} from 'remotion';
+import {Capture} from '../lib/lang';
 import {UI_H, UI_W} from './Shot';
 
 /**
@@ -31,13 +31,13 @@ export const Layer: React.FC<{src: string; x: number; y: number; w: number; h: n
       boxShadow: z > 1 || dx || dy ? `0 ${z * 0.15}px ${z * 0.5}px rgba(0,0,0,${Math.min(0.5, z / 200)})` : undefined,
     }}
   >
-    <Img src={staticFile(`captures/${src}.jpg`)} style={{position: 'absolute', left: -x, top: -y, width: UI_W, height: UI_H, maxWidth: 'none'}} />
+    <Capture name={src} style={{position: 'absolute', left: -x, top: -y, width: UI_W, height: UI_H, maxWidth: 'none'}} />
   </div>
 );
 
 /** La capture entière dans le même repère (fond des calques). */
 export const Base: React.FC<{src: string; opacity?: number}> = ({src, opacity = 1}) => (
-  <Img src={staticFile(`captures/${src}.jpg`)} style={{position: 'absolute', left: 0, top: 0, width: UI_W, height: UI_H, opacity}} />
+  <Capture name={src} style={{position: 'absolute', left: 0, top: 0, width: UI_W, height: UI_H, opacity}} />
 );
 
 /**

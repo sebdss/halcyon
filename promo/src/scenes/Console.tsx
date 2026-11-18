@@ -5,6 +5,7 @@ import {Reveal, body, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {BEAT, ease, keys, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 /**
  * 30–34 s · Le mode console. Carton de titre, puis l'écran de télévision monte ; la sélection
@@ -13,6 +14,7 @@ import {BEAT, ease, keys, tw} from '../lib/time';
 export const Console: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
   const rise = tw(f, [38, 72], [0, 1], ease.inOut);
   const zoom = keys(f, [38, 240], [(W / 1440) * (v ? 2.1 : 1.0), (W / 1440) * (v ? 2.2 : 1.06)]);
   const focus: [number, number] = v ? [380, 450] : [720, 450];
@@ -41,8 +43,8 @@ export const Console: React.FC = () => {
           opacity: 1 - tw(f, [44, 66], [0, 1]),
         }}
       >
-        <div style={{...body(26 * u, C.muted, 600), marginBottom: 18 * u, opacity: tw(f, [0, 14], [0, 1])}}>Mode console</div>
-        <Reveal text="Du bureau au canapé." f={f} at={2} stagger={4} dur={20} style={{...display((v ? 76 : 110) * u, C.text, 800), justifyContent: 'center'}} />
+        <div style={{...body(26 * u, C.muted, 600), marginBottom: 18 * u, opacity: tw(f, [0, 14], [0, 1])}}>{tr.consoleKicker}</div>
+        <Reveal text={tr.consoleTitle} f={f} at={2} stagger={4} dur={20} style={{...display((v ? 76 : 110) * u, C.text, 800), justifyContent: 'center'}} />
       </AbsoluteFill>
     </AbsoluteFill>
   );

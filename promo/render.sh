@@ -2,10 +2,19 @@
 # Régénère le film complet : bande-son, image (Remotion), assemblage des deux versions.
 #   sh render.sh            → 16:9, 1920 × 1080, 60 i/s
 #   sh render.sh vertical   → déclinaison 9:16 (1080 × 1920), même montage
+#   sh render.sh en         → version anglaise (textes et captures en anglais, même son)
+#   sh render.sh vertical en
 set -e
 cd "$(dirname "$0")"
 COMP=Promo; SUFFIX=""
-[ "$1" = "vertical" ] && COMP=PromoVertical && SUFFIX="-vertical"
+for arg in "$@"; do
+  case "$arg" in
+    vertical) COMP=PromoVertical; SUFFIX="$SUFFIX-vertical" ;;
+    en) LANG_SUFFIX="-en" ;;
+    *) echo "Option inconnue : $arg (vertical, en)"; exit 1 ;;
+  esac
+done
+[ -n "$LANG_SUFFIX" ] && COMP="${COMP}EN" && SUFFIX="$SUFFIX$LANG_SUFFIX"
 CHROME=${REMOTION_CHROME:-$(command -v google-chrome || command -v chromium || true)}
 [ -d node_modules ] || npm ci
 

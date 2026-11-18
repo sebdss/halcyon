@@ -5,6 +5,7 @@ import {Reveal, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {BEAT, ease, keys, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 /**
  * 10–18 s · La découverte. Le titre se compose sur les temps, puis l'accueil réel de Halcyon
@@ -14,6 +15,7 @@ import {BEAT, ease, keys, tw} from '../lib/time';
 export const Discover: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
 
   // titre
   const titleOut = tw(f, [132, 186], [0, 1], ease.in);
@@ -74,7 +76,7 @@ export const Discover: React.FC = () => {
         {label > 0 ? (
           <div style={{position: 'absolute', left: 252, top: 470, opacity: 1 - dive}}>
             <div style={{width: tw(label, [0, 14], [0, 18]), height: 1.5, background: C.accent, marginBottom: 7}} />
-            <Reveal text="Reprendre en un geste." f={label} at={4} stagger={4} dur={18} style={{...display(16, C.text, 700), whiteSpace: 'nowrap'}} />
+            <Reveal text={tr.resumeLabel} f={label} at={4} stagger={4} dur={18} style={{...display(16, C.text, 700), whiteSpace: 'nowrap'}} />
           </div>
         ) : null}
       </Stage>
@@ -91,12 +93,12 @@ export const Discover: React.FC = () => {
         }}
       >
         <div style={{display: 'flex', gap: `0 ${0.3 * 176 * u}px`, flexWrap: 'wrap'}}>
-          {['Tous', 'vos', 'jeux.'].map((w, i) => (
+          {tr.discoverTitle.map((w, i) => (
             <Reveal key={w} text={w} f={f} at={i * BEAT} dur={20} style={display((v ? 150 : 176) * u, C.text, 800)} />
           ))}
         </div>
         <div style={{marginTop: 26 * u, display: 'flex', alignItems: 'baseline', gap: 22 * u, flexWrap: 'wrap'}}>
-          <Reveal text="Une seule bibliothèque." f={f} at={4 * BEAT} stagger={5} dur={22} style={display((v ? 64 : 76) * u, C.muted, 700)} />
+          <Reveal text={tr.discoverSub} f={f} at={4 * BEAT} stagger={5} dur={22} style={display((v ? 64 : 76) * u, C.muted, 700)} />
         </div>
         <div style={{marginTop: 22 * u, width: 120 * u * perch, height: 6 * u, background: C.accent}} />
       </AbsoluteFill>

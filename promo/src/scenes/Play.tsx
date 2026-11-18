@@ -6,6 +6,7 @@ import {Reveal, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {ease, keys, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 // bouton Jouer de l'accueil, repère de l'interface
 const BTN = {x: 252, y: 400, w: 156, h: 48};
@@ -18,6 +19,7 @@ const BTN = {x: 252, y: 400, w: 156, h: 48};
 export const Play: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u} = useLayout();
+  const tr = useT();
   const cx = BTN.x + BTN.w / 2;
   const cy = BTN.y + BTN.h / 2;
   const zoom = keys(f, [0, 186], [(W / 1440) * 1.02, 3.3 * u], ease.inOut);
@@ -71,13 +73,13 @@ export const Play: React.FC = () => {
         }}
       />
       <div style={{position: 'absolute', left: 0, right: 0, top: sy - 270 * u, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 - take}}>
-        <Reveal text="Un seul geste" f={f} at={30} stagger={4} dur={22} style={display(72 * u, C.text, 800)} />
-        <Reveal text="pour jouer." f={f} at={90} stagger={4} dur={22} style={display(72 * u, C.muted, 800)} />
+        <Reveal text={tr.playTitle[0]} f={f} at={30} stagger={4} dur={22} style={display(72 * u, C.text, 800)} />
+        <Reveal text={tr.playTitle[1]} f={f} at={90} stagger={4} dur={22} style={display(72 * u, C.muted, 800)} />
       </div>
       {take > 0 ? (
         <div style={{position: 'absolute', left: ox, top: oy, width: ow, height: oh, borderRadius: 5 * zoom * (1 - take), background: C.warm, overflow: 'hidden'}}>
           <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 1 - take * 2.5}}>
-            <PlayButton height={sh} bare />
+            <PlayButton height={sh} label={tr.play} bare />
           </div>
         </div>
       ) : null}

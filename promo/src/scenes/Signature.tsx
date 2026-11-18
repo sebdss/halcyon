@@ -6,6 +6,7 @@ import {Reveal, body, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {ease, keys, sec, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 /**
  * 48–57 s · La signature. L'impact : un trait orange traverse l'image et se resserre ; le logo
@@ -14,6 +15,7 @@ import {ease, keys, sec, tw} from '../lib/time';
 export const Signature: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
   const cx = W / 2;
   // trait d'impact
   const lineW = W * (1 - tw(f, [4, 40], [0, 1], ease.inOut));
@@ -34,7 +36,7 @@ export const Signature: React.FC = () => {
   const tracking = keys(f, [106, 160], [0.38, 0], ease.out);
   const fade = tw(f, [sec(8.4), sec(9.0)], [0, 1], ease.inOut);
 
-  const info = ['Windows', 'Linux', 'Gratuit et open source', 'Halcyon 1.0 en préversion'];
+  const info = tr.signatureInfo;
   return (
     <AbsoluteFill style={{background: C.console, overflow: 'hidden'}}>
       <div style={{position: 'absolute', left: cx - lineW / 2, top: H / 2 - lineH / 2, width: lineW, height: lineH, background: C.warm, opacity: lineW > 1 ? 1 : 0}} />
@@ -68,7 +70,7 @@ export const Signature: React.FC = () => {
           Halcyon
         </div>
         <div style={{position: 'absolute', left: 0, right: 0, top: cy + (v ? 170 : 150) * u, display: 'flex', justifyContent: 'center'}}>
-          <Reveal text="Tous vos jeux. Un seul geste pour jouer." f={f} at={160} stagger={3} dur={20} style={{...display((v ? 40 : 46) * u, C.text, 700), justifyContent: 'center', maxWidth: (v ? 900 : 1700) * u}} />
+          <Reveal text={tr.signatureLine} f={f} at={160} stagger={3} dur={20} style={{...display((v ? 40 : 46) * u, C.text, 700), justifyContent: 'center', maxWidth: (v ? 900 : 1700) * u}} />
         </div>
         <div style={{position: 'absolute', left: 0, right: 0, top: cy + (v ? 330 : 236) * u, display: 'flex', justifyContent: 'center', gap: 22 * u, flexWrap: 'wrap'}}>
           {info.map((t, i) => {
@@ -96,7 +98,7 @@ export const Signature: React.FC = () => {
             transform: `translateY(${tw(f, [360, 390], [16, 0]) * u}px)`,
           }}
         >
-          <PlayButton height={64 * u} label="Télécharger Halcyon" icon="download" />
+          <PlayButton height={64 * u} label={tr.download} icon="download" />
           <span style={{...body(30 * u, C.muted, 500)}}>github.com/sebdss/halcyon</span>
         </div>
       </AbsoluteFill>

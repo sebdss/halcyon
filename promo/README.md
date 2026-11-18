@@ -8,6 +8,7 @@ Tout est reproductible depuis ce dossier : l'image avec [Remotion](https://www.r
 npm ci                  # Remotion, React, TypeScript
 sh render.sh            # bande-son + image + assemblage → out/
 sh render.sh vertical   # déclinaison 9:16 (voir plus bas)
+sh render.sh en         # version anglaise (sh render.sh vertical en pour le 9:16)
 npm run studio          # prévisualisation et montage interactifs (Remotion Studio)
 ```
 
@@ -22,6 +23,7 @@ deux cœurs.
 | `out/halcyon-promo.mp4` | film final, musique et sound design |
 | `out/halcyon-promo-sans-musique.mp4` | même image, sound design seul (ambiance, souffles, impacts, sons du launcher) |
 | `out/video-sans-son.mp4` | image seule |
+| `out/halcyon-promo-en.mp4`, `-en-sans-musique.mp4`, `video-en-sans-son.mp4` | version anglaise, même son |
 | `audio/out/*.wav` | bande-son mixée, version sans musique, musique seule |
 | `audio/build/stems/*.wav` | pistes séparées de la musique (batterie, basse, harmonie, cloches) |
 
@@ -29,7 +31,9 @@ deux cœurs.
 
 ```
 src/timeline.json      découpage unique : scènes, tempo (120 BPM), repères sonores
-src/Root.tsx           compositions « Promo » (16:9) et « PromoVertical » (9:16)
+src/Root.tsx           compositions « Promo » (16:9) et « PromoVertical » (9:16), et leurs
+                       versions anglaises « PromoEN » et « PromoVerticalEN »
+src/lib/lang.tsx       textes à l'écran en français et en anglais, dossier de captures
 src/Promo.tsx          enchaînement des scènes + piste audio
 src/scenes/            une scène par séquence (Identity, Discover, Sources, Views, Detail,
                        Console, Tools, Emulation, Immersion, Play, Signature)
@@ -38,6 +42,7 @@ src/components/        Logo animé, caméra et calques sur captures (Layer), tit
 src/lib/               jetons du design system Berge, temps et courbes, mise en page
 src/logo.json          logo vectorisé (tuile, oiseau, pattes, œil)
 public/captures/       captures réelles de Halcyon 1.0.0-alpha.4 (2880 × 1800)
+public/captures-en/    mêmes écrans, interface en anglais (mêmes noms et cadrages)
 tools/real-games.py    bibliothèque Steam d'exemple (vrais jeux) utilisée pour les captures
 public/brand/          logo vectoriel (SVG)
 public/fonts/          Archivo, fichiers du launcher (SIL OFL)
@@ -86,6 +91,18 @@ relancer `render.sh`.
 - Les textes ne citent que des fonctions présentes dans la 1.0 (README, GUIDE, notes de version).
   La disponibilité « Windows · Linux » correspond aux fichiers publiés ; la 1.0 est annoncée
   comme préversion.
+
+## Version anglaise
+
+`PromoEN` et `PromoVerticalEN` reprennent le montage, les temps et la bande-son du film
+français (aucune voix). Seuls changent les textes à l'écran (`src/lib/lang.tsx`, une table
+par langue, même structure) et les captures (`public/captures-en/`). Les repères posés sur
+l'interface (bouton Jouer, fiche, jaquettes) gardent leurs coordonnées : les écrans anglais
+ont la même mise en page. Les captures anglaises viennent de la version traduite du launcher
+(branche `i18n`), avant sa publication ; voir `tools/CAPTURES.md`.
+
+Pour une autre langue : ajouter sa table dans `lang.tsx`, ses captures dans
+`public/captures-<code>/`, et deux compositions dans `Root.tsx`.
 
 ## Déclinaison 9:16
 

@@ -5,6 +5,7 @@ import {Reveal, body, display} from '../components/Type';
 import {useLayout} from '../lib/layout';
 import {C} from '../lib/theme';
 import {ease, keys, sec, tw} from '../lib/time';
+import {useT} from '../lib/lang';
 
 /**
  * 0–10 s · L'identité. Halcyon est le martin-pêcheur : immobile au-dessus de l'eau, puis un
@@ -14,6 +15,7 @@ import {ease, keys, sec, tw} from '../lib/time';
 export const Identity: React.FC = () => {
   const f = useCurrentFrame();
   const {W, H, u, v} = useLayout();
+  const tr = useT();
   const cx = W / 2;
   const cy = H / 2 + 20 * u;
   const DIVE = sec(6.0); // impact du plongeon
@@ -114,7 +116,7 @@ export const Identity: React.FC = () => {
         {/* « Immobile au-dessus de l'eau, » — « puis un geste net. » */}
         <div style={{position: 'absolute', left: 0, right: 0, top: cy - 92 * u, display: 'flex', justifyContent: 'center'}}>
           <Reveal
-            text="Immobile au-dessus de l'eau,"
+            text={tr.identity[0]}
             f={f}
             at={sec(2.0)}
             by="char"
@@ -125,7 +127,7 @@ export const Identity: React.FC = () => {
           />
         </div>
         <div style={{position: 'absolute', left: 0, right: 0, top: cy + 42 * u, display: 'flex', justifyContent: 'center'}}>
-          <Reveal text="puis un geste net." f={f} at={sec(4.0)} by="char" stagger={1.3} dur={26} out={textOut} style={{...display(40 * u, C.text, 700)}} />
+          <Reveal text={tr.identity[1]} f={f} at={sec(4.0)} by="char" stagger={1.3} dur={26} out={textOut} style={{...display(40 * u, C.text, 700)}} />
         </div>
 
         {/* logo */}

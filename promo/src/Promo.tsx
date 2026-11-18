@@ -14,6 +14,7 @@ import {Emulation} from './scenes/Emulation';
 import {Immersion} from './scenes/Immersion';
 import {Play} from './scenes/Play';
 import {Signature} from './scenes/Signature';
+import {Lang, LangProvider} from './lib/lang';
 
 const SCENES: Partial<Record<SceneId, React.FC>> = {
   identity: Identity,
@@ -29,9 +30,10 @@ const SCENES: Partial<Record<SceneId, React.FC>> = {
   signature: Signature,
 };
 
-export type PromoProps = {audio: 'mix' | 'sans-musique' | 'aucun'};
+export type PromoProps = {audio: 'mix' | 'sans-musique' | 'aucun'; lang?: Lang};
 
-export const Promo: React.FC<PromoProps> = ({audio}) => (
+export const Promo: React.FC<PromoProps> = ({audio, lang = 'fr'}) => (
+  <LangProvider lang={lang}>
   <AbsoluteFill style={{background: C.console}}>
     {timeline.scenes.map((s) => {
       const Comp = SCENES[s.id as SceneId];
@@ -46,4 +48,5 @@ export const Promo: React.FC<PromoProps> = ({audio}) => (
       <Audio src={staticFile(audio === 'mix' ? 'audio/halcyon-promo-audio.wav' : 'audio/halcyon-promo-audio-sans-musique.wav')} />
     ) : null}
   </AbsoluteFill>
+  </LangProvider>
 );

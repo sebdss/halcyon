@@ -23,3 +23,19 @@ env -u HTTPS_PROXY DISPLAY=:94 HALCYON_DATA_DIR=/home/sebi/data SLINT_SCALE_FACT
 | `apparence` | Système › Apparence |
 
 Conversion : JPEG qualité 92, sans sous-échantillonnage des couleurs.
+
+## Version anglaise (`public/captures-en/`)
+
+Mêmes écrans, mêmes cadrages et mêmes noms de fichiers, pris avec la version traduite du
+launcher (branche `i18n`, compilée depuis les sources) et l'interface en anglais :
+
+```sh
+python3 tools/real-games.py /home/sebi
+# langue forcée dans les réglages : "language": "en-US" dans /home/sebi/data/settings.json
+env -u HTTPS_PROXY DISPLAY=:94 HALCYON_DATA_DIR=/home/sebi/data SLINT_SCALE_FACTOR=2 \
+  SLINT_BACKEND=winit-software HOME=/home/sebi ./target/debug/halcyon &
+```
+
+Avant chaque capture, la souris est placée sur une zone neutre de la barre du haut pour
+qu'aucune info-bulle n'apparaisse. Les mêmes fichiers alimentent les captures anglaises du
+site (`site/assets/img/screens/en/`).

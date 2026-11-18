@@ -1,5 +1,5 @@
 import React from 'react';
-import {Img, staticFile} from 'remotion';
+import {Capture} from '../lib/lang';
 
 /** Capture réelle de Halcyon (2880 × 1800, interface logique 1440 × 900). */
 export const UI_W = 1440;
@@ -29,7 +29,7 @@ export const Camera: React.FC<{
       opacity,
     }}
   >
-    <Img src={staticFile(`captures/${src}.jpg`)} style={{width: '100%', height: '100%', display: 'block'}} />
+    <Capture name={src} style={{width: '100%', height: '100%', display: 'block'}} />
     {children ? <div style={{position: 'absolute', inset: 0, transform: `scale(${zoom})`, transformOrigin: '0 0'}}>{children}</div> : null}
   </div>
 );
@@ -57,8 +57,8 @@ export const Panel: React.FC<{
         ...style,
       }}
     >
-      <Img
-        src={staticFile(`captures/${src}.jpg`)}
+      <Capture
+        name={src}
         style={{position: 'absolute', left: -crop.x * s, top: -crop.y * s, width: UI_W * s, height: UI_H * s, maxWidth: 'none'}}
       />
     </div>
