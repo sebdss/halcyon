@@ -1,8 +1,9 @@
 # Halcyon
 
 Halcyon est un launcher universel de jeux vidéo pour **Windows et Linux**. Il réunit dans
-une seule bibliothèque vos jeux Steam, Epic Games (launcher Epic, Heroic, Legendary),
-standalone, ajoutés à la main et **émulés**. Il centralise les **succès** et propose un mode
+une seule bibliothèque vos jeux Steam, Epic Games (launcher Epic, Heroic, Legendary), GOG,
+Ubisoft Connect, EA app, Xbox / Game Pass, Battle.net, Riot, Amazon Games, itch.io,
+standalone, ajoutés à la main et **émulés**, sans compte à connecter. Il centralise les **succès** et propose un mode
 **Big Picture** à la manette. Depuis la 0.5.0, un onglet **Minecraft** gère Minecraft Java
 Edition (versions, loaders, mods, modpacks).
 

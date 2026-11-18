@@ -105,6 +105,8 @@ pub struct GameInfo {
     pub rom: Option<PathBuf>,
     /// Emplacements supplémentaires fournis par des extensions (jetons acceptés, `{name}` = nom du jeu).
     pub extra: Vec<String>,
+    /// Emplacements connus de la base Ludusavi, déjà résolus sur ce PC (voir [`crate::ludusavi`]).
+    pub known: Vec<PathBuf>,
 }
 
 /// Emplacement proposé.
@@ -169,6 +171,10 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
             out.push(Candidate { path, reason, confident });
         }
     };
+    // Base Ludusavi : emplacements exacts, proposés en premier.
+    for p in &g.known {
+        push(p.clone(), tr!("Base Ludusavi"), true);
+    }
     let devs: Vec<String> =
         [&g.developer, &g.publisher].iter().filter_map(|d| d.as_deref()).map(compact).filter(|d| d.len() >= 3).collect();
 

@@ -158,19 +158,27 @@ impl Monitor {
                 .collect();
         }
         if disks {
-            if let Ok(list) = sysinfo::Disks::new_with_refreshed_list_specifics(sysinfo::DiskRefreshKind::nothing().with_storage()) {
-                let mut seen = std::collections::HashSet::new();
-                snap.disks = list
-                    .iter()
-                    .filter(|d| d.total_space() > 1024 * MIB)
-                    // Même volume monté plusieurs fois (Flatpak, conteneurs) : une seule ligne.
-                    .filter(|d| seen.insert(d.name().to_string_lossy().to_string() + &d.total_space().to_string()))
-                    .map(|d| DiskStat { mount: d.mount_point().display().to_string(), total_mb: d.total_space() / MIB, free_mb: d.available_space() / MIB, removable: d.is_removable() })
-                    .collect();
-            }
+            snap.disks = list_disks();
         }
         snap
     }
+}
+
+/// Disques du système (plus de 1 Gio), un par volume.
+pub fn list_disks() -> Vec<DiskStat> {
+    let Ok(list) = sysinfo::Disks::new_with_refreshed_list_specifics(sysinfo::DiskRefreshKind::nothing().with_storage()) else { return Vec::new() };
+    let mut seen = std::collections::HashSet::new();
+    list.iter()
+        .filter(|d| d.total_space() > 1024 * MIB)
+        // Même volume monté plusieurs fois (Flatpak, conteneurs) : une seule ligne.
+        .filter(|d| seen.insert(d.name().to_string_lossy().to_string() + &d.total_space().to_string()))
+        .map(|d| DiskStat { mount: d.mount_point().display().to_string(), total_mb: d.total_space() / MIB, free_mb: d.available_space() / MIB, removable: d.is_removable() })
+        .collect()
+}
+
+/// Disque presque plein : moins de 10 % ou de 10 Gio libres (même seuil que les recommandations).
+pub fn disk_low(d: &DiskStat) -> bool {
+    !d.removable && d.total_mb > 0 && (d.free_mb * 10 < d.total_mb || d.free_mb < 10 * 1024)
 }
 
 /// Regroupe les processus par nom et trie par poids (processeur, puis mémoire relative).
@@ -331,8 +339,7 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
         }
     }
     for d in s.disks.iter().filter(|d| !d.removable && d.total_mb > 0) {
-        let pct = d.free_mb as f32 * 100.0 / d.total_mb as f32;
-        if pct < 10.0 || d.free_mb < 10 * 1024 {
+        if disk_low(d) {
             out.push(Recommendation {
                 id: "disk-low",
                 level: if d.free_mb < 5 * 1024 { Level::Warning } else { Level::Info },

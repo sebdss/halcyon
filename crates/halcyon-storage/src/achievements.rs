@@ -295,6 +295,15 @@ impl Database {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
+    /// Succès débloqués entre `from` et `to` (exclu), du plus ancien au plus récent.
+    pub fn unlocks_between(&self, from: i64, to: i64) -> Result<Vec<Achievement>> {
+        let mut stmt = self.conn.prepare(&format!(
+            "SELECT {COLUMNS} FROM achievements WHERE unlocked = 1 AND unlocked_at >= ?1 AND unlocked_at < ?2 ORDER BY unlocked_at"
+        ))?;
+        let rows = stmt.query_map([from, to], row_to_achievement)?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
     /// Succès débloqués les plus rares (rareté connue uniquement).
     pub fn rarest_unlocks(&self, limit: usize) -> Result<Vec<Achievement>> {
         let mut stmt = self.conn.prepare(&format!(

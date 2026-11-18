@@ -50,6 +50,9 @@ pub struct Settings {
     pub gog_enabled: bool,
     /// Dossier de configuration Heroic forcé (sinon détection automatique).
     pub gog_heroic_path: Option<PathBuf>,
+    /// Autres launchers désactivés (Ubisoft, EA, Xbox, Battle.net, Riot, Amazon, itch.io) par
+    /// identifiant de source ; tous lus par défaut (1.1).
+    pub disabled_launchers: Vec<String>,
     /// Dossier des manifestes Epic forcé (sinon détection automatique).
     pub epic_manifests_path: Option<PathBuf>,
     /// Dossiers parcourus à la recherche de jeux standalone.
@@ -104,6 +107,25 @@ pub struct Settings {
     pub start_in_big_picture: bool,
     /// Notification système quand une mise à jour de jeu est détectée.
     pub update_notifications: bool,
+    /// Début de la dernière semaine dont le récap a été annoncé (1.1).
+    pub recap_announced: i64,
+    /// Rappel de pause pendant une partie, en heures (0 : désactivé), 1.1.
+    pub break_reminder_hours: u32,
+    /// Écran de lancement plein cadre (1.1).
+    pub launch_screen: bool,
+    /// Signale les jeux offerts par l'Epic Games Store (1.1).
+    pub free_games_notifications: bool,
+    /// Offres Epic déjà signalées (identifiants).
+    pub free_games_seen: Vec<String>,
+    /// Alerte quand un disque est presque plein (1.1), au plus une fois par jour.
+    pub disk_alerts: bool,
+    pub disk_alert_day: i64,
+    /// Statut Discord (« Joue à … ») pendant une partie, si Discord est ouvert.
+    pub discord_presence: bool,
+    /// Identifiant de l'application Discord à afficher (vide : celui de Halcyon).
+    pub discord_client_id: String,
+    /// Bannière de la fiche animée : captures d'écran en fondu, lent travelling.
+    pub animated_banner: bool,
 
     /// Dépôt des sauvegardes de jeux (dossier local, disque secondaire, NAS) ;
     /// `None` : dans les données de Halcyon.
@@ -438,6 +460,7 @@ impl Default for Settings {
             epic_enabled: true,
             gog_enabled: true,
             gog_heroic_path: None,
+            disabled_launchers: Vec::new(),
             epic_manifests_path: None,
             scan_folders: Vec::new(),
             online_artwork: true,
@@ -468,6 +491,16 @@ impl Default for Settings {
             update_last_check: 0,
             start_in_big_picture: false,
             update_notifications: true,
+            recap_announced: 0,
+            break_reminder_hours: 2,
+            launch_screen: true,
+            free_games_notifications: true,
+            free_games_seen: Vec::new(),
+            disk_alerts: true,
+            disk_alert_day: 0,
+            discord_presence: true,
+            discord_client_id: String::new(),
+            animated_banner: true,
             save_root: None,
             save_mirrors: Vec::new(),
             save_keep_auto: 20,

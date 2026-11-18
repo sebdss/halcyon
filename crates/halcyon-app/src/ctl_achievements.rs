@@ -143,6 +143,8 @@ impl Controller {
             }
             // GOG : pas d'API publique sans connexion au compte ; succès personnalisés seulement.
             GameSource::Standalone | GameSource::Manual | GameSource::Minecraft | GameSource::Gog => "custom",
+            // Autres launchers : pas d'API de succès publique, succès personnalisés.
+            GameSource::Ubisoft | GameSource::Ea | GameSource::Xbox | GameSource::BattleNet | GameSource::Riot | GameSource::Amazon | GameSource::Itch => "custom",
         }
     }
 

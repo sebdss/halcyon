@@ -218,11 +218,6 @@ msgid "joué cette semaine"
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/stats.slint:64
-#, placeholders
-msgid "{} j"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/stats.slint:64
 msgid "série de jours joués"
 msgstr ""
 
@@ -252,10 +247,6 @@ msgstr ""
 
 #: crates/halcyon-app/ui/pages/stats.slint:83
 msgid "suivi local, 12 mois"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/stats.slint:94
-msgid "Jeux les plus joués"
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/stats.slint:95

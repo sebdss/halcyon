@@ -269,6 +269,15 @@ pub fn lower_first(s: &str) -> String {
     }
 }
 
+/// Met en majuscule la première lettre (« novembre 2026 » en titre → « Novembre 2026 »).
+pub fn upper_first(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        Some(f) => f.to_uppercase().chain(c).collect(),
+        None => String::new(),
+    }
+}
+
 /// Entier avec séparateur de milliers de la langue active : « 1 284 », « 1,284 », « 1.284 ».
 pub fn number(n: u64) -> String {
     let (sep, _) = separators();

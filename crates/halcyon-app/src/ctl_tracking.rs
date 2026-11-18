@@ -558,6 +558,7 @@ impl Controller {
         ui.set_source_labels(ModelRc::new(VecModel::from(
             GameSource::ALL.map(|s| SharedString::from(s.label())).to_vec(),
         )));
+        ui.set_source_keys(ModelRc::new(VecModel::from(GameSource::ALL.map(|s| SharedString::from(s.as_str())).to_vec())));
         ui.set_rules(ModelRc::from(self.smart_rules.clone()));
     }
 

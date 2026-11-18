@@ -475,6 +475,35 @@ export component SettingsPage inherits Rectangle {
                     key: "gog";
                     path-label: @tr("Dossier de configuration Heroic (détection automatique si vide)");
                 }
+                if SettingsUi.launchers.length > 0: Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 14px;
+                        Text {
+                            text: @tr("Autres launchers");
+                            color: Theme.text;
+                            font-size: Theme.t-body;
+                            font-weight: 600;
+                        }
+                        Text {
+                            text: @tr("Jeux installés lus sans compte ni configuration. Chaque jeu se lance par son launcher, qui garde la connexion, les mises à jour et la protection anticopie. Temps de jeu mesuré par Halcyon.");
+                            color: Theme.text-dim;
+                            font-size: Theme.t-caption;
+                            wrap: word-wrap;
+                        }
+                        for l in SettingsUi.launchers: SettingRow {
+                            title: l.name;
+                            description: !l.enabled ? @tr("Désactivé") : l.found
+                                ? @tr("Trouvé, {n} jeu installé" | "Trouvé, {n} jeux installés" % l.count)
+                                : @tr("Introuvable sur cet ordinateur");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: l.enabled;
+                                toggled(v) => { SettingsUi.set-source-enabled(l.key, v); }
+                            }
+                        }
+                    }
+                }
             }
 
             if SettingsUi.shown[1]: VerticalLayout {
@@ -658,6 +687,22 @@ export component SettingsPage inherits Rectangle {
                                 placeholder: @tr("Clé personnelle");
                                 value: SettingsUi.nexus-key;
                             }
+                            SettingRow {
+                                title: @tr("Statut Discord");
+                                description: @tr("« Joue à … » sur votre profil Discord pendant une partie, avec la jaquette du jeu. Passe par Discord ouvert sur ce PC ; son réglage « Partager mon activité » reste maître.");
+                                Toggle {
+                                    y: (parent.height - self.height) / 2;
+                                    checked: SettingsUi.discord-presence;
+                                    toggled(v) => { SettingsUi.set-option("discord_presence", v); }
+                                }
+                            }
+                            TextSetting {
+                                key: "discord_client_id";
+                                label: @tr("Application Discord (facultatif)");
+                                hint: @tr("Identifiant d'une application créée sur discord.com/developers, pour afficher un autre nom que « Halcyon ». Vide : celle de Halcyon.");
+                                placeholder: @tr("Identifiant numérique");
+                                value: SettingsUi.discord-client-id;
+                            }
                         }
                     }
                 }
@@ -701,6 +746,52 @@ export component SettingsPage inherits Rectangle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.minimize-on-launch;
                                 toggled(v) => { SettingsUi.set-option("minimize_on_launch", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: @tr("Écran de lancement");
+                            description: @tr("Bannière et logo du jeu en plein cadre pendant son démarrage. Un clic le referme.");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.launch-screen;
+                                toggled(v) => { SettingsUi.set-option("launch_screen", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: @tr("Bannière animée");
+                            description: @tr("Sur la fiche d'un jeu, la bannière enchaîne les captures d'écran en fondu, avec un lent travelling. Coupée en mode Performance ; Apparence › Mouvement « Réduit » garde les fondus sans le travelling.");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.animated-banner;
+                                toggled(v) => { SettingsUi.set-option("animated_banner", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: @tr("Rappel de pause");
+                            description: @tr("Notification pendant une longue partie suivie par Halcyon.");
+                            Segmented {
+                                y: (parent.height - self.height) / 2;
+                                items: [@tr("Jamais"), @tr("1 h"), @tr("2 h"), @tr("3 h")];
+                                selected: SettingsUi.break-reminder;
+                                activated(i) => { SettingsUi.set-break-reminder(i); }
+                            }
+                        }
+                        SettingRow {
+                            title: @tr("Jeux offerts sur l'Epic Games Store");
+                            description: @tr("Signale au démarrage les jeux gratuits de la semaine (une fois chacun). Contacte le site d'Epic.");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.free-games;
+                                toggled(v) => { SettingsUi.set-option("free_games_notifications", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: @tr("Alerte de disque presque plein");
+                            description: @tr("Au plus une fois par jour, quand il reste moins de 10 % ou de 10 Go.");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.disk-alerts;
+                                toggled(v) => { SettingsUi.set-option("disk_alerts", v); }
                             }
                         }
                         SettingRow {

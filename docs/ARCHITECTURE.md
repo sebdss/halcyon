@@ -198,6 +198,10 @@ rendu logiciel) : 51 Mo à l'accueil (40 jeux), démarrage en 92 ms (53 jeux). A
 | Succès Steam (sans clé) | ✅ hors ligne | `appcache/stats/UserGameStatsSchema_<appid>.bin` (définitions, noms localisés, icônes) + `UserGameStats_<compte>_<appid>.bin` (bits débloqués, dates), KeyValues binaires ; compte = SteamID64 − 76561197960265728, détecté dans `loginusers.vdf` ; rareté par `GetGlobalAchievementPercentagesForApp` (sans clé, en ligne) |
 | Succès Steam (clé facultative) | ✅ en ligne + clé API | `GetSchemaForGame` + `GetPlayerAchievements` ; jeux jamais lancés sur ce PC ; repli sur la lecture locale en cas d'erreur ; profil public requis |
 | Visuels des jeux autonomes | ✅ en ligne, sans clé | `store.steampowered.com/api/storesearch` (nom identique exigé, type `app`) puis CDN Steam ; SteamGridDB (clé facultative) pour le reste |
+| Fiches Steam hors ligne | ✅ hors ligne | `appcache/appinfo.vdf` v27–v29 (table des noms en v29) : `associations`, `steam_release_date`, `category`, `store_tags`, `controller_support` ; noms des étiquettes par `IStoreService/GetTagList` (public), cache mensuel |
+| Collections Steam | ✅ hors ligne | `userdata/<compte>/config/cloudstorage/cloud-storage-namespace-1.json` (`user-collections.*`, sans `filterSpec`) |
+| Steam Workshop | ✅ hors ligne + titres en ligne | `steamapps/workshop/appworkshop_<appid>.acf` ; titres par `ISteamRemoteStorage/GetPublishedFileDetails` (public) |
+| Emplacements de sauvegarde | ✅ base locale, mise à jour en ligne | Manifeste Ludusavi (`raw.githubusercontent.com/mtkennerly/ludusavi-manifest`), `ETag`, hebdomadaire ; analyseur YAML strict du sous-ensemble utilisé ; correspondance par numéro Steam/GOG, nom, alias, dossier ; motif coupé au premier joker, dossier refusé s'il est partagé par plusieurs jeux du manifeste |
 | Visuels des jeux émulés | ✅ en ligne, sans clé | `raw.githubusercontent.com/libretro-thumbnails/<système>/master/Named_{Boxarts,Snaps}/<titre>.png` ; système déclaré par `libretro` dans `platforms.json`, caractères `&*/:`<>?\|"` remplacés par `_` |
 | Succès Epic | ❌ pas d'API publique | Affiché comme « non disponible », jamais inventé |
 | RetroAchievements (cartouches) | ✅ en ligne (clé Web API) | Empreinte MD5 normalisée (en-têtes NES/SNES/PCE/Lynx/7800, ordre d'octets N64) comparée à `API_GetGameList` |
@@ -230,6 +234,8 @@ rendu logiciel) : 51 Mo à l'accueil (40 jeux), démarrage en 92 ms (53 jeux). A
 | Extensions | — | `integrations::plugins` (manifeste, permissions, refus des exécutables) | `plugins` |
 | Apparence | — | `ctl_themes` (thèmes JSON, accent, densité, fond) | `appearance` |
 | Manettes | — | `gamepad` (marque, batterie, association des touches, capture) | `controllers` |
+| Écran de lancement, rappel de pause, jeux offerts, stockage | — | `ctl_extras`, `integrations::{epic_free, sysmon::list_disks}` | `pages/storage.slint` (`LaunchOverlay`, `StoragePage`) |
+| Statut Discord, configuration requise, bannière animée | `integrations::steam_requirements` (analyse, marge de comparaison) | `integrations::discord` (IPC local, fil dédié), `ctl_extras` | fiche du jeu (aperçu, bande) |
 | Que jouer ? | `core::recommend` (raisons explicites, données réelles) | — | `assistant`, accueil |
 | Jeu à distance | — | `integrations::remote_play` | `remote` |
 | Système | — | `desktop` (démarrage, raccourcis), `instance` (instance unique), `tray`, `global-hotkey`, `update::download_verified` | Paramètres, mode compact, fenêtre compagnon |
@@ -386,7 +392,7 @@ halcyon/
 │   └── halcyon-app/              # binaire : UI Slint + contrôleurs
 │       ├── build.rs              # compilation de l'UI, icône Windows
 │       ├── ui/                   # app, theme, types, state, components, shell, pages/, icons/, fonts/
-│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
+│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_extras,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
 ├── packaging/                    # windows/ (icône ; halcyon.iss, Inno Setup, hors CI), linux/ (.desktop, MIME, install/uninstall de l'archive)
 ├── tools/                        # make_demo_fixture.py, make_big_library.py, bench.py, package_linux.sh, sound/make_sounds.py
 └── .github/workflows/            # build.yml (tests, compilation), release.yml (publication signée sur tag v*)

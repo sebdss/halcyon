@@ -5,7 +5,7 @@
 import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
-    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, ThemeRow, ToggleRow,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, StorageDisk, StorageGame, ReqRow, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft, performance, downloads
+    remote, plugins, appearance, minecraft, performance, downloads, recap, storage
 }
 
 export global Nav {
@@ -75,7 +75,10 @@ export global LibraryUi {
     in property <int> result-count;
     in property <int> total;
     in-out property <string> search;
-    /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres (standalone + manuels)
+    /// Autres launchers présents dans la bibliothèque (index 7 et suivants de `source`).
+    in property <[string]> extra-sources;
+    /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres, 5 = Minecraft, 6 = GOG,
+    /// 7 et suivants : `extra-sources`.
     in-out property <int> source;
     in property <[string]> collection-labels: [@tr("Toutes les collections")];
     in-out property <int> collection;
@@ -159,6 +162,15 @@ export global DetailUi {
     in property <string> news-status;
     in-out property <int> tab;
     in property <[image]> screenshots;
+    /// Bannière animée : bannière puis captures en grand (au moins deux images).
+    in property <[image]> slides;
+    /// Configuration requise (boutique Steam) comparée à ce PC.
+    in property <[ReqRow]> req-rows;
+    in property <string> req-verdict;
+    /// 0 inconnu, 1 sous le minimum, 2 minimum, 3 recommandée.
+    in property <int> req-level;
+    in property <string> req-note;
+    in property <string> req-status;
     /// Captures locales du jeu (Steam) et fond d'ambiance (sans bannière).
     in property <[CaptureItem]> captures;
     in property <image> ambient;
@@ -245,6 +257,8 @@ export global DetailUi {
 
     // Mods
     in property <[ModRow]> mods;
+    /// Steam Workshop : objets installés (lecture seule, gérés par Steam).
+    in property <[WorkshopRow]> workshop;
     in-out property <int> mod-adapter;
     in-out property <string> mod-target;
     in property <string> mod-hint;
@@ -319,6 +333,58 @@ export global StatsUi {
     in property <int> completed;
 }
 
+/// Écran affiché au lancement d'un jeu (1.1).
+export global LaunchUi {
+    in-out property <bool> open;
+    /// Le jeu a démarré : « Bonne partie ».
+    in property <bool> running;
+    in property <string> title;
+    in property <image> banner;
+    in property <bool> has-banner;
+    in property <image> logo;
+    in property <bool> has-logo;
+    in property <GameCard> card;
+}
+
+/// Page Stockage : espace disque et jeux peu joués (1.1).
+export global StorageUi {
+    in property <[StorageDisk]> disks;
+    in property <[StorageGame]> idle;
+    in property <string> reclaim;
+    in property <[StorageGame]> free-games;
+}
+
+/// Récap de la semaine, du mois ou de l'année et sa story (1.1).
+export global RecapUi {
+    /// 0 semaine, 1 mois, 2 année ; `offset` : 0 période en cours, -1 la précédente…
+    in-out property <int> period;
+    in-out property <int> offset;
+    callback changed();
+    in property <string> label;
+    in property <bool> has-data;
+    in property <string> total;
+    in property <string> compare;
+    in property <int> sessions;
+    in property <string> days;
+    in property <int> streak;
+    in property <int> new-games;
+    in property <int> unlocks;
+    in property <[TopGame]> top;
+    in property <[KeyValue]> facts;
+    in property <string> profile-title;
+    in property <string> profile-text;
+    // Story
+    in property <[StoryPage]> pages;
+    in property <color> color-a: #3d9be9;
+    in property <color> color-b: #f08a24;
+    in-out property <bool> story-open;
+    in-out property <int> story-index;
+    in property <bool> exporting;
+    in property <string> export-status;
+    callback export-image();
+    callback export-video();
+}
+
 export global JournalUi {
     in property <[ActivityRow]> entries;
     in property <[string]> categories;
@@ -354,6 +420,9 @@ export global SmartUi {
     in property <[int]> kind-params;
     in property <[string]> status-labels;
     in property <[string]> source-labels;
+    /// Identifiants des sources, dans l'ordre de `source-labels`.
+    in property <[string]> source-keys;
+    pure callback source-index(string) -> int;
     in property <int> preview-count;
     in property <string> error;
     callback edit(int);
@@ -600,10 +669,21 @@ export global SettingsUi {
     in property <SourceInfo> steam;
     in property <SourceInfo> epic;
     in property <SourceInfo> gog;
+    /// Autres launchers (Ubisoft, EA, Xbox, Battle.net, Riot, Amazon, itch.io), 1.1.
+    in property <[SourceInfo]> launchers;
     in property <[string]> folders;
     in property <bool> online-artwork;
     in property <bool> scan-on-startup;
     in property <bool> minimize-on-launch;
+    in property <bool> launch-screen;
+    /// Rappel de pause : 0 désactivé, sinon toutes les N heures (1 à 3).
+    in property <int> break-reminder;
+    callback set-break-reminder(int);
+    in property <bool> free-games;
+    in property <bool> disk-alerts;
+    in property <bool> discord-presence;
+    in property <string> discord-client-id;
+    in property <bool> animated-banner;
     in property <string> cache-size;
     in property <string> data-dir;
     in property <string> log-dir;

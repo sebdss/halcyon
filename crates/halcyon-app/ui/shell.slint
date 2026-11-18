@@ -132,7 +132,7 @@ export global Spaces {
         if (p == Page.home) { return 0; }
         if (p == Page.library || p == Page.game) { return 1; }
         if (p == Page.minecraft) { return 2; }
-        if (p == Page.assistant || p == Page.achievements || p == Page.stats || p == Page.journal) { return 3; }
+        if (p == Page.assistant || p == Page.achievements || p == Page.stats || p == Page.recap || p == Page.journal) { return 3; }
         if (p == Page.performance || p == Page.appearance || p == Page.settings) { return 5; }
         return 4;
     }
@@ -288,9 +288,11 @@ export component SpaceBar inherits Rectangle {
             if Spaces.current == 3 && AppUi.nav.assistant: SpaceTab { text: @tr("Que jouer ?"); active: Nav.page == Page.assistant; clicked => { Nav.go(Page.assistant); } }
             if Spaces.current == 3 && AppUi.nav.achievements: SpaceTab { text: @tr("Succès"); active: Nav.page == Page.achievements; count: AchUi.unlocked > 0 ? AchUi.unlocked : ""; clicked => { Nav.go(Page.achievements); } }
             if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { text: @tr("Statistiques"); active: Nav.page == Page.stats; clicked => { Nav.go(Page.stats); } }
+            if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { text: @tr("Récap"); active: Nav.page == Page.recap; clicked => { Nav.go(Page.recap); } }
             if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { text: @tr("Journal"); active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
             if Spaces.current == 4: SpaceTab { text: @tr("Téléchargements"); active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; warm: true; clicked => { Nav.go(Page.downloads); } }
             if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { text: @tr("Mises à jour"); active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; warm: true; clicked => { Nav.go(Page.updates); } }
+            if Spaces.current == 4: SpaceTab { text: @tr("Stockage"); active: Nav.page == Page.storage; clicked => { Nav.go(Page.storage); } }
             if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { text: @tr("Sauvegardes"); active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
             if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { text: @tr("Émulateurs"); active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
             if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { text: @tr("Manettes"); active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }

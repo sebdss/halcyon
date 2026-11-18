@@ -1,6 +1,85 @@
 # Journal des modifications
 
-## Non publié — Succès et visuels sans clé
+## 1.0.0-alpha.5 — Le launcher le plus complet
+
+Sept launchers de plus, sauvegardes Ludusavi, récap et story, statut Discord,
+configuration requise, et les succès Steam sans clé.
+
+### Sept launchers de plus
+
+- **Ubisoft Connect, EA app, Xbox / Game Pass PC, Battle.net, Riot, Amazon Games** (Windows)
+  et **itch.io** (Windows et Linux) : jeux installés lus sans compte ni configuration, lancés
+  par leur launcher (connexion, mises à jour et protection anticopie restent les siennes).
+  Temps de jeu mesuré par Halcyon (sauf EA app, qui ne dit pas où le jeu est installé).
+- Visuels cherchés par nom dans la boutique Steam (puis SteamGridDB) ; jaquette itch.io reprise
+  du reçu de l'application itch.
+- **Paramètres › Plateformes › Autres launchers** : un interrupteur par launcher, avec son état.
+- Bibliothèque : un filtre par launcher, affiché seulement s'il a des jeux ; règle « source »
+  des collections intelligentes étendue.
+- Un visuel dont l'adresse ne répond plus est cherché ailleurs (boutique Steam, SteamGridDB).
+
+### Récap et story
+
+- **Activité › Récap** : semaine, mois ou année (et les périodes précédentes) : temps de jeu
+  comparé à la période d'avant, sessions, jours joués, plus longue série, jeux découverts,
+  succès, top 5, moment préféré, plus longue session, succès le plus rare, profil de joueur
+  (« le noctambule », « le marathonien »…). Calculé sur les sessions suivies par Halcyon.
+- **Story** au format vertical : jusqu'à 9 pages animées aux couleurs du jeu le plus joué,
+  clic à gauche ou à droite, flèches, Échap. **Image de cette page** (PNG) et **vidéo**
+  1080 × 1920 avec fondu entre les pages (assemblée par ffmpeg s'il est installé ; sinon les
+  pages sont enregistrées en images).
+- Le récap de la semaine écoulée est annoncé au démarrage, une seule fois.
+
+### Confort
+
+- **Écran de lancement** : bannière et logo du jeu en plein cadre pendant son démarrage,
+  puis « Bonne partie ! » quand le jeu apparaît (la réduction de Halcyon vient ensuite).
+  Un clic le referme ; désactivable dans Réglages › Comportement.
+- **Rappel de pause** toutes les 1, 2 ou 3 heures pendant une partie suivie (désactivé :
+  « Jamais » ; 2 h par défaut).
+- **Jeux offerts sur l'Epic Games Store** signalés au démarrage, une fois chacun (API
+  publique de la boutique, sans compte ; désactivable).
+- **Outils › Stockage** : espace libre de chaque disque, part occupée par les jeux de la
+  bibliothèque, et jeux installés non lancés depuis six mois, les plus gros d'abord.
+- **Alerte de disque presque plein** (moins de 10 % ou de 10 Go), au plus une fois par jour.
+
+### Discord, configuration requise, bannière animée
+
+- **Statut Discord** (« Joue à … », jaquette, durée) pendant une partie, par la connexion
+  locale de Discord (tube nommé ou socket, sans compte ni réseau côté Halcyon). Effacé à la
+  fin de la session ; désactivable, identifiant d'application personnalisable.
+- **Configuration requise** sur l'aperçu des jeux Steam (et des jeux dont les visuels
+  viennent de la boutique) : minimale, recommandée et ce PC côte à côte. Mémoire, mémoire
+  vidéo, espace disque et 64 bits sont comparés ; processeur et carte graphique sont
+  affichés sans verdict. Fiche gardée 30 jours.
+- **Bannière animée** : la fiche enchaîne bannière et captures 1080p en fondu, avec un lent
+  travelling ; arrêtée hors de l'écran, coupée en mode Performance, sans travelling en
+  mouvement « Réduit ».
+- Actualités de la fiche : annonces officielles du studio seulement (les flux de presse
+  agrégés par Steam mélangeaient les langues).
+
+### Steam hors ligne : fiches, collections, Workshop
+
+- **Fiches lues dans le cache du client** (`appinfo.vdf`, versions 27 à 29) : studio, éditeur,
+  date de sortie, solo / multijoueur / coop / manette, sans requête. Genres tirés des
+  étiquettes de la boutique (« Rogue-like », « Monde ouvert »…), dans la langue de Halcyon
+  (liste publique, sans clé, renouvelée une fois par mois).
+- **Collections Steam** reprises sous le nom « Steam · <nom> », tenues à jour à chaque analyse ;
+  les autres collections ne sont jamais touchées. Collections dynamiques ignorées.
+- **Steam Workshop** : onglet Mods, objets installés (titre, taille, date), lien vers leur
+  page ; ils restent gérés par Steam.
+
+### Sauvegardes reconnues par la base Ludusavi
+
+- Emplacements **exacts** de plus de 20 000 jeux (base communautaire Ludusavi, licence MIT),
+  proposés en premier et associés automatiquement quand ils existent ; règles Windows des
+  jeux Steam cherchées dans leur préfixe Proton sous Linux.
+- Base téléchargée au plus une fois par semaine, seulement si elle a changé ; une copie qui
+  ne se lit pas entièrement est refusée et l'ancienne garde la main.
+- Jamais de dossier trop large : ni racine (dossier du jeu, Documents, AppData), ni dossier
+  partagé par plusieurs jeux (une restauration écraserait leurs sauvegardes).
+
+### Succès et visuels sans clé
 
 - **Succès Steam sans clé d'API** : lus dans les fichiers que le client Steam enregistre sur ce
   PC (`appcache/stats`), compte détecté automatiquement, hors ligne compris. Noms et

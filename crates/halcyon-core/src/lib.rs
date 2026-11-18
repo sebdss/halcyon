@@ -14,6 +14,7 @@ pub mod launch_args;
 pub mod model;
 pub mod profiles;
 pub mod query;
+pub mod recap;
 pub mod recommend;
 pub mod rules;
 pub mod scanner;

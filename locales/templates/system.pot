@@ -168,15 +168,6 @@ msgstr ""
 msgid "Mesure en direct"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/performance.slint:76 crates/halcyon-app/ui/pages/performance.slint:151 crates/halcyon-app/ui/pages/performance.slint:215
-#: crates/halcyon-app/src/ctl_perf.rs:121
-msgid "Processeur"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/performance.slint:98 crates/halcyon-app/ui/pages/performance.slint:152 crates/halcyon-app/ui/pages/performance.slint:221
-msgid "Mémoire"
-msgstr ""
-
 #: crates/halcyon-app/ui/pages/performance.slint:100
 msgid "Utilisée"
 msgstr ""
@@ -338,15 +329,15 @@ msgstr ""
 msgid "Dernière version"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:242 crates/halcyon-app/ui/pages/settings.slint:936
+#: crates/halcyon-app/ui/pages/settings.slint:242 crates/halcyon-app/ui/pages/settings.slint:1027
 msgid "Canal"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:242 crates/halcyon-app/ui/pages/settings.slint:942
+#: crates/halcyon-app/ui/pages/settings.slint:242 crates/halcyon-app/ui/pages/settings.slint:1033
 msgid "Beta"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:242 crates/halcyon-app/ui/pages/settings.slint:942
+#: crates/halcyon-app/ui/pages/settings.slint:242 crates/halcyon-app/ui/pages/settings.slint:1033
 msgid "Stable"
 msgstr ""
 
@@ -449,454 +440,545 @@ msgstr ""
 msgid "Dossier de configuration Heroic (détection automatique si vide)"
 msgstr ""
 
+#: crates/halcyon-app/ui/pages/settings.slint:483
+msgid "Autres launchers"
+msgstr ""
+
 #: crates/halcyon-app/ui/pages/settings.slint:489
+msgid "Jeux installés lus sans compte ni configuration. Chaque jeu se lance par son launcher, qui garde la connexion, les mises à jour et la protection anticopie. Temps de jeu mesuré par Halcyon."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:497
+#, placeholders
+msgid "Trouvé, {n} jeu installé"
+msgid_plural "Trouvé, {n} jeux installés"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:498
+msgid "Introuvable sur cet ordinateur"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:518
 msgid "Chaque sous-dossier d'un dossier surveillé est considéré comme un jeu. Halcyon choisit l'exécutable le plus probable ; vous pouvez le corriger depuis la fiche du jeu."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:526
+#: crates/halcyon-app/ui/pages/settings.slint:555
 msgid "Chemin d'un dossier, ex. D:\\Jeux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:566
+#: crates/halcyon-app/ui/pages/settings.slint:595
 #, placeholders
 msgid "Succès Steam : lus directement dans le client Steam de ce PC (compte {}), sans clé ni configuration. Un jeu apparaît après sa première partie sur ce PC."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:567
+#: crates/halcyon-app/ui/pages/settings.slint:596
 msgid "Succès Steam : aucun compte Steam trouvé sur ce PC. Ouvrez Steam une fois connecté : les succès seront ensuite lus directement, sans clé."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:571
+#: crates/halcyon-app/ui/pages/settings.slint:600
 msgid "Visuels : Steam, Epic Games et GOG fournissent jaquettes, bannières et logos sans configuration. Pour les jeux standalone, Halcyon cherche le jeu dans la boutique Steam ; pour les jeux émulés, dans libretro-thumbnails (projet RetroArch)."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:574
+#: crates/halcyon-app/ui/pages/settings.slint:603
 msgid "Les succès Epic Games ne sont pas disponibles : Epic ne propose pas d'API publique."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:581
+#: crates/halcyon-app/ui/pages/settings.slint:610
 msgid "Utilisateur RetroAchievements"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:581
+#: crates/halcyon-app/ui/pages/settings.slint:610
 msgid "Pour les succès des jeux émulés."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:581
+#: crates/halcyon-app/ui/pages/settings.slint:610
 msgid "Pseudo"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:584
+#: crates/halcyon-app/ui/pages/settings.slint:613
 msgid "Clé Web API RetroAchievements"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:585
+#: crates/halcyon-app/ui/pages/settings.slint:614
 msgid "retroachievements.org › Paramètres › Clé Web API."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:586
+#: crates/halcyon-app/ui/pages/settings.slint:615
 msgid "Clé"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:591
+#: crates/halcyon-app/ui/pages/settings.slint:620
 msgid "Synchroniser les succès au démarrage"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:592
+#: crates/halcyon-app/ui/pages/settings.slint:621
 msgid "Incrémentale : seuls les jeux non synchronisés depuis 12 h, ou dont Steam a enregistré de nouveaux succès, sont relus."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:600
+#: crates/halcyon-app/ui/pages/settings.slint:629
 msgid "Surveiller les succès pendant une partie"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:601
+#: crates/halcyon-app/ui/pages/settings.slint:630
 msgid "Vérifie le jeu lancé pour vous notifier : Steam toutes les 20 s depuis le disque (2 min en ligne avec une clé), RetroAchievements toutes les 90 s."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:609
+#: crates/halcyon-app/ui/pages/settings.slint:638
 msgid "Notifications de succès"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:610
+#: crates/halcyon-app/ui/pages/settings.slint:639
 msgid "Notification système discrète : elle ne prend jamais le focus et n'interrompt pas le jeu."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:621
+#: crates/halcyon-app/ui/pages/settings.slint:650
 msgid "Masquer les réglages avancés"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:621
+#: crates/halcyon-app/ui/pages/settings.slint:650
 msgid "Réglages avancés : clés d'API facultatives"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:628
+#: crates/halcyon-app/ui/pages/settings.slint:657
 msgid "Aucune de ces clés n'est nécessaire. Elles sont stockées uniquement sur cet ordinateur, dans le coffre de Halcyon (chiffré par Windows ; réservé à votre compte sous Linux), jamais dans settings.json."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:635
+#: crates/halcyon-app/ui/pages/settings.slint:664
 msgid "Clé Steam Web API"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:636
+#: crates/halcyon-app/ui/pages/settings.slint:665
 msgid "Récupère en ligne les succès des jeux jamais lancés sur ce PC et ajoute les jeux possédés non installés. À créer sur steamcommunity.com/dev/apikey ; les détails de jeu de votre profil Steam doivent être publics."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:637
+#: crates/halcyon-app/ui/pages/settings.slint:666
 msgid "32 caractères hexadécimaux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:642
+#: crates/halcyon-app/ui/pages/settings.slint:671
 msgid "SteamID64"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:643
+#: crates/halcyon-app/ui/pages/settings.slint:672
 #, placeholders
 msgid "Détecté sur cet ordinateur : {} (laisser vide pour l'utiliser)."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:643
+#: crates/halcyon-app/ui/pages/settings.slint:672
 msgid "Aucun compte Steam détecté sur cet ordinateur."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:649
+#: crates/halcyon-app/ui/pages/settings.slint:678
 msgid "Clé d'API SteamGridDB"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:650
+#: crates/halcyon-app/ui/pages/settings.slint:679
 msgid "steamgriddb.com › Préférences › API. Visuels de secours pour les jeux standalone introuvables dans la boutique Steam."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:651 crates/halcyon-app/ui/pages/settings.slint:658
+#: crates/halcyon-app/ui/pages/settings.slint:680 crates/halcyon-app/ui/pages/settings.slint:687
 msgid "Clé personnelle"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:656
+#: crates/halcyon-app/ui/pages/settings.slint:685
 msgid "Clé d'API Nexus Mods"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:657
+#: crates/halcyon-app/ui/pages/settings.slint:686
 msgid "nexusmods.com › Mon compte › Accès à l'API. Sert uniquement à vérifier les versions de vos mods."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:665
+#: crates/halcyon-app/ui/pages/settings.slint:691
+msgid "Statut Discord"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:692
+msgid "« Joue à … » sur votre profil Discord pendant une partie, avec la jaquette du jeu. Passe par Discord ouvert sur ce PC ; son réglage « Partager mon activité » reste maître."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:701
+msgid "Application Discord (facultatif)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:702
+msgid "Identifiant d'une application créée sur discord.com/developers, pour afficher un autre nom que « Halcyon ». Vide : celle de Halcyon."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:703
+msgid "Identifiant numérique"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:710
 msgid "Linux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:671
+#: crates/halcyon-app/ui/pages/settings.slint:716
 msgid "Commande pour les jeux Windows (.exe)"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:672
+#: crates/halcyon-app/ui/pages/settings.slint:717
 msgid "Exemples : wine, umu-run, flatpak run org.winehq.Wine. Les jeux Steam utilisent Proton via Steam, les jeux Epic via Heroic."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:689
+#: crates/halcyon-app/ui/pages/settings.slint:734
 msgid "Analyser les sources au démarrage"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:690
+#: crates/halcyon-app/ui/pages/settings.slint:735
 msgid "En arrière-plan : l'interface reste utilisable pendant l'analyse."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:698
+#: crates/halcyon-app/ui/pages/settings.slint:743
 msgid "Réduire Halcyon pendant le jeu"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:699
+#: crates/halcyon-app/ui/pages/settings.slint:744
 msgid "Libère le GPU : l'interface ne se redessine pas tant qu'elle est réduite."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:707
-msgid "Démarrer en mode Big Picture"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:708
-msgid "Plein écran, navigation à la manette. Start ou F11 pour en sortir."
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:716
-msgid "Métadonnées en ligne"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:717
-msgid "Descriptions, genres et captures d'écran depuis la boutique Steam (vos modifications restent prioritaires)."
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:718 crates/halcyon-app/ui/pages/settings.slint:728 crates/halcyon-app/ui/pages/settings.slint:840
-#: crates/halcyon-app/ui/pages/settings.slint:950
-msgid "En ligne"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:726
-msgid "Télécharger les visuels manquants"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:727
-msgid "Nécessite Internet. Jaquettes et bannières sont ensuite conservées hors ligne."
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:748
-msgid "Effets sonores"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:749
-msgid "Identité sonore de Halcyon : navigation, actions, notifications. Indépendant du volume du système."
+#: crates/halcyon-app/ui/pages/settings.slint:752
+msgid "Écran de lancement"
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:753
-msgid "Mode silencieux"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:754
-msgid "Coupe tous les sons sans modifier les réglages ci-dessous."
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:759
-msgid "Volume général"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:759
-msgid "Appliqué à tous les sons."
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:760
-msgid "Sélection, sections, panneaux, menus, retour."
+msgid "Bannière et logo du jeu en plein cadre pendant son démarrage. Un clic le referme."
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:761
-msgid "Interactions"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:761
-msgid "Validation, favoris, collections, fiche d'un jeu, réglages."
+msgid "Bannière animée"
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:762
-msgid "Notifications"
+msgid "Sur la fiche d'un jeu, la bannière enchaîne les captures d'écran en fondu, avec un lent travelling. Coupée en mode Performance ; Apparence › Mouvement « Réduit » garde les fondus sans le travelling."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:762
-msgid "Réussite, avertissement, erreur, téléchargements, mises à jour."
+#: crates/halcyon-app/ui/pages/settings.slint:770
+msgid "Rappel de pause"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:763
-msgid "Actions importantes"
+#: crates/halcyon-app/ui/pages/settings.slint:771
+msgid "Notification pendant une longue partie suivie par Halcyon."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:763
-msgid "Lancement d'un jeu, grandes réussites."
+#: crates/halcyon-app/ui/pages/settings.slint:774
+msgid "1 h"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:792
-msgid "Écouter"
+#: crates/halcyon-app/ui/pages/settings.slint:774
+msgid "2 h"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:800
-msgid "Sons de survol"
+#: crates/halcyon-app/ui/pages/settings.slint:774
+msgid "3 h"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:801
-msgid "Très discrets, au passage de la souris sur une jaquette."
+#: crates/halcyon-app/ui/pages/settings.slint:780
+msgid "Jeux offerts sur l'Epic Games Store"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:805
-msgid "Pendant une partie"
+#: crates/halcyon-app/ui/pages/settings.slint:781
+msgid "Signale au démarrage les jeux gratuits de la semaine (une fois chacun). Contacte le site d'Epic."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:806
-msgid "Sons de Halcyon pendant un jeu lancé depuis Halcyon."
+#: crates/halcyon-app/ui/pages/settings.slint:789
+msgid "Alerte de disque presque plein"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:809
-msgid "Silencieux"
+#: crates/halcyon-app/ui/pages/settings.slint:790
+msgid "Au plus une fois par jour, quand il reste moins de 10 % ou de 10 Go."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:809
-msgid "Réduits"
+#: crates/halcyon-app/ui/pages/settings.slint:798
+msgid "Démarrer en mode Big Picture"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:809
-msgid "Normaux"
+#: crates/halcyon-app/ui/pages/settings.slint:799
+msgid "Plein écran, navigation à la manette. Start ou F11 pour en sortir."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:807
+msgid "Métadonnées en ligne"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:808
+msgid "Descriptions, genres et captures d'écran depuis la boutique Steam (vos modifications restent prioritaires)."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:809 crates/halcyon-app/ui/pages/settings.slint:819 crates/halcyon-app/ui/pages/settings.slint:931
+#: crates/halcyon-app/ui/pages/settings.slint:1041
+msgid "En ligne"
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:817
-msgid "Rétablir les réglages du son"
+msgid "Télécharger les visuels manquants"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:836
-msgid "Mode hors ligne forcé"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:838
-msgid "Connexion disponible. Activez pour qu'Halcyon n'effectue plus aucune requête réseau (bibliothèque, lancement, sauvegardes et mods restent disponibles)."
+#: crates/halcyon-app/ui/pages/settings.slint:818
+msgid "Nécessite Internet. Jaquettes et bannières sont ensuite conservées hors ligne."
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:839
-msgid "Hors ligne : la bibliothèque reste entièrement utilisable. Succès, visuels et métadonnées seront synchronisés automatiquement au retour de la connexion."
+msgid "Effets sonores"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:860 crates/halcyon-installer/ui/setup.slint:446
-msgid "Démarrer avec la session"
+#: crates/halcyon-app/ui/pages/settings.slint:840
+msgid "Identité sonore de Halcyon : navigation, actions, notifications. Indépendant du volume du système."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:861
-msgid "Halcyon s'ouvre réduit dans la zone de notification à la connexion."
+#: crates/halcyon-app/ui/pages/settings.slint:844
+msgid "Mode silencieux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:865
-msgid "Fermer dans la zone de notification"
+#: crates/halcyon-app/ui/pages/settings.slint:845
+msgid "Coupe tous les sons sans modifier les réglages ci-dessous."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:866
-msgid "Fermer la fenêtre garde Halcyon actif (raccourcis, lancements depuis Sunshine). « Quitter » depuis l'icône pour l'arrêter."
+#: crates/halcyon-app/ui/pages/settings.slint:850
+msgid "Volume général"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:870
-msgid "Réduire dans la zone de notification"
+#: crates/halcyon-app/ui/pages/settings.slint:850
+msgid "Appliqué à tous les sons."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:871
-msgid "Une fenêtre réduite disparaît de la barre des tâches."
+#: crates/halcyon-app/ui/pages/settings.slint:851
+msgid "Sélection, sections, panneaux, menus, retour."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:876
-msgid "Fenêtre compagnon pendant les parties"
+#: crates/halcyon-app/ui/pages/settings.slint:852
+msgid "Interactions"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:877
-msgid "Petite fenêtre au premier plan : temps de session, succès, notes. Aucune injection dans le jeu : visible en mode fenêtré sans bordure ou sur un second écran. Pour les performances (i/s, températures), utilisez MangoHud (Linux) ou RTSS / la Xbox Game Bar (Windows)."
+#: crates/halcyon-app/ui/pages/settings.slint:852
+msgid "Validation, favoris, collections, fiche d'un jeu, réglages."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:895
-msgid "Aller aux pages (Accueil, Bibliothèque, Que jouer ?, Succès, Statistiques, Journal, Mises à jour, Sauvegardes, Paramètres)"
+#: crates/halcyon-app/ui/pages/settings.slint:853
+msgid "Notifications"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:853
+msgid "Réussite, avertissement, erreur, téléchargements, mises à jour."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:854
+msgid "Actions importantes"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:854
+msgid "Lancement d'un jeu, grandes réussites."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:883
+msgid "Écouter"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:891
+msgid "Sons de survol"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:892
+msgid "Très discrets, au passage de la souris sur une jaquette."
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:896
-msgid "Ctrl+1 … Ctrl+9"
+msgid "Pendant une partie"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:898
-msgid "Cliquez sur une combinaison puis appuyez sur les nouvelles touches. Retour arrière : aucun raccourci. Échap : annuler."
+#: crates/halcyon-app/ui/pages/settings.slint:897
+msgid "Sons de Halcyon pendant un jeu lancé depuis Halcyon."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:901
-msgid "Raccourci global"
+#: crates/halcyon-app/ui/pages/settings.slint:900
+msgid "Silencieux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:902
-msgid "Ouvre le lancement rapide même quand Halcyon est en arrière-plan."
+#: crates/halcyon-app/ui/pages/settings.slint:900
+msgid "Réduits"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:907
-msgid "Ctrl+Alt+H"
+#: crates/halcyon-app/ui/pages/settings.slint:900
+msgid "Normaux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:913
-msgid "Rétablir les raccourcis par défaut"
+#: crates/halcyon-app/ui/pages/settings.slint:908
+msgid "Rétablir les réglages du son"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:922
-msgid "Exporter ou restaurer la configuration"
+#: crates/halcyon-app/ui/pages/settings.slint:927
+msgid "Mode hors ligne forcé"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:938
-msgid "Beta : prépublications pour tester les nouveautés, et versions stables plus récentes."
+#: crates/halcyon-app/ui/pages/settings.slint:929
+msgid "Connexion disponible. Activez pour qu'Halcyon n'effectue plus aucune requête réseau (bibliothèque, lancement, sauvegardes et mods restent disponibles)."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:939
-msgid "Stable : versions finales uniquement. Canal par défaut de la version installée."
+#: crates/halcyon-app/ui/pages/settings.slint:930
+msgid "Hors ligne : la bibliothèque reste entièrement utilisable. Succès, visuels et métadonnées seront synchronisés automatiquement au retour de la connexion."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:939
-msgid "Stable : versions finales uniquement."
+#: crates/halcyon-app/ui/pages/settings.slint:951 crates/halcyon-installer/ui/setup.slint:446
+msgid "Démarrer avec la session"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:948
-msgid "Rechercher automatiquement"
+#: crates/halcyon-app/ui/pages/settings.slint:952
+msgid "Halcyon s'ouvre réduit dans la zone de notification à la connexion."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:949
-msgid "Au démarrage puis toutes les 6 heures. Requête conditionnelle à GitHub : rien n'est retéléchargé si rien n'a changé."
+#: crates/halcyon-app/ui/pages/settings.slint:956
+msgid "Fermer dans la zone de notification"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:958
-msgid "Mises à jour automatiques"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/settings.slint:960
-msgid "Télécharge et vérifie les nouvelles versions en arrière-plan, puis les installe au démarrage suivant de Halcyon."
+#: crates/halcyon-app/ui/pages/settings.slint:957
+msgid "Fermer la fenêtre garde Halcyon actif (raccourcis, lancements depuis Sunshine). « Quitter » depuis l'icône pour l'arrêter."
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/settings.slint:961
+msgid "Réduire dans la zone de notification"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:962
+msgid "Une fenêtre réduite disparaît de la barre des tâches."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:967
+msgid "Fenêtre compagnon pendant les parties"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:968
+msgid "Petite fenêtre au premier plan : temps de session, succès, notes. Aucune injection dans le jeu : visible en mode fenêtré sans bordure ou sur un second écran. Pour les performances (i/s, températures), utilisez MangoHud (Linux) ou RTSS / la Xbox Game Bar (Windows)."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:986
+msgid "Aller aux pages (Accueil, Bibliothèque, Que jouer ?, Succès, Statistiques, Journal, Mises à jour, Sauvegardes, Paramètres)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:987
+msgid "Ctrl+1 … Ctrl+9"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:989
+msgid "Cliquez sur une combinaison puis appuyez sur les nouvelles touches. Retour arrière : aucun raccourci. Échap : annuler."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:992
+msgid "Raccourci global"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:993
+msgid "Ouvre le lancement rapide même quand Halcyon est en arrière-plan."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:998
+msgid "Ctrl+Alt+H"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1004
+msgid "Rétablir les raccourcis par défaut"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1013
+msgid "Exporter ou restaurer la configuration"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1029
+msgid "Beta : prépublications pour tester les nouveautés, et versions stables plus récentes."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1030
+msgid "Stable : versions finales uniquement. Canal par défaut de la version installée."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1030
+msgid "Stable : versions finales uniquement."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1039
+msgid "Rechercher automatiquement"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1040
+msgid "Au démarrage puis toutes les 6 heures. Requête conditionnelle à GitHub : rien n'est retéléchargé si rien n'a changé."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1049
+msgid "Mises à jour automatiques"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1051
+msgid "Télécharge et vérifie les nouvelles versions en arrière-plan, puis les installe au démarrage suivant de Halcyon."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/settings.slint:1052
 #, placeholders
 msgid "Indisponible pour cette installation : {}"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:970
+#: crates/halcyon-app/ui/pages/settings.slint:1061
 msgid "Installer Halcyon pour mon compte"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:971
+#: crates/halcyon-app/ui/pages/settings.slint:1062
 msgid "Copie cette AppImage dans ~/.local/opt/halcyon, ajoute Halcyon au menu des applications et à ~/.local/bin. Les mises à jour remplaceront ensuite ce fichier, sans toucher aux raccourcis."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:977
+#: crates/halcyon-app/ui/pages/settings.slint:1068
 msgid "Dépôt des versions"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:978
+#: crates/halcyon-app/ui/pages/settings.slint:1069
 msgid "Vide : dépôt officiel (sebdss/halcyon). Un autre dépôt n'est utile que pour une version dérivée : ses manifestes doivent être signés par une clé intégrée à cette compilation."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:979
+#: crates/halcyon-app/ui/pages/settings.slint:1070
 msgid "sebdss/halcyon"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:989
+#: crates/halcyon-app/ui/pages/settings.slint:1080
 #, placeholders
 msgid "Nouveautés de la version {}"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1005
+#: crates/halcyon-app/ui/pages/settings.slint:1096
 msgid "Cache des miniatures"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1006
+#: crates/halcyon-app/ui/pages/settings.slint:1097
 #, placeholders
 msgid "{} — reconstruit automatiquement si vidé."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1009
+#: crates/halcyon-app/ui/pages/settings.slint:1100
 msgid "Vider"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1015
+#: crates/halcyon-app/ui/pages/settings.slint:1106
 msgid "Données de l'application"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1025 crates/halcyon-app/src/ctl_system.rs:821
+#: crates/halcyon-app/ui/pages/settings.slint:1116 crates/halcyon-app/src/ctl_system.rs:821
 msgid "Vérification d'intégrité"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1026
+#: crates/halcyon-app/ui/pages/settings.slint:1117
 msgid "Base de données, paramètres, dossier des données, jeux installés, jaquettes et extensions."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1027
+#: crates/halcyon-app/ui/pages/settings.slint:1118
 msgid "Vérifier"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1031
+#: crates/halcyon-app/ui/pages/settings.slint:1122
 msgid "Journaux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1032
+#: crates/halcyon-app/ui/pages/settings.slint:1123
 #, placeholders
 msgid "{} — dont security.log : clés d'API définies ou retirées (jamais leur valeur), extensions et autorisations, mises à jour vérifiées ou refusées, compte Microsoft."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:1045
+#: crates/halcyon-app/ui/pages/settings.slint:1136
 #, placeholders
 msgid "Halcyon {}. Made with Slint. Police Archivo (SIL OFL)."
 msgstr ""
@@ -1450,61 +1532,61 @@ msgstr ""
 msgid "aucune donnée audio"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:299
+#: crates/halcyon-integrations/src/sysmon.rs:307
 #, placeholders
 msgid "Mémoire presque pleine ({ram} %)"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:300
+#: crates/halcyon-integrations/src/sysmon.rs:308
 msgid "Fermez les applications inutiles avant de jouer."
-msgstr ""
-
-#: crates/halcyon-integrations/src/sysmon.rs:300
-#, placeholders
-msgid "Plus gros consommateurs : {join}. Fermez celles dont vous n'avez pas besoin avant de jouer."
 msgstr ""
 
 #: crates/halcyon-integrations/src/sysmon.rs:308
 #, placeholders
+msgid "Plus gros consommateurs : {join}. Fermez celles dont vous n'avez pas besoin avant de jouer."
+msgstr ""
+
+#: crates/halcyon-integrations/src/sysmon.rs:316
+#, placeholders
 msgid "{swap_used_mb} de mémoire d'échange utilisés"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:309
+#: crates/halcyon-integrations/src/sysmon.rs:317
 msgid "Le système déplace de la mémoire vers le disque : cela provoque des saccades en jeu."
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:318
+#: crates/halcyon-integrations/src/sysmon.rs:326
 #, placeholders
 msgid "{name} utilise {cpu} % du processeur"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:319
+#: crates/halcyon-integrations/src/sysmon.rs:327
 msgid "Hors partie, cette charge réduira la marge disponible pour vos jeux."
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:327
+#: crates/halcyon-integrations/src/sysmon.rs:335
 #, placeholders
 msgid "Carte graphique occupée ({g} % en moyenne) sans partie en cours"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:328
+#: crates/halcyon-integrations/src/sysmon.rs:336
 msgid "Une application (vidéo, navigateur, enregistrement) utilise la carte graphique."
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:339
+#: crates/halcyon-integrations/src/sysmon.rs:346
 #, placeholders
 msgid "Peu d'espace libre sur {mount} ({free_mb})"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:340
+#: crates/halcyon-integrations/src/sysmon.rs:347
 msgid "Les mises à jour de jeux et la mémoire virtuelle ont besoin d'espace libre."
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:349
+#: crates/halcyon-integrations/src/sysmon.rs:356
 msgid "Mode Performance de Halcyon désactivé"
 msgstr ""
 
-#: crates/halcyon-integrations/src/sysmon.rs:350
+#: crates/halcyon-integrations/src/sysmon.rs:357
 msgid "Il coupe animations et effets de Halcyon et reporte ses tâches secondaires. Désactivable à tout moment."
 msgstr ""
 
@@ -1536,7 +1618,7 @@ msgstr ""
 msgid "{name} · personnalisé"
 msgstr ""
 
-#: crates/halcyon-storage/src/achievements.rs:312
+#: crates/halcyon-storage/src/achievements.rs:321
 msgid "personnalisé"
 msgstr ""
 
@@ -1544,49 +1626,49 @@ msgstr ""
 msgid "Sessions"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:291
+#: crates/halcyon-storage/src/repo.rs:294
 #, placeholders
 msgid "{name} mis à jour"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:297
+#: crates/halcyon-storage/src/repo.rs:300
 #, placeholders
 msgid "Mise à jour disponible pour {name}"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:302
+#: crates/halcyon-storage/src/repo.rs:305
 #, placeholders
 msgid "{name} installé"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:346 crates/halcyon-storage/src/repo.rs:412
+#: crates/halcyon-storage/src/repo.rs:350 crates/halcyon-storage/src/repo.rs:416
 #, placeholders
 msgid "{name} ajouté à la bibliothèque"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:358
+#: crates/halcyon-storage/src/repo.rs:362
 #, placeholders
 msgid "{n} autre jeu ajouté ({label})"
 msgid_plural "{n} autres jeux ajoutés ({label})"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/halcyon-storage/src/repo.rs:368
+#: crates/halcyon-storage/src/repo.rs:372
 #, placeholders
 msgid "{name} désinstallé"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:389
+#: crates/halcyon-storage/src/repo.rs:393
 #, placeholders
 msgid "cet exécutable est déjà dans la bibliothèque (« {name} »)"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:467
+#: crates/halcyon-storage/src/repo.rs:471
 #, placeholders
 msgid "Session de {name}"
 msgstr ""
 
-#: crates/halcyon-storage/src/repo.rs:497
+#: crates/halcyon-storage/src/repo.rs:501
 msgid "seuls les jeux ajoutés manuellement peuvent être supprimés"
 msgstr ""
 

@@ -26,15 +26,22 @@ pub struct SteamScanner {
     root_override: Option<PathBuf>,
     /// API Web (clé personnelle) : ajoute les jeux possédés non installés.
     web: Option<crate::steam_web::SteamWeb>,
+    /// Noms des étiquettes de la boutique (identifiant → nom traduit), pour les genres.
+    tag_names: std::sync::Arc<std::collections::HashMap<u64, String>>,
 }
 
 impl SteamScanner {
     pub fn new(root_override: Option<PathBuf>) -> Self {
-        Self { root_override, web: None }
+        Self { root_override, web: None, tag_names: Default::default() }
     }
 
     pub fn with_web(mut self, web: Option<crate::steam_web::SteamWeb>) -> Self {
         self.web = web;
+        self
+    }
+
+    pub fn with_tag_names(mut self, names: std::sync::Arc<std::collections::HashMap<u64, String>>) -> Self {
+        self.tag_names = names;
         self
     }
 
@@ -131,9 +138,153 @@ impl GameScanner for SteamScanner {
                 }
             }
         }
+        if !ctx.is_cancelled() {
+            ctx.progress(&tr!("Steam : fiches des jeux (cache du client)…"));
+            apply_appinfo(&root, &mut report.games, &self.tag_names);
+        }
         log::info!("Steam : {} jeux trouvés ({} avertissements)", report.games.len(), report.warnings.len());
         Ok(report)
     }
+}
+
+/// Collections du joueur dans Steam (`userdata/<compte>/config/cloudstorage/
+/// cloud-storage-namespace-1.json`) : `(nom, numéros des jeux)`. Les collections dynamiques
+/// (filtres) et les listes « Favoris » et « Masqués » ne sont pas reprises.
+/// `None` : fichier absent ou illisible (rien ne doit alors être retiré).
+pub fn collections(root: &Path, account: u64) -> Option<Vec<(String, Vec<u64>)>> {
+    let path = root.join("userdata").join(account.to_string()).join("config/cloudstorage/cloud-storage-namespace-1.json");
+    parse_collections(&read_text(&path).ok()?)
+}
+
+pub fn parse_collections(text: &str) -> Option<Vec<(String, Vec<u64>)>> {
+    let Ok(serde_json::Value::Array(items)) = serde_json::from_str::<serde_json::Value>(text) else { return None };
+    let mut out: Vec<(String, Vec<u64>)> = Vec::new();
+    for item in items {
+        let (Some(key), Some(entry)) = (item.get(0).and_then(|k| k.as_str()), item.get(1)) else { continue };
+        if !key.starts_with("user-collections.") || entry.get("is_deleted").and_then(|d| d.as_bool()).unwrap_or(false) {
+            continue;
+        }
+        let Some(v) = entry.get("value").and_then(|v| v.as_str()).and_then(|v| serde_json::from_str::<serde_json::Value>(v).ok()) else { continue };
+        let id = v.get("id").and_then(|i| i.as_str()).unwrap_or_default();
+        let name = v.get("name").and_then(|n| n.as_str()).map(str::trim).unwrap_or_default();
+        if id == "favorite" || id == "hidden" || v.get("filterSpec").is_some_and(|f| !f.is_null()) || name.is_empty() {
+            continue;
+        }
+        let apps: Vec<u64> = v.get("added").and_then(|a| a.as_array()).map(|a| a.iter().filter_map(|x| x.as_u64()).collect()).unwrap_or_default();
+        if !apps.is_empty() && !out.iter().any(|(n, _)| n.eq_ignore_ascii_case(name)) {
+            out.push((name.to_string(), apps));
+        }
+    }
+    out.sort_by_key(|a| a.0.to_lowercase());
+    Some(out)
+}
+
+/// Objet du Steam Workshop installé pour un jeu.
+#[derive(Clone, Debug, PartialEq)]
+pub struct WorkshopItem {
+    pub id: u64,
+    pub size: u64,
+    /// Dernière mise à jour (horodatage Unix).
+    pub updated: Option<i64>,
+    pub dir: PathBuf,
+}
+
+/// Objets du Workshop installés pour `appid`, dans toutes les bibliothèques Steam
+/// (`steamapps/workshop/appworkshop_<appid>.acf`). Ils restent gérés par Steam.
+pub fn workshop_items(root: &Path, appid: u64) -> Vec<WorkshopItem> {
+    let mut out = Vec::new();
+    for lib in library_folders(root, &mut Vec::new()) {
+        let ws = lib.join("steamapps").join("workshop");
+        let Ok(text) = read_text(&ws.join(format!("appworkshop_{appid}.acf"))) else { continue };
+        for item in parse_workshop(&text) {
+            if !out.iter().any(|o: &WorkshopItem| o.id == item.0) {
+                out.push(WorkshopItem { id: item.0, size: item.1, updated: item.2, dir: ws.join("content").join(appid.to_string()).join(item.0.to_string()) });
+            }
+        }
+    }
+    out.sort_by_key(|i| std::cmp::Reverse(i.size));
+    out
+}
+
+/// `(identifiant, taille, mise à jour)` des objets installés d'après le fichier ACF.
+pub fn parse_workshop(text: &str) -> Vec<(u64, u64, Option<i64>)> {
+    let Ok(v) = Vdf::parse(text) else { return Vec::new() };
+    let Some(items) = v.get("AppWorkshop").and_then(|w| w.get("WorkshopItemsInstalled")) else { return Vec::new() };
+    items
+        .entries()
+        .iter()
+        .filter_map(|(id, it)| {
+            Some((id.parse().ok()?, it.get_str("size").and_then(|s| s.parse().ok()).unwrap_or(0), it.get_str("timeupdated").and_then(|s| s.parse().ok()).filter(|&t: &i64| t > 0)))
+        })
+        .collect()
+}
+
+/// Titres des objets du Workshop (`GetPublishedFileDetails`, public, sans clé), par lots.
+pub fn workshop_titles(dl: &crate::artwork::Downloader, ids: &[u64]) -> Result<HashMap<u64, String>, crate::artwork::FetchError> {
+    let mut out = HashMap::new();
+    for chunk in ids.chunks(100) {
+        let mut form = vec![("itemcount".to_string(), chunk.len().to_string())];
+        form.extend(chunk.iter().enumerate().map(|(i, id)| (format!("publishedfileids[{i}]"), id.to_string())));
+        let v = dl.post_form_json("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", &form)?;
+        out.extend(parse_workshop_titles(&v));
+    }
+    Ok(out)
+}
+
+pub fn parse_workshop_titles(v: &serde_json::Value) -> HashMap<u64, String> {
+    v.pointer("/response/publishedfiledetails")
+        .and_then(|d| d.as_array())
+        .map(|a| {
+            a.iter()
+                .filter_map(|d| {
+                    let id = d.get("publishedfileid").and_then(|i| i.as_str().and_then(|s| s.parse().ok()).or_else(|| i.as_u64()))?;
+                    let title = d.get("title").and_then(|t| t.as_str()).map(str::trim).filter(|t| !t.is_empty())?;
+                    Some((id, title.to_string()))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Nombre d'étiquettes de la boutique gardées comme genres (les plus votées).
+const STORE_TAGS_AS_GENRES: usize = 6;
+
+/// Complète les jeux avec les fiches du cache du client (`appcache/appinfo.vdf`) : studio,
+/// éditeur, date de sortie, étiquettes Halcyon (solo, coop, manette…) et genres (étiquettes
+/// de la boutique traduites, si leur liste est connue). Rien n'est demandé en ligne.
+fn apply_appinfo(root: &Path, games: &mut [DiscoveredGame], tag_names: &std::collections::HashMap<u64, String>) {
+    let wanted: std::collections::HashSet<u64> = games.iter().filter_map(|g| g.source_key.parse().ok()).collect();
+    let path = root.join("appcache").join("appinfo.vdf");
+    if wanted.is_empty() || !path.is_file() {
+        return;
+    }
+    let infos = match crate::steam_appinfo::read(&path, &wanted) {
+        Ok(i) => i,
+        Err(e) => {
+            log::warn!("Steam : fiches locales illisibles ({e})");
+            return;
+        }
+    };
+    for g in games.iter_mut() {
+        let Some(info) = g.source_key.parse::<u64>().ok().and_then(|id| infos.get(&id)) else { continue };
+        g.developer = g.developer.take().or_else(|| info.developer.clone());
+        g.publisher = g.publisher.take().or_else(|| info.publisher.clone());
+        if g.release_date.is_none() {
+            g.release_date = info.release.map(halcyon_core::util::format_date);
+        }
+        let mut ids = info.categories.clone();
+        // `controller_support` est plus fiable que les catégories 18/28 sur les vieux jeux.
+        match info.controller.as_deref() {
+            Some("full") => ids.push(28),
+            Some("partial") => ids.push(18),
+            _ => {}
+        }
+        g.tags = crate::steam_web::tags_from_categories(&ids);
+        if g.genres.is_empty() {
+            g.genres = info.store_tags.iter().filter_map(|t| tag_names.get(t).cloned()).take(STORE_TAGS_AS_GENRES).collect();
+        }
+    }
+    log::info!("Steam : {} fiches lues dans le cache du client", infos.len());
 }
 
 /// Ajoute les jeux possédés absents du disque, et complète le temps de jeu des autres.
@@ -589,11 +740,53 @@ mod tests {
     #[test]
     fn missing_steam_is_an_error_not_an_empty_library() {
         let tmp = tempfile::tempdir().unwrap();
-        let s = SteamScanner { root_override: Some(tmp.path().join("nope")), web: None };
+        let s = SteamScanner { root_override: Some(tmp.path().join("nope")), web: None, tag_names: Default::default() };
         // La détection automatique peut trouver un vrai Steam sur la machine de dev :
         // on ne vérifie que le cas « dossier forcé invalide et aucun Steam ».
         if detect_root().is_none() {
             assert!(s.scan(&ScanContext::silent()).is_err());
         }
     }
+
+    #[test]
+    fn steam_collections_static_only() {
+        let value = |v: serde_json::Value| v.to_string();
+        let text = serde_json::json!([
+            ["user-collections.uc-1", {"key": "user-collections.uc-1", "value": value(serde_json::json!({"id": "uc-1", "name": "Coop du soir", "added": [620, 1145360], "removed": []}))}],
+            ["user-collections.favorite", {"value": value(serde_json::json!({"id": "favorite", "name": "", "added": [620]}))}],
+            ["user-collections.uc-2", {"value": value(serde_json::json!({"id": "uc-2", "name": "Dynamique", "added": [], "filterSpec": {"filterGroups": []}}))}],
+            ["user-collections.uc-3", {"is_deleted": true, "value": value(serde_json::json!({"id": "uc-3", "name": "Supprimée", "added": [1]}))}],
+            ["showcases.x", {"value": "{}"}]
+        ])
+        .to_string();
+        assert_eq!(parse_collections(&text), Some(vec![("Coop du soir".to_string(), vec![620, 1145360])]));
+        assert_eq!(parse_collections("pas du json"), None);
+    }
+
+
+    #[test]
+    fn workshop_acf_and_titles() {
+        let acf = r#""AppWorkshop"
+{
+	"appid"		"294100"
+	"WorkshopItemsInstalled"
+	{
+		"2009463077"
+		{
+			"size"		"1048576"
+			"timeupdated"		"1700000000"
+			"manifest"		"123"
+		}
+		"818773962"
+		{
+			"size"		"20"
+		}
+	}
+}"#;
+        let items = parse_workshop(acf);
+        assert_eq!(items, vec![(2_009_463_077, 1_048_576, Some(1_700_000_000)), (818_773_962, 20, None)]);
+        let v = serde_json::json!({"response": {"publishedfiledetails": [{"publishedfileid": "2009463077", "title": "Harmony"}, {"publishedfileid": "1", "result": 9}]}});
+        assert_eq!(parse_workshop_titles(&v).get(&2_009_463_077).map(String::as_str), Some("Harmony"));
+    }
+
 }

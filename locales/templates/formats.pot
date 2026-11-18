@@ -13,9 +13,35 @@ msgstr ""
 "X-Halcyon-Domain: formats\n"
 
 #: crates/halcyon-app/src/ctl_home.rs:99 crates/halcyon-app/src/ctl_home.rs:101 crates/halcyon-installer/src/engine.rs:432
-#: crates/halcyon-integrations/src/sysmon.rs:367 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
+#: crates/halcyon-integrations/src/sysmon.rs:374 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
 #, placeholders
 msgid "{v} Go"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_recap.rs:20 crates/halcyon-core/src/util.rs:140
+msgctxt "month"
+msgid "mars"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_recap.rs:22 crates/halcyon-core/src/util.rs:142
+msgctxt "month"
+msgid "mai"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_recap.rs:23 crates/halcyon-core/src/util.rs:143
+msgctxt "month"
+msgid "juin"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_recap.rs:25 crates/halcyon-core/src/util.rs:145
+msgctxt "month"
+msgid "août"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_recap.rs:42 crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:228
+#, placeholders
+msgctxt "date"
+msgid "{month} {year}"
 msgstr ""
 
 #: crates/halcyon-app/src/ctl_tracking.rs:38 crates/halcyon-core/src/util.rs:107
@@ -26,12 +52,6 @@ msgstr ""
 #, placeholders
 msgctxt "date"
 msgid "{day} {month}"
-msgstr ""
-
-#: crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:228
-#, placeholders
-msgctxt "date"
-msgid "{month} {year}"
 msgstr ""
 
 #: crates/halcyon-core/src/util.rs:107
@@ -63,34 +83,14 @@ msgctxt "month"
 msgid "févr."
 msgstr ""
 
-#: crates/halcyon-core/src/util.rs:140
-msgctxt "month"
-msgid "mars"
-msgstr ""
-
 #: crates/halcyon-core/src/util.rs:141
 msgctxt "month"
 msgid "avr."
 msgstr ""
 
-#: crates/halcyon-core/src/util.rs:142
-msgctxt "month"
-msgid "mai"
-msgstr ""
-
-#: crates/halcyon-core/src/util.rs:143
-msgctxt "month"
-msgid "juin"
-msgstr ""
-
 #: crates/halcyon-core/src/util.rs:144
 msgctxt "month"
 msgid "juil."
-msgstr ""
-
-#: crates/halcyon-core/src/util.rs:145
-msgctxt "month"
-msgid "août"
 msgstr ""
 
 #: crates/halcyon-core/src/util.rs:146
@@ -159,13 +159,14 @@ msgstr ""
 msgid "{value} To"
 msgstr ""
 
-#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:369 crates/halcyon-minecraft/src/mods.rs:513
+#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:376 crates/halcyon-minecraft/src/mods.rs:513
 #: crates/halcyon-update/src/download.rs:247
 #, placeholders
 msgid "{v} Mo"
 msgstr ""
 
-#: crates/halcyon-integrations/src/artwork.rs:79 crates/halcyon-integrations/src/artwork.rs:80 crates/halcyon-integrations/src/artwork.rs:118
+#: crates/halcyon-integrations/src/artwork.rs:87 crates/halcyon-integrations/src/artwork.rs:88 crates/halcyon-integrations/src/artwork.rs:105
+#: crates/halcyon-integrations/src/artwork.rs:108 crates/halcyon-integrations/src/artwork.rs:109 crates/halcyon-integrations/src/artwork.rs:148
 #: crates/halcyon-update/src/download.rs:220
 #, placeholders
 msgid "écriture : {e}"

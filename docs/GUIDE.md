@@ -105,6 +105,10 @@ d'onglet.
   Vos modifications ne sont jamais écrasées par une synchronisation.
 - **Jeux Steam** : sans exécutable, le jeu passe par Steam (recommandé : succès, cloud, DRM).
   Un jeu possédé mais non installé propose **Installer via Steam**.
+- **Steam, sans réseau** : studio, éditeur, date de sortie, catégories (solo, coop, manette) et
+  genres (étiquettes de la boutique) viennent du cache du client Steam. Vos **collections Steam**
+  apparaissent dans la bibliothèque (« Steam · <nom> ») et suivent Steam. L'onglet **Mods** liste
+  les objets du **Steam Workshop** installés (gérés par Steam).
 - **Linux, jeux Windows** : les `.exe` passent par la commande définie dans
   **Paramètres › Linux** (`wine` par défaut ; `umu-run`, Proton…).
 
@@ -228,6 +232,27 @@ contient `gog_store`). Filtre « GOG » dans la bibliothèque. Les succès GOG n
 disponibles (pas d'API publique sans connexion au compte) : utilisez les succès
 personnalisés.
 
+## 6 bis++. Autres launchers (1.1)
+
+**Paramètres › Plateformes › Autres launchers** : Halcyon lit les jeux **installés** de ces
+launchers, sans compte à connecter ni clé. Chaque jeu se lance par son launcher, qui garde la
+connexion, les mises à jour et la protection anticopie.
+
+| Launcher | Système | Lancement | Temps de jeu |
+|---|---|---|---|
+| Ubisoft Connect | Windows | `uplay://` | mesuré par Halcyon |
+| EA app | Windows | `origin2://` | non mesuré (l'EA app ne dit pas où le jeu est installé) |
+| Xbox / Game Pass PC | Windows | comme le menu Démarrer | mesuré par Halcyon |
+| Battle.net | Windows | client Battle.net | mesuré par Halcyon |
+| Riot (League of Legends, VALORANT, Legends of Runeterra, 2XKO) | Windows | Riot Client | mesuré par Halcyon |
+| Amazon Games | Windows | `amazon-games://` | mesuré par Halcyon |
+| itch.io | Windows, Linux | exécutable du jeu | mesuré par Halcyon |
+
+Un interrupteur par launcher. Dans la bibliothèque, un filtre apparaît pour chaque launcher qui
+a des jeux. Les visuels sont cherchés par nom dans la boutique Steam (puis SteamGridDB si vous
+avez une clé). Les succès de ces plateformes ne sont pas publics : utilisez les succès
+personnalisés.
+
 ## 6 quater. Téléchargements (1.0.0)
 
 Menu **Téléchargements** : tout ce que Halcyon télécharge lui-même (versions et Java de
@@ -322,6 +347,49 @@ mettent à jour seules et apparaissent dans le filtre *Collections*.
   sauvegardes, mods, profils, extensions et synchronisations. Il est filtrable par catégorie
   et consultable par recherche.
 
+### Récap et story (1.1)
+
+**Activité › Récap** : votre semaine, votre mois ou votre année (flèches : périodes
+précédentes). Temps de jeu comparé à la période d'avant, sessions, jours joués, plus longue
+série, jeux découverts, succès débloqués, top 5, moment préféré, plus longue session, succès le
+plus rare et **profil de joueur**. Le récap est calculé sur les sessions suivies par Halcyon
+(les plateformes ne datent pas leur temps de jeu).
+
+**Voir ma story** ouvre les mêmes chiffres en pages verticales : clic à droite ou flèche →
+page suivante, clic à gauche ou ← page précédente, Échap pour fermer. **Image de cette page**
+enregistre la page dans *Images/Halcyon* ; **Exporter en vidéo** produit une vidéo 1080 × 1920
+dans *Vidéos/Halcyon* si [ffmpeg](https://ffmpeg.org) est installé (sinon, les pages sont
+enregistrées en images).
+
+### Confort (1.1)
+
+- **Écran de lancement** : au clic sur *Jouer*, la bannière et le logo du jeu occupent la
+  fenêtre pendant son démarrage, puis « Bonne partie ! » quand le jeu est détecté. Un clic le
+  referme. *Réglages › Comportement › Écran de lancement* pour le désactiver.
+- **Rappel de pause** : *Réglages › Comportement* (Jamais, 1 h, 2 h ou 3 h). Une notification
+  pendant les parties suivies par Halcyon.
+- **Jeux offerts** : les jeux gratuits de la semaine sur l'Epic Games Store sont signalés au
+  démarrage, une fois chacun, et listés dans *Outils › Stockage*.
+- **Outils › Stockage** : espace libre de chaque disque, place prise par les jeux de la
+  bibliothèque, et jeux installés non lancés depuis six mois (les plus gros d'abord). Ouvrez un
+  jeu pour le désinstaller depuis sa plateforme ; vos sauvegardes Halcyon et votre temps de
+  jeu restent.
+- **Disque presque plein** : moins de 10 % ou de 10 Go libres → une alerte, au plus une fois
+  par jour (désactivable).
+
+### Discord, configuration requise, bannière animée (1.1)
+
+- **Statut Discord** : *Réglages › Comptes et succès › Statut Discord*. Pendant une partie,
+  votre profil Discord affiche « Joue à … » avec la jaquette et la durée. Halcyon parle au
+  Discord ouvert sur le PC (rien ne passe par Internet de son côté) ; le réglage « Partager
+  mon activité » de Discord reste maître.
+- **Configuration requise** : sur l'aperçu d'un jeu Steam, la configuration minimale et
+  recommandée de la boutique à côté de votre PC. La mémoire, la mémoire vidéo, l'espace
+  disque et le 64 bits sont comparés (marge de 10 % pour la mémoire réservée par le
+  système) ; le processeur et la carte graphique sont affichés côte à côte, sans verdict.
+- **Bannière animée** : *Réglages › Comportement*. La bannière de la fiche enchaîne les
+  captures d'écran en fondu avec un lent travelling.
+
 ## 9. Profils de lancement
 
 Onglet **Profils** de la fiche : plusieurs façons de lancer un même jeu, choisies dans le menu
@@ -356,9 +424,12 @@ notification système peut signaler les nouvelles mises à jour (option de la pa
 
 Onglet **Sauvegardes** d'une fiche, et page **Sauvegardes** pour la vue d'ensemble.
 
-1. **Emplacements** : Halcyon propose les dossiers détectés (Documents/My Games, AppData,
-   LocalLow, Steam Cloud local, préfixes Proton, dossier du jeu, Unreal `Saved/SaveGames`, ROM
-   et RetroArch). Associez-les, ou ajoutez un dossier ou un fichier.
+1. **Emplacements** : Halcyon propose d'abord les dossiers exacts de la **base Ludusavi**
+   (communautaire, plus de 20 000 jeux, aussi dans les préfixes Proton sous Linux), puis ceux
+   qu'il devine (Documents/My Games, AppData, LocalLow, Steam Cloud local, préfixes Proton,
+   dossier du jeu, Unreal `Saved/SaveGames`, ROM et RetroArch). Associez-les, ou ajoutez un
+   dossier ou un fichier. La base (~18 Mo) est téléchargée au plus une fois par semaine, et
+   seulement si elle a changé ; un dossier partagé par plusieurs jeux n'est jamais proposé.
 2. **Copies** : manuelles (*Sauvegarder maintenant*) ou automatiques **avant** et **après**
    chaque session. Une copie identique à la précédente n'est pas dupliquée. Les copies
    manuelles ne sont jamais purgées. Le nombre de copies automatiques conservées est réglable.
@@ -598,6 +669,12 @@ les jaquettes et les extensions.
 
 - Tout fonctionne hors ligne ; les fonctions en ligne (visuels, métadonnées, succès, mises à
   jour) sont marquées **EN LIGNE** et désactivables.
+- Services publics contactés, sans compte : boutique et API publique de Steam (visuels,
+  recherche par nom, rareté des succès), libretro-thumbnails et la base Ludusavi (dépôts
+  GitHub), GitHub (mises à jour de Halcyon), la liste des jeux offerts de l'Epic Games Store
+  (désactivable), la configuration requise et les captures en grand de la boutique Steam.
+  Avec une clé facultative : Steam Web API,
+  RetroAchievements, SteamGridDB, Nexus Mods, CurseForge.
 - Les clés d'API restent sur votre ordinateur, dans `settings.json`.
 - `HALCYON_DEBUG=1` active des journaux détaillés ; `HALCYON_DATA_DIR` change le dossier de données.
 - Base de données illisible : elle est mise de côté (`library.corrupt-…`) et reconstruite à la

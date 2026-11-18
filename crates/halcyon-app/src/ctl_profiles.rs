@@ -319,6 +319,15 @@ impl Controller {
         let db = self.db.clone();
         let probe = self.probe_for(&game);
         let name = game.name.clone();
+        // Battle.net, Riot, Xbox : le programme lancé est le client (ou l'Explorateur), qui peut
+        // rester ouvert après le jeu. La session est suivie par le dossier du jeu, pas par lui.
+        let launched = match launched {
+            Launched::Process(child) if matches!(game.source, GameSource::BattleNet | GameSource::Riot | GameSource::Xbox) => {
+                log::info!("« {name} » confié à son client (pid {})", child.id());
+                Launched::Detached
+            }
+            other => other,
+        };
         match launched {
             Launched::Process(mut child) => {
                 log::info!("lancement de « {name} » (pid {})", child.id());
@@ -361,7 +370,10 @@ impl Controller {
                         let cancel = AtomicBool::new(false);
                         // Jeu lancé par sa plateforme : confirmation sonore quand il apparaît.
                         let observed = Watcher::new(probe).wait_session_with(Duration::from_secs(150), &cancel, || {
-                            post(|c| c.sound(halcyon_audio::Cue::Launched));
+                            post(move |c| {
+                                c.sound(halcyon_audio::Cue::Launched);
+                                c.launch_screen_running(id);
+                            });
                         });
                         match observed {
                             Some(o) => {
@@ -384,7 +396,7 @@ impl Controller {
             }
         }
         self.start_polling(id);
-        self.minimize_if_enabled();
+        self.after_launch(&game);
     }
 
     /// Indices permettant de reconnaître le jeu en cours d'exécution.
@@ -398,6 +410,8 @@ impl Controller {
 
     pub(crate) fn on_session_ended(&self, id: GameId, secs: u64, measured: bool) {
         self.active_session.set(None);
+        self.stop_break_reminder();
+        self.update_presence();
         self.close_companion();
         self.performance_session_ended();
         if let Some(app) = self.app() {

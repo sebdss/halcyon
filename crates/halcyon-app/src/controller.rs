@@ -85,10 +85,17 @@ pub struct Controller {
     pub(crate) detected: RefCell<HashMap<String, Detected>>,
     pub(crate) collections: RefCell<Vec<Collection>>,
     pub(crate) genres: RefCell<Vec<String>>,
+    /// Sources supplémentaires de l'index de la bibliothèque (autres launchers présents).
+    pub(crate) extra_sources: RefCell<Vec<GameSource>>,
     pub(crate) progress: RefCell<HashMap<GameId, Progress>>,
     pub(crate) ach_syncing: Cell<bool>,
     pub(crate) poll_generation: Arc<AtomicU64>,
     pub(crate) active_session: Cell<Option<GameId>>,
+    pub(crate) break_timer: RefCell<Option<slint::Timer>>,
+    pub(crate) free_games: RefCell<Vec<halcyon_integrations::epic_free::FreeGame>>,
+    pub(crate) presence: RefCell<halcyon_integrations::discord::Presence>,
+    /// Jeu dont la configuration requise est affichée (évite de la redemander).
+    pub(crate) req_shown: Cell<Option<GameId>>,
     pub(crate) bp: RefCell<BigPicture>,
     pub(crate) bp_clock: RefCell<Option<slint::Timer>>,
     pub(crate) pad_connected: Cell<bool>,
@@ -106,6 +113,10 @@ pub struct Controller {
     /// Emplacements de sauvegarde fournis par les extensions (nom compact du jeu → motifs).
     pub(crate) plugin_saves: RefCell<HashMap<String, Vec<String>>>,
     pub(crate) save_candidates: RefCell<Vec<halcyon_integrations::saves::Candidate>>,
+    /// Base Ludusavi des emplacements de sauvegarde (chargée en arrière-plan).
+    pub(crate) ludusavi: RefCell<Option<Arc<halcyon_integrations::ludusavi::Index>>>,
+    /// Titres des objets du Steam Workshop déjà demandés (identifiant → titre).
+    pub(crate) workshop_titles: RefCell<HashMap<u64, String>>,
     pub(crate) save_remote: RefCell<Option<String>>,
     pub(crate) mod_profile_cache: RefCell<Option<halcyon_storage::ModProfile>>,
     /// Extensions activées et valides.
@@ -170,10 +181,15 @@ impl Controller {
             detected: RefCell::new(HashMap::new()),
             collections: RefCell::new(Vec::new()),
             genres: RefCell::new(Vec::new()),
+            extra_sources: RefCell::new(Vec::new()),
             progress: RefCell::new(HashMap::new()),
             ach_syncing: Cell::new(false),
             poll_generation: Arc::new(AtomicU64::new(0)),
             active_session: Cell::new(None),
+            break_timer: RefCell::new(None),
+            free_games: RefCell::new(Vec::new()),
+            presence: RefCell::new(Default::default()),
+            req_shown: Cell::new(None),
             bp: RefCell::new(BigPicture::default()),
             bp_clock: RefCell::new(None),
             pad_connected: Cell::new(false),
@@ -190,6 +206,8 @@ impl Controller {
             no_save: Cell::new(false),
             plugin_saves: RefCell::new(HashMap::new()),
             save_candidates: RefCell::new(Vec::new()),
+            ludusavi: RefCell::new(None),
+            workshop_titles: RefCell::new(HashMap::new()),
             save_remote: RefCell::new(None),
             mod_profile_cache: RefCell::new(None),
             plugins: RefCell::new(Vec::new()),
@@ -263,6 +281,10 @@ impl Controller {
         self.ensure_update_polling();
         self.start_connectivity_monitor();
         self.sync_pending_saves();
+        self.start_ludusavi();
+        self.announce_recap();
+        self.check_free_games();
+        self.check_disks();
         self.refresh_remote();
         self.ensure_tray();
         self.register_global_hotkey();
@@ -340,6 +362,7 @@ impl Controller {
     }
 
     fn wire(self: &Rc<Self>, app: &AppWindow) {
+        self.wire_recap_with(app);
         let weak = Rc::downgrade(self);
         // Chaque callback récupère le contrôleur sans cycle de références.
         macro_rules! with {
@@ -440,6 +463,7 @@ impl Controller {
         smart.on_edit(with!(|c, id| c.smart_edit_existing(id as i64)));
         smart.on_create(with!(|c| c.smart_create()));
         smart.on_set_rule(with!(|c, i, k, p, n| c.smart_set_rule(i.max(0) as usize, k.max(0) as usize, &p, n)));
+        smart.on_source_index(|key| GameSource::ALL.iter().position(|s| s.as_str() == key.as_str()).unwrap_or(0) as i32);
         smart.on_add_rule(with!(|c| c.smart_add_rule()));
         smart.on_remove_rule(with!(|c, i| c.smart_remove_rule(i.max(0) as usize)));
         smart.on_set_match_all(with!(|c, v| c.smart_set_match_all(v)));
@@ -485,6 +509,11 @@ impl Controller {
         sui.on_add_folder(with!(|c, path| c.add_folder(&path)));
         sui.on_remove_folder(with!(|c, i| c.remove_folder(i as usize)));
         sui.on_set_option(with!(|c, name, v| c.set_option(&name, v)));
+        sui.on_set_break_reminder(with!(|c, i| {
+            c.settings.borrow_mut().break_reminder_hours = i.clamp(0, 3) as u32;
+            c.save_settings();
+            c.refresh_settings_ui();
+        }));
         sui.on_set_language(with!(|c, i| c.set_ui_language(i)));
         sui.on_set_text(with!(|c, key, value| c.set_text(&key, &value)));
         sui.on_clear_cache(with!(|c| c.clear_cache()));
@@ -628,6 +657,7 @@ impl Controller {
                 4 => SourceFilter::Only(GameSource::Standalone),
                 5 => SourceFilter::Only(GameSource::Minecraft),
                 6 => SourceFilter::Only(GameSource::Gog),
+                n if n > 6 => self.extra_sources.borrow().get(n as usize - 7).map(|s| SourceFilter::Only(*s)).unwrap_or(SourceFilter::All),
                 _ => SourceFilter::All,
             },
             installed_only: lui.get_installed_only(),
@@ -689,6 +719,18 @@ impl Controller {
         lui.set_genre_labels(ModelRc::new(VecModel::from(glabels)));
         lui.set_genre(new_index as i32);
 
+        // Autres launchers : affichés dans l'index seulement s'ils ont des jeux.
+        let extra: Vec<GameSource> = {
+            let lib = self.lib.borrow();
+            GameSource::LAUNCHERS.into_iter().filter(|s| lib.games.iter().any(|g| g.source == *s)).collect()
+        };
+        let selected = (lui.get_source() as usize).checked_sub(7).and_then(|i| self.extra_sources.borrow().get(i).copied());
+        lui.set_extra_sources(ModelRc::new(VecModel::from(extra.iter().map(|s| SharedString::from(s.label())).collect::<Vec<_>>())));
+        if lui.get_source() > 6 {
+            lui.set_source(selected.and_then(|s| extra.iter().position(|e| *e == s)).map(|i| i as i32 + 7).unwrap_or(0));
+        }
+        *self.extra_sources.borrow_mut() = extra;
+
         let counts = self.smart_counts();
         let cols = self.collections.borrow();
         let mut clabels: Vec<SharedString> = vec![tr!("Toutes les collections").into()];
@@ -700,6 +742,56 @@ impl Controller {
         lui.set_collection_labels(ModelRc::new(VecModel::from(clabels)));
         if lui.get_collection() as usize >= n {
             lui.set_collection(0);
+        }
+    }
+
+    /// Reprend les collections de Steam sous le nom « Steam · <nom> » : créées, tenues à jour
+    /// (mêmes jeux que dans Steam) et retirées quand elles disparaissent de Steam. Les autres
+    /// collections ne sont jamais touchées.
+    fn sync_steam_collections(&self) {
+        const PREFIX: &str = "Steam · ";
+        if !self.settings.borrow().steam_enabled {
+            return;
+        }
+        let Some(root) = steam::SteamScanner::new(self.settings.borrow().steam_path.clone()).root() else { return };
+        let Some(account) = self.local_steam_id().map(|id| u64::from(halcyon_integrations::steam_stats::account_id(id))) else { return };
+        // Fichier absent ou illisible : rien n'est créé ni retiré.
+        let Some(wanted) = steam::collections(&root, account) else { return };
+        if wanted.is_empty() && !self.collections.borrow().iter().any(|c| c.name.starts_with(PREFIX)) {
+            return;
+        }
+        let by_appid: HashMap<String, GameId> =
+            self.lib.borrow().games.iter().filter(|g| g.source == GameSource::Steam).map(|g| (g.source_key.clone(), g.id)).collect();
+        let db = self.db();
+        let existing = db.collections().unwrap_or_default();
+        for (name, apps) in &wanted {
+            let full = format!("{PREFIX}{name}");
+            let id = match existing.iter().find(|c| c.name.eq_ignore_ascii_case(&full)) {
+                Some(c) => c.id,
+                None => match db.create_collection(&full) {
+                    Ok(id) => id,
+                    Err(e) => {
+                        log::warn!("collection Steam « {name} » : {e}");
+                        continue;
+                    }
+                },
+            };
+            let want: HashSet<GameId> = apps.iter().filter_map(|a| by_appid.get(&a.to_string()).copied()).collect();
+            let have = db.collection_members(id).unwrap_or_default();
+            for g in want.difference(&have) {
+                let _ = db.set_in_collection(id, *g, true);
+            }
+            for g in have.difference(&want) {
+                let _ = db.set_in_collection(id, *g, false);
+            }
+        }
+        for c in existing.iter().filter(|c| c.name.starts_with(PREFIX)) {
+            if !wanted.iter().any(|(n, _)| c.name.eq_ignore_ascii_case(&format!("{PREFIX}{n}"))) {
+                let _ = db.delete_collection(c.id);
+            }
+        }
+        if !wanted.is_empty() {
+            log::info!("Steam : {} collections reprises", wanted.len());
         }
     }
 
@@ -767,6 +859,7 @@ impl Controller {
         self.refresh_profiles_ui(&g);
         dui.set_links(ModelRc::new(VecModel::from(self.plugin_links(&g))));
         dui.set_can_publish(self.can_publish() && g.installed);
+        self.refresh_requirements(&g);
     }
 
     /// Visuels de la fiche (captures distantes), republiés au fil des téléchargements.
@@ -783,11 +876,12 @@ impl Controller {
             })
             .collect();
         dui.set_screenshots(ModelRc::new(VecModel::from(shots)));
+        dui.set_slides(ModelRc::new(VecModel::from(self.banner_slides(g))));
     }
 
     /// Une image distante est arrivée sur la fiche : seules les listes d'images sont
     /// republiées (pas de requêtes ni de recalcul du reste de la page).
-    fn refresh_detail_media(&self) {
+    pub(crate) fn refresh_detail_media(&self) {
         let Some(id) = self.detail_id.get() else { return };
         let game = { self.lib.borrow().get(id).cloned() };
         let Some(g) = game else { return };
@@ -864,7 +958,7 @@ impl Controller {
                         self.game_changed(key.game);
                     }
                 }
-                Kind::Icon | Kind::Shot => self.refresh_remote_views(),
+                Kind::Icon | Kind::Shot | Kind::Slide => self.refresh_remote_views(),
                 Kind::Ambient => {
                     self.strip_game_changed(key.game);
                     if self.detail_id.get() == Some(key.game) {
@@ -896,6 +990,8 @@ impl Controller {
             Page::Home => self.refresh_home(),
             Page::Stats => self.refresh_stats(),
             Page::Journal => self.refresh_journal(),
+            Page::Recap => self.refresh_recap(),
+            Page::Storage => self.refresh_storage(),
             Page::Updates => self.refresh_updates(),
             Page::Saves => self.refresh_saves_page(),
             Page::Appearance => self.refresh_appearance_ui(),
@@ -1244,6 +1340,10 @@ impl Controller {
         found.insert(GameSource::Epic, (epic.is_some(), epic.map(|p| p.display().to_string()).unwrap_or_default()));
         let gog = halcyon_integrations::gog::GogScanner::new(s.gog_heroic_path.clone()).location();
         found.insert(GameSource::Gog, (gog.is_some(), gog.map(|p| p.display().to_string()).unwrap_or_default()));
+        for l in GameSource::LAUNCHERS {
+            let at = halcyon_integrations::launchers::LauncherScanner::location(l);
+            found.insert(l, (at.is_some(), at.unwrap_or_default()));
+        }
     }
 
     pub(crate) fn start_scan(&self) {
@@ -1263,6 +1363,8 @@ impl Controller {
             }
         }
         let steam_web = if self.net_allowed() { self.steam_web() } else { None };
+        let tags_cache = self.paths.cache_dir.join(format!("steam-tags-{}.json", steam_web::steam_language()));
+        let tags_online = self.net_allowed() && settings.online_metadata;
         let rom_folders: Vec<_> = {
             let reg = self.registry.borrow();
             settings
@@ -1284,13 +1386,20 @@ impl Controller {
                 let ctx = ScanContext::new(Arc::new(AtomicBool::new(false)), progress);
                 let mut scanners: Vec<Box<dyn GameScanner>> = Vec::new();
                 if settings.steam_enabled {
-                    scanners.push(Box::new(steam::SteamScanner::new(settings.steam_path.clone()).with_web(steam_web)));
+                    let tags = Arc::new(steam_tag_names(&tags_cache, tags_online));
+                    scanners.push(Box::new(steam::SteamScanner::new(settings.steam_path.clone()).with_web(steam_web).with_tag_names(tags)));
                 }
                 if settings.epic_enabled {
                     scanners.push(Box::new(epic::EpicScanner::new(settings.epic_manifests_path.clone())));
                 }
                 if settings.gog_enabled {
                     scanners.push(Box::new(halcyon_integrations::gog::GogScanner::new(settings.gog_heroic_path.clone())));
+                }
+                for l in GameSource::LAUNCHERS {
+                    use halcyon_integrations::launchers::LauncherScanner;
+                    if LauncherScanner::supported(l) && !settings.disabled_launchers.iter().any(|d| d == l.as_str()) {
+                        scanners.push(Box::new(LauncherScanner::new(l)));
+                    }
                 }
                 // Toujours exécutés : retirer un dossier rend ses jeux « non installés ».
                 scanners.push(Box::new(standalone::StandaloneScanner::new(settings.scan_folders.clone())));
@@ -1367,6 +1476,7 @@ impl Controller {
         };
         self.reload_games(games);
         self.detect_sources();
+        self.sync_steam_collections();
         self.reload_collections();
         self.refresh_all();
         self.refresh_emulators_ui();
@@ -1467,10 +1577,16 @@ impl Controller {
                         }
                     }
                 }
-                let need = |local: &Option<PathBuf>, url: &Option<String>| local.as_ref().is_none_or(|p| !p.is_file()) && url.is_none();
-                if s.online_artwork && matches!(g.source, GameSource::Standalone | GameSource::Manual) && store_jobs.len() < STORE_PER_RUN {
+                // Visuel à chercher : absent du disque, sans adresse connue ou adresse en échec.
+                let need = |local: &Option<PathBuf>, url: &Option<String>, suffix: &str| {
+                    local.as_ref().is_none_or(|p| !p.is_file()) && (url.is_none() || failures.contains_key(&format!("{stem}-{suffix}")))
+                };
+                // Jeux sans visuels fournis par leur plateforme : autonomes, ajoutés à la main et
+                // autres launchers (Ubisoft, EA, Xbox…), cherchés par leur nom.
+                let by_name = matches!(g.source, GameSource::Standalone | GameSource::Manual) || GameSource::LAUNCHERS.contains(&g.source);
+                if s.online_artwork && by_name && store_jobs.len() < STORE_PER_RUN {
                     let a = &g.artwork;
-                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url), need(&a.logo, &a.logo_url)];
+                    let want = [need(&a.cover, &a.cover_url, "cover"), need(&a.banner, &a.banner_url, "banner"), need(&a.logo, &a.logo_url, "logo")];
                     let key = format!("steamstore-{stem}");
                     if want.iter().any(|w| *w) && !failures.contains_key(&key) {
                         store_jobs.push((g.id, g.name.clone(), want, dir.join(&stem), key));
@@ -1479,7 +1595,7 @@ impl Controller {
                 if s.online_artwork && g.source == GameSource::Emulated && libretro_jobs.len() < LIBRETRO_PER_RUN {
                     let system = g.platform.as_deref().and_then(|p| self.registry.borrow().platform(p).and_then(|d| d.libretro.clone()));
                     let a = &g.artwork;
-                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url)];
+                    let want = [need(&a.cover, &a.cover_url, "cover"), need(&a.banner, &a.banner_url, "banner")];
                     let key = format!("libretro-{stem}");
                     if let (Some(system), true, false) = (system, want.iter().any(|w| *w), failures.contains_key(&key)) {
                         let titles = halcyon_integrations::libretro::titles(g.executable.as_deref(), &g.name);
@@ -1488,12 +1604,11 @@ impl Controller {
                 }
                 if s.online_artwork
                     && !sgdb_key.is_empty()
-                    && matches!(g.source, GameSource::Standalone | GameSource::Manual | GameSource::Minecraft)
+                    && (by_name || g.source == GameSource::Minecraft)
                     && sgdb_jobs.len() < SGDB_PER_RUN
                 {
                     let a = &g.artwork;
-                    let need = |local: &Option<PathBuf>, url: &Option<String>| local.as_ref().is_none_or(|p| !p.is_file()) && url.is_none();
-                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url), need(&a.logo, &a.logo_url)];
+                    let want = [need(&a.cover, &a.cover_url, "cover"), need(&a.banner, &a.banner_url, "banner"), need(&a.logo, &a.logo_url, "logo")];
                     let key = format!("sgdb-{stem}");
                     if want.iter().any(|w| *w) && !failures.contains_key(&key) {
                         sgdb_jobs.push((g.id, g.name.clone(), want, dir.join(&stem), key));
@@ -1826,6 +1941,7 @@ impl Controller {
         let info = |source: GameSource, name: &str, enabled: bool, over: &Option<PathBuf>| {
             let (ok, path) = found.get(&source).cloned().unwrap_or_default();
             SourceInfo {
+                key: source.as_str().into(),
                 name: name.into(),
                 enabled,
                 found: ok,
@@ -1838,11 +1954,24 @@ impl Controller {
         sui.set_steam(info(GameSource::Steam, "Steam", s.steam_enabled, &s.steam_path));
         sui.set_epic(info(GameSource::Epic, &tr!("Epic Games (launcher Epic, Heroic ou Legendary)"), s.epic_enabled, &s.epic_manifests_path));
         sui.set_gog(info(GameSource::Gog, &tr!("GOG (Heroic ou GOG Galaxy)"), s.gog_enabled, &s.gog_heroic_path));
+        let launchers: Vec<SourceInfo> = GameSource::LAUNCHERS
+            .into_iter()
+            .filter(|l| halcyon_integrations::launchers::LauncherScanner::supported(*l))
+            .map(|l| info(l, &l.label(), !s.disabled_launchers.iter().any(|d| d == l.as_str()), &None))
+            .collect();
+        sui.set_launchers(ModelRc::new(VecModel::from(launchers)));
         let folders: Vec<SharedString> = s.scan_folders.iter().map(|p| p.display().to_string().into()).collect();
         sui.set_folders(ModelRc::new(VecModel::from(folders)));
         sui.set_online_artwork(s.online_artwork);
         sui.set_scan_on_startup(s.scan_on_startup);
         sui.set_minimize_on_launch(s.minimize_on_launch);
+        sui.set_launch_screen(s.launch_screen);
+        sui.set_break_reminder(s.break_reminder_hours.min(3) as i32);
+        sui.set_free_games(s.free_games_notifications);
+        sui.set_disk_alerts(s.disk_alerts);
+        sui.set_discord_presence(s.discord_presence);
+        sui.set_discord_client_id(s.discord_client_id.as_str().into());
+        sui.set_animated_banner(s.animated_banner);
         sui.set_is_linux(cfg!(target_os = "linux"));
         sui.set_windows_runner(s.windows_runner.as_str().into());
         sui.set_steam_key(s.steam_api_key.as_str().into());
@@ -1882,6 +2011,12 @@ impl Controller {
                 "steam" => s.steam_enabled = enabled,
                 "epic" => s.epic_enabled = enabled,
                 "gog" => s.gog_enabled = enabled,
+                k if GameSource::LAUNCHERS.iter().any(|l| l.as_str() == k) => {
+                    s.disabled_launchers.retain(|d| d != k);
+                    if !enabled {
+                        s.disabled_launchers.push(k.to_string());
+                    }
+                }
                 _ => return,
             }
         }
@@ -1967,6 +2102,11 @@ impl Controller {
                 "check_updates" => s.check_updates = value,
                 "start_in_big_picture" => s.start_in_big_picture = value,
                 "offline_forced" => s.offline_forced = value,
+                "launch_screen" => s.launch_screen = value,
+                "free_games_notifications" => s.free_games_notifications = value,
+                "disk_alerts" => s.disk_alerts = value,
+                "discord_presence" => s.discord_presence = value,
+                "animated_banner" => s.animated_banner = value,
                 _ => return,
             }
         }
@@ -1974,6 +2114,18 @@ impl Controller {
         self.refresh_settings_ui();
         if (name == "online_artwork" || name == "online_metadata") && value {
             self.start_online_jobs();
+        }
+        if name == "free_games_notifications" && value {
+            self.check_free_games();
+        }
+        if name == "disk_alerts" && value {
+            self.check_disks();
+        }
+        if name == "discord_presence" {
+            self.update_presence();
+        }
+        if name == "animated_banner" {
+            self.refresh_detail_media();
         }
         if name == "offline_forced" {
             let online = self.online.get();
@@ -2006,6 +2158,14 @@ impl Controller {
                 "update_repo" => s.update_repo = v.clone(),
                 "nexus_api_key" => s.nexus_api_key = v.clone(),
                 "steamgriddb_api_key" => s.steamgriddb_api_key = v.clone(),
+                "discord_client_id" => {
+                    if !v.chars().all(|c| c.is_ascii_digit()) {
+                        drop(s);
+                        self.toast(tr!("L'identifiant d'application Discord est un nombre"), true);
+                        return;
+                    }
+                    s.discord_client_id = v.clone();
+                }
                 _ => return,
             }
         }
@@ -2137,5 +2297,34 @@ impl Controller {
             .collect();
         ui.set_news(ModelRc::new(VecModel::from(rows)));
         ui.set_news_status(status.into());
+    }
+}
+
+/// Noms des étiquettes de la boutique Steam dans la langue de Halcyon : copie locale,
+/// renouvelée au plus une fois par mois (liste publique, sans clé). Hors ligne : la copie.
+fn steam_tag_names(cache: &Path, online: bool) -> HashMap<u64, String> {
+    const MAX_AGE: i64 = 30 * 86_400;
+    let saved: serde_json::Value = std::fs::read_to_string(cache).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+    let local: HashMap<u64, String> = saved
+        .get("tags")
+        .and_then(|t| t.as_object())
+        .map(|m| m.iter().filter_map(|(k, v)| Some((k.parse().ok()?, v.as_str()?.to_string()))).collect())
+        .unwrap_or_default();
+    let fresh = saved.get("fetched").and_then(|v| v.as_i64()).is_some_and(|t| now_unix() - t < MAX_AGE);
+    if !online || (fresh && !local.is_empty()) {
+        return local;
+    }
+    let url = halcyon_integrations::steam_appinfo::tag_list_url(steam_web::steam_language());
+    match Downloader::new().get_json(&url).map(|v| halcyon_integrations::steam_appinfo::parse_tag_list(&v)) {
+        Ok(tags) if !tags.is_empty() => {
+            let map: serde_json::Map<String, serde_json::Value> = tags.iter().map(|(k, v)| (k.to_string(), serde_json::Value::from(v.as_str()))).collect();
+            let _ = std::fs::write(cache, serde_json::json!({ "fetched": now_unix(), "tags": map }).to_string());
+            tags
+        }
+        Ok(_) => local,
+        Err(e) => {
+            log::warn!("étiquettes Steam non téléchargées : {e}");
+            local
+        }
     }
 }
