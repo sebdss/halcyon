@@ -377,6 +377,19 @@ enregistrées en images).
 - **Disque presque plein** : moins de 10 % ou de 10 Go libres → une alerte, au plus une fois
   par jour (désactivable).
 
+### Discord, configuration requise, bannière animée (1.1)
+
+- **Statut Discord** : *Réglages › Comptes et succès › Statut Discord*. Pendant une partie,
+  votre profil Discord affiche « Joue à … » avec la jaquette et la durée. Halcyon parle au
+  Discord ouvert sur le PC (rien ne passe par Internet de son côté) ; le réglage « Partager
+  mon activité » de Discord reste maître.
+- **Configuration requise** : sur l'aperçu d'un jeu Steam, la configuration minimale et
+  recommandée de la boutique à côté de votre PC. La mémoire, la mémoire vidéo, l'espace
+  disque et le 64 bits sont comparés (marge de 10 % pour la mémoire réservée par le
+  système) ; le processeur et la carte graphique sont affichés côte à côte, sans verdict.
+- **Bannière animée** : *Réglages › Comportement*. La bannière de la fiche enchaîne les
+  captures d'écran en fondu avec un lent travelling.
+
 ## 9. Profils de lancement
 
 Onglet **Profils** de la fiche : plusieurs façons de lancer un même jeu, choisies dans le menu
@@ -659,7 +672,8 @@ les jaquettes et les extensions.
 - Services publics contactés, sans compte : boutique et API publique de Steam (visuels,
   recherche par nom, rareté des succès), libretro-thumbnails et la base Ludusavi (dépôts
   GitHub), GitHub (mises à jour de Halcyon), la liste des jeux offerts de l'Epic Games Store
-  (désactivable). Avec une clé facultative : Steam Web API,
+  (désactivable), la configuration requise et les captures en grand de la boutique Steam.
+  Avec une clé facultative : Steam Web API,
   RetroAchievements, SteamGridDB, Nexus Mods, CurseForge.
 - Les clés d'API restent sur votre ordinateur, dans `settings.json`.
 - `HALCYON_DEBUG=1` active des journaux détaillés ; `HALCYON_DATA_DIR` change le dossier de données.

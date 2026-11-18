@@ -687,6 +687,22 @@ export component SettingsPage inherits Rectangle {
                                 placeholder: @tr("Clé personnelle");
                                 value: SettingsUi.nexus-key;
                             }
+                            SettingRow {
+                                title: @tr("Statut Discord");
+                                description: @tr("« Joue à … » sur votre profil Discord pendant une partie, avec la jaquette du jeu. Passe par Discord ouvert sur ce PC ; son réglage « Partager mon activité » reste maître.");
+                                Toggle {
+                                    y: (parent.height - self.height) / 2;
+                                    checked: SettingsUi.discord-presence;
+                                    toggled(v) => { SettingsUi.set-option("discord_presence", v); }
+                                }
+                            }
+                            TextSetting {
+                                key: "discord_client_id";
+                                label: @tr("Application Discord (facultatif)");
+                                hint: @tr("Identifiant d'une application créée sur discord.com/developers, pour afficher un autre nom que « Halcyon ». Vide : celle de Halcyon.");
+                                placeholder: @tr("Identifiant numérique");
+                                value: SettingsUi.discord-client-id;
+                            }
                         }
                     }
                 }
@@ -739,6 +755,15 @@ export component SettingsPage inherits Rectangle {
                                 y: (parent.height - self.height) / 2;
                                 checked: SettingsUi.launch-screen;
                                 toggled(v) => { SettingsUi.set-option("launch_screen", v); }
+                            }
+                        }
+                        SettingRow {
+                            title: @tr("Bannière animée");
+                            description: @tr("Sur la fiche d'un jeu, la bannière enchaîne les captures d'écran en fondu, avec un lent travelling. Coupée en mode Performance ; Apparence › Mouvement « Réduit » garde les fondus sans le travelling.");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.animated-banner;
+                                toggled(v) => { SettingsUi.set-option("animated_banner", v); }
                             }
                         }
                         SettingRow {

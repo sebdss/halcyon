@@ -1187,6 +1187,57 @@ component Overview inherits VerticalLayout {
         }
     }
 
+    if DetailUi.req-rows.length > 0 || DetailUi.req-status != "": Rectangle { height: 14px; }
+    if DetailUi.req-rows.length > 0 || DetailUi.req-status != "": Rubric { title: @tr("Configuration requise"); }
+    if DetailUi.req-status != "": Text { text: DetailUi.req-status; color: Theme.text-dim; font-size: Theme.t-small; }
+    if DetailUi.req-rows.length > 0: HorizontalLayout {
+        spacing: 10px;
+        Rectangle {
+            width: 10px;
+            height: 10px;
+            y: (parent.height - self.height) / 2;
+            border-radius: 5px;
+            background: DetailUi.req-level == 1 ? Theme.danger : DetailUi.req-level == 2 ? Theme.warm : DetailUi.req-level == 3 ? Theme.success : Theme.text-dim;
+        }
+        Text { text: DetailUi.req-verdict; color: Theme.text; font-size: Theme.t-body; font-weight: 600; wrap: word-wrap; horizontal-stretch: 1; }
+    }
+    if DetailUi.req-rows.length > 0: VerticalLayout {
+        spacing: 0;
+        HorizontalLayout {
+            spacing: 16px;
+            padding-bottom: 6px;
+            Rectangle { width: 120px; }
+            Text { horizontal-stretch: 1; preferred-width: 0px; min-width: 0px; text: @tr("Minimale"); color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 600; }
+            Text { horizontal-stretch: 1; preferred-width: 0px; min-width: 0px; text: @tr("Recommandée"); color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 600; }
+            Text { horizontal-stretch: 1; preferred-width: 0px; min-width: 0px; text: @tr("Ce PC"); color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 600; }
+        }
+        for r in DetailUi.req-rows: Rectangle {
+            height: req-line.preferred-height;
+            Rectangle { y: 0; height: 1px; background: Theme.border; }
+            req-line := HorizontalLayout {
+                spacing: 16px;
+                padding-top: 9px;
+                padding-bottom: 9px;
+                Text { width: 120px; text: r.label; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; wrap: word-wrap; }
+                Text { horizontal-stretch: 1; preferred-width: 0px; min-width: 0px; text: r.minimum != "" ? r.minimum : "—"; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; }
+                Text { horizontal-stretch: 1; preferred-width: 0px; min-width: 0px; text: r.recommended != "" ? r.recommended : "—"; color: Theme.text; font-size: Theme.t-small; wrap: word-wrap; }
+                HorizontalLayout {
+                    horizontal-stretch: 1; preferred-width: 0px; min-width: 0px;
+                    spacing: 8px;
+                    if r.level > 0: Rectangle {
+                        width: 8px;
+                        height: 8px;
+                        y: 6px;
+                        border-radius: 4px;
+                        background: r.level == 1 ? Theme.danger : r.level == 2 ? Theme.warm : Theme.success;
+                    }
+                    Text { horizontal-stretch: 1; text: r.yours != "" ? r.yours : "—"; color: r.level == 1 ? Theme.danger : Theme.text; font-size: Theme.t-small; wrap: word-wrap; }
+                }
+            }
+        }
+    }
+    if DetailUi.req-note != "": Text { text: DetailUi.req-note; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+
     if DetailUi.news.length > 0 || DetailUi.news-status != "": Rectangle { height: 14px; }
     if DetailUi.news.length > 0 || DetailUi.news-status != "": Rubric { title: @tr("Actualités"); }
     if DetailUi.news-status != "": Text { text: DetailUi.news-status; color: Theme.text-dim; font-size: Theme.t-small; }
@@ -1325,6 +1376,10 @@ export component GamePage inherits Rectangle {
     // Onglets : 0 Aperçu, 2 Succès, 3 Statistiques, 7 Captures, 5 Sauvegardes, 6 Mods,
     // 1 Paramètres (lancement, profils, informations). L'ancien onglet 4 (profils) y mène.
     property <int> tab: DetailUi.tab == 4 ? 1 : (DetailUi.tab == 2 && !root.has-ach) || (DetailUi.tab == 7 && !root.has-captures) ? 0 : DetailUi.tab;
+    property <bool> slideshow: DetailUi.slides.length >= 2;
+    property <duration> slide-time: 8s;
+    // La bande est visible (défilement) : sinon, plus d'animation.
+    property <bool> band-visible: sv.content-y > -root.band-height;
 
     sv := ScrollView {
         content-height: content.preferred-height;
@@ -1340,13 +1395,35 @@ export component GamePage inherits Rectangle {
                     height: root.band-height;
                     clip: true;
                     background: DetailUi.game.color-a.mix(#101215, 0.45);
-                    if DetailUi.game.has-banner: Image {
+                    if DetailUi.game.has-banner && !root.slideshow: Image {
                         width: parent.width;
                         height: parent.height;
                         source: DetailUi.game.banner;
                         image-fit: cover;
                     }
-                    if !DetailUi.game.has-banner: Image {
+                    // Bannière animée : fondu d'une image à l'autre et lent travelling (8 s
+                    // par image). Arrêtée quand la bande sort de l'écran.
+                    if root.slideshow: Rectangle {
+                        property <int> n: DetailUi.slides.length;
+                        property <float> phase: root.band-visible ? animation-tick() / root.slide-time : 0;
+                        property <int> cur: mod(floor(self.phase), self.n);
+                        property <int> prev: mod(self.cur - 1 + self.n, self.n);
+                        property <float> p: Theme.motion == 0 ? self.phase - floor(self.phase) : 0;
+                        for img[i] in DetailUi.slides: Image {
+                            property <float> t: i == parent.cur ? parent.p : 1;
+                            property <float> zoom: Theme.motion == 0 ? 1.04 + 0.08 * self.t : 1;
+                            visible: i == parent.cur || i == parent.prev;
+                            width: parent.width * self.zoom;
+                            height: parent.height * self.zoom;
+                            x: -(self.width - parent.width) * (mod(i, 2) == 0 ? self.t : 1 - self.t);
+                            y: -(self.height - parent.height) / 2;
+                            source: img;
+                            image-fit: cover;
+                            opacity: i == parent.cur ? 1 : 0;
+                            animate opacity { duration: Theme.motion < 2 ? 1400ms : 0ms; easing: ease-in-out; }
+                        }
+                    }
+                    if !DetailUi.game.has-banner && !root.slideshow: Image {
                         width: parent.width;
                         height: parent.height;
                         source: DetailUi.ambient;

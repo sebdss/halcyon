@@ -38,6 +38,21 @@
   bibliothèque, et jeux installés non lancés depuis six mois, les plus gros d'abord.
 - **Alerte de disque presque plein** (moins de 10 % ou de 10 Go), au plus une fois par jour.
 
+### Discord, configuration requise, bannière animée
+
+- **Statut Discord** (« Joue à … », jaquette, durée) pendant une partie, par la connexion
+  locale de Discord (tube nommé ou socket, sans compte ni réseau côté Halcyon). Effacé à la
+  fin de la session ; désactivable, identifiant d'application personnalisable.
+- **Configuration requise** sur l'aperçu des jeux Steam (et des jeux dont les visuels
+  viennent de la boutique) : minimale, recommandée et ce PC côte à côte. Mémoire, mémoire
+  vidéo, espace disque et 64 bits sont comparés ; processeur et carte graphique sont
+  affichés sans verdict. Fiche gardée 30 jours.
+- **Bannière animée** : la fiche enchaîne bannière et captures 1080p en fondu, avec un lent
+  travelling ; arrêtée hors de l'écran, coupée en mode Performance, sans travelling en
+  mouvement « Réduit ».
+- Actualités de la fiche : annonces officielles du studio seulement (les flux de presse
+  agrégés par Steam mélangeaient les langues).
+
 ### Steam hors ligne : fiches, collections, Workshop
 
 - **Fiches lues dans le cache du client** (`appinfo.vdf`, versions 27 à 29) : studio, éditeur,

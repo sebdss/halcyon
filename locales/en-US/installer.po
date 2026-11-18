@@ -46,7 +46,7 @@ msgstr[1] "{n} items"
 msgid "Fermer"
 msgstr "Close"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1564 crates/halcyon-app/ui/pages/home.slint:345
+#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-app/ui/pages/home.slint:345
 #: crates/halcyon-core/src/model.rs:171 crates/halcyon-installer/src/main.rs:743
 msgid "Terminé"
 msgstr "Done"
@@ -55,11 +55,11 @@ msgstr "Done"
 msgid "Version"
 msgstr "Version"
 
-#: crates/halcyon-app/ui/pages/game.slint:1567 crates/halcyon-installer/src/main.rs:322
+#: crates/halcyon-app/ui/pages/game.slint:1644 crates/halcyon-installer/src/main.rs:322
 msgid "Mise à jour"
 msgstr "Update"
 
-#: crates/halcyon-app/ui/pages/game.slint:1570 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
+#: crates/halcyon-app/ui/pages/game.slint:1647 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
 #: crates/halcyon-installer/src/main.rs:321
 msgid "Installation"
 msgstr "Installation"
@@ -70,7 +70,7 @@ msgid "Analyse en cours…"
 msgstr "Checking…"
 
 #: crates/halcyon-app/ui/pages/minecraft.slint:104 crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-app/ui/pages/minecraft.slint:445
-#: crates/halcyon-app/ui/pages/settings.slint:1038 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
+#: crates/halcyon-app/ui/pages/settings.slint:1063 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
 #: crates/halcyon-installer/src/main.rs:339
 msgid "Installer"
 msgstr "Install"
@@ -88,9 +88,10 @@ msgstr "Repair"
 msgid "Désinstaller"
 msgstr "Uninstall"
 
-#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:920
-#: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_palette.rs:20
-#: crates/halcyon-installer/src/engine.rs:333 crates/halcyon-installer/src/engine.rs:335 crates/halcyon-storage/src/activity.rs:40
+#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:945
+#: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_extras.rs:396
+#: crates/halcyon-app/src/ctl_palette.rs:20 crates/halcyon-installer/src/engine.rs:333 crates/halcyon-installer/src/engine.rs:335
+#: crates/halcyon-storage/src/activity.rs:40
 msgid "Système"
 msgstr "System"
 
@@ -104,7 +105,7 @@ msgstr "Setup"
 msgid "Langue"
 msgstr "Language"
 
-#: crates/halcyon-app/ui/pages/settings.slint:926 crates/halcyon-installer/ui/setup.slint:446
+#: crates/halcyon-app/ui/pages/settings.slint:951 crates/halcyon-installer/ui/setup.slint:446
 msgid "Démarrer avec la session"
 msgstr "Start with the session"
 
@@ -331,6 +332,11 @@ msgstr "Can't continue"
 msgid "Le programme d'installation ne peut pas démarrer."
 msgstr "The installer can't start."
 
+#: crates/halcyon-app/src/ctl_extras.rs:423 crates/halcyon-installer/src/engine.rs:424 crates/halcyon-installer/src/engine.rs:425
+#: crates/halcyon-installer/src/engine.rs:426
+msgid "Espace disque"
+msgstr "Disk space"
+
 #: crates/halcyon-app/src/ctl_home.rs:99 crates/halcyon-app/src/ctl_home.rs:101 crates/halcyon-installer/src/engine.rs:432
 #: crates/halcyon-integrations/src/sysmon.rs:374 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
 #, placeholders
@@ -532,10 +538,6 @@ msgstr "Install for everyone"
 #: crates/halcyon-installer/src/engine.rs:412
 msgid "sous Linux, utilisez le paquet .deb (géré par le système) pour tous les utilisateurs"
 msgstr "on Linux, use the .deb package (managed by the system) for all users"
-
-#: crates/halcyon-installer/src/engine.rs:424 crates/halcyon-installer/src/engine.rs:425 crates/halcyon-installer/src/engine.rs:426
-msgid "Espace disque"
-msgstr "Disk space"
 
 #: crates/halcyon-installer/src/engine.rs:424
 #, placeholders

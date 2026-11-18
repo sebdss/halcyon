@@ -235,6 +235,7 @@ rendu logiciel) : 51 Mo à l'accueil (40 jeux), démarrage en 92 ms (53 jeux). A
 | Apparence | — | `ctl_themes` (thèmes JSON, accent, densité, fond) | `appearance` |
 | Manettes | — | `gamepad` (marque, batterie, association des touches, capture) | `controllers` |
 | Écran de lancement, rappel de pause, jeux offerts, stockage | — | `ctl_extras`, `integrations::{epic_free, sysmon::list_disks}` | `pages/storage.slint` (`LaunchOverlay`, `StoragePage`) |
+| Statut Discord, configuration requise, bannière animée | `integrations::steam_requirements` (analyse, marge de comparaison) | `integrations::discord` (IPC local, fil dédié), `ctl_extras` | fiche du jeu (aperçu, bande) |
 | Que jouer ? | `core::recommend` (raisons explicites, données réelles) | — | `assistant`, accueil |
 | Jeu à distance | — | `integrations::remote_play` | `remote` |
 | Système | — | `desktop` (démarrage, raccourcis), `instance` (instance unique), `tray`, `global-hotkey`, `update::download_verified` | Paramètres, mode compact, fenêtre compagnon |

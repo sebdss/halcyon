@@ -513,6 +513,16 @@ export struct WidgetRow {
 }
 
 /// Valeur clé (widgets, statistiques).
+/// Ligne de la configuration requise : exigences et valeur de ce PC.
+export struct ReqRow {
+    label: string,
+    minimum: string,
+    recommended: string,
+    yours: string,
+    /// 0 non comparé, 1 sous le minimum, 2 minimum, 3 recommandée.
+    level: int,
+}
+
 /// Disque de la page Stockage.
 export struct StorageDisk {
     mount: string,

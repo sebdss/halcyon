@@ -411,6 +411,7 @@ impl Controller {
     pub(crate) fn on_session_ended(&self, id: GameId, secs: u64, measured: bool) {
         self.active_session.set(None);
         self.stop_break_reminder();
+        self.update_presence();
         self.close_companion();
         self.performance_session_ended();
         if let Some(app) = self.app() {

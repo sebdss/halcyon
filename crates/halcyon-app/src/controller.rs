@@ -93,6 +93,9 @@ pub struct Controller {
     pub(crate) active_session: Cell<Option<GameId>>,
     pub(crate) break_timer: RefCell<Option<slint::Timer>>,
     pub(crate) free_games: RefCell<Vec<halcyon_integrations::epic_free::FreeGame>>,
+    pub(crate) presence: RefCell<halcyon_integrations::discord::Presence>,
+    /// Jeu dont la configuration requise est affichée (évite de la redemander).
+    pub(crate) req_shown: Cell<Option<GameId>>,
     pub(crate) bp: RefCell<BigPicture>,
     pub(crate) bp_clock: RefCell<Option<slint::Timer>>,
     pub(crate) pad_connected: Cell<bool>,
@@ -185,6 +188,8 @@ impl Controller {
             active_session: Cell::new(None),
             break_timer: RefCell::new(None),
             free_games: RefCell::new(Vec::new()),
+            presence: RefCell::new(Default::default()),
+            req_shown: Cell::new(None),
             bp: RefCell::new(BigPicture::default()),
             bp_clock: RefCell::new(None),
             pad_connected: Cell::new(false),
@@ -854,6 +859,7 @@ impl Controller {
         self.refresh_profiles_ui(&g);
         dui.set_links(ModelRc::new(VecModel::from(self.plugin_links(&g))));
         dui.set_can_publish(self.can_publish() && g.installed);
+        self.refresh_requirements(&g);
     }
 
     /// Visuels de la fiche (captures distantes), republiés au fil des téléchargements.
@@ -870,11 +876,12 @@ impl Controller {
             })
             .collect();
         dui.set_screenshots(ModelRc::new(VecModel::from(shots)));
+        dui.set_slides(ModelRc::new(VecModel::from(self.banner_slides(g))));
     }
 
     /// Une image distante est arrivée sur la fiche : seules les listes d'images sont
     /// republiées (pas de requêtes ni de recalcul du reste de la page).
-    fn refresh_detail_media(&self) {
+    pub(crate) fn refresh_detail_media(&self) {
         let Some(id) = self.detail_id.get() else { return };
         let game = { self.lib.borrow().get(id).cloned() };
         let Some(g) = game else { return };
@@ -951,7 +958,7 @@ impl Controller {
                         self.game_changed(key.game);
                     }
                 }
-                Kind::Icon | Kind::Shot => self.refresh_remote_views(),
+                Kind::Icon | Kind::Shot | Kind::Slide => self.refresh_remote_views(),
                 Kind::Ambient => {
                     self.strip_game_changed(key.game);
                     if self.detail_id.get() == Some(key.game) {
@@ -1962,6 +1969,9 @@ impl Controller {
         sui.set_break_reminder(s.break_reminder_hours.min(3) as i32);
         sui.set_free_games(s.free_games_notifications);
         sui.set_disk_alerts(s.disk_alerts);
+        sui.set_discord_presence(s.discord_presence);
+        sui.set_discord_client_id(s.discord_client_id.as_str().into());
+        sui.set_animated_banner(s.animated_banner);
         sui.set_is_linux(cfg!(target_os = "linux"));
         sui.set_windows_runner(s.windows_runner.as_str().into());
         sui.set_steam_key(s.steam_api_key.as_str().into());
@@ -2095,6 +2105,8 @@ impl Controller {
                 "launch_screen" => s.launch_screen = value,
                 "free_games_notifications" => s.free_games_notifications = value,
                 "disk_alerts" => s.disk_alerts = value,
+                "discord_presence" => s.discord_presence = value,
+                "animated_banner" => s.animated_banner = value,
                 _ => return,
             }
         }
@@ -2108,6 +2120,12 @@ impl Controller {
         }
         if name == "disk_alerts" && value {
             self.check_disks();
+        }
+        if name == "discord_presence" {
+            self.update_presence();
+        }
+        if name == "animated_banner" {
+            self.refresh_detail_media();
         }
         if name == "offline_forced" {
             let online = self.online.get();
@@ -2140,6 +2158,14 @@ impl Controller {
                 "update_repo" => s.update_repo = v.clone(),
                 "nexus_api_key" => s.nexus_api_key = v.clone(),
                 "steamgriddb_api_key" => s.steamgriddb_api_key = v.clone(),
+                "discord_client_id" => {
+                    if !v.chars().all(|c| c.is_ascii_digit()) {
+                        drop(s);
+                        self.toast(tr!("L'identifiant d'application Discord est un nombre"), true);
+                        return;
+                    }
+                    s.discord_client_id = v.clone();
+                }
                 _ => return,
             }
         }

@@ -30,6 +30,8 @@ pub enum Kind {
     Shot,
     /// Ambiance : jaquette réduite et floutée, étirée en fond (mode immersif).
     Ambient,
+    /// Capture en grand, pour la bannière animée de la fiche (16:9).
+    Slide,
 }
 
 impl Kind {
@@ -43,6 +45,7 @@ impl Kind {
             Kind::Icon => (96, 96),
             Kind::Shot => (480, 270),
             Kind::Ambient => (48, 72),
+            Kind::Slide => (1280, 720),
         }
     }
 }
@@ -176,7 +179,7 @@ impl ImageCache {
     /// Oublie les visuels d'un jeu (fichier remplacé, téléchargé…).
     pub fn invalidate(&self, game: GameId) {
         let mut inner = self.inner.borrow_mut();
-        for kind in [Kind::Cover, Kind::Banner, Kind::Logo, Kind::Icon, Kind::Shot] {
+        for kind in [Kind::Cover, Kind::Banner, Kind::Logo, Kind::Icon, Kind::Shot, Kind::Slide] {
             let key = ImageKey { game, kind };
             if let Some(e) = inner.map.remove(&key) {
                 inner.bytes -= e.bytes;
@@ -216,7 +219,7 @@ pub fn load(path: &Path, kind: Kind, thumbs_dir: &Path) -> LoadResult {
     let img = decode(path)?;
     let (w, h) = img.dimensions();
     let resized = match kind {
-        Kind::Cover | Kind::Icon | Kind::Shot => img.resize_to_fill(tw, th, FilterType::Triangle),
+        Kind::Cover | Kind::Icon | Kind::Shot | Kind::Slide => img.resize_to_fill(tw, th, FilterType::Triangle),
         Kind::Ambient => img.resize_to_fill(tw, th, FilterType::Triangle).blur(2.5),
         Kind::Banner if w > tw => img.resize(tw, (h as u64 * tw as u64 / w.max(1) as u64) as u32, FilterType::Triangle),
         Kind::Logo if w > tw || h > th => img.resize(tw, th, FilterType::Triangle),

@@ -5,7 +5,7 @@
 import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
-    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, StorageDisk, StorageGame, ThemeRow, ToggleRow,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, StorageDisk, StorageGame, ReqRow, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
@@ -162,6 +162,15 @@ export global DetailUi {
     in property <string> news-status;
     in-out property <int> tab;
     in property <[image]> screenshots;
+    /// Bannière animée : bannière puis captures en grand (au moins deux images).
+    in property <[image]> slides;
+    /// Configuration requise (boutique Steam) comparée à ce PC.
+    in property <[ReqRow]> req-rows;
+    in property <string> req-verdict;
+    /// 0 inconnu, 1 sous le minimum, 2 minimum, 3 recommandée.
+    in property <int> req-level;
+    in property <string> req-note;
+    in property <string> req-status;
     /// Captures locales du jeu (Steam) et fond d'ambiance (sans bannière).
     in property <[CaptureItem]> captures;
     in property <image> ambient;
@@ -672,6 +681,9 @@ export global SettingsUi {
     callback set-break-reminder(int);
     in property <bool> free-games;
     in property <bool> disk-alerts;
+    in property <bool> discord-presence;
+    in property <string> discord-client-id;
+    in property <bool> animated-banner;
     in property <string> cache-size;
     in property <string> data-dir;
     in property <string> log-dir;

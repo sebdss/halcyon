@@ -120,6 +120,12 @@ pub struct Settings {
     /// Alerte quand un disque est presque plein (1.1), au plus une fois par jour.
     pub disk_alerts: bool,
     pub disk_alert_day: i64,
+    /// Statut Discord (« Joue à … ») pendant une partie, si Discord est ouvert.
+    pub discord_presence: bool,
+    /// Identifiant de l'application Discord à afficher (vide : celui de Halcyon).
+    pub discord_client_id: String,
+    /// Bannière de la fiche animée : captures d'écran en fondu, lent travelling.
+    pub animated_banner: bool,
 
     /// Dépôt des sauvegardes de jeux (dossier local, disque secondaire, NAS) ;
     /// `None` : dans les données de Halcyon.
@@ -492,6 +498,9 @@ impl Default for Settings {
             free_games_seen: Vec::new(),
             disk_alerts: true,
             disk_alert_day: 0,
+            discord_presence: true,
+            discord_client_id: String::new(),
+            animated_banner: true,
             save_root: None,
             save_mirrors: Vec::new(),
             save_keep_auto: 20,

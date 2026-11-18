@@ -4,10 +4,11 @@
 use crate::controller::{post, Controller};
 use crate::images::{ImageKey, Kind};
 use crate::models::card_for;
-use crate::{LaunchUi, StorageDisk, StorageGame, StorageUi};
+use crate::{DetailUi, LaunchUi, ReqRow, StorageDisk, StorageGame, StorageUi};
 use halcyon_core::{util, Game, GameId};
 use halcyon_integrations::artwork::Downloader;
-use halcyon_integrations::{epic_free, sysmon};
+use halcyon_integrations::steam_requirements::{self as req, Level, Machine, Requirements};
+use halcyon_integrations::{discord, epic_free, sysmon};
 use halcyon_storage::now_unix;
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::rc::Rc;
@@ -16,6 +17,22 @@ use std::time::Duration;
 /// Jeux non lancés depuis ce délai : proposés à la désinstallation.
 const IDLE_SECS: i64 = 182 * 86_400;
 
+/// Application Discord « Halcyon » (identifiant public, pas un secret). Vide tant qu'elle
+/// n'est pas créée : le statut ne s'affiche alors qu'avec un identifiant saisi dans les
+/// réglages.
+const DISCORD_APP_ID: &str = "";
+
+/// Fiche de configuration gardée en cache.
+const REQ_MAX_AGE: i64 = 30 * 86_400;
+
+/// Configuration requise prête à afficher (calculée hors du fil de l'interface).
+pub(crate) struct ReqData {
+    req: Option<Requirements>,
+    machine: Machine,
+    free_mb: Option<u64>,
+    offline: bool,
+}
+
 impl Controller {
     // ------------------------------------------------------------------ lancement
 
@@ -23,6 +40,7 @@ impl Controller {
     /// la fenêtre si ce réglage est actif.
     pub(crate) fn after_launch(self: &Rc<Self>, g: &Game) {
         self.start_break_reminder(g);
+        self.update_presence();
         if !self.settings.borrow().launch_screen {
             self.minimize_if_enabled();
             return;
@@ -257,5 +275,221 @@ impl Controller {
         ui.set_idle(ModelRc::new(VecModel::from(rows)));
         drop(lib);
         self.refresh_storage_free_games();
+    }
+}
+
+impl Controller {
+    // ------------------------------------------------------------------ Discord
+
+    /// Statut Discord d'après la partie en cours (effacé sans partie ou si désactivé).
+    pub(crate) fn update_presence(&self) {
+        let (enabled, id) = {
+            let s = self.settings.borrow();
+            let id = if s.discord_client_id.is_empty() { DISCORD_APP_ID.to_string() } else { s.discord_client_id.clone() };
+            (s.discord_presence, id)
+        };
+        let game = self.active_session.get().and_then(|id| self.lib.borrow().get(id).cloned());
+        let mut presence = self.presence.borrow_mut();
+        match game {
+            Some(g) if enabled && !id.is_empty() => presence.set(
+                &id,
+                discord::Activity {
+                    game: g.name.clone(),
+                    state: g.platform.clone().unwrap_or_else(|| g.source.label()),
+                    started: g.last_played.unwrap_or_else(now_unix),
+                    image: g.artwork.cover_url.clone(),
+                },
+            ),
+            _ => presence.clear(),
+        }
+    }
+
+    // ------------------------------------------------------------------ bannière animée
+
+    /// Images de la bannière animée : la bannière, puis trois captures en grand. Vide (bannière
+    /// fixe) si l'option est coupée, en mode Performance ou s'il n'y a pas assez d'images.
+    pub(crate) fn banner_slides(&self, g: &Game) -> Vec<slint::Image> {
+        let (enabled, online) = {
+            let s = self.settings.borrow();
+            (s.animated_banner, s.online_metadata)
+        };
+        if !enabled || self.performance_active() || g.screenshots.is_empty() {
+            return Vec::new();
+        }
+        let mut out = Vec::new();
+        if let Some(b) = self.images.get(ImageKey { game: g.id, kind: Kind::Banner }, g.artwork.banner.as_deref()) {
+            out.push(b);
+        }
+        for url in g.screenshots.iter().take(3) {
+            let full = full_screenshot(url);
+            let Some(path) = self.remote.ensure(&full, online && self.net_allowed()) else { continue };
+            if let Some(img) = self.images.get(ImageKey::remote(&full, Kind::Slide), Some(&path)) {
+                out.push(img);
+            }
+        }
+        if out.len() < 2 {
+            out.clear();
+        }
+        out
+    }
+
+    // ------------------------------------------------------------------ configuration requise
+
+    /// Configuration requise du jeu affiché (boutique Steam), comparée à ce PC.
+    pub(crate) fn refresh_requirements(&self, g: &Game) {
+        if self.req_shown.get() == Some(g.id) {
+            return;
+        }
+        self.req_shown.set(Some(g.id));
+        let Some(app) = self.app() else { return };
+        let dui = app.global::<DetailUi>();
+        dui.set_req_rows(ModelRc::default());
+        dui.set_req_verdict("".into());
+        dui.set_req_note("".into());
+        dui.set_req_level(0);
+        dui.set_req_status("".into());
+        let Some(appid) = steam_appid(g) else { return };
+        let online = self.net_allowed();
+        let cache = self.paths.cache_dir.join("steam-req").join(format!("{appid}.json"));
+        let (id, installed) = (g.id, g.installed);
+        dui.set_req_status(tr!("Lecture de la configuration requise…").into());
+        std::thread::Builder::new()
+            .name("halcyon-req".into())
+            .spawn(move || {
+                let (value, offline) = requirements_json(&cache, appid, online);
+                let req = value.and_then(|v| req::parse(&v, appid, cfg!(target_os = "linux")));
+                let free_mb = (!installed).then(|| sysmon::list_disks().iter().filter(|d| !d.removable).map(|d| d.free_mb).max()).flatten();
+                let data = ReqData { req, machine: machine(), free_mb, offline };
+                post(move |c| c.show_requirements(id, installed, data));
+            })
+            .ok();
+    }
+
+    fn show_requirements(&self, id: GameId, installed: bool, data: ReqData) {
+        if self.detail_id.get() != Some(id) {
+            return;
+        }
+        let Some(app) = self.app() else { return };
+        let dui = app.global::<DetailUi>();
+        let Some(r) = data.req else {
+            dui.set_req_status(if data.offline { tr!("Configuration requise indisponible hors ligne.") } else { "".into() }.into());
+            return;
+        };
+        dui.set_req_status("".into());
+        let m = &data.machine;
+        let min = &r.minimum;
+        let rec = r.recommended.as_ref();
+        let size = |mb: Option<u64>| mb.map(|v| util::format_size(v * 1024 * 1024)).unwrap_or_default();
+        let text = |t: &Option<String>| t.clone().unwrap_or_default();
+        let mut rows: Vec<ReqRow> = Vec::new();
+        let mut levels: Vec<(Level, String)> = Vec::new();
+        let mut push = |label: String, minimum: String, recommended: String, yours: String, level: Level| {
+            if minimum.is_empty() && recommended.is_empty() {
+                return;
+            }
+            if level != Level::Unknown {
+                levels.push((level, label.clone()));
+            }
+            rows.push(ReqRow { label: label.into(), minimum: minimum.into(), recommended: recommended.into(), yours: yours.into(), level: level as i32 });
+        };
+        let os_level = if (min.needs_64bit || rec.is_some_and(|r| r.needs_64bit)) && !m.is_64bit { Level::Below } else { Level::Unknown };
+        push(tr!("Système"), text(&min.os), rec.map(|r| text(&r.os)).unwrap_or_default(), os_name(), os_level);
+        push(tr!("Processeur"), text(&min.cpu), rec.map(|r| text(&r.cpu)).unwrap_or_default(), m.cpu.clone(), Level::Unknown);
+        push(
+            tr!("Mémoire"),
+            size(min.ram_mb),
+            rec.map(|r| size(r.ram_mb)).unwrap_or_default(),
+            size(Some(m.ram_mb).filter(|&v| v > 0)),
+            req::level(Some(m.ram_mb).filter(|&v| v > 0), min.ram_mb, rec.and_then(|r| r.ram_mb)),
+        );
+        let gpu = m.gpus.iter().max_by_key(|g| g.1.unwrap_or(0));
+        let gpu_text = gpu.map(|(n, v)| match v {
+            Some(v) => tr!("{name} ({vram})", name = n, vram = util::format_size(v * 1024 * 1024)),
+            None => n.clone(),
+        });
+        push(
+            tr!("Carte graphique"),
+            text(&min.gpu),
+            rec.map(|r| text(&r.gpu)).unwrap_or_default(),
+            gpu_text.unwrap_or_default(),
+            req::level(m.vram_mb(), min.vram_mb, rec.and_then(|r| r.vram_mb)),
+        );
+        let (disk_text, disk_level) = if installed {
+            (tr!("Installé"), Level::Unknown)
+        } else {
+            let free = data.free_mb;
+            (free.map(|f| tr!("{free} libres", free = util::format_size(f * 1024 * 1024))).unwrap_or_default(), req::level(free, min.storage_mb, rec.and_then(|r| r.storage_mb)))
+        };
+        push(tr!("Espace disque"), size(min.storage_mb), rec.map(|r| size(r.storage_mb)).unwrap_or_default(), disk_text, disk_level);
+
+        let worst = levels.iter().map(|l| l.0).min().unwrap_or(Level::Unknown);
+        let below: Vec<&str> = levels.iter().filter(|l| l.0 == Level::Below).map(|l| l.1.as_str()).collect();
+        let verdict = match worst {
+            Level::Unknown => tr!("Comparaison impossible : ce PC n'indique pas ces valeurs."),
+            Level::Below => tr!("En dessous de la configuration minimale : {what}.", what = below.join(", ").to_lowercase()),
+            Level::Minimum => tr!("Au niveau de la configuration minimale."),
+            Level::Recommended if rec.is_some() => tr!("Au niveau de la configuration recommandée."),
+            Level::Recommended => tr!("Au niveau de la configuration demandée."),
+        };
+        dui.set_req_verdict(verdict.into());
+        dui.set_req_level(worst as i32);
+        dui.set_req_note(tr!("Comparés : mémoire, mémoire vidéo, espace disque et 64 bits. Le processeur et la carte graphique s'affichent côte à côte : Halcyon ne mesure pas leurs performances.").into());
+        dui.set_req_rows(ModelRc::new(VecModel::from(rows)));
+    }
+}
+
+/// Numéro Steam d'un jeu : le sien, ou celui des visuels repris de la boutique.
+pub(crate) fn steam_appid(g: &Game) -> Option<u64> {
+    if g.source == halcyon_core::GameSource::Steam {
+        return g.source_key.parse().ok();
+    }
+    let urls = [g.artwork.cover_url.as_deref(), g.artwork.banner_url.as_deref()].into_iter().flatten().chain(g.screenshots.iter().map(String::as_str));
+    urls.filter_map(|u| {
+        let rest = &u[u.find("/apps/")? + 6..];
+        rest.split('/').next()?.parse().ok()
+    })
+    .next()
+}
+
+/// Adresse de la capture en 1920 × 1080 (la fiche garde les vignettes 600 × 338).
+pub(crate) fn full_screenshot(url: &str) -> String {
+    url.replace(".600x338.", ".1920x1080.")
+}
+
+/// Fiche `appdetails` : cache de 30 jours, sinon la boutique. Renvoie aussi « hors ligne ».
+fn requirements_json(cache: &std::path::Path, appid: u64, online: bool) -> (Option<serde_json::Value>, bool) {
+    let saved: Option<serde_json::Value> = std::fs::read_to_string(cache).ok().and_then(|t| serde_json::from_str(&t).ok());
+    let fresh = saved.as_ref().and_then(|v| v.get("fetched")?.as_i64()).is_some_and(|t| now_unix() - t < REQ_MAX_AGE);
+    let local = saved.as_ref().and_then(|v| v.get("store")).cloned();
+    if fresh || !online {
+        return (local.clone(), !online && local.is_none());
+    }
+    match Downloader::new().get_json(&req::url(appid)) {
+        Ok(v) => {
+            if let Some(dir) = cache.parent() {
+                let _ = std::fs::create_dir_all(dir);
+            }
+            let _ = std::fs::write(cache, serde_json::json!({ "fetched": now_unix(), "store": v }).to_string());
+            (Some(v), false)
+        }
+        Err(e) => {
+            log::info!("configuration requise de {appid} indisponible : {e}");
+            (local, false)
+        }
+    }
+}
+
+/// Mesure de ce PC, faite une fois (cartes graphiques comprises).
+fn machine() -> Machine {
+    static MACHINE: std::sync::OnceLock<Machine> = std::sync::OnceLock::new();
+    MACHINE.get_or_init(Machine::current).clone()
+}
+
+fn os_name() -> String {
+    let name = sysinfo::System::long_os_version().unwrap_or_else(|_| std::env::consts::OS.to_string());
+    if cfg!(target_pointer_width = "64") {
+        tr!("{os}, 64 bits", os = name)
+    } else {
+        name
     }
 }

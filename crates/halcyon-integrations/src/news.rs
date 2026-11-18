@@ -15,8 +15,10 @@ pub struct NewsItem {
     pub excerpt: String,
 }
 
+/// Annonces officielles du studio seulement : les flux de presse agrégés par Steam sont dans
+/// toutes les langues (des articles en russe sur une interface en français).
 pub fn steam_news_url(appid: &str, count: usize) -> String {
-    format!("https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid={appid}&count={count}&maxlength=400&format=json")
+    format!("https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid={appid}&count={count}&maxlength=400&format=json&feeds=steam_community_announcements")
 }
 
 /// Dernières actualités d'un jeu Steam.
