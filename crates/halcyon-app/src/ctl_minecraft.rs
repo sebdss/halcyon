@@ -138,9 +138,9 @@ impl Controller {
             .profiles
             .iter()
             .map(|p| {
-                let mut detail = format!("{} mod{}", p.mods.len(), if p.mods.len() > 1 { "s" } else { "" });
+                let mut detail = trn!(p.mods.len(), "{n} mod", "{n} mods");
                 if p.played_secs > 0 {
-                    detail.push_str(&format!(" · {} h {:02} min de jeu", p.played_secs / 3600, p.played_secs % 3600 / 60));
+                    detail.push_str(&tr!(" · {v} h {v2} min de jeu", v = p.played_secs / 3600, v2 = format!("{:02}", p.played_secs % 3600 / 60)));
                 }
                 McProfileRow {
                     id: p.id.as_str().into(),
@@ -179,7 +179,7 @@ impl Controller {
         let ui = app.global::<McUi>();
         let st = self.mc.borrow();
         let Some(m) = st.manifest.clone() else {
-            ui.set_latest("Liste des versions indisponible hors ligne (jamais téléchargée).".into());
+            ui.set_latest(tr!("Liste des versions indisponible hors ligne (jamais téléchargée).").into());
             return;
         };
         drop(st);
@@ -199,17 +199,17 @@ impl Controller {
             .map(|v| McVersionRow {
                 id: v.id.as_str().into(),
                 kind: match v.kind.as_str() {
-                    "release" => "Release",
-                    "snapshot" => "Snapshot",
-                    "old_beta" => "Bêta",
-                    _ => "Alpha",
+                    "release" => tr!("Release"),
+                    "snapshot" => tr!("Snapshot"),
+                    "old_beta" => tr!("Bêta"),
+                    _ => tr!("Alpha"),
                 }
                 .into(),
-                date: v.release_time.get(..10).map(|d| format!("{}/{}/{}", &d[8..10], &d[5..7], &d[..4])).unwrap_or_default().into(),
+                date: v.release_time.get(..10).map(|d| trc!("date", "{day}/{month}/{year}", day = &d[8..10], month = &d[5..7], year = &d[..4])).unwrap_or_default().into(),
                 installed: installed.contains(&v.id),
             })
             .collect();
-        ui.set_latest(format!("Dernière version : {} · dernier snapshot : {} · {} versions publiées par Mojang", m.latest.release, m.latest.snapshot, m.versions.len()).into());
+        ui.set_latest(trn!(m.versions.len(), "Dernière version : {release} · dernier snapshot : {snapshot} · {n} version publiée par Mojang", "Dernière version : {release} · dernier snapshot : {snapshot} · {n} versions publiées par Mojang", release = m.latest.release, snapshot = m.latest.snapshot).into());
         ui.set_versions(ModelRc::new(VecModel::from(rows)));
         let releases: Vec<String> = m.versions.iter().filter(|v| v.kind == "release").map(|v| v.id.clone()).collect();
         let labels: Vec<SharedString> = releases.iter().map(|r| r.as_str().into()).collect();
@@ -235,10 +235,10 @@ impl Controller {
                     name: info.as_ref().map(|i| i.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| m.file.trim_end_matches(".jar").to_string()).into(),
                     version: info.as_ref().map(|i| i.version.clone()).unwrap_or_default().into(),
                     source: match info.as_ref().map(|i| i.source.as_str()) {
-                        Some("modrinth") => "Modrinth",
-                        Some("curseforge") => "CurseForge",
-                        Some("modpack") => "Modpack",
-                        _ => "Ajouté à la main",
+                        Some("modrinth") => "Modrinth".into(),
+                        Some("curseforge") => "CurseForge".into(),
+                        Some("modpack") => tr!("Modpack"),
+                        _ => tr!("Ajouté à la main"),
                     }
                     .into(),
                     enabled: m.enabled,
@@ -304,7 +304,7 @@ impl Controller {
     /// Lance `work` sur un fil ; progression réelle ; `work` renvoie l'action finale.
     fn mc_run(&self, title: &str, work: impl FnOnce(&Ctx) -> Result<Done, Error> + Send + 'static) {
         if self.mc.borrow().busy {
-            return self.toast("Une opération Minecraft est déjà en cours", true);
+            return self.toast(tr!("Une opération Minecraft est déjà en cours"), true);
         }
         let cancel = Arc::new(AtomicBool::new(false));
         {
@@ -328,17 +328,28 @@ impl Controller {
         std::thread::Builder::new()
             .name("halcyon-minecraft".into())
             .spawn(move || {
-                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(&ctx))).unwrap_or_else(|_| Err(Error::Invalid("erreur interne".into())));
+                // File d'attente commune du gestionnaire de téléchargements.
+                let transfers = halcyon_core::transfer::global();
+                if transfers.active() >= transfers.max_concurrent() {
+                    post(move |c| c.task_update(task, Some(-1.0), Some(&tr!("En attente dans la file des téléchargements…"))));
+                }
+                let slot = transfers.acquire(&ctx.cancel);
+                let result = if slot.is_none() {
+                    Err(Error::Cancelled)
+                } else {
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(&ctx))).unwrap_or_else(|_| Err(Error::Invalid(tr!("erreur interne").into())))
+                };
+                drop(slot);
                 post(move |c| {
                     c.mc.borrow_mut().busy = false;
                     match result {
                         Ok(done) => {
-                            c.task_finish(task, true, format!("{title} : terminé"), crate::tasks::Action::OpenPage("minecraft"));
+                            c.task_finish(task, true, tr!("{title} : terminé", title = title), crate::tasks::Action::OpenPage("minecraft"));
                             done(c);
                         }
                         Err(Error::Cancelled) => {
-                            c.task_finish(task, false, "Annulé", crate::tasks::Action::None);
-                            c.mc_info("Opération annulée.");
+                            c.task_finish(task, false, tr!("Annulé"), crate::tasks::Action::None);
+                            c.mc_info(&tr!("Opération annulée."));
                         }
                         Err(e) => {
                             let m = msg(&e);
@@ -369,14 +380,14 @@ impl Controller {
     pub(crate) fn mc_install_version(&self, id: &str) {
         let id = id.to_string();
         let repair = install::installed(&self.mc_layout()).contains(&id);
-        self.mc_run(&format!("{} de Minecraft {id}", if repair { "Réparation" } else { "Installation" }), move |ctx| {
+        self.mc_run(&if repair { tr!("Réparation de Minecraft {id}", id = id) } else { tr!("Installation de Minecraft {id}", id = id) }, move |ctx| {
             let v = install::install(&ctx.http, &ctx.layout, &id, ctx.manifest.as_deref(), repair, &ctx.cancel, &ctx.sink())?;
             ctx.java(&v)?;
             let p = profiles::for_version(&ctx.layout, &id, Loader::Vanilla, "", &id);
             profiles::save(&ctx.layout, &p).map_err(|e| Error::Disk(e.to_string()))?;
             let name = p.name.clone();
             Ok(Box::new(move |c: &Rc<Controller>| {
-                c.mc_info(&format!("{name} est prête : onglet Jouer."));
+                c.mc_info(&tr!("{name} est prête : onglet Jouer.", name = name));
                 c.sound(halcyon_audio::Cue::Install);
             }))
         });
@@ -384,13 +395,13 @@ impl Controller {
 
     pub(crate) fn mc_verify_version(&self, id: &str) {
         let id = id.to_string();
-        self.mc_run(&format!("Vérification de {id}"), move |ctx| {
+        self.mc_run(&tr!("Vérification de {id}", id = id), move |ctx| {
             let bad = install::verify(&ctx.layout, &id)?;
             Ok(Box::new(move |c: &Rc<Controller>| {
                 if bad.is_empty() {
-                    c.mc_info(&format!("{id} : tous les fichiers sont présents et intacts."));
+                    c.mc_info(&tr!("{id} : tous les fichiers sont présents et intacts.", id = id));
                 } else {
-                    c.mc_info(&format!("{id} : {} fichier(s) manquant(s) ou endommagé(s). « Réparer » les télécharge à nouveau.", bad.len()));
+                    c.mc_info(&trn!(bad.len(), "{id} : {n} fichier manquant ou endommagé. « Réparer » le télécharge à nouveau.", "{id} : {n} fichiers manquants ou endommagés. « Réparer » les télécharge à nouveau.", id = id));
                 }
             }))
         });
@@ -400,17 +411,17 @@ impl Controller {
         let used: Vec<String> = self.mc.borrow().profiles.iter().filter(|p| p.version_id == id || p.mc == id && p.loader != Loader::Vanilla).map(|p| p.name.clone()).collect();
         let vanilla_only = self.mc.borrow().profiles.iter().any(|p| p.version_id == id && p.loader == Loader::Vanilla && p.modpack.is_none());
         if !used.is_empty() && !(used.len() == 1 && vanilla_only) {
-            return self.toast(format!("Utilisée par : {}. Supprimez d'abord ces installations.", used.join(", ")), true);
+            return self.toast(tr!("Utilisée par : {join}. Supprimez d'abord ces installations.", join = used.join(", ")), true);
         }
         let id = id.to_string();
         self.confirm(
-            &format!("Supprimer Minecraft {id} ?"),
-            "Les fichiers de cette version sont supprimés (bibliothèques et assets partagés conservés). Vos mondes restent dans leur installation.",
-            "Supprimer",
+            &tr!("Supprimer Minecraft {id} ?", id = id),
+            &tr!("Les fichiers de cette version sont supprimés (bibliothèques et assets partagés conservés). Vos mondes restent dans leur installation."),
+            &tr!("Supprimer"),
             move |c| match install::remove(&c.mc_layout(), &id) {
                 Ok(()) => {
                     c.mc_refresh_ui();
-                    c.toast(format!("Minecraft {id} supprimée"), false);
+                    c.toast(tr!("Minecraft {id} supprimée", id = id), false);
                 }
                 Err(e) => c.toast(msg(&e), true),
             },
@@ -425,10 +436,10 @@ impl Controller {
         let releases = self.mc.borrow().releases.clone();
         let Some(mc) = releases.get(ui.get_loader_mc().max(0) as usize).cloned() else { return };
         let loader = LOADER_ORDER[ui.get_loader_kind().clamp(0, 3) as usize];
-        ui.set_loader_info(format!("Recherche des versions de {} pour Minecraft {mc}…", loader.name()).into());
+        ui.set_loader_info(tr!("Recherche des versions de {name} pour Minecraft {mc}…", name = loader.name(), mc = mc).into());
         ui.set_loader_versions(ModelRc::new(VecModel::from(Vec::<SharedString>::new())));
         if !self.net_allowed() {
-            ui.set_loader_info("Hors ligne : la liste des versions des loaders est indisponible.".into());
+            ui.set_loader_info(tr!("Hors ligne : la liste des versions des loaders est indisponible.").into());
             return;
         }
         std::thread::spawn(move || {
@@ -438,10 +449,10 @@ impl Controller {
                 let ui = app.global::<McUi>();
                 match r {
                     Ok(list) => {
-                        let labels: Vec<SharedString> = list.iter().map(|v| SharedString::from(if v.stable { format!("{} (stable)", v.version) } else { v.version.clone() })).collect();
+                        let labels: Vec<SharedString> = list.iter().map(|v| SharedString::from(if v.stable { tr!("{version} (stable)", version = v.version) } else { v.version.clone() })).collect();
                         let first_stable = list.iter().position(|v| v.stable).unwrap_or(0);
                         ui.set_loader_info(
-                            if list.is_empty() { format!("{} ne propose pas de version pour Minecraft {mc}.", loader.name()) } else { format!("{} version(s) de {} compatibles avec Minecraft {mc}.", list.len(), loader.name()) }.into(),
+                            if list.is_empty() { tr!("{name} ne propose pas de version pour Minecraft {mc}.", name = loader.name(), mc = mc) } else { trn!(list.len(), "{n} version de {name} compatible avec Minecraft {mc}.", "{n} versions de {name} compatibles avec Minecraft {mc}.", name = loader.name(), mc = mc) }.into(),
                         );
                         ui.set_loader_versions(ModelRc::new(VecModel::from(labels)));
                         ui.set_loader_version(first_stable as i32);
@@ -461,14 +472,14 @@ impl Controller {
         let Some(lv) = st.loader_versions.get(ui.get_loader_version().max(0) as usize).map(|v| v.version.clone()) else { return };
         drop(st);
         let loader = LOADER_ORDER[ui.get_loader_kind().clamp(0, 3) as usize];
-        self.mc_run(&format!("Installation de {} {lv} pour Minecraft {mc}", loader.name()), move |ctx| {
+        self.mc_run(&tr!("Installation de {name} {lv} pour Minecraft {mc}", name = loader.name(), lv = lv, mc = mc), move |ctx| {
             let id = ctx.install_stack(&mc, loader, &lv)?;
             let p = profiles::for_version(&ctx.layout, &mc, loader, &lv, &id);
             profiles::save(&ctx.layout, &p).map_err(|e| Error::Disk(e.to_string()))?;
             mods::ensure_dirs(&ctx.layout, &p);
             let name = p.name.clone();
             Ok(Box::new(move |c: &Rc<Controller>| {
-                c.mc_info(&format!("{name} est prête. Ajoutez des mods dans l'onglet Mods."));
+                c.mc_info(&tr!("{name} est prête. Ajoutez des mods dans l'onglet Mods.", name = name));
                 c.sound(halcyon_audio::Cue::Install);
             }))
         });
@@ -494,27 +505,28 @@ impl Controller {
         };
         if s.play_mode != "direct" {
             let Some(off) = official::dir() else {
-                return self.mc_error("Launcher officiel introuvable : installez-le (minecraft.net) ou passez en mode direct (Paramètres).");
+                return self.mc_error(&tr!("Launcher officiel introuvable : installez-le (minecraft.net) ou passez en mode direct (Paramètres)."));
             };
             let Some((kind, exe)) = official::launcher() else {
-                return self.mc_error("Launcher officiel introuvable : installez-le (minecraft.net) ou passez en mode direct (Paramètres).");
+                return self.mc_error(&tr!("Launcher officiel introuvable : installez-le (minecraft.net) ou passez en mode direct (Paramètres)."));
             };
             if !s.official_consent {
-                return self.mc_error("Autorisez d'abord Halcyon à ajouter ses installations au launcher officiel (encadré Compte).");
+                return self.mc_error(&tr!("Autorisez d'abord Halcyon à ajouter ses installations au launcher officiel (encadré Compte)."));
             }
             let java_args = format!("-Xms{}M -Xmx{}M {}", opts.min_ram_mb, opts.max_ram_mb, opts.jvm_args).trim().to_string();
             let res = (opts.width > 0 && opts.height > 0).then_some((opts.width, opts.height));
-            self.mc_run(&format!("Préparation de {}", p.name), move |ctx| {
+            self.mc_run(&tr!("Préparation de {name}", name = p.name), move |ctx| {
                 // Fichiers complets côté Halcyon (loaders, bibliothèques produites par Forge…).
                 install::install(&ctx.http, &ctx.layout, &p.version_id, ctx.manifest.as_deref(), false, &ctx.cancel, &ctx.sink())?;
                 official::export_profile(&ctx.layout, &off, &p, &java_args, res).map_err(|e| Error::Disk(e.to_string()))?;
-                official::open(kind, &exe).map_err(|e| Error::Invalid(format!("launcher officiel non lancé : {e}")))?;
+                halcyon_storage::audit::event("minecraft.official_profile.write", &official::profile_key(&p));
+                official::open(kind, &exe).map_err(|e| Error::Invalid(tr!("launcher officiel non lancé : {e}", e = e)))?;
                 let name = p.name.clone();
                 Ok(Box::new(move |c: &Rc<Controller>| {
                     if let Some(id) = c.mc_library_id() {
                         let _ = c.db().mark_launched(id, profiles::now());
                     }
-                    c.mc_info(&format!("Launcher officiel ouvert : choisissez le profil « Halcyon · {name} » (sélectionné en dernier) puis Jouer."));
+                    c.mc_info(&tr!("Launcher officiel ouvert : choisissez le profil « Halcyon · {name} » (sélectionné en dernier) puis Jouer.", name = name));
                     c.sound(halcyon_audio::Cue::Launch);
                 }))
             });
@@ -523,14 +535,14 @@ impl Controller {
         // Mode direct : compte Microsoft de Halcyon.
         let account = self.mc.borrow().account.clone();
         let Some(account) = account else {
-            return self.mc_error("Connectez votre compte Microsoft (encadré Compte) avant de jouer.");
+            return self.mc_error(&tr!("Connectez votre compte Microsoft (encadré Compte) avant de jouer."));
         };
         let client_id = s.client_id.trim().to_string();
-        self.mc_run(&format!("Lancement de {}", p.name), move |ctx| {
+        self.mc_run(&tr!("Lancement de {name}", name = p.name), move |ctx| {
             let account = if account.expires_at <= profiles::now() {
-                ctx.sink()(Event::Step("Renouvellement de la session Microsoft".into()));
+                ctx.sink()(Event::Step(tr!("Renouvellement de la session Microsoft").into()));
                 let store = auth::Store::new(ctx.layout.root.join("accounts"));
-                let refresh = store.refresh_token(&account.uuid).ok_or_else(|| Error::Invalid("session expirée : reconnectez-vous".into()))?;
+                let refresh = store.refresh_token(&account.uuid).ok_or_else(|| Error::Invalid(tr!("session expirée : reconnectez-vous").into()))?;
                 let a = Auth { http: &ctx.http, client_id: &client_id };
                 let (new_refresh, ms) = a.refresh(&refresh)?;
                 let fresh = a.minecraft(&ms)?;
@@ -541,7 +553,7 @@ impl Controller {
             };
             let v = install::install(&ctx.http, &ctx.layout, &p.version_id, ctx.manifest.as_deref(), false, &ctx.cancel, &ctx.sink())?;
             let java = ctx.java(&v)?;
-            ctx.sink()(Event::Step("Natives et assets".into()));
+            ctx.sink()(Event::Step(tr!("Natives et assets").into()));
             let natives = install::extract_natives(&ctx.layout, &v)?;
             let game = p.game_dir(&ctx.layout);
             install::prepare_legacy_assets(&ctx.layout, &v, Some(&game))?;
@@ -549,12 +561,12 @@ impl Controller {
             let cmd = launch::command(&ctx.layout, &v, &game, &java, &natives, &who, &opts);
             log::info!("Minecraft : {}", cmd.redacted());
             let log_path = game.join("logs").join("halcyon-launch.log");
-            let mut child = launch::spawn(&cmd, &log_path).map_err(|e| Error::Invalid(format!("Java n'a pas pu démarrer : {e}")))?;
+            let mut child = launch::spawn(&cmd, &log_path).map_err(|e| Error::Invalid(tr!("Java n'a pas pu démarrer : {e}", e = e)))?;
             let pid = child.id();
             let started = std::time::Instant::now();
             let profile_id = p.id.clone();
             let layout = ctx.layout.clone();
-            post(move |c| c.mc_session(true, &format!("En jeu (processus {pid})")));
+            post(move |c| c.mc_session(true, &tr!("En jeu (processus {pid})", pid = pid)));
             std::thread::spawn(move || {
                 let status = child.wait();
                 let secs = started.elapsed().as_secs();
@@ -572,9 +584,9 @@ impl Controller {
                         let _ = db.mark_launched(id, started_at);
                         let _ = db.record_session(id, started_at, secs);
                     }
-                    c.mc_session(false, &format!("Partie terminée ({} min)", secs / 60));
+                    c.mc_session(false, &tr!("Partie terminée ({v} min)", v = secs / 60));
                     if failed {
-                        c.mc_error(&format!("Minecraft s'est arrêté au démarrage. Fin du journal :\n{tail}"));
+                        c.mc_error(&tr!("Minecraft s'est arrêté au démarrage. Fin du journal :\n{tail}", tail = tail));
                     }
                     c.mc_reload_profiles();
                     c.mc_refresh_ui();
@@ -606,17 +618,19 @@ impl Controller {
         let Some(p) = self.mc_selected() else { return };
         let worlds = profiles::worlds(&p.game_dir(&self.mc_layout()));
         let detail = if worlds.is_empty() {
-            "Son dossier (mods, réglages) est supprimé. Les versions téléchargées restent disponibles.".to_string()
+            tr!("Son dossier (mods, réglages) est supprimé. Les versions téléchargées restent disponibles.")
         } else {
-            format!("Son dossier est supprimé, y compris {} monde(s) : {}. Cette suppression est définitive.", worlds.len(), worlds.join(", "))
+            trn!(worlds.len(), "Son dossier est supprimé, y compris {n} monde : {join}. Cette suppression est définitive.", "Son dossier est supprimé, y compris {n} mondes : {join}. Cette suppression est définitive.", join = worlds.join(", "))
         };
-        self.confirm(&format!("Supprimer « {} » ?", p.name), &detail, "Supprimer", move |c| {
+        self.confirm(&tr!("Supprimer « {name} » ?", name = p.name), &detail, &tr!("Supprimer"), move |c| {
             let layout = c.mc_layout();
             if let Some(off) = official::dir() {
-                let _ = official::remove_profile(&off, &p);
+                if official::remove_profile(&off, &p).is_ok() {
+                    halcyon_storage::audit::event("minecraft.official_profile.remove", &official::profile_key(&p));
+                }
             }
             match profiles::delete(&layout, &p.id) {
-                Ok(()) => c.toast(format!("{} supprimée", p.name), false),
+                Ok(()) => c.toast(tr!("{name} supprimée", name = p.name), false),
                 Err(e) => c.toast(e.to_string(), true),
             }
             c.mc_reload_profiles();
@@ -681,7 +695,8 @@ impl Controller {
         }
         match r {
             Ok(a) => {
-                self.toast(format!("Connecté : {}", a.name), false);
+                halcyon_storage::audit::event("minecraft.login", &a.name);
+                self.toast(tr!("Connecté : {name}", name = a.name), false);
                 self.mc.borrow_mut().account = Some(a);
             }
             Err(m) if m.is_empty() => {}
@@ -693,7 +708,8 @@ impl Controller {
     pub(crate) fn mc_logout(&self) {
         let Some(a) = self.mc.borrow_mut().account.take() else { return };
         let _ = auth::Store::new(self.mc_layout().root.join("accounts")).remove(&a.uuid);
-        self.toast("Compte déconnecté de Halcyon", false);
+        halcyon_storage::audit::event("minecraft.logout", &a.name);
+        self.toast(tr!("Compte déconnecté de Halcyon"), false);
         self.mc_refresh_ui();
     }
 
@@ -706,14 +722,14 @@ impl Controller {
         let key = self.settings.borrow().curseforge_api_key.clone();
         let profile = self.mc_selected();
         if !packs && profile.as_ref().is_some_and(|p| p.loader == Loader::Vanilla) {
-            ui.set_results_info("Installation vanilla : choisissez une installation avec mod loader (Fabric, Quilt, Forge, NeoForge).".into());
+            ui.set_results_info(tr!("Installation vanilla : choisissez une installation avec mod loader (Fabric, Quilt, Forge, NeoForge).").into());
             return;
         }
         let (mc, loader) = match (&profile, packs) {
             (Some(p), false) => (Some(p.mc.clone()), Some(p.loader)),
             _ => (None, None),
         };
-        let info = format!("Recherche{}…", mc.as_ref().map(|m| format!(" pour Minecraft {m}")).unwrap_or_default());
+        let info = match mc.as_ref() { Some(m) => tr!("Recherche pour Minecraft {m}…", m = m), None => tr!("Recherche…") };
         if packs {
             ui.set_packs_info(info.into());
         } else {
@@ -730,7 +746,7 @@ impl Controller {
                 let Some(app) = ctl.app() else { return };
                 let ui = app.global::<McUi>();
                 let text = match &r {
-                    Ok((list, total)) => format!("{} résultat(s){}", total, if list.is_empty() { " : rien de compatible" } else { "" }),
+                    Ok((list, total)) => if list.is_empty() { trn!(*total, "{n} résultat : rien de compatible", "{n} résultats : rien de compatible") } else { trn!(*total, "{n} résultat", "{n} résultats") },
                     Err(e) => msg(e),
                 };
                 let installed: Vec<String> = ctl.mc_selected().map(|p| p.mods.iter().map(|m| m.project_id.clone()).collect()).unwrap_or_default();
@@ -773,16 +789,16 @@ impl Controller {
         let Some(project) = self.mc.borrow().results.get(index).cloned() else { return };
         let Some(mut p) = self.mc_selected() else { return };
         let key = self.settings.borrow().curseforge_api_key.clone();
-        self.mc_run(&format!("Installation de {}", project.title), move |ctx| {
+        self.mc_run(&tr!("Installation de {title}", title = project.title), move |ctx| {
             let c = mods::Client { http: &ctx.http, curseforge_key: &key };
             let mut v = c
                 .best(project.source, &project.id, &p.mc, p.loader)?
-                .ok_or_else(|| Error::Invalid(format!("{} n'a pas de version pour Minecraft {} avec {}", project.title, p.mc, p.loader.name())))?;
+                .ok_or_else(|| Error::Invalid(tr!("{title} n'a pas de version pour Minecraft {mc} avec {name}", title = project.title, mc = p.mc, name = p.loader.name())))?;
             v.name = format!("{} {}", project.title, v.number);
             let added = c.install_mod(&ctx.layout, &mut p, v, &ctx.cancel, &ctx.sink())?;
             Ok(Box::new(move |ctl: &Rc<Controller>| {
                 let deps = added.iter().filter(|m| m.dependency).count();
-                ctl.mc_info(&if deps > 0 { format!("{} installé, avec {deps} dépendance(s).", project.title) } else { format!("{} installé.", project.title) });
+                ctl.mc_info(&if deps > 0 { trn!(deps, "{title} installé, avec {n} dépendance.", "{title} installé, avec {n} dépendances.", title = project.title) } else { tr!("{title} installé.", title = project.title) });
                 ctl.sound(halcyon_audio::Cue::Install);
             }))
         });
@@ -799,7 +815,7 @@ impl Controller {
     pub(crate) fn mc_mod_remove(&self, file: &str) {
         let Some(mut p) = self.mc_selected() else { return };
         let file = file.to_string();
-        self.confirm(&format!("Supprimer {file} ?"), "Le fichier du mod est supprimé de cette installation.", "Supprimer", move |c| {
+        self.confirm(&tr!("Supprimer {file} ?", file = file), &tr!("Le fichier du mod est supprimé de cette installation."), &tr!("Supprimer"), move |c| {
             if let Err(e) = mods::remove(&c.mc_layout(), &mut p, &file) {
                 c.toast(e.to_string(), true);
             }
@@ -829,7 +845,7 @@ impl Controller {
         let Some(mut p) = self.mc_selected() else { return };
         let updates = self.mc.borrow().updates.clone();
         let key = self.settings.borrow().curseforge_api_key.clone();
-        self.mc_run(&format!("Mise à jour de {} mod(s)", updates.len()), move |ctx| {
+        self.mc_run(&trn!(updates.len(), "Mise à jour de {n} mod", "Mise à jour de {n} mods"), move |ctx| {
             let c = mods::Client { http: &ctx.http, curseforge_key: &key };
             for (file, mut v) in updates {
                 let name = p.mods.iter().find(|m| m.file == file).map(|m| m.name.split(' ').next().unwrap_or("").to_string()).unwrap_or_default();
@@ -838,7 +854,7 @@ impl Controller {
             }
             Ok(Box::new(|ctl: &Rc<Controller>| {
                 ctl.mc.borrow_mut().updates.clear();
-                ctl.mc_info("Mods mis à jour.");
+                ctl.mc_info(&tr!("Mods mis à jour."));
                 ctl.sound(halcyon_audio::Cue::Update);
             }))
         });
@@ -849,16 +865,16 @@ impl Controller {
     pub(crate) fn mc_install_pack(&self, index: usize) {
         let Some(project) = self.mc.borrow().packs.get(index).cloned() else { return };
         let key = self.settings.borrow().curseforge_api_key.clone();
-        self.mc_run(&format!("Installation du modpack {}", project.title), move |ctx| {
+        self.mc_run(&tr!("Installation du modpack {title}", title = project.title), move |ctx| {
             let c = mods::Client { http: &ctx.http, curseforge_key: &key };
             let versions = c.versions(project.source, &project.id, None, None)?;
-            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid("modpack sans version publiée".into()))?;
-            let url = v.file.url.clone().ok_or_else(|| Error::Invalid("l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge".into()))?;
+            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid(tr!("modpack sans version publiée").into()))?;
+            let url = v.file.url.clone().ok_or_else(|| Error::Invalid(tr!("l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge").into()))?;
             if !mods::safe_name(&v.file.filename) {
-                return Err(Error::Invalid("nom de fichier refusé".into()));
+                return Err(Error::Invalid(tr!("nom de fichier refusé").into()));
             }
             let file = ctx.layout.cache().join("packs").join(&v.file.filename);
-            ctx.sink()(Event::Step(format!("Téléchargement de {}", v.file.filename)));
+            ctx.sink()(Event::Step(tr!("Téléchargement de {filename}", filename = v.file.filename)));
             ctx.http.download(&url, &file, v.file.sha1.as_deref(), &ctx.cancel, &mut |_| {})?;
             let reference = ModpackRef { source: project.source.id().into(), project_id: project.id.clone(), version_id: v.id.clone(), name: project.title.clone(), version: v.number.clone(), files: vec![] };
             ctx.install_pack_file(&file, Some(reference), &key, None)
@@ -868,21 +884,21 @@ impl Controller {
     pub(crate) fn mc_import_pack(&self) {
         let Some(path) = crate::dialogs::pick_modpack() else { return };
         let key = self.settings.borrow().curseforge_api_key.clone();
-        self.mc_run("Import d'un modpack", move |ctx| ctx.install_pack_file(&path, None, &key, None));
+        self.mc_run(&tr!("Import d'un modpack"), move |ctx| ctx.install_pack_file(&path, None, &key, None));
     }
 
     pub(crate) fn mc_update_pack(&self) {
         let Some(p) = self.mc_selected() else { return };
         let Some(r) = p.modpack.clone() else { return };
         if r.source != "modrinth" {
-            return self.toast("Mise à jour automatique disponible pour les modpacks Modrinth ; réimportez la nouvelle version des autres modpacks", true);
+            return self.toast(tr!("Mise à jour automatique disponible pour les modpacks Modrinth ; réimportez la nouvelle version des autres modpacks"), true);
         }
-        self.mc_run(&format!("Mise à jour de {}", p.name), move |ctx| {
+        self.mc_run(&tr!("Mise à jour de {name}", name = p.name), move |ctx| {
             let c = mods::Client { http: &ctx.http, curseforge_key: "" };
             let versions = c.versions(Source::Modrinth, &r.project_id, None, None)?;
-            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid("aucune version publiée".into()))?;
+            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid(tr!("aucune version publiée").into()))?;
             if v.id == r.version_id {
-                return Ok(Box::new(|ctl: &Rc<Controller>| ctl.mc_info("Le modpack est déjà à jour.")));
+                return Ok(Box::new(|ctl: &Rc<Controller>| ctl.mc_info(&tr!("Le modpack est déjà à jour."))));
             }
             let file = ctx.layout.cache().join("packs").join(&v.file.filename);
             ctx.http.download(v.file.url.as_deref().unwrap_or_default(), &file, v.file.sha1.as_deref(), &ctx.cancel, &mut |_| {})?;
@@ -894,9 +910,9 @@ impl Controller {
     pub(crate) fn mc_export_pack(&self) {
         let Some(p) = self.mc_selected() else { return };
         let Some(out) = crate::dialogs::save_file(&format!("{}.mrpack", p.id), "mrpack") else { return };
-        self.mc_run(&format!("Export de {}", p.name), move |ctx| {
+        self.mc_run(&tr!("Export de {name}", name = p.name), move |ctx| {
             let n = modpack::export_mrpack(&ctx.http, &ctx.layout, &p, &out, "1.0.0")?;
-            Ok(Box::new(move |c: &Rc<Controller>| c.mc_info(&format!("Exporté : {} ({n} mod(s) référencé(s) sur Modrinth, le reste inclus dans l'archive).", out.display()))))
+            Ok(Box::new(move |c: &Rc<Controller>| c.mc_info(&trn!(n, "Exporté : {out} ({n} mod référencé sur Modrinth, le reste inclus dans l'archive).", "Exporté : {out} ({n} mods référencés sur Modrinth, le reste inclus dans l'archive).", out = out.display()))))
         });
     }
 
@@ -912,15 +928,15 @@ impl Controller {
                 "client_id" => m.client_id = v.to_string(),
                 "ram_min" => match num(v) {
                     Some(n) => m.ram_min_mb = n,
-                    None => return self.toast("Indiquez une valeur en Mo (ex. 1024)", true),
+                    None => return self.toast(tr!("Indiquez une valeur en Mo (ex. 1024)"), true),
                 },
                 "ram_max" => match num(v) {
                     Some(n) => m.ram_max_mb = n,
-                    None => return self.toast("Indiquez une valeur en Mo (ex. 4096)", true),
+                    None => return self.toast(tr!("Indiquez une valeur en Mo (ex. 4096)"), true),
                 },
                 "java_path" => {
                     if !v.is_empty() && java::probe(Path::new(v.trim_matches('"'))).is_none() {
-                        return self.toast("Ce fichier n'est pas un exécutable Java valide", true);
+                        return self.toast(tr!("Ce fichier n'est pas un exécutable Java valide"), true);
                     }
                     m.java_path = v.trim_matches('"').to_string();
                 }
@@ -934,7 +950,7 @@ impl Controller {
         }
         self.save_settings();
         self.mc_refresh_ui();
-        self.toast("Enregistré", false);
+        self.toast(tr!("Enregistré"), false);
     }
 
     pub(crate) fn mc_set_bool(&self, key: &str, value: bool) {
@@ -1121,10 +1137,10 @@ fn library_entry(layout: &Layout) -> Option<halcyon_core::DiscoveredGame> {
     d.developer = Some("Mojang Studios".into());
     d.publisher = Some("Mojang Studios".into());
     d.release_date = Some("2011-11-18".into());
-    d.genres = vec!["Bac à sable".into(), "Survie".into()];
+    d.genres = vec![tr!("Bac à sable").into(), tr!("Survie").into()];
     d.description = Some(match list.len() {
-        0 => "Aucune installation Halcyon pour l'instant : Jouer ouvre l'onglet Minecraft.".to_string(),
-        n => format!("{n} installation(s) dans l'onglet Minecraft : {}.", list.iter().map(|p| p.name.as_str()).collect::<Vec<_>>().join(", ")),
+        0 => tr!("Aucune installation Halcyon pour l'instant : Jouer ouvre l'onglet Minecraft."),
+        n => trn!(n, "{n} installation dans l'onglet Minecraft : {v}.", "{n} installations dans l'onglet Minecraft : {v}.", v = list.iter().map(|p| p.name.as_str()).collect::<Vec<_>>().join(", ")),
     });
     d.install_dir = Some(layout.root.clone());
     // Temps mesuré par Halcyon en mode direct (le launcher officiel ne le communique pas).
@@ -1167,15 +1183,15 @@ impl Controller {
         self.mc_reload_profiles();
         if self.mc.borrow().profiles.is_empty() {
             self.mc_refresh_ui();
-            let text = "Installez d'abord une version (Versions), un loader (Loaders) ou un modpack (Modpacks) dans l'onglet Minecraft.";
-            self.mc_info(text);
+            let text = tr!("Installez d'abord une version (Versions), un loader (Loaders) ou un modpack (Modpacks) dans l'onglet Minecraft.");
+            self.mc_info(&text);
             if big_picture {
                 self.toast(text, true);
             }
             return;
         }
         if self.mc.borrow().playing {
-            return self.toast("Minecraft est déjà en cours", false);
+            return self.toast(tr!("Minecraft est déjà en cours"), false);
         }
         self.mc_play();
     }
@@ -1187,8 +1203,8 @@ fn icon_name(p: &Project) -> String {
 
 fn fmt_count(n: u64) -> String {
     match n {
-        n if n >= 1_000_000 => format!("{:.1} M", n as f64 / 1e6),
-        n if n >= 1_000 => format!("{:.0} k", n as f64 / 1e3),
+        n if n >= 1_000_000 => tr!("{v} M", v = halcyon_i18n::decimal(n as f64 / 1e6, 1)),
+        n if n >= 1_000 => tr!("{v} k", v = halcyon_i18n::number((n as f64 / 1e3).round() as u64)),
         n => n.to_string(),
     }
 }
@@ -1219,7 +1235,7 @@ impl Ctx {
                         if total_files > 0 {
                             let p = if total_bytes > 0 { bytes as f32 / total_bytes as f32 } else { files as f32 / total_files as f32 };
                             ui.set_progress(p.clamp(0.0, 1.0));
-                            ui.set_progress_text(format!("{files} / {total_files} fichiers · {} / {}", mods::human(bytes), mods::human(total_bytes)).into());
+                            ui.set_progress_text(trn!(total_files, "{files} / {n} fichier · {done} / {total}", "{files} / {n} fichiers · {done} / {total}", files = halcyon_i18n::number(files as u64), done = mods::human(bytes), total = mods::human(total_bytes)).into());
                         }
                     }
                     Event::Log(l) => ui.set_log_line(l.chars().take(200).collect::<String>().into()),
@@ -1232,9 +1248,9 @@ impl Ctx {
     pub fn java(&self, v: &halcyon_minecraft::meta::Version) -> Result<PathBuf, Error> {
         if !self.java_path.is_empty() {
             let p = PathBuf::from(&self.java_path);
-            let (_, major) = java::probe(&p).ok_or_else(|| Error::Invalid(format!("Java choisi introuvable : {}", p.display())))?;
+            let (_, major) = java::probe(&p).ok_or_else(|| Error::Invalid(tr!("Java choisi introuvable : {p}", p = p.display())))?;
             if major < v.java_major() {
-                return Err(Error::Invalid(format!("Minecraft {} demande Java {} ; le Java choisi est la version {major} (laissez le champ vide pour le Java officiel)", v.id, v.java_major())));
+                return Err(Error::Invalid(tr!("Minecraft {id} demande Java {java_major} ; le Java choisi est la version {major} (laissez le champ vide pour le Java officiel)", id = v.id, java_major = v.java_major(), major = major)));
             }
             return Ok(p);
         }
@@ -1275,13 +1291,9 @@ impl Ctx {
         let count = profile.mods.len();
         Ok(Box::new(move |c: &Rc<Controller>| {
             if manual.is_empty() {
-                c.mc_info(&format!("Modpack {name} installé ({count} mods) : onglet Jouer."));
+                c.mc_info(&trn!(count, "Modpack {name} installé ({n} mod) : onglet Jouer.", "Modpack {name} installé ({n} mods) : onglet Jouer.", name = name));
             } else {
-                c.mc_info(&format!(
-                    "Modpack {name} installé ; {} fichier(s) que leurs auteurs n'autorisent pas à télécharger hors de CurseForge sont à déposer dans le dossier mods : {}",
-                    manual.len(),
-                    manual.join(", ")
-                ));
+                c.mc_info(&trn!(manual.len(), "Modpack {name} installé ; {n} fichier que son auteur n'autorise pas à télécharger hors de CurseForge est à déposer dans le dossier mods : {join}", "Modpack {name} installé ; {n} fichiers que leurs auteurs n'autorisent pas à télécharger hors de CurseForge sont à déposer dans le dossier mods : {join}", name = name, join = manual.join(", ")));
             }
             c.sound(halcyon_audio::Cue::Install);
         }))

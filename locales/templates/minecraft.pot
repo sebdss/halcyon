@@ -1,0 +1,1150 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Halcyon-Native-Name: Français\n"
+"X-Halcyon-Thousands-Separator: U+00A0\n"
+"X-Halcyon-Decimal-Separator: ,\n"
+"X-Halcyon-Domain: minecraft\n"
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:98
+#, placeholders
+msgid "{} téléchargements, {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:100
+msgid "Page du projet"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:124
+msgid "Clé d'API CurseForge requise (onglet Paramètres)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:132
+msgid "Installation :"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:155 crates/halcyon-app/ui/pages/minecraft.slint:267
+msgid "Aucune installation"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:163
+msgid "Installez une version, un loader ou un modpack pour commencer."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:183 crates/halcyon-installer/src/main.rs:601 crates/halcyon-installer/src/main.rs:607
+msgid "Dossier"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:186
+#, placeholders
+msgid "Mondes : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:190
+msgid "Compte"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:204
+msgid "Launcher officiel de Minecraft introuvable"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:204
+#, placeholders
+msgid "Connecté au launcher officiel : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:204
+msgid "Launcher officiel installé, aucun compte connecté"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:210
+msgid "Mode « launcher officiel » : Halcyon prépare la version, le loader, les mods et le dossier de jeu, puis ajoute l'installation au launcher officiel. La connexion et le lancement sont faits par lui ; Halcyon ne lit aucun jeton."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:212
+msgid "Ouvrir le launcher"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:223
+msgid "Autoriser Halcyon à ajouter ses installations (profils « Halcyon, … ») au launcher officiel ? Une copie de launcher_profiles.json est faite avant la première modification ; vos autres profils ne sont pas touchés."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:229
+msgid "Autoriser"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:239
+#, placeholders
+msgid "Compte Microsoft : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:239
+msgid "Aucun compte connecté"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:240
+msgid "Connexion officielle de Microsoft : vous saisissez un code sur microsoft.com, Halcyon ne voit jamais votre mot de passe."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:240
+msgid "La connexion directe demande un identifiant d'application Azure autorisé par Mojang (Paramètres)."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:242
+msgid "Se connecter"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:243
+msgid "Se déconnecter"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:254
+#, placeholders
+msgid "Ouvrez {} et saisissez ce code :"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:257
+msgid "Ouvrir la page"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:264
+msgid "Installations"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:268
+msgid "Installez une version (Versions), un mod loader (Loaders) ou un modpack (Modpacks). Chaque installation a son propre dossier : mods, mondes et réglages ne se mélangent pas."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:269
+msgid "Choisir une version"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:289
+msgid "Supprimer l'installation sélectionnée"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:299
+msgid "Filtrer (ex. 1.20)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:303
+msgid "Snapshots"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:308
+msgid "Anciennes (alpha, bêta)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:326
+msgid "Installée"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:327
+msgid "Vérifier les fichiers"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:328
+msgid "Supprimer la version"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-installer/ui/setup.slint:371 crates/halcyon-installer/src/main.rs:342
+msgid "Réparer"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:340
+msgid "Aucune version : vérifiez la connexion, puis « Actualiser »."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:350
+msgid "Aucune installation avec mod loader"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:351
+msgid "Les mods s'installent dans une installation Fabric, Quilt, Forge ou NeoForge (onglet Loaders)."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:352
+msgid "Installer un loader"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:361
+#, placeholders
+msgid "Mettre à jour {n} mod"
+msgid_plural "Mettre à jour {n} mods"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:362
+msgid "Dossier des mods"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:364
+msgid "Mods installés"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:364 crates/halcyon-app/src/ctl_minecraft.rs:141
+#, placeholders
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:365
+msgid "Aucun mod dans cette installation."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:380
+msgid "Dépendance"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:381
+#, placeholders
+msgid "Mise à jour : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:386
+msgid "Ajouter des mods"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:392
+msgid "Rechercher un mod compatible (ex. sodium, jei)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:412
+msgid "Rechercher un modpack"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:417
+msgid "Importer un fichier (.mrpack, .zip CurseForge)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:418
+msgid "Exporter l'installation sélectionnée (.mrpack)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:419
+msgid "Mettre à jour le modpack"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:421
+msgid "Les modpacks sont installés tels que leurs auteurs les publient. Les mondes et réglages sont conservés lors d'une mise à jour. "
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:433
+msgid "Mod loader"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:441
+msgid "Minecraft :"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:442
+msgid "Version :"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:453
+msgid "Fabric et Quilt : profils officiels de leurs serveurs. Forge et NeoForge : l'installateur officiel, vérifié par son empreinte, est exécuté avec Java en mode client. Une installation séparée est créée pour chaque version de Minecraft et chaque loader."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:484
+msgid "Lancement et connexion"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:486
+msgid "Par le launcher officiel"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:486
+msgid "Directement par Halcyon (compte Microsoft)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:490
+msgid "Le mode direct demande un identifiant d'application Azure à votre nom, autorisé par Mojang (aka.ms/mce-reviewappid). Sans lui, le launcher officiel se charge de la connexion."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:491
+msgid "Identifiant d'application Azure (client)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:498
+#, placeholders
+msgid "Mémoire (Mo), {} Mo installés"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:501
+msgid "Minimum"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:502
+msgid "Maximum"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:504
+msgid "4 096 Mo conviennent à la plupart des installations ; les gros modpacks demandent 6 à 8 Go. Ne dépassez pas la moitié de la mémoire de l'ordinateur."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:511
+msgid "Java"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:512
+msgid "Automatique : Java officiel de Mojang adapté à chaque version (téléchargé au besoin)."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:512
+#, placeholders
+msgid "Java choisi : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:514
+msgid "Exécutable Java (vide : automatique)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:514
+msgid "Chemin de java ou javaw"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:515
+msgid "Arguments JVM supplémentaires"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:515
+msgid "Ex. -XX:+UseG1GC"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:522
+msgid "Fenêtre du jeu"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:525
+msgid "Largeur (vide : par défaut)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:526
+msgid "Hauteur"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:539
+msgid "CurseForge et stockage"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:540
+msgid "Clé d'API CurseForge (facultative)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:540
+msgid "console.curseforge.com › clé d'API. Sans elle, mods et modpacks viennent de Modrinth."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:541
+#, placeholders
+msgid "Dossier de Minecraft dans Halcyon : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:546
+msgid "Le .minecraft du launcher officiel n'est jamais modifié, sauf l'ajout des profils Halcyon si vous l'autorisez (mode launcher officiel)."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:563
+msgid "Java Edition"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:568
+msgid "Versions"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:568
+msgid "Modpacks"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/minecraft.slint:568
+msgid "Loaders"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:143
+#, placeholders
+msgid " · {v} h {v2} min de jeu"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:182
+msgid "Liste des versions indisponible hors ligne (jamais téléchargée)."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:202
+msgid "Release"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:203
+msgid "Snapshot"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:204
+msgid "Bêta"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:205
+msgid "Alpha"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:208
+#, placeholders
+msgctxt "date"
+msgid "{day}/{month}/{year}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:212
+#, placeholders
+msgid "Dernière version : {release} · dernier snapshot : {snapshot} · {n} version publiée par Mojang"
+msgid_plural "Dernière version : {release} · dernier snapshot : {snapshot} · {n} versions publiées par Mojang"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:240
+msgid "Modpack"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:241
+msgid "Ajouté à la main"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:307
+msgid "Une opération Minecraft est déjà en cours"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:334
+msgid "En attente dans la file des téléchargements…"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:340
+msgid "erreur interne"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:347
+#, placeholders
+msgid "{title} : terminé"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:352
+msgid "Opération annulée."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:383
+#, placeholders
+msgid "Réparation de Minecraft {id}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:383
+#, placeholders
+msgid "Installation de Minecraft {id}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:390
+#, placeholders
+msgid "{name} est prête : onglet Jouer."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:398
+#, placeholders
+msgid "Vérification de {id}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:402
+#, placeholders
+msgid "{id} : tous les fichiers sont présents et intacts."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:404
+#, placeholders
+msgid "{id} : {n} fichier manquant ou endommagé. « Réparer » le télécharge à nouveau."
+msgid_plural "{id} : {n} fichiers manquants ou endommagés. « Réparer » les télécharge à nouveau."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:414
+#, placeholders
+msgid "Utilisée par : {join}. Supprimez d'abord ces installations."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:418
+#, placeholders
+msgid "Supprimer Minecraft {id} ?"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:419
+msgid "Les fichiers de cette version sont supprimés (bibliothèques et assets partagés conservés). Vos mondes restent dans leur installation."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:424
+#, placeholders
+msgid "Minecraft {id} supprimée"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:439
+#, placeholders
+msgid "Recherche des versions de {name} pour Minecraft {mc}…"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:442
+msgid "Hors ligne : la liste des versions des loaders est indisponible."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:452
+#, placeholders
+msgid "{version} (stable)"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:455
+#, placeholders
+msgid "{name} ne propose pas de version pour Minecraft {mc}."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:455
+#, placeholders
+msgid "{n} version de {name} compatible avec Minecraft {mc}."
+msgid_plural "{n} versions de {name} compatibles avec Minecraft {mc}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:475
+#, placeholders
+msgid "Installation de {name} {lv} pour Minecraft {mc}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:482
+#, placeholders
+msgid "{name} est prête. Ajoutez des mods dans l'onglet Mods."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:508 crates/halcyon-app/src/ctl_minecraft.rs:511
+msgid "Launcher officiel introuvable : installez-le (minecraft.net) ou passez en mode direct (Paramètres)."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:514
+msgid "Autorisez d'abord Halcyon à ajouter ses installations au launcher officiel (encadré Compte)."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:518
+#, placeholders
+msgid "Préparation de {name}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:523
+#, placeholders
+msgid "launcher officiel non lancé : {e}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:529
+#, placeholders
+msgid "Launcher officiel ouvert : choisissez le profil « Halcyon · {name} » (sélectionné en dernier) puis Jouer."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:538
+msgid "Connectez votre compte Microsoft (encadré Compte) avant de jouer."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:543
+msgid "Renouvellement de la session Microsoft"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:545
+msgid "session expirée : reconnectez-vous"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:556
+msgid "Natives et assets"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:564
+#, placeholders
+msgid "Java n'a pas pu démarrer : {e}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:569
+#, placeholders
+msgid "En jeu (processus {pid})"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:587
+#, placeholders
+msgid "Partie terminée ({v} min)"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:589
+#, placeholders
+msgid "Minecraft s'est arrêté au démarrage. Fin du journal :\n{tail}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:621
+msgid "Son dossier (mods, réglages) est supprimé. Les versions téléchargées restent disponibles."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:623
+#, placeholders
+msgid "Son dossier est supprimé, y compris {n} monde : {join}. Cette suppression est définitive."
+msgid_plural "Son dossier est supprimé, y compris {n} mondes : {join}. Cette suppression est définitive."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:625
+#, placeholders
+msgid "Supprimer « {name} » ?"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:633
+#, placeholders
+msgid "{name} supprimée"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:699
+#, placeholders
+msgid "Connecté : {name}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:712
+msgid "Compte déconnecté de Halcyon"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:725
+msgid "Installation vanilla : choisissez une installation avec mod loader (Fabric, Quilt, Forge, NeoForge)."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:732
+#, placeholders
+msgid "Recherche pour Minecraft {m}…"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:749
+#, placeholders
+msgid "{n} résultat : rien de compatible"
+msgid_plural "{n} résultats : rien de compatible"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:792
+#, placeholders
+msgid "Installation de {title}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:796
+#, placeholders
+msgid "{title} n'a pas de version pour Minecraft {mc} avec {name}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:801
+#, placeholders
+msgid "{title} installé, avec {n} dépendance."
+msgid_plural "{title} installé, avec {n} dépendances."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:801
+#, placeholders
+msgid "{title} installé."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:818
+#, placeholders
+msgid "Supprimer {file} ?"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:818
+msgid "Le fichier du mod est supprimé de cette installation."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:848
+#, placeholders
+msgid "Mise à jour de {n} mod"
+msgid_plural "Mise à jour de {n} mods"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:857
+msgid "Mods mis à jour."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:868
+#, placeholders
+msgid "Installation du modpack {title}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:871
+msgid "modpack sans version publiée"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:872
+msgid "l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:874
+msgid "nom de fichier refusé"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:877
+#, placeholders
+msgid "Téléchargement de {filename}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:887
+msgid "Import d'un modpack"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:894
+msgid "Mise à jour automatique disponible pour les modpacks Modrinth ; réimportez la nouvelle version des autres modpacks"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:896
+#, placeholders
+msgid "Mise à jour de {name}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:899
+msgid "aucune version publiée"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:901
+msgid "Le modpack est déjà à jour."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:913
+#, placeholders
+msgid "Export de {name}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:915
+#, placeholders
+msgid "Exporté : {out} ({n} mod référencé sur Modrinth, le reste inclus dans l'archive)."
+msgid_plural "Exporté : {out} ({n} mods référencés sur Modrinth, le reste inclus dans l'archive)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:931
+msgid "Indiquez une valeur en Mo (ex. 1024)"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:935
+msgid "Indiquez une valeur en Mo (ex. 4096)"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:939
+msgid "Ce fichier n'est pas un exécutable Java valide"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1140
+msgid "Bac à sable"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1140
+msgid "Survie"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1142
+msgid "Aucune installation Halcyon pour l'instant : Jouer ouvre l'onglet Minecraft."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1143
+#, placeholders
+msgid "{n} installation dans l'onglet Minecraft : {v}."
+msgid_plural "{n} installations dans l'onglet Minecraft : {v}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1186
+msgid "Installez d'abord une version (Versions), un loader (Loaders) ou un modpack (Modpacks) dans l'onglet Minecraft."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1194
+msgid "Minecraft est déjà en cours"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1206
+#, placeholders
+msgid "{v} M"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1207
+#, placeholders
+msgid "{v} k"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1238
+#, placeholders
+msgid "{files} / {n} fichier · {done} / {total}"
+msgid_plural "{files} / {n} fichiers · {done} / {total}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1251
+#, placeholders
+msgid "Java choisi introuvable : {p}"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1253
+#, placeholders
+msgid "Minecraft {id} demande Java {java_major} ; le Java choisi est la version {major} (laissez le champ vide pour le Java officiel)"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1294
+#, placeholders
+msgid "Modpack {name} installé ({n} mod) : onglet Jouer."
+msgid_plural "Modpack {name} installé ({n} mods) : onglet Jouer."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_minecraft.rs:1296
+#, placeholders
+msgid "Modpack {name} installé ; {n} fichier que son auteur n'autorise pas à télécharger hors de CurseForge est à déposer dans le dossier mods : {join}"
+msgid_plural "Modpack {name} installé ; {n} fichiers que leurs auteurs n'autorisent pas à télécharger hors de CurseForge sont à déposer dans le dossier mods : {join}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-installer/src/payload.rs:185 crates/halcyon-minecraft/src/modpack.rs:103 crates/halcyon-minecraft/src/modpack.rs:280
+#, placeholders
+msgid "archive illisible : {e}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:57
+msgid "ce compte Microsoft n'a pas de profil Xbox : créez-le sur xbox.com, puis réessayez"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:60
+msgid "Xbox Live n'est pas disponible dans le pays de ce compte"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:63
+msgid "ce compte doit d'abord confirmer l'âge de son titulaire sur xbox.com"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:66
+msgid "compte d'un mineur : il doit être ajouté à une famille Microsoft (account.microsoft.com/family)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:69
+msgid "Mojang n'a pas encore autorisé l'identifiant d'application de Halcyon (aka.ms/mce-reviewappid)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:72
+msgid "l'application Azure doit autoriser les « flux de clients publics » (Authentification)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:75
+msgid "identifiant d'application Azure inconnu : vérifiez-le dans les paramètres Minecraft"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:88
+msgid "aucun identifiant d'application Azure configuré (Minecraft › Paramètres)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:98 crates/halcyon-minecraft/src/auth.rs:100
+msgid "réponse de Microsoft incomplète"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:118 crates/halcyon-minecraft/src/auth.rs:129
+msgid "le code a expiré : recommencez la connexion"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:128
+msgid "connexion refusée sur le site de Microsoft"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:152
+msgid "Xbox Live : réponse sans jeton"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:158
+msgid "XSTS : réponse sans jeton"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:159
+msgid "XSTS : identifiant utilisateur absent"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:162
+msgid "Minecraft : réponse sans jeton"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:167
+msgid "ce compte ne possède pas Minecraft Java Edition (achat ou Xbox Game Pass PC requis)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:171
+msgid "ce compte n'a pas encore de profil Minecraft : lancez une fois le launcher officiel pour choisir un pseudo"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:186
+msgid "Microsoft : jeton de renouvellement absent"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:187
+msgid "Microsoft : jeton d'accès absent"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/auth.rs:246
+msgid "compte sans identifiant"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/http.rs:38
+msgid "annulé"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/http.rs:86
+#, placeholders
+msgid "{url} : JSON invalide ({e})"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/http.rs:145
+#, placeholders
+msgid "adresse non sécurisée refusée : {url}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/http.rs:220
+#, placeholders
+msgid "{dest} : empreinte incorrecte (fichier corrompu en route)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:177
+msgid "hors ligne et liste des versions jamais téléchargée"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:179
+#, placeholders
+msgid "liste des versions illisible : {e}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:202
+#, placeholders
+msgid "version {id} absente : liste des versions nécessaire"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:203
+#, placeholders
+msgid "version inconnue : {id}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:222
+msgid "version vide"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:286
+#, placeholders
+msgid "Lecture de la version {id}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:289
+msgid "Préparation de la liste des fichiers"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:291
+#, placeholders
+msgid "Téléchargement des fichiers ({jobs})"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:410 crates/halcyon-minecraft/src/loaders.rs:174
+#, placeholders
+msgid "identifiant refusé : {id}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/install.rs:416
+#, placeholders
+msgid "{other} dépend de {id} : supprimez-le d'abord"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:124 crates/halcyon-minecraft/src/java.rs:129
+msgid "système"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:170
+#, placeholders
+msgid "composant Java refusé : {component}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:179
+#, placeholders
+msgid "Mojang ne publie pas « {component} » pour {platform_key}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:180
+msgid "manifeste Java incomplet"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:182
+msgid "manifeste Java vide"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:189
+#, placeholders
+msgid "chemin refusé dans le runtime Java : {rel}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:196
+#, placeholders
+msgid "{rel} sans téléchargement"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/java.rs:228
+#, placeholders
+msgid "runtime {component} installé sans exécutable java"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:163
+msgid "version refusée"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:168
+#, placeholders
+msgid "Profil {name} {lv}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:172
+msgid "profil sans identifiant"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:182
+msgid "Java est nécessaire pour l'installateur officiel"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:189
+#, placeholders
+msgid "Téléchargement de l'installateur officiel {name}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:200
+#, placeholders
+msgid "Installateur officiel {name} (cela peut prendre quelques minutes)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:216
+#, placeholders
+msgid "l'installateur {name} a échoué :\n{v}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:226
+#, placeholders
+msgid "installateur {name} terminé, mais aucune version {expected} créée"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/loaders.rs:240
+#, placeholders
+msgid "Java introuvable ({java}) : {e}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/meta.rs:390
+msgid "fichier de version sans identifiant"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/meta.rs:392
+#, placeholders
+msgid "{id} : bibliothèques illisibles ({e})"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:55
+msgid "ce modpack n'est pas destiné à Minecraft"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:57
+msgid "modpack sans dépendances"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:58
+msgid "modpack sans version de Minecraft"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:73
+#, placeholders
+msgid "chemin refusé dans le modpack : {path}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:78
+#, placeholders
+msgid "{path} : aucune adresse de téléchargement autorisée"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:106
+msgid "ce fichier n'est pas un modpack Modrinth (.mrpack)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:109
+#, placeholders
+msgid "index illisible : {e}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:125
+#, placeholders
+msgid "chemin refusé dans le modpack : {rel}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:160
+#, placeholders
+msgid "Téléchargement des fichiers du modpack ({jobs})"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:162
+msgid "Fichiers de configuration du modpack"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:283
+msgid "ce fichier n'est ni un .mrpack ni un modpack CurseForge"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:287
+msgid "manifeste sans version de Minecraft"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/modpack.rs:317 crates/halcyon-minecraft/src/mods.rs:112
+msgid "CurseForge demande une clé d'API (Minecraft › Paramètres)"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:223
+msgid "version Modrinth illisible"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:227
+msgid "fichier CurseForge illisible"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:247
+#, placeholders
+msgid "{name} est incompatible avec {name2}, déjà installé"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:253
+#, placeholders
+msgid "l'auteur de {name} n'autorise pas le téléchargement hors de CurseForge : téléchargez-le depuis sa page puis déposez-le dans le dossier mods"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:256
+#, placeholders
+msgid "nom de fichier refusé : {filename}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:258
+#, placeholders
+msgid "Téléchargement de {name}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:305
+#, placeholders
+msgid "{name} demande une dépendance sans version compatible avec Minecraft {mc} / {name2} ({project_id})"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:446 crates/halcyon-minecraft/src/mods.rs:460
+msgid "nom refusé"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/official.rs:144
+#, placeholders
+msgid "launcher_profiles.json illisible : {e}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/profiles.rs:171
+msgid "identifiant refusé"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/profiles.rs:175
+msgid "ce dossier n'est pas une installation Halcyon"
+msgstr ""

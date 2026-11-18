@@ -7,7 +7,12 @@ license.workspace = true
 description = "Adaptateurs de plateformes (Steam, Epic, dossiers) et lancement des jeux"
 
 [dependencies]
+halcyon-i18n.workspace = true
+halcyon-update.workspace = true
 halcyon-core.workspace = true
+halcyon-storage.workspace = true
+# Vérification de la signature des mises à jour (aucune dépendance, sans génération de clés).
+ed25519-compact = { version = "2", default-features = false }
 serde.workspace = true
 serde_json.workspace = true
 base64.workspace = true
@@ -17,7 +22,7 @@ log.workspace = true
 ureq.workspace = true
 zip.workspace = true
 sha2.workspace = true
-sysinfo = { version = "0.40", default-features = false, features = ["system", "disk"] }
+sysinfo = { version = "0.40", default-features = false, features = ["system", "disk", "gpu"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
@@ -27,3 +32,5 @@ winreg = "0.56"
 
 [dev-dependencies]
 tempfile.workspace = true
+# Génération de clés : tests et outil `release_sign` uniquement.
+ed25519-compact = { version = "2", default-features = false, features = ["random"] }

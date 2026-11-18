@@ -11,11 +11,11 @@ pub enum TrayEvent {
 }
 
 const MENU: [(&str, TrayEvent); 5] = [
-    ("Afficher Halcyon", TrayEvent::Show),
-    ("Lancement rapide", TrayEvent::QuickLaunch),
-    ("Mode compact", TrayEvent::Mini),
+    (tr_noop!("Afficher Halcyon"), TrayEvent::Show),
+    (tr_noop!("Lancement rapide"), TrayEvent::QuickLaunch),
+    (tr_noop!("Mode compact"), TrayEvent::Mini),
     ("Big Picture", TrayEvent::BigPicture),
-    ("Quitter Halcyon", TrayEvent::Quit),
+    (tr_noop!("Quitter Halcyon"), TrayEvent::Quit),
 ];
 
 /// Pixels RVBA de l'icône (32 × 32).
@@ -71,7 +71,7 @@ impl ksni::Tray for LinuxTray {
             }
             let ev = *ev;
             items.push(
-                StandardItem { label: (*label).into(), activate: Box::new(move |t: &mut Self| (t.send)(ev)), ..Default::default() }
+                StandardItem { label: halcyon_i18n::t(label), activate: Box::new(move |t: &mut Self| (t.send)(ev)), ..Default::default() }
                     .into(),
             );
         }
@@ -95,7 +95,7 @@ pub fn create(send: impl Fn(TrayEvent) + Send + 'static) -> Result<Tray, String>
             })
             .unwrap_or_default();
         let tray = LinuxTray { send: Box::new(send), icon };
-        let handle = tray.spawn().map_err(|e| format!("zone de notification indisponible : {e}"))?;
+        let handle = tray.spawn().map_err(|e| tr!("zone de notification indisponible : {e}", e = e))?;
         Ok(Tray { _handle: handle })
     }
     #[cfg(windows)]
@@ -107,7 +107,7 @@ pub fn create(send: impl Fn(TrayEvent) + Send + 'static) -> Result<Tray, String>
             if i == MENU.len() - 1 {
                 let _ = menu.append(&PredefinedMenuItem::separator());
             }
-            let item = MenuItem::new(*label, true, None);
+            let item = MenuItem::new(halcyon_i18n::t(label), true, None);
             ids.push((item.id().clone(), *ev));
             menu.append(&item).map_err(|e| e.to_string())?;
         }
@@ -123,7 +123,7 @@ pub fn create(send: impl Fn(TrayEvent) + Send + 'static) -> Result<Tray, String>
     #[cfg(not(any(target_os = "linux", windows)))]
     {
         let _ = send;
-        Err("zone de notification non prise en charge sur ce système".into())
+        Err(tr!("zone de notification non prise en charge sur ce système").into())
     }
 }
 

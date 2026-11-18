@@ -1,0 +1,4 @@
+#!/bin/sh
+# Point d'entrée de l'AppImage : lance Halcyon avec les arguments reçus.
+HERE="$(dirname "$(readlink -f "$0")")"
+exec "$HERE/usr/bin/halcyon" "$@"

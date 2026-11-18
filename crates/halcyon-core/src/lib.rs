@@ -4,8 +4,12 @@
 //! et testable unitairement. Les intégrations (Steam, Epic…) et la persistance
 //! dépendent de lui, jamais l'inverse.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod achievements;
 pub mod desktop;
+pub mod export;
 pub mod launch_args;
 pub mod model;
 pub mod profiles;
@@ -15,6 +19,7 @@ pub mod rules;
 pub mod scanner;
 pub mod search;
 pub mod stats;
+pub mod transfer;
 pub mod util;
 
 pub use model::*;

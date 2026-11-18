@@ -11,14 +11,14 @@ component FolderField inherits HorizontalLayout {
     spacing: 8px;
     TextField { text <=> root.value; mono: true; placeholder: root.placeholder; accepted(t) => { root.submit(t); } }
     if AppUi.can-browse: SecondaryButton {
-        text: "Parcourir…";
-        h: 38px;
+        text: @tr("Parcourir…");
+        h: 36px;
         clicked => {
             let p = AppUi.browse-folder();
             if (p != "") { root.value = p; }
         }
     }
-    SecondaryButton { text: root.button; h: 38px; clicked => { root.submit(root.value); } }
+    SecondaryButton { text: root.button; h: 36px; clicked => { root.submit(root.value); } }
 }
 
 export component SavesPage inherits Rectangle {
@@ -27,16 +27,16 @@ export component SavesPage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 32px;
+            padding-top: 24px;
             spacing: 20px;
             alignment: start;
 
             PageHeader {
-                title: "Sauvegardes";
-                subtitle: "Copies versionnées de vos parties, avant et après chaque session, sur ce PC, un autre disque ou un NAS.";
+                title: @tr("Sauvegardes");
+                subtitle: @tr("Copies versionnées de vos parties, avant et après chaque session, sur ce PC, un autre disque ou un NAS.");
                 SecondaryButton {
                     y: 6px;
-                    text: SavesUi.busy ? "Analyse…" : "Détecter dans la bibliothèque";
+                    text: SavesUi.busy ? @tr("Analyse…") : @tr("Détecter dans la bibliothèque");
                     icon: Icons.search;
                     has-icon: true;
                     enabled: !SavesUi.busy;
@@ -46,60 +46,60 @@ export component SavesPage inherits Rectangle {
 
             if SavesUi.root-fallback: Notice {
                 warning: true;
-                text: "Le dépôt choisi est inaccessible (NAS éteint, disque débranché ?). Les nouvelles sauvegardes sont conservées sur ce PC et y seront recopiées automatiquement à son retour.";
+                text: @tr("Le dépôt choisi est inaccessible (NAS éteint, disque débranché ?). Les nouvelles sauvegardes sont conservées sur ce PC et y seront recopiées automatiquement à son retour.");
             }
 
             Panel {
                 VerticalLayout {
                     padding: 22px;
                     spacing: 16px;
-                    Text { text: "Dépôt principal"; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
-                    Text { text: "Actuellement : " + SavesUi.effective-root; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    Text { text: @tr("Dépôt principal"); color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                    Text { text: @tr("Actuellement : {}", SavesUi.effective-root); color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                     FolderField {
                         value: SavesUi.root;
-                        placeholder: "Dossier local, autre disque ou partage réseau (vide : données de Halcyon)";
-                        button: "Utiliser";
+                        placeholder: @tr("Dossier local, autre disque ou partage réseau (vide : données de Halcyon)");
+                        button: @tr("Utiliser");
                         submit(p) => { SavesUi.set-root(p); }
                     }
-                    Text { text: "Plusieurs PC peuvent partager le même dépôt (dossier réseau ou synchronisé) : Halcyon détecte les versions plus récentes et les conflits."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                    Text { text: @tr("Plusieurs PC peuvent partager le même dépôt (dossier réseau ou synchronisé) : Halcyon détecte les versions plus récentes et les conflits."); color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                     Rectangle { height: 1px; background: Theme.border; }
-                    Text { text: "Copies supplémentaires"; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                    Text { text: @tr("Copies supplémentaires"); color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
                     for m[i] in SavesUi.mirrors: HorizontalLayout {
                         height: 34px;
                         spacing: 8px;
                         Text { text: m; color: Theme.text-muted; font-size: Theme.t-caption; font-family: "monospace"; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                        IconButton { size: 32px; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Retirer (les copies existantes sont conservées)"; clicked => { SavesUi.remove-mirror(i); } }
+                        IconButton { size: 32px; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Retirer (les copies existantes sont conservées)"); clicked => { SavesUi.remove-mirror(i); } }
                     }
-                    FolderField { placeholder: "Autre disque où recopier chaque sauvegarde"; button: "Ajouter"; submit(p) => { SavesUi.add-mirror(p); } }
+                    FolderField { placeholder: @tr("Autre disque où recopier chaque sauvegarde"); button: @tr("Ajouter"); submit(p) => { SavesUi.add-mirror(p); } }
                     Rectangle { height: 1px; background: Theme.border; }
                     HorizontalLayout {
                         spacing: 22px;
                         VerticalLayout {
                             spacing: 6px;
-                            Text { text: "Sauvegardes automatiques conservées par jeu (0 = toutes)"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                            Text { text: @tr("Sauvegardes automatiques conservées par jeu (0 = toutes)"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
                             keep := TextField { text: SavesUi.keep; mono: true; accepted(t) => { SavesUi.set-keep(t); } }
                         }
                         VerticalLayout {
                             spacing: 6px;
-                            Text { text: "Nom de ce PC"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                            Text { text: @tr("Nom de ce PC"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
                             machine := TextField { text: SavesUi.machine; accepted(t) => { SavesUi.set-machine(t); } }
                         }
                         VerticalLayout {
                             alignment: end;
-                            SecondaryButton { text: "Enregistrer"; h: 38px; clicked => { SavesUi.set-keep(keep.text); SavesUi.set-machine(machine.text); } }
+                            SecondaryButton { text: @tr("Enregistrer"); h: 36px; clicked => { SavesUi.set-keep(keep.text); SavesUi.set-machine(machine.text); } }
                         }
                     }
-                    Text { text: "Les sauvegardes manuelles ne sont jamais supprimées automatiquement."; color: Theme.text-dim; font-size: Theme.t-caption; }
+                    Text { text: @tr("Les sauvegardes manuelles ne sont jamais supprimées automatiquement."); color: Theme.text-dim; font-size: Theme.t-caption; }
                 }
             }
 
             HorizontalLayout {
-                SectionTitle { text: "Jeux suivis"; horizontal-stretch: 1; }
+                SectionTitle { text: @tr("Jeux suivis"); horizontal-stretch: 1; }
                 Text { text: SavesUi.summary; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
-                SecondaryButton { text: "Synchroniser les dépôts"; icon: Icons.refresh; has-icon: true; h: 34px; clicked => { SavesUi.sync(); } }
+                SecondaryButton { text: @tr("Synchroniser les dépôts"); icon: Icons.refresh; has-icon: true; h: 34px; clicked => { SavesUi.sync(); } }
             }
             if SavesUi.games.length == 0: Text {
-                text: "Aucun jeu n'a encore d'emplacement de sauvegarde. Lancez la détection, ou ouvrez une fiche de jeu › Sauvegardes.";
+                text: @tr("Aucun jeu n'a encore d'emplacement de sauvegarde. Lancez la détection, ou ouvrez une fiche de jeu › Sauvegardes.");
                 color: Theme.text-dim;
                 font-size: Theme.t-small;
                 wrap: word-wrap;
@@ -107,7 +107,8 @@ export component SavesPage inherits Rectangle {
             for g in SavesUi.games: Rectangle {
                 height: 64px;
                 border-radius: Theme.radius;
-                background: ta.has-hover ? Theme.surface-hover : Theme.surface;
+                background: ta.has-hover ? Theme.surface : transparent;
+                Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
                 ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(g.id); } }
                 HorizontalLayout {
                     padding: 8px;
@@ -123,7 +124,7 @@ export component SavesPage inherits Rectangle {
                         initials: g.card.initials;
                         title: g.title;
                         show-title: false;
-                        corner: 4px;
+                        corner: 2px;
                     }
                     VerticalLayout {
                         alignment: center;
@@ -132,10 +133,10 @@ export component SavesPage inherits Rectangle {
                         HorizontalLayout {
                             spacing: 8px;
                             Text { text: g.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
-                            if g.other-machine: Badge { text: "dernière sauvegarde : autre PC"; tint: Theme.warm; }
+                            if g.other-machine: Badge { text: @tr("dernière sauvegarde : autre PC"); tint: Theme.warm; }
                             Rectangle { horizontal-stretch: 1; }
                         }
-                        Text { text: g.count + " sauvegarde(s) · " + g.size + " · dernière : " + g.last; color: Theme.text-dim; font-size: Theme.t-caption; }
+                        Text { text: @tr("{n} sauvegarde, {}, dernière : {}" | "{n} sauvegardes, {}, dernière : {}" % g.count, g.size, g.last); color: Theme.text-dim; font-size: Theme.t-caption; }
                     }
                 }
             }

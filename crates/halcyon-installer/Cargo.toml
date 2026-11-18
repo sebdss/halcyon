@@ -17,6 +17,7 @@ path = "src/main.rs"
 
 [dependencies]
 halcyon-core.workspace = true
+halcyon-i18n.workspace = true
 slint.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -30,6 +31,7 @@ sysinfo = { version = "0.40", default-features = false, features = ["disk", "sys
 winreg = "0.56"
 
 [build-dependencies]
+halcyon-i18n.workspace = true
 slint-build.workspace = true
 winresource = "0.1"
 

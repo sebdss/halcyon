@@ -7,7 +7,8 @@ VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
 BIN=target/release/halcyon
 OUT=dist/$VERSION
 SETUP=target/release/halcyon-setup
-[ -x "$BIN" ] && [ -x "$SETUP" ] || { echo "Compilez d'abord : cargo build --release -p halcyon-app -p halcyon-installer" >&2; exit 1; }
+UPDATER=target/release/halcyon-updater
+[ -x "$BIN" ] && [ -x "$SETUP" ] && [ -x "$UPDATER" ] || { echo "Compilez d'abord : cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update" >&2; exit 1; }
 mkdir -p "$OUT"
 # glibc de la machine de compilation : version minimale requise par les binaires.
 GLIBC=$(getconf GNU_LIBC_VERSION | cut -d' ' -f2)
@@ -53,8 +54,11 @@ tar -C "$TMP" -czf "$OUT/halcyon-$VERSION-linux-x86_64.tar.gz" "halcyon-$VERSION
 S="$TMP/setup"
 mkdir -p "$S"
 install -m 755 "$D/usr/bin/halcyon" "$S/halcyon"
+# Updater HUS : la première mise à jour automatique fait passer cette installation à l'AppImage.
+install -m 755 "$UPDATER" "$S/halcyon-updater"
+strip "$S/halcyon-updater" 2>/dev/null || true
 install -m 644 packaging/linux/halcyon.png packaging/linux/halcyon-mime.xml "$S/"
-install -m 644 README.md CHANGELOG.md docs/GUIDE.md docs/PLUGINS.md docs/SON.md docs/INSTALLATEUR.md "$S/"
+install -m 644 README.md CHANGELOG.md docs/GUIDE.md docs/PLUGINS.md docs/SON.md docs/INSTALLATEUR.md docs/HUS.md "$S/"
 install -m 755 "$SETUP" "$TMP/stub"
 strip "$TMP/stub" 2>/dev/null || true
 "$TMP/stub" --pack "$S" "$VERSION" "$OUT/halcyon-$VERSION-linux-x86_64-setup" --min-glibc "$GLIBC"

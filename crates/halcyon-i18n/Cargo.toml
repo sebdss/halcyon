@@ -1,0 +1,10 @@
+[package]
+name = "halcyon-i18n"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Internationalisation de Halcyon : langues, catalogues .po, pluriels, formats localisés"
+
+[dependencies]
+sys-locale = "0.3"

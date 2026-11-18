@@ -49,27 +49,28 @@ pub enum ParamKind {
 }
 
 /// Catalogue des règles proposées dans l'éditeur, dans l'ordre d'affichage.
+/// Libellés en texte source : les traduire à l'affichage avec `halcyon_i18n::t`.
 pub const KINDS: &[(&str, ParamKind)] = &[
-    ("Jamais lancé", ParamKind::None),
-    ("Joué ces N derniers jours", ParamKind::Number),
-    ("Pas joué depuis N jours", ParamKind::Number),
-    ("Installé ces N derniers jours", ParamKind::Number),
-    ("Ajouté ces N derniers jours", ParamKind::Number),
-    ("Installé", ParamKind::None),
-    ("Favori", ParamKind::None),
-    ("Statut", ParamKind::Status),
-    ("Succès manquants", ParamKind::None),
-    ("Tous les succès obtenus", ParamKind::None),
-    ("Progression des succès ≥ N %", ParamKind::Number),
-    ("Étiquette", ParamKind::Text),
-    ("Genre", ParamKind::Text),
-    ("Source", ParamKind::Source),
-    ("Plateforme émulée", ParamKind::Text),
-    ("Sur le disque / dossier", ParamKind::Text),
-    ("Mise à jour requise", ParamKind::None),
-    ("Temps de jeu ≥ N heures", ParamKind::Number),
-    ("Temps de jeu < N heures", ParamKind::Number),
-    ("Recherche avancée", ParamKind::Text),
+    (tr_noop!("Jamais lancé"), ParamKind::None),
+    (tr_noop!("Joué ces N derniers jours"), ParamKind::Number),
+    (tr_noop!("Pas joué depuis N jours"), ParamKind::Number),
+    (tr_noop!("Installé ces N derniers jours"), ParamKind::Number),
+    (tr_noop!("Ajouté ces N derniers jours"), ParamKind::Number),
+    (tr_noop!("Installé"), ParamKind::None),
+    (tr_noop!("Favori"), ParamKind::None),
+    (tr_noop!("Statut"), ParamKind::Status),
+    (tr_noop!("Succès manquants"), ParamKind::None),
+    (tr_noop!("Tous les succès obtenus"), ParamKind::None),
+    (tr_noop!("Progression des succès ≥ N %"), ParamKind::Number),
+    (tr_noop!("Étiquette"), ParamKind::Text),
+    (tr_noop!("Genre"), ParamKind::Text),
+    (tr_noop!("Source"), ParamKind::Source),
+    (tr_noop!("Plateforme émulée"), ParamKind::Text),
+    (tr_noop!("Sur le disque / dossier"), ParamKind::Text),
+    (tr_noop!("Mise à jour requise"), ParamKind::None),
+    (tr_noop!("Temps de jeu ≥ N heures"), ParamKind::Number),
+    (tr_noop!("Temps de jeu < N heures"), ParamKind::Number),
+    (tr_noop!("Recherche avancée"), ParamKind::Text),
 ];
 
 impl Rule {
@@ -143,27 +144,27 @@ impl Rule {
     /// Description lisible (« Joué ces 7 derniers jours »).
     pub fn describe(&self) -> String {
         match self {
-            Rule::Not { rule } => format!("Sauf : {}", rule.describe().to_lowercase()),
-            Rule::NeverPlayed => "Jamais lancé".into(),
-            Rule::PlayedWithinDays { days } => format!("Joué ces {days} derniers jours"),
-            Rule::NotPlayedForDays { days } => format!("Pas joué depuis {days} jours"),
-            Rule::InstalledWithinDays { days } => format!("Installé ces {days} derniers jours"),
-            Rule::AddedWithinDays { days } => format!("Ajouté ces {days} derniers jours"),
-            Rule::Installed => "Installé".into(),
-            Rule::Favorite => "Favori".into(),
-            Rule::Status { status } => format!("Statut : {}", status.label()),
-            Rule::AchievementsMissing => "Succès manquants".into(),
-            Rule::AchievementsComplete => "Tous les succès obtenus".into(),
-            Rule::AchievementPercentAtLeast { percent } => format!("Progression des succès ≥ {percent} %"),
-            Rule::Tag { tag } => format!("Étiquette « {tag} »"),
-            Rule::Genre { genre } => format!("Genre « {genre} »"),
-            Rule::Source { source } => format!("Source : {}", source.label()),
-            Rule::Platform { platform } => format!("Plateforme « {platform} »"),
-            Rule::Drive { prefix } => format!("Sur {prefix}"),
-            Rule::NeedsUpdate => "Mise à jour requise".into(),
-            Rule::PlaytimeAtLeastHours { hours } => format!("Temps de jeu ≥ {hours} h"),
-            Rule::PlaytimeBelowHours { hours } => format!("Temps de jeu < {hours} h"),
-            Rule::Search { query } => format!("Recherche « {query} »"),
+            Rule::Not { rule } => tr!("Sauf : {v}", v = halcyon_i18n::lower_first(&rule.describe())),
+            Rule::NeverPlayed => tr!("Jamais lancé").into(),
+            Rule::PlayedWithinDays { days } => tr!("Joué ces {days} derniers jours", days = days),
+            Rule::NotPlayedForDays { days } => trn!(*days, "Pas joué depuis {n} jour", "Pas joué depuis {n} jours"),
+            Rule::InstalledWithinDays { days } => tr!("Installé ces {days} derniers jours", days = days),
+            Rule::AddedWithinDays { days } => tr!("Ajouté ces {days} derniers jours", days = days),
+            Rule::Installed => tr!("Installé").into(),
+            Rule::Favorite => tr!("Favori").into(),
+            Rule::Status { status } => tr!("Statut : {label}", label = status.label()),
+            Rule::AchievementsMissing => tr!("Succès manquants").into(),
+            Rule::AchievementsComplete => tr!("Tous les succès obtenus").into(),
+            Rule::AchievementPercentAtLeast { percent } => tr!("Progression des succès ≥ {percent} %", percent = percent),
+            Rule::Tag { tag } => tr!("Étiquette « {tag} »", tag = tag),
+            Rule::Genre { genre } => tr!("Genre « {genre} »", genre = genre),
+            Rule::Source { source } => tr!("Source : {label}", label = source.label()),
+            Rule::Platform { platform } => tr!("Plateforme « {platform} »", platform = platform),
+            Rule::Drive { prefix } => tr!("Sur {prefix}", prefix = prefix),
+            Rule::NeedsUpdate => tr!("Mise à jour requise").into(),
+            Rule::PlaytimeAtLeastHours { hours } => tr!("Temps de jeu ≥ {hours} h", hours = hours),
+            Rule::PlaytimeBelowHours { hours } => tr!("Temps de jeu < {hours} h", hours = hours),
+            Rule::Search { query } => tr!("Recherche « {query} »", query = query),
         }
     }
 
@@ -227,22 +228,16 @@ impl RuleSet {
     }
 
     pub fn describe(&self) -> String {
-        let sep = if self.match_all { " et " } else { " ou " };
-        let mut out = String::new();
-        for (i, r) in self.rules.iter().enumerate() {
-            let d = r.describe();
-            if i == 0 {
-                out.push_str(&d);
+        let mut parts = self.rules.iter().map(Rule::describe);
+        let Some(first) = parts.next() else { return String::new() };
+        parts.fold(first, |acc, d| {
+            let d = halcyon_i18n::lower_first(&d);
+            if self.match_all {
+                tr!("{a} et {b}", a = acc, b = d)
             } else {
-                out.push_str(sep);
-                let mut c = d.chars();
-                if let Some(first) = c.next() {
-                    out.extend(first.to_lowercase());
-                    out.push_str(c.as_str());
-                }
+                tr!("{a} ou {b}", a = acc, b = d)
             }
-        }
-        out
+        })
     }
 
     pub fn to_json(&self) -> String {
@@ -254,28 +249,30 @@ impl RuleSet {
     }
 }
 
-/// Collections intelligentes proposées par défaut (modifiables et supprimables).
-pub fn presets() -> Vec<(&'static str, RuleSet)> {
+/// Collections intelligentes proposées par défaut (modifiables et supprimables). Le nom est
+/// enregistré en français (texte source) et traduit à l'affichage avec `halcyon_i18n::t` :
+/// il suit la langue de l'interface tant que l'utilisateur ne le renomme pas.
+pub fn presets() -> Vec<(String, RuleSet)> {
     use Rule::*;
     vec![
-        ("Jamais lancés", RuleSet::all(vec![NeverPlayed, Installed])),
-        ("Installés récemment", RuleSet::all(vec![InstalledWithinDays { days: 14 }])),
-        ("Joués cette semaine", RuleSet::all(vec![PlayedWithinDays { days: 7 }])),
-        ("Terminés", RuleSet::all(vec![Status { status: PlayStatus::Completed }])),
+        (tr_noop!("Jamais lancés").to_string(), RuleSet::all(vec![NeverPlayed, Installed])),
+        (tr_noop!("Installés récemment").to_string(), RuleSet::all(vec![InstalledWithinDays { days: 14 }])),
+        (tr_noop!("Joués cette semaine").to_string(), RuleSet::all(vec![PlayedWithinDays { days: 7 }])),
+        (tr_noop!("Terminés").to_string(), RuleSet::all(vec![Status { status: PlayStatus::Completed }])),
         (
-            "À terminer",
+            tr_noop!("À terminer").to_string(),
             RuleSet {
                 match_all: false,
                 rules: vec![Status { status: PlayStatus::Playing }, Status { status: PlayStatus::Backlog }],
             },
         ),
         (
-            "Succès presque complets",
+            tr_noop!("Succès presque complets").to_string(),
             RuleSet::all(vec![AchievementPercentAtLeast { percent: 80 }, AchievementsMissing]),
         ),
-        ("Succès manquants", RuleSet::all(vec![AchievementsMissing])),
-        ("Multijoueur", RuleSet::all(vec![Tag { tag: "multijoueur".into() }])),
-        ("Mise à jour requise", RuleSet::all(vec![NeedsUpdate])),
+        (tr_noop!("Succès manquants").to_string(), RuleSet::all(vec![AchievementsMissing])),
+        (tr_noop!("Multijoueur").to_string(), RuleSet::all(vec![Tag { tag: "multijoueur".into() }])),
+        (tr_noop!("Mise à jour requise").to_string(), RuleSet::all(vec![NeedsUpdate])),
     ]
 }
 

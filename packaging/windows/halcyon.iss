@@ -43,7 +43,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "{#SourceExe}"; DestDir: "{app}"; DestName: "Halcyon.exe"; Flags: ignoreversion
 Source: "..\..\README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\docs\GUIDE.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\crates\halcyon-app\ui\fonts\LICENSE-Inter.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\crates\halcyon-app\ui\fonts\LICENSE-Archivo.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 ; L'AppUserModelID permet aux notifications de succès de s'afficher au nom de Halcyon.

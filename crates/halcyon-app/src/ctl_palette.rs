@@ -8,40 +8,47 @@ use slint::{ComponentHandle, ModelRc, VecModel};
 use std::rc::Rc;
 
 /// Sections de la page Paramètres : (titre, mots-clés). L'ordre est celui de la page.
-pub const SETTINGS_SECTIONS: [(&str, &str); 11] = [
-    ("Plateformes", "steam epic sources analyser dossier manifestes detection plateformes"),
-    ("Dossiers de jeux", "dossiers jeux standalone ajouter parcourir analyse"),
+pub const SETTINGS_SECTIONS: [(&str, &str); 12] = [
+    (tr_noop!("Plateformes"), trc_noop!("keywords", "steam epic sources analyser dossier manifestes detection plateformes")),
+    (tr_noop!("Dossiers de jeux"), trc_noop!("keywords", "dossiers jeux standalone ajouter parcourir analyse")),
     (
-        "Comptes et succès",
-        "comptes steam web api cle steamid retroachievements nexus mods steamgriddb visuels jaquettes succes notifications synchroniser surveiller linux wine proton umu windows runner",
+        tr_noop!("Comptes et succès"),
+        trc_noop!("keywords", "comptes steam web api cle steamid retroachievements nexus mods steamgriddb visuels jaquettes succes notifications synchroniser surveiller linux wine proton umu windows runner"),
     ),
-    ("Comportement", "demarrage analyser reduire pendant jeu big picture metadonnees en ligne visuels telecharger jaquettes"),
-    ("Connexion", "hors ligne connexion reseau internet"),
-    ("Système", "systeme demarrer session zone notification tray fermer reduire fenetre compagnon"),
-    ("Raccourcis clavier", "raccourcis clavier touches hotkey global ctrl"),
-    ("Configuration", "exporter restaurer configuration archive sauvegarde backup zip"),
-    ("Mises à jour", "mises a jour halcyon version github depot verifier telecharger"),
-    ("Stockage et diagnostic", "stockage cache miniatures donnees journaux logs integrite diagnostic verification"),
-    ("Son", "son sons audio effets sonores volume silencieux survol musique bruitage"),
+    (tr_noop!("Comportement"), trc_noop!("keywords", "demarrage analyser reduire pendant jeu big picture metadonnees en ligne visuels telecharger jaquettes")),
+    (tr_noop!("Connexion"), trc_noop!("keywords", "hors ligne connexion reseau internet")),
+    (tr_noop!("Système"), trc_noop!("keywords", "systeme demarrer session zone notification tray fermer reduire fenetre compagnon")),
+    (tr_noop!("Raccourcis clavier"), trc_noop!("keywords", "raccourcis clavier touches hotkey global ctrl")),
+    (tr_noop!("Configuration"), trc_noop!("keywords", "exporter restaurer configuration archive sauvegarde backup zip")),
+    (tr_noop!("Mises à jour"), trc_noop!("keywords", "mises a jour halcyon version github depot verifier telecharger")),
+    (tr_noop!("Stockage et diagnostic"), trc_noop!("keywords", "stockage cache miniatures donnees journaux logs integrite diagnostic verification")),
+    (tr_noop!("Son"), trc_noop!("keywords", "son sons audio effets sonores volume silencieux survol musique bruitage")),
+    (tr_noop!("Langue"), trc_noop!("keywords", "langue langues traduction language english deutsch espanol italiano portugues francais")),
 ];
 
 /// Commandes du lancement rapide : (libellé, mots-clés, code).
 const COMMANDS: [(&str, &str, &str); 14] = [
-    ("Analyser les sources", "scan rescan detecter jeux", "scan"),
-    ("Activer / désactiver le mode Performance", "performance jeu fps", "perf"),
-    ("Mode d'affichage standard", "standard normal interface", "mode:0"),
-    ("Mode minimaliste", "minimal compact simple", "mode:1"),
-    ("Mode cinéma", "cinema plein ecran immersif", "mode:2"),
-    ("Big Picture", "tv salon manette plein ecran", "bp"),
-    ("Mode compact (fenêtre réduite)", "mini petite fenetre", "mini"),
-    ("Centre de commandes", "taches notifications telechargements erreurs", "center"),
-    ("Personnaliser l'accueil", "widgets accueil disposition", "home-edit"),
-    ("Ajouter un jeu", "manuel executable", "add"),
-    ("Bibliothèque en grille", "vue grille jaquettes", "view:0"),
-    ("Bibliothèque en liste", "vue liste", "view:1"),
-    ("Bibliothèque en carrousel", "vue carrousel", "view:2"),
-    ("Bibliothèque immersive", "vue immersive", "view:3"),
+    (tr_noop!("Analyser les sources"), trc_noop!("keywords", "scan rescan detecter jeux"), "scan"),
+    (tr_noop!("Activer / désactiver le mode Performance"), trc_noop!("keywords", "performance jeu fps"), "perf"),
+    (tr_noop!("Mode d'affichage standard"), trc_noop!("keywords", "standard normal interface"), "mode:0"),
+    (tr_noop!("Mode minimaliste"), trc_noop!("keywords", "minimal compact simple"), "mode:1"),
+    (tr_noop!("Mode cinéma"), trc_noop!("keywords", "cinema plein ecran immersif"), "mode:2"),
+    (tr_noop!("Big Picture"), trc_noop!("keywords", "tv salon manette plein ecran"), "bp"),
+    (tr_noop!("Mode compact (fenêtre réduite)"), trc_noop!("keywords", "mini petite fenetre"), "mini"),
+    (tr_noop!("Centre de commandes"), trc_noop!("keywords", "taches notifications telechargements erreurs"), "center"),
+    (tr_noop!("Personnaliser l'accueil"), trc_noop!("keywords", "widgets accueil disposition"), "home-edit"),
+    (tr_noop!("Ajouter un jeu"), trc_noop!("keywords", "manuel executable"), "add"),
+    (tr_noop!("Bibliothèque en grille"), trc_noop!("keywords", "vue grille jaquettes"), "view:0"),
+    (tr_noop!("Bibliothèque en liste"), trc_noop!("keywords", "vue liste"), "view:1"),
+    (tr_noop!("Bibliothèque en carrousel"), trc_noop!("keywords", "vue carrousel"), "view:2"),
+    (tr_noop!("Bibliothèque immersive"), trc_noop!("keywords", "vue immersive"), "view:3"),
 ];
+
+/// Texte cherché pour une entrée : libellé et mots-clés dans la langue de l'interface, puis
+/// en français (les deux restent valables).
+pub fn search_text(label: &str, words: &str) -> String {
+    format!("{} {} {label} {words}", halcyon_i18n::t(label), halcyon_i18n::tc("keywords", words))
+}
 
 /// Les mots de la requête sont-ils tous présents (sans accents ni casse) ?
 pub fn words_match(query: &str, haystack: &str) -> bool {
@@ -66,7 +73,7 @@ pub fn settings_shown(query: &str, section: i32) -> Vec<bool> {
             if query.trim().is_empty() {
                 section < 0 || section == i as i32
             } else {
-                words_match(query, &format!("{title} {words}"))
+                words_match(query, &search_text(title, words))
             }
         })
         .collect()
@@ -88,18 +95,18 @@ impl Controller {
             return rows;
         }
         for (i, (title, words)) in SETTINGS_SECTIONS.iter().enumerate() {
-            if words_match(q, &format!("{title} {words}")) {
-                rows.push(QuickRow { kind: 3, id: i as i32, title: format!("Paramètres › {title}").into(), subtitle: "Réglage".into(), card: Default::default() });
+            if words_match(q, &search_text(title, words)) {
+                rows.push(QuickRow { kind: 3, id: i as i32, title: tr!("Paramètres › {title}", title = halcyon_i18n::t(title)).into(), subtitle: tr!("Réglage").into(), card: Default::default() });
             }
         }
         for (i, c) in self.collections.borrow().iter().enumerate() {
             if words_match(q, &format!("collection {}", c.name)) {
-                rows.push(QuickRow { kind: 2, id: i as i32 + 1, title: c.name.as_str().into(), subtitle: format!("Collection · {} jeux", c.count).into(), card: Default::default() });
+                rows.push(QuickRow { kind: 2, id: i as i32 + 1, title: c.name.as_str().into(), subtitle: trn!(c.count, "Collection · {n} jeu", "Collection · {n} jeux").into(), card: Default::default() });
             }
         }
         for (i, (label, words, _)) in COMMANDS.iter().enumerate() {
-            if words_match(q, &format!("{label} {words}")) {
-                rows.push(QuickRow { kind: 4, id: i as i32, title: (*label).into(), subtitle: "Commande".into(), card: Default::default() });
+            if words_match(q, &search_text(label, words)) {
+                rows.push(QuickRow { kind: 4, id: i as i32, title: halcyon_i18n::t(label).into(), subtitle: tr!("Commande").into(), card: Default::default() });
             }
         }
         rows

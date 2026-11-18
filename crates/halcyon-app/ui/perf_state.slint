@@ -1,0 +1,80 @@
+// Performance Center (1.0.0) : données publiées par `src/ctl_perf.rs`.
+
+export struct PerfGpuRow {
+    name: string,
+    /// 0–1, ou -1 si le pilote ne fournit pas le taux d'utilisation.
+    usage: float,
+    usage-text: string,
+    vram: string,
+}
+
+export struct PerfDiskRow {
+    mount: string,
+    free: string,
+    used: float,
+    warn: bool,
+}
+
+export struct PerfAppRow {
+    name: string,
+    count: string,
+    cpu: string,
+    ram: string,
+}
+
+export struct PerfRecoRow {
+    title: string,
+    detail: string,
+    warning: bool,
+    /// Action réversible proposée (« perf-mode »), vide sinon.
+    action: string,
+}
+
+export struct PerfSessionRow {
+    id: int,
+    game: string,
+    date: string,
+    duration: string,
+    cpu: string,
+    ram: string,
+    gpu: string,
+    vram: string,
+}
+
+export global PerfUi {
+    in property <bool> sampling;
+    in property <string> cpu-name;
+    in property <float> cpu;
+    in property <string> cpu-text: "…";
+    in property <[float]> cores;
+    in property <[float]> cpu-curve;
+    in property <[float]> gpu-curve;
+    in property <float> ram;
+    in property <string> ram-text;
+    in property <string> swap-text;
+    in property <[PerfGpuRow]> gpus;
+    in property <[PerfDiskRow]> disks;
+    in property <[PerfAppRow]> apps;
+    in property <string> own-text;
+    in property <[PerfRecoRow]> recos;
+    in property <bool> recos-ready;
+    in property <[PerfSessionRow]> sessions;
+    in property <bool> history-enabled: true;
+
+    in property <bool> frame-ready;
+    in property <string> frame-error;
+    in property <string> frame-title;
+    in property <string> frame-avg;
+    in property <string> frame-low1;
+    in property <string> frame-low01;
+    in property <string> frame-p99;
+    in property <string> frame-max;
+    in property <string> frame-info;
+    in property <string> frame-worst;
+    in property <[float]> frame-bars;
+
+    callback reco-action(string);
+    callback set-history(bool);
+    callback open-frame-log();
+    callback open-latest-log();
+}

@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/halcyon-i18n",
     "crates/halcyon-core",
     "crates/halcyon-storage",
     "crates/halcyon-integrations",
@@ -8,21 +9,24 @@ members = [
     "crates/halcyon-app",
     "crates/halcyon-installer",
     "crates/halcyon-minecraft",
+    "crates/halcyon-update",
 ]
 
 [workspace.package]
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 edition = "2021"
 rust-version = "1.95"
 license = "MIT"
 authors = ["Sebi"]
 
 [workspace.dependencies]
+halcyon-i18n = { path = "crates/halcyon-i18n" }
 halcyon-core = { path = "crates/halcyon-core" }
 halcyon-storage = { path = "crates/halcyon-storage" }
 halcyon-integrations = { path = "crates/halcyon-integrations" }
 halcyon-audio = { path = "crates/halcyon-audio" }
 halcyon-minecraft = { path = "crates/halcyon-minecraft" }
+halcyon-update = { path = "crates/halcyon-update" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"

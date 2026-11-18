@@ -100,33 +100,21 @@ pub fn initials(name: &str) -> String {
     s
 }
 
-/// Durée de jeu lisible : « 42 min », « 3 h 05 », « 1 250 h ».
+/// Durée de jeu lisible : « 42 min », « 3 h 05 », « 1 250 h » (selon la langue active).
 pub fn format_playtime(secs: u64) -> String {
     let minutes = secs / 60;
     if minutes == 0 {
-        return if secs == 0 { "Jamais joué".into() } else { "< 1 min".into() };
+        return if secs == 0 { tr!("Jamais joué") } else { tr!("< 1 min") };
     }
     if minutes < 60 {
-        return format!("{minutes} min");
+        return tr!("{minutes} min", minutes = minutes);
     }
     let hours = minutes / 60;
     if hours < 100 {
-        format!("{} h {:02}", hours, minutes % 60)
+        tr!("{hours} h {minutes}", hours = hours, minutes = format!("{:02}", minutes % 60))
     } else {
-        format!("{} h", group_thousands(hours))
+        tr!("{hours} h", hours = halcyon_i18n::number(hours))
     }
-}
-
-fn group_thousands(n: u64) -> String {
-    let s = n.to_string();
-    let mut out = String::new();
-    for (i, c) in s.chars().enumerate() {
-        if i > 0 && (s.len() - i).is_multiple_of(3) {
-            out.push('\u{202F}');
-        }
-        out.push(c);
-    }
-    out
 }
 
 /// Date civile (année, mois, jour) depuis un nombre de jours depuis 1970-01-01.
@@ -144,13 +132,28 @@ pub fn civil_from_days(z: i64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
-const MONTHS_FR: [&str; 12] =
-    ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+/// Abréviation du mois `m` (1 à 12) dans la langue active.
+pub fn month_short(m: u32) -> String {
+    match m {
+        1 => trc!("month", "janv."),
+        2 => trc!("month", "févr."),
+        3 => trc!("month", "mars"),
+        4 => trc!("month", "avr."),
+        5 => trc!("month", "mai"),
+        6 => trc!("month", "juin"),
+        7 => trc!("month", "juil."),
+        8 => trc!("month", "août"),
+        9 => trc!("month", "sept."),
+        10 => trc!("month", "oct."),
+        11 => trc!("month", "nov."),
+        _ => trc!("month", "déc."),
+    }
+}
 
-/// « 3 nov. 2026 ».
+/// « 3 nov. 2026 » (ordre et forme selon la langue active).
 pub fn format_date(unix: i64) -> String {
     let (y, m, d) = civil_from_days(unix.div_euclid(86_400));
-    format!("{d} {} {y}", MONTHS_FR[(m - 1) as usize])
+    trc!("date", "{day} {month} {year}", day = d, month = month_short(m), year = y)
 }
 
 /// Date relative : « Aujourd'hui », « Hier », « Il y a 5 jours », sinon date complète.
@@ -158,26 +161,28 @@ pub fn format_relative(unix: i64, now: i64) -> String {
     let days = now.div_euclid(86_400) - unix.div_euclid(86_400);
     match days {
         i64::MIN..=-1 => format_date(unix),
-        0 => "Aujourd'hui".into(),
-        1 => "Hier".into(),
-        2..=6 => format!("Il y a {days} jours"),
+        0 => tr!("Aujourd'hui"),
+        1 => tr!("Hier"),
+        2..=6 => trn!(days, "Il y a {n} jour", "Il y a {n} jours"),
         _ => format_date(unix),
     }
 }
 
-/// Taille disque lisible : « 48,2 Go ».
+/// Taille disque lisible : « 48,2 Go », « 48.2 GB » (unités et décimales de la langue active).
 pub fn format_size(bytes: u64) -> String {
-    const UNITS: [&str; 5] = ["o", "Ko", "Mo", "Go", "To"];
     let mut v = bytes as f64;
     let mut u = 0;
-    while v >= 1024.0 && u < UNITS.len() - 1 {
+    while v >= 1024.0 && u < 4 {
         v /= 1024.0;
         u += 1;
     }
-    if u == 0 {
-        format!("{bytes} o")
-    } else {
-        format!("{:.1} {}", v, UNITS[u]).replace('.', ",")
+    let value = if u == 0 { halcyon_i18n::number(bytes) } else { halcyon_i18n::decimal(v, 1) };
+    match u {
+        0 => tr!("{value} o", value = value),
+        1 => tr!("{value} Ko", value = value),
+        2 => tr!("{value} Mo", value = value),
+        3 => tr!("{value} Go", value = value),
+        _ => tr!("{value} To", value = value),
     }
 }
 
@@ -211,7 +216,7 @@ pub fn parse_datetime(s: &str) -> Option<i64> {
 /// Mois « nov. 2026 » d'un horodatage.
 pub fn format_month(unix: i64) -> String {
     let (y, m, _) = civil_from_days(unix.div_euclid(86_400));
-    format!("{} {y}", MONTHS_FR[(m - 1) as usize])
+    trc!("date", "{month} {year}", month = month_short(m), year = y)
 }
 
 /// Décode les entités HTML courantes et retire les balises (descriptions des boutiques).
@@ -232,10 +237,32 @@ pub fn strip_html(s: &str) -> String {
 
 /// Compare deux versions « 1.2.3 » (préfixe « v » toléré).
 pub fn version_newer(candidate: &str, current: &str) -> bool {
-    let parse = |v: &str| -> Vec<u64> {
-        v.trim().trim_start_matches(['v', 'V']).split(['.', '-']).map_while(|p| p.parse().ok()).collect()
+    // « 1.0.0-alpha.1 » < « 1.0.0 » (semver) : à numéros égaux, une pré-version est plus
+    // ancienne que la version finale ; deux pré-versions se comparent par leur suffixe.
+    let parse = |v: &str| -> (Vec<u64>, Option<String>) {
+        let v = v.trim().trim_start_matches(['v', 'V']);
+        let (core, pre) = match v.split_once('-') {
+            Some((c, p)) => (c, Some(p.to_lowercase())),
+            None => (v, None),
+        };
+        (core.split('.').map_while(|p| p.parse().ok()).collect(), pre)
     };
-    parse(candidate) > parse(current)
+    let (a, pa) = parse(candidate);
+    let (b, pb) = parse(current);
+    if a != b {
+        return a > b;
+    }
+    match (pa, pb) {
+        (None, Some(_)) => true,
+        (Some(x), Some(y)) => pre_key(&x) > pre_key(&y),
+        _ => false,
+    }
+}
+
+/// « alpha.10 » > « alpha.9 » : parties numériques comparées comme des nombres, et
+/// inférieures aux parties textuelles (semver).
+fn pre_key(p: &str) -> Vec<(u8, u64, String)> {
+    p.split('.').map(|part| part.parse::<u64>().map(|n| (0, n, String::new())).unwrap_or((1, 0, part.to_string()))).collect()
 }
 
 #[cfg(test)]
@@ -267,7 +294,7 @@ mod tests {
         assert_eq!(format_playtime(0), "Jamais joué");
         assert_eq!(format_playtime(42 * 60), "42 min");
         assert_eq!(format_playtime(3 * 3600 + 5 * 60), "3 h 05");
-        assert_eq!(format_playtime(1250 * 3600), "1\u{202F}250 h");
+        assert_eq!(format_playtime(1250 * 3600), "1\u{A0}250 h");
     }
 
     #[test]
@@ -286,6 +313,12 @@ mod tests {
         assert!(version_newer("v0.2.0", "0.1.9"));
         assert!(!version_newer("0.1.0", "0.1.0"));
         assert!(version_newer("1.10.0", "1.9.3"));
+        assert!(version_newer("1.0.0", "1.0.0-alpha.1"), "version finale après la pré-version");
+        assert!(!version_newer("1.0.0-alpha.1", "1.0.0"));
+        assert!(version_newer("1.0.0-alpha.10", "1.0.0-alpha.9"));
+        assert!(version_newer("1.0.0-beta.1", "1.0.0-alpha.3"));
+        assert!(version_newer("1.0.0-alpha.1", "0.5.0"));
+        assert!(!version_newer("1.0.0-alpha.1", "1.0.0-alpha.1"));
     }
 
     #[test]

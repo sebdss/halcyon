@@ -1,41 +1,61 @@
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Icons } from "../theme.slint";
+import { Theme, Icons, Art } from "../theme.slint";
 import { AchievementRow, ProfileRow, ModRow } from "../types.slint";
 import { Nav, Page, Actions, DetailUi, AppUi, SystemUi, GameMenu } from "../state.slint";
 import {
-    GameCover, PrimaryButton, SecondaryButton, IconButton, Badge, Panel, InfoRow, TextField, Icon, SectionTitle, Chip,
-    Dropdown, TextArea, Toggle, Notice, Segmented
+    GameCover, PrimaryButton, PlayButton, SecondaryButton, TextButton, IconButton, Badge, Panel, InfoRow, TextField, Icon,
+    SectionTitle, Chip, Dropdown, TextArea, Toggle, Notice, Segmented, Overline, Rubric
 } from "../components.slint";
 
+/// Onglet de la fiche : texte, compteur discret, perche sous l'onglet actif.
 component Tab inherits Rectangle {
     in property <string> text;
     in property <bool> selected;
     in property <string> badge;
     callback clicked;
-    height: 40px;
-    HorizontalLayout {
-        spacing: 8px;
-        Text {
-            text: root.text;
-            color: root.selected ? Theme.text : ta.has-hover ? Theme.text-muted : Theme.text-dim;
-            font-size: Theme.t-body;
-            font-weight: root.selected ? 700 : 550;
-            vertical-alignment: center;
-        }
-        if root.badge != "": Badge {
-            y: (parent.height - self.height) / 2;
-            text: root.badge;
-        }
+    height: 48px;
+    width: lbl.preferred-width + (root.badge != "" ? 6px + cnt.preferred-width : 0px);
+    accessible-role: tab;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    forward-focus: fs;
+    lbl := Text {
+        x: 0;
+        text: root.text;
+        color: root.selected || ta.has-hover || fs.has-focus ? Theme.text : Theme.text-muted;
+        font-size: Theme.t-body;
+        font-weight: root.selected ? 650 : 500;
+        vertical-alignment: center;
+    }
+    cnt := Text {
+        visible: root.badge != "";
+        x: lbl.preferred-width + 6px;
+        text: root.badge;
+        color: Theme.text-dim;
+        font-family: Theme.display;
+        font-size: Theme.t-caption;
+        font-weight: 700;
+        vertical-alignment: center;
     }
     Rectangle {
+        x: 0;
         y: root.height - 2px;
         height: 2px;
-        border-radius: 1px;
-        background: root.selected ? Theme.accent : transparent;
+        width: root.selected ? root.width : 0px;
+        background: Theme.accent;
+        animate width { duration: Theme.normal; easing: ease-out; }
     }
+    if fs.has-focus: Rectangle { x: -6px; width: root.width + 12px; y: 10px; height: root.height - 20px; border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+    }
+    fs := FocusScope {
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == " ") { root.clicked(); return accept; }
+            reject
+        }
     }
 }
 
@@ -66,8 +86,8 @@ component PathField inherits HorizontalLayout {
     spacing: 8px;
     TextField { text <=> root.value; mono: true; placeholder: root.placeholder; }
     if AppUi.can-browse: SecondaryButton {
-        text: "Parcourir…";
-        h: 38px;
+        text: @tr("Parcourir…");
+        h: 36px;
         clicked => {
             let p = root.image ? DetailUi.browse-image() : root.folder ? AppUi.browse-folder() : AppUi.browse-file();
             if (p != "") { root.value = p; }
@@ -83,32 +103,32 @@ component LaunchSettings inherits VerticalLayout {
     spacing: 18px;
 
     Field {
-        label: "Nom affiché";
+        label: @tr("Nom affiché");
         TextField { text <=> root.name; }
     }
     Field {
-        label: "Exécutable";
+        label: @tr("Exécutable");
         hint: DetailUi.game.platform-client
-            ? "Laisser vide pour lancer via le client de la plateforme (recommandé : succès, cloud et DRM restent gérés par la plateforme)."
+            ? @tr("Laisser vide pour lancer via le client de la plateforme (recommandé : succès, cloud et DRM restent gérés par la plateforme).")
             : "";
-        PathField { value <=> root.exe; placeholder: DetailUi.game.platform-client ? "Lancement via la plateforme" : "Chemin de l'exécutable"; }
+        PathField { value <=> root.exe; placeholder: DetailUi.game.platform-client ? @tr("Lancement via la plateforme") : @tr("Chemin de l'exécutable"); }
     }
     Field {
-        label: "Arguments de lancement";
+        label: @tr("Arguments de lancement");
         hint: DetailUi.game.platform-client && root.exe == ""
-            ? "Non transmis lors d'un lancement via la plateforme : définissez-les dans Steam / Epic, ou indiquez un exécutable ci-dessus."
-            : "Séparés par des espaces ; utilisez des guillemets pour les valeurs contenant des espaces.";
-        TextField { text <=> root.args; mono: true; placeholder: "ex. -windowed -nosplash"; }
+            ? @tr("Non transmis lors d'un lancement via la plateforme : définissez-les dans Steam / Epic, ou indiquez un exécutable ci-dessus.")
+            : @tr("Séparés par des espaces ; utilisez des guillemets pour les valeurs contenant des espaces.");
+        TextField { text <=> root.args; mono: true; placeholder: @tr("ex. -windowed -nosplash"); }
     }
     Field {
-        label: "Répertoire de travail";
-        hint: "Par défaut : le dossier de l'exécutable.";
-        PathField { value <=> root.wd; folder: true; placeholder: "Dossier de l'exécutable"; }
+        label: @tr("Répertoire de travail");
+        hint: @tr("Par défaut : le dossier de l'exécutable.");
+        PathField { value <=> root.wd; folder: true; placeholder: @tr("Dossier de l'exécutable"); }
     }
     HorizontalLayout {
         alignment: start;
         PrimaryButton {
-            text: "Enregistrer le lancement";
+            text: @tr("Enregistrer le lancement");
             icon: Icons.check;
             has-icon: true;
             clicked => { DetailUi.save-launch(DetailUi.game.id, root.name, root.exe, root.args, root.wd); }
@@ -121,20 +141,20 @@ component EmulationSettings inherits VerticalLayout {
     in-out property <string> ra: DetailUi.game.ra-id;
     spacing: 18px;
     Field {
-        label: "Nom affiché";
+        label: @tr("Nom affiché");
         HorizontalLayout {
             spacing: 8px;
             TextField { text <=> root.name; }
             SecondaryButton {
-                text: "Renommer";
-                h: 38px;
+                text: @tr("Renommer");
+                h: 36px;
                 clicked => { DetailUi.save-launch(DetailUi.game.id, root.name, "", "", ""); }
             }
         }
     }
     Field {
-        label: "Émulateur";
-        hint: "« Par défaut » utilise l'émulateur choisi pour la plateforme dans la page Émulateurs.";
+        label: @tr("Émulateur");
+        hint: @tr("« Par défaut » utilise l'émulateur choisi pour la plateforme dans la page Émulateurs.");
         HorizontalLayout {
             alignment: start;
             Dropdown {
@@ -146,14 +166,14 @@ component EmulationSettings inherits VerticalLayout {
         }
     }
     Field {
-        label: "Identifiant RetroAchievements";
-        hint: "Trouvé automatiquement par empreinte pour les consoles à cartouche. Pour les jeux sur disque, saisissez l'ID visible dans l'adresse de la page du jeu sur retroachievements.org.";
+        label: @tr("Identifiant RetroAchievements");
+        hint: @tr("Trouvé automatiquement par empreinte pour les consoles à cartouche. Pour les jeux sur disque, saisissez l'ID visible dans l'adresse de la page du jeu sur retroachievements.org.");
         HorizontalLayout {
             spacing: 8px;
-            TextField { text <=> root.ra; placeholder: "ex. 1446"; }
+            TextField { text <=> root.ra; placeholder: @tr("ex. 1446"); }
             SecondaryButton {
-                text: "Associer";
-                h: 38px;
+                text: @tr("Associer");
+                h: 36px;
                 clicked => { DetailUi.set-ra-id(DetailUi.game.id, root.ra); }
             }
         }
@@ -171,58 +191,58 @@ component MetadataSettings inherits VerticalLayout {
     in-out property <string> banner;
     spacing: 18px;
 
-    SectionTitle { text: "Métadonnées"; }
+    SectionTitle { text: @tr("Métadonnées"); }
     Field {
-        label: "Description";
+        label: @tr("Description");
         TextArea { text <=> root.description; height: 110px; }
     }
     HorizontalLayout {
         spacing: 12px;
-        Field { label: "Développeur"; TextField { text <=> root.developer; } }
-        Field { label: "Éditeur"; TextField { text <=> root.publisher; } }
+        Field { label: @tr("Développeur"); TextField { text <=> root.developer; } }
+        Field { label: @tr("Éditeur"); TextField { text <=> root.publisher; } }
     }
     HorizontalLayout {
         spacing: 12px;
-        Field { label: "Date de sortie"; TextField { text <=> root.release; placeholder: "ex. 2023-02-10"; } }
-        Field { label: "Genres (séparés par des virgules)"; TextField { text <=> root.genres; placeholder: "Action, RPG"; } }
+        Field { label: @tr("Date de sortie"); TextField { text <=> root.release; placeholder: @tr("ex. 2023-02-10"); } }
+        Field { label: @tr("Genres (séparés par des virgules)"); TextField { text <=> root.genres; placeholder: @tr("Action, RPG"); } }
     }
     Field {
-        label: "Étiquettes (séparées par des virgules)";
-        hint: "Utilisées par la recherche (tag:…) et les collections intelligentes, ex. multijoueur, coop, solo.";
-        TextField { text <=> root.tags; placeholder: "multijoueur, coop"; }
+        label: @tr("Étiquettes (séparées par des virgules)");
+        hint: @tr("Utilisées par la recherche (tag:…) et les collections intelligentes, ex. multijoueur, coop, solo.");
+        TextField { text <=> root.tags; placeholder: @tr("multijoueur, coop"); }
     }
     HorizontalLayout {
         alignment: start;
         PrimaryButton {
-            text: "Enregistrer les métadonnées";
+            text: @tr("Enregistrer les métadonnées");
             icon: Icons.check;
             has-icon: true;
             clicked => { DetailUi.save-metadata(DetailUi.game.id, root.description, root.developer, root.publisher, root.release, root.genres, root.tags); }
         }
     }
 
-    SectionTitle { text: "Visuels personnalisés"; }
+    SectionTitle { text: @tr("Visuels personnalisés"); }
     Field {
-        label: "Jaquette (portrait 2:3)";
-        hint: "L'image est copiée dans les données de Halcyon et remplace la jaquette de la plateforme.";
+        label: @tr("Jaquette (portrait 2:3)");
+        hint: @tr("L'image est copiée dans les données de Halcyon et remplace la jaquette de la plateforme.");
         HorizontalLayout {
             spacing: 8px;
-            PathField { value <=> root.cover; image: true; placeholder: "Fichier image (.jpg, .png, .webp)"; }
-            SecondaryButton { text: "Appliquer"; h: 38px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "cover", root.cover); } }
+            PathField { value <=> root.cover; image: true; placeholder: @tr("Fichier image (.jpg, .png, .webp)"); }
+            SecondaryButton { text: @tr("Appliquer"); h: 36px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "cover", root.cover); } }
         }
     }
     Field {
-        label: "Bannière (paysage)";
+        label: @tr("Bannière (paysage)");
         HorizontalLayout {
             spacing: 8px;
-            PathField { value <=> root.banner; image: true; placeholder: "Fichier image (.jpg, .png, .webp)"; }
-            SecondaryButton { text: "Appliquer"; h: 38px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "banner", root.banner); } }
+            PathField { value <=> root.banner; image: true; placeholder: @tr("Fichier image (.jpg, .png, .webp)"); }
+            SecondaryButton { text: @tr("Appliquer"); h: 36px; clicked => { DetailUi.set-artwork(DetailUi.game.id, "banner", root.banner); } }
         }
     }
     if DetailUi.game.can-remove: HorizontalLayout {
         alignment: start;
         SecondaryButton {
-            text: "Retirer de la bibliothèque";
+            text: @tr("Retirer de la bibliothèque");
             icon: Icons.trash;
             has-icon: true;
             danger: true;
@@ -235,19 +255,22 @@ export component AchievementItem inherits Rectangle {
     in property <AchievementRow> item;
     in property <bool> reveal;
     in property <bool> show-game;
-    height: 72px;
-    border-radius: Theme.radius;
-    background: ta.has-hover ? Theme.surface-hover : Theme.surface;
+    height: 68px;
+    border-radius: Theme.radius-sm;
+    background: ta.has-hover ? Theme.surface : transparent;
     ta := TouchArea { }
     property <bool> masked: root.item.hidden && !root.item.unlocked && !root.reveal;
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+    // Débloqué : perche orange (le succès est un moment vivant).
+    if root.item.unlocked: Rectangle { x: 0; y: 14px; width: Theme.perch; height: parent.height - 28px; background: Theme.warm; }
 
     HorizontalLayout {
         padding: 12px;
         spacing: 14px;
         Rectangle {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: Theme.radius-sm;
             clip: true;
             background: Theme.surface-active;
             opacity: root.item.unlocked ? 1 : 0.45;
@@ -260,7 +283,7 @@ export component AchievementItem inherits Rectangle {
             if !root.item.has-icon || root.masked: Icon {
                 source: root.masked ? Icons.eye-off : Icons.trophy;
                 size: 22px;
-                tint: root.item.unlocked ? Theme.accent : Theme.text-dim;
+                tint: root.item.unlocked ? Theme.warm : Theme.text-dim;
             }
         }
         VerticalLayout {
@@ -270,31 +293,29 @@ export component AchievementItem inherits Rectangle {
             HorizontalLayout {
                 spacing: 8px;
                 Text {
-                    text: root.masked ? "Succès caché" : root.item.name;
+                    text: root.masked ? @tr("Succès caché") : root.item.name;
                     color: root.item.unlocked ? Theme.text : Theme.text-muted;
                     font-size: Theme.t-body;
                     font-weight: 650;
                     overflow: elide;
                 }
-                if root.item.hardcore: Badge { text: "HARDCORE"; tint: Theme.warm; solid: true; }
-                if root.item.custom: Badge { text: "PERSONNALISÉ · NON VÉRIFIÉ"; }
+                if root.item.hardcore: Badge { text: @tr("Hardcore"); tint: Theme.warm; solid: true; }
+                if root.item.custom: Badge { text: @tr("Personnalisé, non vérifié"); }
                 Rectangle { horizontal-stretch: 1; }
             }
             Text {
-                text: root.show-game ? root.item.game + (root.masked ? "" : "  ·  " + root.item.description)
-                    : root.masked ? "Débloquez-le pour découvrir sa description." : root.item.description;
+                text: root.show-game ? root.item.game + (root.masked ? "" : " : " + root.item.description)
+                    : root.masked ? @tr("Débloquez-le pour découvrir sa description.") : root.item.description;
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 overflow: elide;
             }
             if root.item.has-progress: Rectangle {
-                height: 4px;
-                border-radius: 2px;
+                height: 3px;
                 background: Theme.surface-active;
                 Rectangle {
                     x: 0;
                     width: parent.width * root.item.progress;
-                    border-radius: 2px;
                     background: Theme.accent;
                 }
             }
@@ -304,8 +325,8 @@ export component AchievementItem inherits Rectangle {
             spacing: 3px;
             width: 170px;
             Text {
-                text: root.item.unlocked ? root.item.date : "Verrouillé";
-                color: root.item.unlocked ? Theme.success : Theme.text-dim;
+                text: root.item.unlocked ? root.item.date : @tr("Verrouillé");
+                color: root.item.unlocked ? Theme.text : Theme.text-dim;
                 font-size: Theme.t-caption;
                 font-weight: 600;
                 horizontal-alignment: right;
@@ -324,7 +345,7 @@ export component AchievementItem inherits Rectangle {
                 size: 32px;
                 icon-size: 16px;
                 icon: root.item.unlocked ? Icons.close : Icons.check;
-                tooltip: root.item.unlocked ? "Marquer comme verrouillé" : "Marquer comme débloqué";
+                tooltip: root.item.unlocked ? @tr("Marquer comme verrouillé") : @tr("Marquer comme débloqué");
                 clicked => { DetailUi.toggle-custom-achievement(root.item.id); }
             }
         }
@@ -335,7 +356,7 @@ export component AchievementItem inherits Rectangle {
                 icon-size: 16px;
                 icon: Icons.trash;
                 active-tint: Theme.danger;
-                tooltip: "Supprimer";
+                tooltip: @tr("Supprimer");
                 clicked => { DetailUi.delete-custom-achievement(root.item.id); }
             }
         }
@@ -347,10 +368,19 @@ component AchievementsTab inherits VerticalLayout {
     in-out property <string> new-desc;
     spacing: 14px;
 
-    Panel {
-        HorizontalLayout {
-            padding: 20px;
+    Rectangle {
+        height: ach-head.preferred-height;
+        ach-head := HorizontalLayout {
+            padding-bottom: 8px;
             spacing: 18px;
+            if DetailUi.ach-percent >= 0: Text {
+                text: round(DetailUi.ach-percent * 100) + " %";
+                color: DetailUi.ach-percent >= 1 ? Theme.warm : Theme.text;
+                font-family: Theme.display;
+                font-size: Theme.t-title + 6px;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
             VerticalLayout {
                 alignment: center;
                 spacing: 8px;
@@ -359,17 +389,15 @@ component AchievementsTab inherits VerticalLayout {
                     text: DetailUi.ach-summary;
                     color: Theme.text;
                     font-size: Theme.t-subheading;
-                    font-weight: 700;
+                    font-weight: 600;
                     wrap: word-wrap;
                 }
                 if DetailUi.ach-percent >= 0: Rectangle {
-                    height: 6px;
-                    border-radius: 3px;
+                    height: 4px;
                     background: Theme.surface-active;
                     Rectangle {
                         x: 0;
                         width: parent.width * DetailUi.ach-percent;
-                        border-radius: 3px;
                         background: DetailUi.ach-percent >= 1 ? Theme.warm : Theme.accent;
                     }
                 }
@@ -383,7 +411,7 @@ component AchievementsTab inherits VerticalLayout {
             if DetailUi.ach-mode == "steam" || DetailUi.ach-mode == "retroachievements": VerticalLayout {
                 alignment: center;
                 SecondaryButton {
-                    text: DetailUi.ach-syncing ? "Synchronisation…" : "Synchroniser";
+                    text: DetailUi.ach-syncing ? @tr("Synchronisation…") : @tr("Synchroniser");
                     icon: Icons.refresh;
                     has-icon: true;
                     enabled: !DetailUi.ach-syncing;
@@ -393,7 +421,7 @@ component AchievementsTab inherits VerticalLayout {
             if DetailUi.ach-mode == "unconfigured": VerticalLayout {
                 alignment: center;
                 SecondaryButton {
-                    text: "Configurer les comptes";
+                    text: @tr("Configurer les comptes");
                     clicked => { Nav.go(Page.settings); }
                 }
             }
@@ -403,7 +431,7 @@ component AchievementsTab inherits VerticalLayout {
     if DetailUi.achievements.length > 0: HorizontalLayout {
         alignment: start;
         Chip {
-            text: "Révéler les succès cachés";
+            text: @tr("Révéler les succès cachés");
             checked: DetailUi.show-hidden-ach;
             toggled => { DetailUi.show-hidden-ach = !DetailUi.show-hidden-ach; }
         }
@@ -419,26 +447,26 @@ component AchievementsTab inherits VerticalLayout {
             padding: 20px;
             spacing: 12px;
             Text {
-                text: "Créer un succès personnalisé";
+                text: @tr("Créer un succès personnalisé");
                 color: Theme.text;
                 font-size: Theme.t-body;
                 font-weight: 700;
             }
             Text {
-                text: "Ce jeu ne dispose d'aucun système de succès reconnu. Vos succès personnalisés sont marqués comme tels et ne sont jamais présentés comme vérifiés par une plateforme.";
+                text: @tr("Ce jeu ne dispose d'aucun système de succès reconnu. Vos succès personnalisés sont marqués comme tels et ne sont jamais présentés comme vérifiés par une plateforme.");
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 wrap: word-wrap;
             }
             HorizontalLayout {
                 spacing: 8px;
-                TextField { text <=> root.new-name; placeholder: "Nom (ex. Terminer en difficulté maximale)"; }
-                TextField { text <=> root.new-desc; placeholder: "Description (facultatif)"; }
+                TextField { text <=> root.new-name; placeholder: @tr("Nom (ex. Terminer en difficulté maximale)"); }
+                TextField { text <=> root.new-desc; placeholder: @tr("Description (facultatif)"); }
                 PrimaryButton {
-                    text: "Ajouter";
+                    text: @tr("Ajouter");
                     icon: Icons.plus;
                     has-icon: true;
-                    h: 38px;
+                    h: 36px;
                     enabled: root.new-name != "";
                     clicked => {
                         DetailUi.add-custom-achievement(DetailUi.game.id, root.new-name, root.new-desc);
@@ -455,7 +483,7 @@ component AchievementsTab inherits VerticalLayout {
 component StatusChips inherits HorizontalLayout {
     spacing: 8px;
     alignment: start;
-    for label[i] in ["Aucun statut", "À jouer", "En cours", "Terminé", "Abandonné"]: Chip {
+    for label[i] in [@tr("Aucun statut"), @tr("À jouer"), @tr("En cours"), @tr("Terminé"), @tr("Abandonné")]: Chip {
         text: label;
         checked: DetailUi.game.status == i;
         toggled => { DetailUi.set-status(DetailUi.game.id, i); }
@@ -467,43 +495,43 @@ component TrackingTab inherits VerticalLayout {
     in-out property <string> manual;
     spacing: 18px;
 
-    SectionTitle { text: "Statut"; }
+    SectionTitle { text: @tr("Statut"); }
     StatusChips { }
 
-    SectionTitle { text: "Temps de jeu"; }
+    SectionTitle { text: @tr("Temps de jeu"); }
     Panel {
         VerticalLayout {
             padding: 20px;
             spacing: 12px;
             HorizontalLayout {
                 spacing: 10px;
-                Text { text: DetailUi.game.playtime; color: Theme.text; font-size: Theme.t-title - 4px; font-weight: 800; }
+                Text { text: DetailUi.game.playtime; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 2px; font-weight: 800; }
                 if DetailUi.game.playtime-origin != "": Badge { y: 8px; text: DetailUi.game.playtime-origin; tint: DetailUi.game.has-manual ? Theme.warm : Theme.accent; }
                 Rectangle { horizontal-stretch: 1; }
             }
-            InfoRow { label: "Rapporté par la plateforme"; value: DetailUi.game.playtime-platform; }
-            InfoRow { label: "Suivi par Halcyon"; value: DetailUi.game.playtime-local; }
-            InfoRow { label: "Session moyenne"; value: DetailUi.game.avg-session; }
-            InfoRow { label: "Première session suivie"; value: DetailUi.game.first-session; }
-            InfoRow { label: "Correction manuelle"; value: DetailUi.game.has-manual ? DetailUi.game.playtime-manual : "Aucune"; }
+            InfoRow { label: @tr("Rapporté par la plateforme"); value: DetailUi.game.playtime-platform; }
+            InfoRow { label: @tr("Suivi par Halcyon"); value: DetailUi.game.playtime-local; }
+            InfoRow { label: @tr("Session moyenne"); value: DetailUi.game.avg-session; }
+            InfoRow { label: @tr("Première session suivie"); value: DetailUi.game.first-session; }
+            InfoRow { label: @tr("Correction manuelle"); value: DetailUi.game.has-manual ? DetailUi.game.playtime-manual : @tr("Aucune"); }
             Rectangle { height: 1px; background: Theme.border; }
             HorizontalLayout {
                 spacing: 8px;
-                TextField { text <=> root.manual; placeholder: "Temps réel, ex. 12h30 ou 45m"; mono: true; }
+                TextField { text <=> root.manual; placeholder: @tr("Temps réel, ex. 12h30 ou 45m"); mono: true; }
                 SecondaryButton {
-                    text: "Corriger";
-                    h: 38px;
+                    text: @tr("Corriger");
+                    h: 36px;
                     enabled: root.manual != "";
                     clicked => { DetailUi.set-manual-playtime(DetailUi.game.id, root.manual); root.manual = ""; }
                 }
                 if DetailUi.game.has-manual: SecondaryButton {
-                    text: "Revenir au temps calculé";
-                    h: 38px;
+                    text: @tr("Revenir au temps calculé");
+                    h: 36px;
                     clicked => { DetailUi.set-manual-playtime(DetailUi.game.id, ""); }
                 }
             }
             Text {
-                text: "La correction remplace le temps affiché partout (bibliothèque, statistiques). Les données de la plateforme et du suivi local sont conservées.";
+                text: @tr("La correction remplace le temps affiché partout (bibliothèque, statistiques). Les données de la plateforme et du suivi local sont conservées.");
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 wrap: word-wrap;
@@ -511,12 +539,12 @@ component TrackingTab inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: "Notes"; }
+    SectionTitle { text: @tr("Notes"); }
     TextArea { text <=> root.notes; height: 120px; }
     HorizontalLayout {
         alignment: start;
         SecondaryButton {
-            text: "Enregistrer les notes";
+            text: @tr("Enregistrer les notes");
             icon: Icons.check;
             has-icon: true;
             enabled: root.notes != DetailUi.game.notes;
@@ -524,13 +552,13 @@ component TrackingTab inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: "Version"; }
+    SectionTitle { text: @tr("Version"); }
     Panel {
         VerticalLayout {
             padding: 20px;
             spacing: 10px;
-            InfoRow { label: "Version installée"; value: DetailUi.game.version != "" ? DetailUi.game.version : "Non fournie par la plateforme"; }
-            InfoRow { label: "État"; value: DetailUi.game.update-state; }
+            InfoRow { label: @tr("Version installée"); value: DetailUi.game.version != "" ? DetailUi.game.version : @tr("Non fournie par la plateforme"); }
+            InfoRow { label: @tr("État"); value: DetailUi.game.update-state; }
             if DetailUi.game.update-pending && DetailUi.game.update-progress > 0: Rectangle {
                 height: 6px;
                 border-radius: 3px;
@@ -548,8 +576,8 @@ component TrackingTab inherits VerticalLayout {
             padding: 20px;
             spacing: 10px;
             HorizontalLayout {
-                Text { text: "Prérequis fournis avec le jeu"; color: Theme.text; font-size: Theme.t-body; font-weight: 650; horizontal-stretch: 1; vertical-alignment: center; }
-                SecondaryButton { text: "Ouvrir le dossier"; h: 34px; clicked => { Actions.open-folder(DetailUi.prereq-dir); } }
+                Text { text: @tr("Prérequis fournis avec le jeu"); color: Theme.text; font-size: Theme.t-body; font-weight: 650; horizontal-stretch: 1; vertical-alignment: center; }
+                SecondaryButton { text: @tr("Ouvrir le dossier"); h: 34px; clicked => { Actions.open-folder(DetailUi.prereq-dir); } }
             }
             Text { text: DetailUi.prereq-note; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
             HorizontalLayout {
@@ -560,9 +588,9 @@ component TrackingTab inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: "Sessions suivies"; }
+    SectionTitle { text: @tr("Sessions suivies"); }
     if DetailUi.sessions.length == 0: Text {
-        text: "Aucune session suivie par Halcyon pour ce jeu.";
+        text: @tr("Aucune session suivie par Halcyon pour ce jeu.");
         color: Theme.text-dim;
         font-size: Theme.t-small;
     }
@@ -598,54 +626,54 @@ component ProfileEditor inherits Panel {
     VerticalLayout {
         padding: 22px;
         spacing: 16px;
-        Text { text: root.p.id == 0 ? "Nouveau profil" : "Modifier « " + root.p.name + " »"; color: Theme.text; font-size: Theme.t-subheading; font-weight: 700; }
-        Notice { text: "Moteur détecté : " + DetailUi.engine + ". Les réglages sans équivalent pour ce jeu ou ce mode de lancement sont signalés à l'enregistrement, jamais simulés."; }
+        Text { text: root.p.id == 0 ? @tr("Nouveau profil") : @tr("Modifier « {} »", root.p.name); color: Theme.text; font-size: Theme.t-subheading; font-weight: 700; }
+        Notice { text: @tr("Moteur détecté : {}. Les réglages sans équivalent pour ce jeu ou ce mode de lancement sont signalés à l'enregistrement, jamais simulés.", DetailUi.engine); }
         HorizontalLayout {
             spacing: 12px;
-            Field { label: "Nom du profil"; TextField { text <=> root.name; placeholder: "ex. Performance, Fenêtré, Streaming"; } }
+            Field { label: @tr("Nom du profil"); TextField { text <=> root.name; placeholder: @tr("ex. Performance, Fenêtré, Streaming"); } }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "Profil par défaut"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+                Text { text: @tr("Profil par défaut"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
                 Toggle { checked <=> root.is-default; }
             }
         }
         Field {
-            label: "Arguments";
-            hint: "Ajoutés à ceux du jeu, sauf si l'option ci-dessous est activée.";
-            TextField { text <=> root.args; mono: true; placeholder: "ex. -dx11 -novid"; }
+            label: @tr("Arguments");
+            hint: @tr("Ajoutés à ceux du jeu, sauf si l'option ci-dessous est activée.");
+            TextField { text <=> root.args; mono: true; placeholder: @tr("ex. -dx11 -novid"); }
         }
         HorizontalLayout {
             spacing: 10px;
             Toggle { checked <=> root.replace-args; }
-            Text { text: "Remplacer les arguments du jeu"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+            Text { text: @tr("Remplacer les arguments du jeu"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
             Rectangle { horizontal-stretch: 1; }
         }
         HorizontalLayout {
             spacing: 12px;
-            Field { label: "Résolution"; TextField { text <=> root.resolution; mono: true; placeholder: "1920x1080"; } }
-            Field { label: "Limite d'images/s"; TextField { text <=> root.fps; mono: true; placeholder: "ex. 60"; } }
+            Field { label: @tr("Résolution"); TextField { text <=> root.resolution; mono: true; placeholder: "1920x1080"; } }
+            Field { label: @tr("Limite d'images/s"); TextField { text <=> root.fps; mono: true; placeholder: @tr("ex. 60"); } }
         }
         HorizontalLayout {
             spacing: 18px;
             alignment: start;
             Field {
-                label: "Affichage";
-                Dropdown { prefix: ""; align-left: true; popup-width: 240px; options: ["Réglage du jeu", "Fenêtré", "Plein écran", "Fenêtré sans bordure"]; selected <=> root.display; }
+                label: @tr("Affichage");
+                Dropdown { prefix: ""; align-left: true; popup-width: 240px; options: [@tr("Réglage du jeu"), @tr("Fenêtré"), @tr("Plein écran"), @tr("Fenêtré sans bordure")]; selected <=> root.display; }
             }
             Field {
-                label: "Carte graphique";
-                Dropdown { prefix: ""; align-left: true; popup-width: 280px; options: ["Choix du système", "Haute performance (GPU dédié)", "Économie d'énergie (GPU intégré)"]; selected <=> root.gpu; }
+                label: @tr("Carte graphique");
+                Dropdown { prefix: ""; align-left: true; popup-width: 280px; options: [@tr("Choix du système"), @tr("Haute performance (GPU dédié)"), @tr("Économie d'énergie (GPU intégré)")]; selected <=> root.gpu; }
             }
             Field {
-                label: "Priorité du processus";
-                Dropdown { prefix: ""; align-left: true; popup-width: 240px; options: ["Basse", "Inférieure à la normale", "Normale", "Supérieure à la normale", "Haute"]; selected <=> root.priority; }
+                label: @tr("Priorité du processus");
+                Dropdown { prefix: ""; align-left: true; popup-width: 240px; options: [@tr("Basse"), @tr("Inférieure à la normale"), @tr("Normale"), @tr("Supérieure à la normale"), @tr("Haute")]; selected <=> root.priority; }
             }
         }
         if DetailUi.is-windows && root.gpu != 0: HorizontalLayout {
             spacing: 10px;
             Toggle { checked <=> root.allow-gpu; }
             Text {
-                text: "Autoriser Halcyon à modifier temporairement la préférence graphique Windows de cet exécutable (rétablie après la session).";
+                text: @tr("Autoriser Halcyon à modifier temporairement la préférence graphique Windows de cet exécutable (rétablie après la session).");
                 color: Theme.text-muted;
                 font-size: Theme.t-caption;
                 wrap: word-wrap;
@@ -654,54 +682,54 @@ component ProfileEditor inherits Panel {
             }
         }
         Field {
-            label: "Répertoire de travail";
-            PathField { value <=> root.wd; folder: true; placeholder: "Celui du jeu"; }
+            label: @tr("Répertoire de travail");
+            PathField { value <=> root.wd; folder: true; placeholder: @tr("Celui du jeu"); }
         }
         if DetailUi.mod-launch-labels.length > 1: Field {
-            label: "Mods au lancement";
-            hint: "Le profil de mods choisi est appliqué avant le lancement s'il n'est pas déjà en place.";
+            label: @tr("Mods au lancement");
+            hint: @tr("Le profil de mods choisi est appliqué avant le lancement s'il n'est pas déjà en place.");
             HorizontalLayout {
                 alignment: start;
                 Dropdown { prefix: ""; align-left: true; popup-width: 260px; options: DetailUi.mod-launch-labels; selected <=> root.mod-profile; }
             }
         }
         if DetailUi.game.is-emulated && DetailUi.pad-profile-labels.length > 1: Field {
-            label: "Profil de manette";
-            hint: "Les options de manette de ce profil pour l'émulateur sont ajoutées à la ligne de commande (page Manettes).";
+            label: @tr("Profil de manette");
+            hint: @tr("Les options de manette de ce profil pour l'émulateur sont ajoutées à la ligne de commande (page Manettes).");
             HorizontalLayout {
                 alignment: start;
                 Dropdown { prefix: ""; align-left: true; popup-width: 260px; options: DetailUi.pad-profile-labels; selected <=> root.pad-profile; }
             }
         }
         Field {
-            label: "Variables d'environnement";
-            hint: "Une par ligne : NOM=valeur.";
+            label: @tr("Variables d'environnement");
+            hint: @tr("Une par ligne : NOM=valeur.");
             TextArea { text <=> root.env; height: 70px; }
         }
         HorizontalLayout {
             spacing: 12px;
-            Field { label: "Commande avant le lancement"; hint: "Attendue (60 s max)."; TextField { text <=> root.pre; mono: true; } }
-            Field { label: "Commande après la session"; hint: "Exécutée à la fin de la session."; TextField { text <=> root.post; mono: true; } }
+            Field { label: @tr("Commande avant le lancement"); hint: @tr("Attendue (60 s max)."); TextField { text <=> root.pre; mono: true; } }
+            Field { label: @tr("Commande après la session"); hint: @tr("Exécutée à la fin de la session."); TextField { text <=> root.post; mono: true; } }
         }
         Field {
-            label: "Programmes lancés avec le jeu";
-            hint: "Démarrés avant le jeu ; « fermer après » les arrête à la fin de la session (uniquement ceux démarrés par Halcyon).";
+            label: @tr("Programmes lancés avec le jeu");
+            hint: @tr("Démarrés avant le jeu ; « fermer après » les arrête à la fin de la session (uniquement ceux démarrés par Halcyon).");
             for c[i] in DetailUi.edit-companions: HorizontalLayout {
                 height: 34px;
                 spacing: 8px;
                 Text { text: c.path; color: Theme.text; font-size: Theme.t-caption; font-family: "monospace"; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
                 Text { text: c.args; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; overflow: elide; }
-                if c.close-after: Badge { y: 8px; text: "fermé après"; }
+                if c.close-after: Badge { y: 8px; text: @tr("fermé après"); }
                 IconButton { size: 30px; icon-size: 15px; icon: Icons.trash; active-tint: Theme.danger; clicked => { DetailUi.remove-companion(i); } }
             }
             HorizontalLayout {
                 spacing: 8px;
-                PathField { value <=> root.comp-path; placeholder: "Programme"; }
-                TextField { width: 160px; text <=> root.comp-args; placeholder: "Arguments"; mono: true; }
-                Chip { y: 3px; text: "Fermer après"; checked: root.comp-close; toggled => { root.comp-close = !root.comp-close; } }
+                PathField { value <=> root.comp-path; placeholder: @tr("Programme"); }
+                TextField { width: 160px; text <=> root.comp-args; placeholder: @tr("Arguments"); mono: true; }
+                Chip { y: 3px; text: @tr("Fermer après"); checked: root.comp-close; toggled => { root.comp-close = !root.comp-close; } }
                 SecondaryButton {
-                    text: "Ajouter";
-                    h: 38px;
+                    text: @tr("Ajouter");
+                    h: 36px;
                     enabled: root.comp-path != "";
                     clicked => { DetailUi.add-companion(root.comp-path, root.comp-args, root.comp-close); root.comp-path = ""; root.comp-args = ""; }
                 }
@@ -710,9 +738,9 @@ component ProfileEditor inherits Panel {
         HorizontalLayout {
             spacing: 10px;
             alignment: end;
-            SecondaryButton { text: "Annuler"; clicked => { DetailUi.editing-open = false; } }
+            SecondaryButton { text: @tr("Annuler"); clicked => { DetailUi.editing-open = false; } }
             PrimaryButton {
-                text: "Enregistrer le profil";
+                text: @tr("Enregistrer le profil");
                 icon: Icons.check;
                 has-icon: true;
                 enabled: root.name != "";
@@ -733,28 +761,28 @@ component ProfileEditor inherits Panel {
 component ProfilesTab inherits VerticalLayout {
     spacing: 14px;
     HorizontalLayout {
-        SectionTitle { text: "Profils de lancement"; horizontal-stretch: 1; }
+        SectionTitle { text: @tr("Profils de lancement"); horizontal-stretch: 1; }
         if !DetailUi.editing-open: SecondaryButton {
-            text: "Nouveau profil";
+            text: @tr("Nouveau profil");
             icon: Icons.plus;
             has-icon: true;
             clicked => { DetailUi.new-profile(DetailUi.game.id); }
         }
     }
     Text {
-        text: "Plusieurs façons de lancer ce jeu (arguments, résolution, GPU, scripts…). Choisissez le profil à côté du bouton Jouer. Les fichiers du jeu ne sont jamais modifiés.";
+        text: @tr("Plusieurs façons de lancer ce jeu (arguments, résolution, GPU, scripts…). Choisissez le profil à côté du bouton Jouer. Les fichiers du jeu ne sont jamais modifiés.");
         color: Theme.text-dim;
         font-size: Theme.t-small;
         wrap: word-wrap;
     }
     if DetailUi.profile-notes.length > 0: Notice {
         warning: true;
-        text: "Remarques sur ce profil pour ce jeu (réglages limités par le mode de lancement) :";
+        text: @tr("Remarques sur ce profil pour ce jeu (réglages limités par le mode de lancement) :");
     }
     for n in DetailUi.profile-notes: Text { text: "• " + n; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
     if DetailUi.editing-open: ProfileEditor { p: DetailUi.editing; }
     if !DetailUi.editing-open && DetailUi.profiles.length == 0: Text {
-        text: "Aucun profil : le jeu se lance avec ses paramètres habituels.";
+        text: @tr("Aucun profil : le jeu se lance avec ses paramètres habituels.");
         color: Theme.text-muted;
         font-size: Theme.t-small;
     }
@@ -775,14 +803,14 @@ component ProfilesTab inherits VerticalLayout {
                     HorizontalLayout {
                         spacing: 8px;
                         Text { text: p.name; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
-                        if p.is-default: Badge { text: "PAR DÉFAUT"; tint: Theme.accent; }
+                        if p.is-default: Badge { text: @tr("Par défaut"); tint: Theme.accent; }
                         Rectangle { horizontal-stretch: 1; }
                     }
                     Text { text: p.summary; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
                 }
-                IconButton { y: (parent.height - self.height) / 2; icon: Icons.play; tooltip: "Lancer avec ce profil"; clicked => { DetailUi.play-with(DetailUi.game.id, p.id); } }
-                IconButton { y: (parent.height - self.height) / 2; icon: Icons.edit; tooltip: "Modifier"; clicked => { DetailUi.edit-profile(p.id); } }
-                IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer"; clicked => { DetailUi.delete-profile(p.id); } }
+                IconButton { y: (parent.height - self.height) / 2; icon: Icons.play; tooltip: @tr("Lancer avec ce profil"); clicked => { DetailUi.play-with(DetailUi.game.id, p.id); } }
+                IconButton { y: (parent.height - self.height) / 2; icon: Icons.edit; tooltip: @tr("Modifier"); clicked => { DetailUi.edit-profile(p.id); } }
+                IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Supprimer"); clicked => { DetailUi.delete-profile(p.id); } }
             }
         }
     }
@@ -795,11 +823,11 @@ component SavesTab inherits VerticalLayout {
     spacing: 16px;
 
     HorizontalLayout {
-        SectionTitle { text: "Sauvegardes"; horizontal-stretch: 1; }
-        if DetailUi.save-busy: Text { text: "Analyse…"; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
+        SectionTitle { text: @tr("Sauvegardes"); horizontal-stretch: 1; }
+        if DetailUi.save-busy: Text { text: @tr("Analyse…"); color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
     }
     Text {
-        text: "Halcyon conserve des copies versionnées de vos sauvegardes, avant et après chaque session. Une restauration crée toujours d'abord une copie de l'état actuel.";
+        text: @tr("Halcyon conserve des copies versionnées de vos sauvegardes, avant et après chaque session. Une restauration crée toujours d'abord une copie de l'état actuel.");
         color: Theme.text-dim;
         font-size: Theme.t-small;
         wrap: word-wrap;
@@ -813,11 +841,11 @@ component SavesTab inherits VerticalLayout {
     if DetailUi.save-state == 3 || DetailUi.save-state == 4: HorizontalLayout {
         spacing: 10px;
         alignment: start;
-        PrimaryButton { text: "Restaurer la version de l'autre PC"; icon: Icons.restore; has-icon: true; clicked => { DetailUi.save-restore-remote(DetailUi.game.id); } }
-        if DetailUi.save-state == 4: SecondaryButton { text: "Garder la version de ce PC"; clicked => { DetailUi.save-keep-local(DetailUi.game.id); } }
+        PrimaryButton { text: @tr("Restaurer la version de l'autre PC"); icon: Icons.restore; has-icon: true; clicked => { DetailUi.save-restore-remote(DetailUi.game.id); } }
+        if DetailUi.save-state == 4: SecondaryButton { text: @tr("Garder la version de ce PC"); clicked => { DetailUi.save-keep-local(DetailUi.game.id); } }
     }
 
-    SectionTitle { text: "Emplacements"; }
+    SectionTitle { text: @tr("Emplacements"); }
     for l[i] in DetailUi.save-locs: Rectangle {
         height: 48px;
         border-radius: Theme.radius;
@@ -831,13 +859,13 @@ component SavesTab inherits VerticalLayout {
                 alignment: center;
                 horizontal-stretch: 1;
                 Text { text: l.path; color: Theme.text; font-size: Theme.t-caption; font-family: "monospace"; overflow: elide; }
-                if !l.exists: Text { text: "Introuvable pour l'instant (le jeu n'a peut-être pas encore sauvegardé)"; color: Theme.warm; font-size: Theme.t-overline; }
+                if !l.exists: Text { text: @tr("Introuvable pour l'instant (le jeu n'a peut-être pas encore sauvegardé)"); color: Theme.warm; font-size: Theme.t-overline; }
             }
-            IconButton { y: (parent.height - self.height) / 2; icon: Icons.folder; tooltip: "Ouvrir"; clicked => { Actions.open-folder(l.path); } }
-            IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Retirer (les fichiers ne sont pas supprimés)"; clicked => { DetailUi.save-remove-location(DetailUi.game.id, i); } }
+            IconButton { y: (parent.height - self.height) / 2; icon: Icons.folder; tooltip: @tr("Ouvrir"); clicked => { Actions.open-folder(l.path); } }
+            IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Retirer (les fichiers ne sont pas supprimés)"); clicked => { DetailUi.save-remove-location(DetailUi.game.id, i); } }
         }
     }
-    if DetailUi.save-cands.length > 0: Text { text: "Emplacements détectés"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+    if DetailUi.save-cands.length > 0: Text { text: @tr("Emplacements détectés"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
     for c[i] in DetailUi.save-cands: Rectangle {
         height: 48px;
         border-radius: Theme.radius;
@@ -850,16 +878,16 @@ component SavesTab inherits VerticalLayout {
             VerticalLayout {
                 alignment: center;
                 horizontal-stretch: 1;
-                Text { text: c.reason + (c.confident ? "" : "  ·  correspondance approximative"); color: Theme.text; font-size: Theme.t-caption; font-weight: 600; overflow: elide; }
+                Text { text: c.reason + (c.confident ? "" : @tr(", correspondance approximative")); color: Theme.text; font-size: Theme.t-caption; font-weight: 600; overflow: elide; }
                 Text { text: c.path; color: Theme.text-dim; font-size: Theme.t-overline; font-family: "monospace"; overflow: elide; }
             }
-            SecondaryButton { y: (parent.height - self.height) / 2; h: 32px; text: "Associer"; clicked => { DetailUi.save-associate(DetailUi.game.id, i); } }
+            SecondaryButton { y: (parent.height - self.height) / 2; h: 32px; text: @tr("Associer"); clicked => { DetailUi.save-associate(DetailUi.game.id, i); } }
         }
     }
     HorizontalLayout {
         spacing: 8px;
-        PathField { value <=> root.new-path; folder: true; placeholder: "Ajouter un dossier ou fichier de sauvegarde"; }
-        SecondaryButton { text: "Ajouter"; h: 38px; enabled: root.new-path != ""; clicked => { DetailUi.save-add-location(DetailUi.game.id, root.new-path); root.new-path = ""; } }
+        PathField { value <=> root.new-path; folder: true; placeholder: @tr("Ajouter un dossier ou fichier de sauvegarde"); }
+        SecondaryButton { text: @tr("Ajouter"); h: 36px; enabled: root.new-path != ""; clicked => { DetailUi.save-add-location(DetailUi.game.id, root.new-path); root.new-path = ""; } }
     }
     HorizontalLayout {
         spacing: 22px;
@@ -867,21 +895,21 @@ component SavesTab inherits VerticalLayout {
         HorizontalLayout {
             spacing: 10px;
             Toggle { checked <=> DetailUi.save-auto-before; toggled(v) => { DetailUi.save-set-auto(DetailUi.game.id, v, DetailUi.save-auto-after); } }
-            Text { text: "Avant chaque session"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+            Text { text: @tr("Avant chaque session"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
         }
         HorizontalLayout {
             spacing: 10px;
             Toggle { checked <=> DetailUi.save-auto-after; toggled(v) => { DetailUi.save-set-auto(DetailUi.game.id, DetailUi.save-auto-before, v); } }
-            Text { text: "Après chaque session"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+            Text { text: @tr("Après chaque session"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
         }
     }
     Text { text: DetailUi.save-root; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
 
     if DetailUi.save-locs.length > 0: HorizontalLayout {
         spacing: 8px;
-        TextField { text <=> root.note; placeholder: "Note facultative (ex. avant le boss final)"; }
+        TextField { text <=> root.note; placeholder: @tr("Note facultative (ex. avant le boss final)"); }
         PrimaryButton {
-            text: "Sauvegarder maintenant";
+            text: @tr("Sauvegarder maintenant");
             icon: Icons.save;
             has-icon: true;
             enabled: !DetailUi.save-busy;
@@ -889,7 +917,7 @@ component SavesTab inherits VerticalLayout {
         }
     }
 
-    if DetailUi.snapshots.length > 0: SectionTitle { text: "Historique (" + DetailUi.snapshots.length + ")"; }
+    if DetailUi.snapshots.length > 0: SectionTitle { text: @tr("Historique ({})", DetailUi.snapshots.length); }
     for sn in DetailUi.snapshots: Rectangle {
         height: 58px;
         border-radius: Theme.radius;
@@ -910,15 +938,15 @@ component SavesTab inherits VerticalLayout {
                     Rectangle { horizontal-stretch: 1; }
                 }
                 Text {
-                    text: sn.files + " fichier(s) · " + sn.size + (sn.note != "" ? " · " + sn.note : "") + (sn.other-machine ? "" : " · " + sn.machine);
+                    text: @tr("{n} fichier, {}" | "{n} fichiers, {}" % sn.files, sn.size) + (sn.note != "" ? ", " + sn.note : "") + (sn.other-machine ? "" : ", " + sn.machine);
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                     overflow: elide;
                 }
             }
-            IconButton { y: (parent.height - self.height) / 2; icon: Icons.compare; tooltip: "Comparer avec les fichiers actuels"; clicked => { DetailUi.save-compare(DetailUi.game.id, sn.id); } }
-            IconButton { y: (parent.height - self.height) / 2; icon: Icons.restore; tooltip: "Restaurer"; clicked => { DetailUi.save-restore(DetailUi.game.id, sn.id); } }
-            IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer"; clicked => { DetailUi.save-delete(DetailUi.game.id, sn.id); } }
+            IconButton { y: (parent.height - self.height) / 2; icon: Icons.compare; tooltip: @tr("Comparer avec les fichiers actuels"); clicked => { DetailUi.save-compare(DetailUi.game.id, sn.id); } }
+            IconButton { y: (parent.height - self.height) / 2; icon: Icons.restore; tooltip: @tr("Restaurer"); clicked => { DetailUi.save-restore(DetailUi.game.id, sn.id); } }
+            IconButton { y: (parent.height - self.height) / 2; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Supprimer"); clicked => { DetailUi.save-delete(DetailUi.game.id, sn.id); } }
         }
     }
     if DetailUi.save-diff-title != "": Panel {
@@ -946,12 +974,12 @@ component ModsTab inherits VerticalLayout {
     in-out property <string> edit-nexus;
     spacing: 16px;
 
-    SectionTitle { text: "Mods"; }
+    SectionTitle { text: @tr("Mods"); }
     Notice {
         warning: true;
-        text: "Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer.";
+        text: @tr("Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer.");
     }
-    if !DetailUi.mod-available: Text { text: "Dossier d'installation introuvable : les mods sont indisponibles pour ce jeu."; color: Theme.text-dim; font-size: Theme.t-small; }
+    if !DetailUi.mod-available: Text { text: @tr("Dossier d'installation introuvable : les mods sont indisponibles pour ce jeu."); color: Theme.text-dim; font-size: Theme.t-small; }
 
     if DetailUi.mod-available: VerticalLayout {
         spacing: 16px;
@@ -959,22 +987,22 @@ component ModsTab inherits VerticalLayout {
             spacing: 14px;
             alignment: start;
             Field {
-                label: "Méthode d'installation";
+                label: @tr("Méthode d'installation");
                 Dropdown {
                     prefix: "";
                     align-left: true;
                     popup-width: 260px;
-                    options: ["Copie dans le dossier du jeu", "BepInEx (Unity)", "Paquets Unreal (.pak)"];
+                    options: [@tr("Copie dans le dossier du jeu"), @tr("BepInEx (Unity)"), @tr("Paquets Unreal (.pak)")];
                     selected <=> DetailUi.mod-adapter;
                     changed(i) => { DetailUi.mod-set-adapter(DetailUi.game.id, i, i == 1 ? "" : DetailUi.mod-target); }
                 }
             }
             if DetailUi.mod-adapter != 1: Field {
-                label: DetailUi.mod-adapter == 2 ? "Dossier Content/Paks" : "Sous-dossier cible (facultatif)";
+                label: DetailUi.mod-adapter == 2 ? @tr("Dossier Content/Paks") : @tr("Sous-dossier cible (facultatif)");
                 HorizontalLayout {
                     spacing: 8px;
-                    TextField { width: 260px; text <=> DetailUi.mod-target; mono: true; placeholder: DetailUi.mod-adapter == 2 ? "MonJeu/Content/Paks" : "ex. data"; }
-                    SecondaryButton { h: 38px; text: "Appliquer"; clicked => { DetailUi.mod-set-adapter(DetailUi.game.id, DetailUi.mod-adapter, DetailUi.mod-target); } }
+                    TextField { width: 260px; text <=> DetailUi.mod-target; mono: true; placeholder: DetailUi.mod-adapter == 2 ? @tr("MonJeu/Content/Paks") : @tr("ex. data"); }
+                    SecondaryButton { h: 36px; text: @tr("Appliquer"); clicked => { DetailUi.mod-set-adapter(DetailUi.game.id, DetailUi.mod-adapter, DetailUi.mod-target); } }
                 }
             }
         }
@@ -984,19 +1012,19 @@ component ModsTab inherits VerticalLayout {
             spacing: 8px;
             alignment: start;
             Dropdown {
-                prefix: "Profil :";
+                prefix: @tr("Profil :");
                 align-left: true;
                 popup-width: 240px;
                 options: DetailUi.mod-profile-labels;
                 selected <=> DetailUi.mod-profile;
                 changed(i) => { DetailUi.mod-select-profile(DetailUi.game.id, i); }
             }
-            TextField { width: 220px; text <=> root.new-profile; placeholder: "Nouveau profil (ex. Vanilla+)"; }
-            SecondaryButton { h: 34px; text: "Créer"; enabled: root.new-profile != ""; clicked => { DetailUi.mod-new-profile(DetailUi.game.id, root.new-profile); root.new-profile = ""; } }
-            SecondaryButton { h: 34px; text: "Supprimer le profil"; clicked => { DetailUi.mod-delete-profile(DetailUi.game.id); } }
+            TextField { width: 220px; text <=> root.new-profile; placeholder: @tr("Nouveau profil (ex. Vanilla+)"); }
+            SecondaryButton { h: 34px; text: @tr("Créer"); enabled: root.new-profile != ""; clicked => { DetailUi.mod-new-profile(DetailUi.game.id, root.new-profile); root.new-profile = ""; } }
+            SecondaryButton { h: 34px; text: @tr("Supprimer le profil"); clicked => { DetailUi.mod-delete-profile(DetailUi.game.id); } }
         }
 
-        Text { text: DetailUi.mods.length == 0 ? "Aucun mod dans la bibliothèque de ce jeu : importez une archive .zip ou un dossier." : "Ordre de chargement : en cas de conflit, le mod le plus bas l'emporte."; color: Theme.text-dim; font-size: Theme.t-caption; }
+        Text { text: DetailUi.mods.length == 0 ? @tr("Aucun mod dans la bibliothèque de ce jeu : importez une archive .zip ou un dossier.") : @tr("Ordre de chargement : en cas de conflit, le mod le plus bas l'emporte."); color: Theme.text-dim; font-size: Theme.t-caption; }
         for m[i] in DetailUi.mods: VerticalLayout {
             spacing: 6px;
             Rectangle {
@@ -1018,44 +1046,44 @@ component ModsTab inherits VerticalLayout {
                             spacing: 8px;
                             Text { text: (i + 1) + ". " + m.name; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
                             if m.version != "": Badge { text: "v" + m.version; }
-                            if m.latest != "": Badge { text: "v" + m.latest + " disponible"; tint: Theme.accent; solid: true; }
-                            if m.deployed: Badge { text: "INSTALLÉ"; tint: Theme.success; }
-                            if m.conflicts > 0 && m.enabled: Badge { text: m.conflicts + " conflit(s)"; tint: Theme.warm; }
+                            if m.latest != "": Badge { text: @tr("v{} disponible", m.latest); tint: Theme.accent; solid: true; }
+                            if m.deployed: Badge { text: @tr("Installé"); tint: Theme.success; }
+                            if m.conflicts > 0 && m.enabled: Badge { text: @tr("{n} conflit" | "{n} conflits" % m.conflicts); tint: Theme.warm; }
                             Rectangle { horizontal-stretch: 1; }
                         }
-                        Text { text: m.files + " fichier(s) · " + m.size + (m.nexus-id != "" ? " · Nexus " + m.nexus-id : ""); color: Theme.text-dim; font-size: Theme.t-overline; }
+                        Text { text: @tr("{n} fichier, {}" | "{n} fichiers, {}" % m.files, m.size) + (m.nexus-id != "" ? @tr(", Nexus {}", m.nexus-id) : ""); color: Theme.text-dim; font-size: Theme.t-overline; }
                     }
-                    IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.chevron-down; tooltip: "Descendre"; clicked => { DetailUi.mod-move(DetailUi.game.id, m.id, 1); } }
-                    IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.chevron-up; tooltip: "Monter"; clicked => { DetailUi.mod-move(DetailUi.game.id, m.id, -1); } }
+                    IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.chevron-down; tooltip: @tr("Descendre"); clicked => { DetailUi.mod-move(DetailUi.game.id, m.id, 1); } }
+                    IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.chevron-up; tooltip: @tr("Monter"); clicked => { DetailUi.mod-move(DetailUi.game.id, m.id, -1); } }
                     IconButton {
                         y: (parent.height - self.height) / 2;
                         size: 32px;
                         icon: Icons.edit;
-                        tooltip: "Version et identifiant Nexus";
+                        tooltip: @tr("Version et identifiant Nexus");
                         clicked => {
                             root.editing-id = root.editing-id == m.id ? "" : m.id;
                             root.edit-version = m.version;
                             root.edit-nexus = m.nexus-id;
                         }
                     }
-                    IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.trash; active-tint: Theme.danger; tooltip: "Supprimer de la bibliothèque"; clicked => { DetailUi.mod-delete(DetailUi.game.id, m.id); } }
+                    IconButton { y: (parent.height - self.height) / 2; size: 32px; icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Supprimer de la bibliothèque"); clicked => { DetailUi.mod-delete(DetailUi.game.id, m.id); } }
                 }
             }
             if root.editing-id == m.id: HorizontalLayout {
                 spacing: 8px;
                 padding-left: 12px;
-                TextField { width: 160px; text <=> root.edit-version; placeholder: "Version"; }
-                TextField { width: 200px; text <=> root.edit-nexus; placeholder: "ID Nexus Mods"; mono: true; }
-                SecondaryButton { h: 38px; text: "Enregistrer"; clicked => { DetailUi.mod-save-info(DetailUi.game.id, m.id, root.edit-version, root.edit-nexus); root.editing-id = ""; } }
+                TextField { width: 160px; text <=> root.edit-version; placeholder: @tr("Version"); }
+                TextField { width: 200px; text <=> root.edit-nexus; placeholder: @tr("ID Nexus Mods"); mono: true; }
+                SecondaryButton { h: 36px; text: @tr("Enregistrer"); clicked => { DetailUi.mod-save-info(DetailUi.game.id, m.id, root.edit-version, root.edit-nexus); root.editing-id = ""; } }
                 Rectangle { horizontal-stretch: 1; }
             }
         }
 
         HorizontalLayout {
             spacing: 8px;
-            PathField { value <=> root.import-path; placeholder: "Archive .zip ou dossier du mod"; }
-            TextField { width: 200px; text <=> root.import-name; placeholder: "Nom (facultatif)"; }
-            SecondaryButton { h: 38px; text: "Importer"; icon: Icons.plus; has-icon: true; enabled: root.import-path != ""; clicked => { DetailUi.mod-import(DetailUi.game.id, root.import-path, root.import-name); root.import-path = ""; root.import-name = ""; } }
+            PathField { value <=> root.import-path; placeholder: @tr("Archive .zip ou dossier du mod"); }
+            TextField { width: 200px; text <=> root.import-name; placeholder: @tr("Nom (facultatif)"); }
+            SecondaryButton { h: 36px; text: @tr("Importer"); icon: Icons.plus; has-icon: true; enabled: root.import-path != ""; clicked => { DetailUi.mod-import(DetailUi.game.id, root.import-path, root.import-name); root.import-path = ""; root.import-name = ""; } }
         }
 
         Panel {
@@ -1066,21 +1094,21 @@ component ModsTab inherits VerticalLayout {
                 HorizontalLayout {
                     spacing: 10px;
                     alignment: start;
-                    PrimaryButton { text: "Appliquer le profil au jeu"; icon: Icons.check; has-icon: true; clicked => { DetailUi.mod-deploy(DetailUi.game.id); } }
-                    SecondaryButton { text: "Retirer tous les mods"; clicked => { DetailUi.mod-undeploy(DetailUi.game.id); } }
+                    PrimaryButton { text: @tr("Appliquer le profil au jeu"); icon: Icons.check; has-icon: true; clicked => { DetailUi.mod-deploy(DetailUi.game.id); } }
+                    SecondaryButton { text: @tr("Retirer tous les mods"); clicked => { DetailUi.mod-undeploy(DetailUi.game.id); } }
                 }
             }
         }
 
-        if DetailUi.mod-conflicts.length > 0: Text { text: "Conflits"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+        if DetailUi.mod-conflicts.length > 0: Text { text: @tr("Conflits"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
         for c in DetailUi.mod-conflicts: Text { text: "• " + c; color: Theme.warm; font-size: Theme.t-caption; wrap: word-wrap; }
-        if DetailUi.mod-external.length > 0: Text { text: "Fichiers de mods présents mais non installés par Halcyon (laissés tels quels)"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
+        if DetailUi.mod-external.length > 0: Text { text: @tr("Fichiers de mods présents mais non installés par Halcyon (laissés tels quels)"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; }
         for e in DetailUi.mod-external: Text { text: e; color: Theme.text-dim; font-size: Theme.t-caption; font-family: "monospace"; }
 
         HorizontalLayout {
             spacing: 8px;
-            TextField { width: 280px; text <=> DetailUi.mod-nexus-domain; placeholder: "Jeu sur Nexus (ex. stardewvalley)"; mono: true; }
-            SecondaryButton { h: 38px; text: "Vérifier les versions sur Nexus Mods"; icon: Icons.refresh; has-icon: true; clicked => { DetailUi.mod-check(DetailUi.game.id, DetailUi.mod-nexus-domain); } }
+            TextField { width: 280px; text <=> DetailUi.mod-nexus-domain; placeholder: @tr("Jeu sur Nexus (ex. stardewvalley)"); mono: true; }
+            SecondaryButton { h: 36px; text: @tr("Vérifier les versions sur Nexus Mods"); icon: Icons.refresh; has-icon: true; clicked => { DetailUi.mod-check(DetailUi.game.id, DetailUi.mod-nexus-domain); } }
             Rectangle { horizontal-stretch: 1; }
         }
     }
@@ -1088,21 +1116,22 @@ component ModsTab inherits VerticalLayout {
 
 component Overview inherits VerticalLayout {
     in-out property <string> new-collection;
-    spacing: 16px;
-    SectionTitle { text: "À propos"; }
+    spacing: 14px;
+    Rubric { title: @tr("À propos"); }
     Text {
-        text: DetailUi.game.description != "" ? DetailUi.game.description : "Aucune description disponible pour ce jeu.";
-        color: DetailUi.game.description != "" ? #c9ced8 : Theme.text-dim;
+        text: DetailUi.game.description != "" ? DetailUi.game.description : @tr("Aucune description disponible pour ce jeu.");
+        color: DetailUi.game.description != "" ? Theme.text.mix(Theme.text-muted, 0.4) : Theme.text-dim;
         font-size: Theme.t-body;
         wrap: word-wrap;
     }
     if DetailUi.game.genres != "": Text {
-        text: "Genres : " + DetailUi.game.genres;
+        text: @tr("Genres : {}", DetailUi.game.genres);
         color: Theme.text-muted;
         font-size: Theme.t-small;
     }
 
-    if DetailUi.screenshots.length > 0: SectionTitle { text: "Captures d'écran"; }
+    if DetailUi.screenshots.length > 0: Rectangle { height: 14px; }
+    if DetailUi.screenshots.length > 0: Rubric { title: @tr("Captures d'écran"); }
     if DetailUi.screenshots.length > 0: Rectangle {
         height: 150px;
         property <length> w: 240px;
@@ -1123,7 +1152,28 @@ component Overview inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: "Collections"; }
+    if DetailUi.news.length > 0 || DetailUi.news-status != "": Rectangle { height: 14px; }
+    if DetailUi.news.length > 0 || DetailUi.news-status != "": Rubric { title: @tr("Actualités"); }
+    if DetailUi.news-status != "": Text { text: DetailUi.news-status; color: Theme.text-dim; font-size: Theme.t-small; }
+    for n in DetailUi.news: Rectangle {
+        height: news-col.preferred-height;
+        border-radius: Theme.radius-sm;
+        background: news-touch.has-hover ? Theme.surface : transparent;
+        Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+        news-touch := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-url(n.url); } }
+        news-col := VerticalLayout {
+            padding-top: 12px;
+            padding-bottom: 14px;
+            padding-left: 2px;
+            spacing: 4px;
+            Text { text: n.title; color: news-touch.has-hover ? Theme.accent : Theme.text; font-size: Theme.t-body; font-weight: 600; wrap: word-wrap; }
+            Text { text: n.meta; color: Theme.text-dim; font-size: Theme.t-overline; }
+            if n.excerpt != "": Text { text: n.excerpt; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+        }
+    }
+
+    Rectangle { height: 14px; }
+    Rubric { title: @tr("Collections"); }
     HorizontalLayout {
         spacing: 8px;
         alignment: start;
@@ -1133,7 +1183,7 @@ component Overview inherits VerticalLayout {
             toggled => { DetailUi.toggle-collection(DetailUi.game.id, c.id); }
         }
         if DetailUi.collections.length == 0: Text {
-            text: "Aucune collection pour l'instant.";
+            text: @tr("Aucune collection pour l'instant.");
             color: Theme.text-dim;
             font-size: Theme.t-small;
             vertical-alignment: center;
@@ -1144,17 +1194,16 @@ component Overview inherits VerticalLayout {
         TextField {
             width: 280px;
             text <=> root.new-collection;
-            placeholder: "Nouvelle collection (ex. Coop, À finir)";
+            placeholder: @tr("Nouvelle collection (ex. Coop, À finir)");
             accepted(t) => {
                 DetailUi.create-collection(DetailUi.game.id, t);
                 root.new-collection = "";
             }
         }
         SecondaryButton {
-            text: "Créer et ajouter";
+            text: @tr("Créer et ajouter");
             icon: Icons.plus;
             has-icon: true;
-            h: 38px;
             enabled: root.new-collection != "";
             clicked => {
                 DetailUi.create-collection(DetailUi.game.id, root.new-collection);
@@ -1170,7 +1219,7 @@ component CapturesTab inherits VerticalLayout {
     spacing: 16px;
     property <int> per-row: max(1, floor((self.width + 12px) / (300px + 12px)));
     property <length> tw: (self.width - (self.per-row - 1) * 12px) / self.per-row;
-    if DetailUi.captures.length > 0: SectionTitle { text: "Vos captures (" + DetailUi.captures.length + ")"; }
+    if DetailUi.captures.length > 0: SectionTitle { text: @tr("Vos captures ({})", DetailUi.captures.length); }
     if DetailUi.captures.length > 0: Rectangle {
         height: ceil(DetailUi.captures.length / root.per-row) * (root.tw * 9 / 16 + 12px);
         for c[i] in DetailUi.captures: Rectangle {
@@ -1178,7 +1227,7 @@ component CapturesTab inherits VerticalLayout {
             y: floor(i / root.per-row) * (root.tw * 9 / 16 + 12px);
             width: root.tw;
             height: root.tw * 9 / 16;
-            border-radius: Theme.radius-sm;
+            border-radius: Theme.radius-cover;
             clip: true;
             background: Theme.surface;
             Image { width: parent.width; height: parent.height; source: c.image; image-fit: cover; }
@@ -1192,7 +1241,7 @@ component CapturesTab inherits VerticalLayout {
             lc-ta := TouchArea { mouse-cursor: pointer; clicked => { DetailUi.open-capture(i); } }
         }
     }
-    if DetailUi.screenshots.length > 0: SectionTitle { text: "Visuels officiels"; }
+    if DetailUi.screenshots.length > 0: SectionTitle { text: @tr("Visuels officiels"); }
     if DetailUi.screenshots.length > 0: Rectangle {
         height: ceil(DetailUi.screenshots.length / root.per-row) * (root.tw * 9 / 16 + 12px);
         for shot[i] in DetailUi.screenshots: Rectangle {
@@ -1207,26 +1256,35 @@ component CapturesTab inherits VerticalLayout {
         }
     }
     Text {
-        text: "Les vidéos ne sont pas lues dans Halcyon. Les captures Steam sont lues dans le dossier de votre compte local, sans modification.";
+        text: @tr("Les vidéos ne sont pas lues dans Halcyon. Les captures Steam sont lues dans le dossier de votre compte local, sans modification.");
         color: Theme.text-dim;
         font-size: Theme.t-caption;
         wrap: word-wrap;
     }
 }
 
-/// Chiffre clé du bandeau.
+/// Fait de l'en-tête : valeur dans la police d'affichage, légende dessous.
 component HeroStat inherits VerticalLayout {
     in property <string> label;
     in property <string> value;
-    spacing: 2px;
-    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-overline; font-weight: 700; letter-spacing: 0.8px; }
-    Text { text: root.value; color: Theme.text; font-size: Theme.t-subheading; font-weight: 650; overflow: elide; }
+    spacing: 3px;
+    Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading + 2px; font-weight: 700; overflow: elide; }
+    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; }
+}
+
+/// Groupe de la fiche technique (colonne de droite) : petit titre et lignes.
+component FactGroup inherits VerticalLayout {
+    in property <string> title;
+    spacing: 10px;
+    Overline { text: root.title; }
+    @children
 }
 
 export component GamePage inherits Rectangle {
-    /// Bandeau cinématographique : plus de la moitié de la fenêtre, borné.
-    property <length> banner-height: clamp(root.height * 0.58, 380px, 640px);
+    /// Bande illustrée en tête de fiche : hauteur bornée.
+    property <length> band-height: clamp(root.height * 0.36, 220px, 360px);
     property <bool> wide: root.width > 1100px;
+    property <length> cover-w: root.wide ? 188px : 132px;
     property <bool> has-ach: DetailUi.ach-mode != "unsupported";
     property <bool> has-captures: DetailUi.captures.length > 0 || DetailUi.screenshots.length > 0;
     // Onglets : 0 Aperçu, 2 Succès, 3 Statistiques, 7 Captures, 5 Sauvegardes, 6 Mods,
@@ -1235,77 +1293,88 @@ export component GamePage inherits Rectangle {
 
     sv := ScrollView {
         content-height: content.preferred-height;
-        scrolled => { AppUi.top-solid = self.content-y < -40px; }
+        scrolled => { AppUi.top-solid = self.content-y < -(root.band-height - 60px); }
         content := VerticalLayout {
             width: root.width;
 
-            // Bandeau
+            // En-tête : bande illustrée nette, jaquette qui chevauche son bord, titre dessous.
             Rectangle {
-                height: root.banner-height;
-                clip: true;
-                Rectangle {
-                    background: @linear-gradient(125deg, DetailUi.game.color-a 0%, DetailUi.game.color-b 100%);
-                    opacity: DetailUi.game.has-banner ? 0 : 0.5;
+                height: root.band-height + head.preferred-height + 24px;
+                band := Rectangle {
+                    y: 0;
+                    height: root.band-height;
+                    clip: true;
+                    background: DetailUi.game.color-a.mix(#101215, 0.45);
+                    if DetailUi.game.has-banner: Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: DetailUi.game.banner;
+                        image-fit: cover;
+                    }
+                    if !DetailUi.game.has-banner: Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: DetailUi.ambient;
+                        image-fit: cover;
+                        image-rendering: smooth;
+                        opacity: 0.7;
+                    }
+                    // Badges d'état posés sur la bande, en bas à droite.
+                    HorizontalLayout {
+                        x: parent.width - self.preferred-width - Theme.page-padding;
+                        y: parent.height - 34px;
+                        height: 22px;
+                        spacing: 6px;
+                        Rectangle {
+                            width: st.preferred-width + 14px;
+                            background: #000000b8;
+                            border-radius: Theme.radius-sm;
+                            st := Text { text: DetailUi.game.install-state; color: DetailUi.game.installed ? Theme.success.brighter(0.3) : #ffffffc0; font-size: Theme.t-overline; font-weight: 600; }
+                        }
+                        if DetailUi.game.update-pending: Rectangle {
+                            width: up.preferred-width + 14px;
+                            background: #000000b8;
+                            border-radius: Theme.radius-sm;
+                            up := Text { text: DetailUi.game.update-state; color: Theme.warm; font-size: Theme.t-overline; font-weight: 600; }
+                        }
+                        if DetailUi.game.hidden: Rectangle {
+                            width: hd.preferred-width + 14px;
+                            background: #000000b8;
+                            border-radius: Theme.radius-sm;
+                            hd := Text { text: @tr("Masqué"); color: #ffffffc0; font-size: Theme.t-overline; font-weight: 600; }
+                        }
+                    }
                 }
-                if DetailUi.game.has-banner: Image {
-                    width: parent.width;
-                    height: parent.height;
-                    source: DetailUi.game.banner;
-                    image-fit: cover;
-                }
-                if !DetailUi.game.has-banner: Image {
-                    width: parent.width;
-                    height: parent.height;
-                    source: DetailUi.ambient;
-                    image-fit: cover;
-                    image-rendering: smooth;
-                    opacity: 0.75;
-                }
-                Rectangle {
-                    background: @linear-gradient(90deg, Theme.bg.with-alpha(0.88) 0%, Theme.bg.with-alpha(0.45) 45%, Theme.bg.with-alpha(0.05) 100%);
-                }
-                Rectangle {
-                    background: @linear-gradient(180deg, Theme.bg.with-alpha(0.55) 0%, Theme.bg.with-alpha(0.00) 22%, Theme.bg.with-alpha(0.00) 50%, Theme.bg.with-alpha(0.85) 85%, Theme.bg 100%);
-                }
-                // Jaquette à droite (grandes fenêtres).
-                if root.wide: GameCover {
-                    x: parent.width - self.width - Theme.page-padding;
-                    y: parent.height - self.height - 36px;
-                    width: 200px;
-                    height: 300px;
+                jacket := GameCover {
+                    x: Theme.page-padding;
+                    y: root.band-height - self.height * 0.55;
+                    width: root.cover-w;
+                    height: root.cover-w * 1.5;
                     source: DetailUi.game.cover;
                     has-image: DetailUi.game.has-cover;
                     color-a: DetailUi.game.color-a;
                     color-b: DetailUi.game.color-b;
                     initials: DetailUi.game.initials;
                     title: DetailUi.game.title;
-                    corner: Theme.radius-lg;
-                    drop-shadow-blur: Theme.effects ? 40px : 0px;
-                    drop-shadow-offset-y: 16px;
-                    drop-shadow-color: #000000b0;
+                    drop-shadow-blur: Theme.effects ? 24px : 0px;
+                    drop-shadow-offset-y: 8px;
+                    drop-shadow-color: #00000090;
                 }
-
-                VerticalLayout {
-                    x: Theme.page-padding;
-                    width: parent.width - 2 * Theme.page-padding - (root.wide ? 240px : 0px);
-                    padding-bottom: 32px;
-                    spacing: 14px;
-                    alignment: end;
+                head := VerticalLayout {
+                    x: Theme.page-padding + root.cover-w + 32px;
+                    y: root.band-height + 20px;
+                    width: root.width - self.x - Theme.page-padding;
+                    height: self.preferred-height;
+                    spacing: 10px;
+                    // Source et plateforme, en texte : la provenance n'a pas besoin de boîte.
                     HorizontalLayout {
-                        spacing: 8px;
+                        spacing: 14px;
                         alignment: start;
-                        Badge { text: DetailUi.game.source; tint: Theme.accent; solid: true; }
-                        if DetailUi.game.platform != "": Badge { text: DetailUi.game.platform; tint: Theme.accent; solid: true; }
-                        Badge {
-                            text: DetailUi.game.install-state;
-                            tint: DetailUi.game.installed ? Theme.success : Theme.text-muted;
-                            solid: DetailUi.game.installed;
-                        }
-                        if DetailUi.game.update-pending: Badge { text: DetailUi.game.update-state; tint: Theme.warm; }
-                        if DetailUi.game.hidden: Badge { text: "Masqué"; }
+                        Text { text: DetailUi.game.source; color: Theme.accent; font-size: Theme.t-small; font-weight: 600; }
+                        if DetailUi.game.platform != "": Text { text: DetailUi.game.platform; color: Theme.text-muted; font-size: Theme.t-small; font-weight: 600; }
                     }
                     if DetailUi.game.has-logo: Image {
-                        height: min(150px, root.banner-height * 0.26);
+                        height: min(96px, root.band-height * 0.3);
                         source: DetailUi.game.logo;
                         image-fit: contain;
                         horizontal-alignment: left;
@@ -1314,92 +1383,69 @@ export component GamePage inherits Rectangle {
                     if !DetailUi.game.has-logo: Text {
                         text: DetailUi.game.title;
                         color: Theme.text;
-                        font-size: Theme.t-display;
+                        font-family: Theme.display;
+                        font-size: root.wide ? Theme.t-display - 6px : Theme.t-title;
                         font-weight: 800;
-                        letter-spacing: -0.8px;
                         wrap: word-wrap;
                     }
-                    if DetailUi.game.developer != "" || DetailUi.game.genres != "": Text {
-                        text: DetailUi.game.developer + (DetailUi.game.developer != "" && DetailUi.game.genres != "" ? "  ·  " : "") + DetailUi.game.genres;
-                        color: Theme.text-muted;
-                        font-size: Theme.t-body;
-                        overflow: elide;
-                    }
-                    // Chiffres réels uniquement : une valeur inconnue n'est pas affichée.
-                    HorizontalLayout {
-                        spacing: Theme.s6;
+                    if DetailUi.game.developer != "" || DetailUi.game.genres != "": HorizontalLayout {
+                        spacing: 14px;
                         alignment: start;
-                        padding-top: 4px;
-                        HeroStat { label: "TEMPS DE JEU"; value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
-                        HeroStat { label: "DERNIÈRE SESSION"; value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : "Jamais"; }
-                        if DetailUi.ach-percent >= 0: VerticalLayout {
-                            spacing: 6px;
-                            width: 170px;
-                            HeroStat { label: "SUCCÈS"; value: DetailUi.ach-summary; }
-                            Rectangle {
-                                height: 4px;
-                                border-radius: 2px;
-                                background: Theme.text.with-alpha(0.15);
-                                Rectangle {
-                                    x: 0;
-                                    width: parent.width * clamp(DetailUi.ach-percent, 0, 1);
-                                    border-radius: 2px;
-                                    background: Theme.accent;
-                                }
-                            }
-                        }
+                        if DetailUi.game.developer != "": Text { text: DetailUi.game.developer; color: Theme.text-muted; font-size: Theme.t-body; overflow: elide; }
+                        if DetailUi.game.genres != "": Text { text: DetailUi.game.genres; color: Theme.text-dim; font-size: Theme.t-body; overflow: elide; }
                     }
+                    // Actions à gauche, chiffres réels à droite (une valeur inconnue s'affiche « — »).
                     HorizontalLayout {
-                        spacing: 10px;
-                        alignment: start;
-                        padding-top: 8px;
-                        PrimaryButton {
-                            text: DetailUi.game.installed ? "Jouer" : DetailUi.game.can-install ? "Installer via Steam" : "Non installé";
-                            icon: Icons.play;
-                            has-icon: DetailUi.game.installed;
+                        padding-top: 12px;
+                        spacing: 8px;
+                        PlayButton {
+                            big: true;
+                            text: DetailUi.game.installed ? @tr("Jouer") : DetailUi.game.can-install ? @tr("Installer via Steam") : @tr("Non installé");
                             enabled: DetailUi.game.installed || DetailUi.game.can-install;
-                            h: 52px;
-                            font-size: Theme.t-subheading + 1px;
-                            min-width: 180px;
                             clicked => { DetailUi.play-with(DetailUi.game.id, -1); }
                         }
                         if DetailUi.game.installed && DetailUi.profiles.length > 0: Dropdown {
-                            y: 9px;
-                            prefix: "Profil :";
+                            y: 8px;
+                            prefix: @tr("Profil");
                             align-left: true;
                             popup-width: 240px;
                             options: DetailUi.profile-labels;
                             selected <=> DetailUi.profile-index;
                         }
+                        Rectangle { width: 4px; }
                         IconButton {
-                            y: 2px;
-                            size: 48px;
-                            icon-size: 20px;
-                            glass: true;
+                            y: 3px;
+                            size: 42px;
+                            icon-size: 19px;
                             icon: DetailUi.game.favorite ? Icons.star-filled : Icons.star;
                             tint: DetailUi.game.favorite ? Theme.warm : Theme.text-muted;
                             active-tint: Theme.warm;
-                            tooltip: DetailUi.game.favorite ? "Retirer des favoris" : "Ajouter aux favoris";
+                            tooltip: DetailUi.game.favorite ? @tr("Retirer des favoris") : @tr("Ajouter aux favoris");
                             clicked => { Actions.toggle-favorite(DetailUi.game.id); }
                         }
                         IconButton {
-                            y: 2px;
-                            size: 48px;
-                            icon-size: 20px;
-                            glass: true;
+                            y: 3px;
+                            size: 42px;
+                            icon-size: 19px;
                             icon: Icons.folder;
                             enabled: DetailUi.game.install-dir != "";
-                            tooltip: DetailUi.game.install-dir != "" ? "Ouvrir le dossier du jeu" : "Aucun dossier connu";
+                            tooltip: DetailUi.game.install-dir != "" ? @tr("Ouvrir le dossier du jeu") : @tr("Aucun dossier connu");
                             clicked => { Actions.open-folder(DetailUi.game.install-dir); }
                         }
                         IconButton {
-                            y: 2px;
-                            size: 48px;
-                            icon-size: 20px;
-                            glass: true;
+                            y: 3px;
+                            size: 42px;
+                            icon-size: 19px;
                             icon: Icons.more;
-                            tooltip: "Plus d'actions";
-                            clicked => { GameMenu.request(DetailUi.game.id, self.absolute-position.x, self.absolute-position.y + 54px); }
+                            tooltip: @tr("Plus d'actions");
+                            clicked => { GameMenu.request(DetailUi.game.id, self.absolute-position.x, self.absolute-position.y + 48px); }
+                        }
+                        Rectangle { horizontal-stretch: 1; }
+                        if root.width > 1180px: HorizontalLayout {
+                            spacing: Theme.s6;
+                            HeroStat { label: @tr("Temps de jeu"); value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
+                            HeroStat { label: @tr("Dernière session"); value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : @tr("Jamais"); }
+                            if DetailUi.ach-percent >= 0: HeroStat { label: @tr("Succès"); value: round(DetailUi.ach-percent * 100) + " %"; }
                         }
                     }
                 }
@@ -1409,54 +1455,56 @@ export component GamePage inherits Rectangle {
             HorizontalLayout {
                 padding-left: Theme.page-padding;
                 padding-right: Theme.page-padding;
-                spacing: root.width < 1000px ? 16px : 28px;
+                padding-top: 8px;
+                spacing: root.width < 1000px ? 18px : 28px;
                 alignment: start;
-                Tab { text: "Aperçu"; selected: root.tab == 0; clicked => { DetailUi.tab = 0; } }
+                Tab { text: @tr("Aperçu"); selected: root.tab == 0; clicked => { DetailUi.tab = 0; } }
                 if root.has-ach: Tab {
-                    text: "Succès";
+                    text: @tr("Succès");
                     badge: DetailUi.ach-percent >= 0 ? round(DetailUi.ach-percent * 100) + " %" : "";
                     selected: root.tab == 2;
                     clicked => { DetailUi.tab = 2; }
                 }
-                Tab { text: "Statistiques"; selected: root.tab == 3; clicked => { DetailUi.tab = 3; } }
+                Tab { text: @tr("Statistiques"); selected: root.tab == 3; clicked => { DetailUi.tab = 3; } }
                 if root.has-captures: Tab {
-                    text: "Captures";
+                    text: @tr("Captures");
                     badge: DetailUi.captures.length > 0 ? DetailUi.captures.length : "";
                     selected: root.tab == 7;
                     clicked => { DetailUi.tab = 7; }
                 }
                 Tab {
-                    text: "Sauvegardes";
+                    text: @tr("Sauvegardes");
                     badge: DetailUi.snapshots.length > 0 ? DetailUi.snapshots.length : "";
                     selected: root.tab == 5;
                     clicked => { DetailUi.tab = 5; DetailUi.tools-refresh(); }
                 }
                 if !DetailUi.game.is-emulated: Tab {
-                    text: "Mods";
+                    text: @tr("Mods");
                     badge: DetailUi.mods.length > 0 ? DetailUi.mods.length : "";
                     selected: root.tab == 6;
                     clicked => { DetailUi.tab = 6; DetailUi.tools-refresh(); }
                 }
                 Tab {
-                    text: root.width < 1100px ? "Lancement" : "Paramètres de lancement";
+                    text: root.width < 1100px ? @tr("Lancement") : @tr("Paramètres de lancement");
                     badge: DetailUi.profiles.length > 0 ? DetailUi.profiles.length : "";
                     selected: root.tab == 1;
                     clicked => { DetailUi.tab = 1; }
                 }
             }
-            Rectangle {
-                height: 1px;
-                background: Theme.border;
+            HorizontalLayout {
+                padding-left: Theme.page-padding;
+                padding-right: Theme.page-padding;
+                Rectangle { height: 1px; background: Theme.border; }
             }
 
             HorizontalLayout {
                 padding: Theme.page-padding;
-                padding-top: 28px;
-                spacing: 32px;
+                padding-top: 32px;
+                spacing: 48px;
 
                 VerticalLayout {
                     horizontal-stretch: 1;
-                    spacing: 28px;
+                    spacing: 32px;
                     alignment: start;
                     if root.tab == 0: Overview { }
                     if root.tab == 1 && !DetailUi.game.is-emulated: LaunchSettings { }
@@ -1470,56 +1518,55 @@ export component GamePage inherits Rectangle {
                     if root.tab == 7: CapturesTab { }
                 }
 
-                // Informations : sur l'aperçu seulement, pour laisser la place aux autres onglets.
-                if root.tab == 0 && root.width > 900px: Panel {
-                    width: 340px;
-                    VerticalLayout {
-                        padding: 22px;
-                        spacing: 14px;
-                        alignment: start;
-                        InfoRow { label: "Temps de jeu"; value: DetailUi.game.playtime + (DetailUi.game.playtime-origin != "" ? " (" + DetailUi.game.playtime-origin + ")" : ""); }
-                        if DetailUi.game.status != 0: InfoRow { label: "Statut"; value: ["", "À jouer", "En cours", "Terminé", "Abandonné"][DetailUi.game.status]; }
-                        if DetailUi.game.update-pending: InfoRow { label: "Mise à jour"; value: DetailUi.game.update-state; }
-                        InfoRow { label: "Dernier lancement"; value: DetailUi.game.last-played; }
-                        InfoRow { label: "Sessions (Halcyon)"; value: DetailUi.game.sessions; }
-                        Rectangle { height: 1px; background: Theme.border; }
-                        InfoRow { label: "Source"; value: DetailUi.game.source; }
-                        if DetailUi.game.platform != "": InfoRow { label: "Plateforme"; value: DetailUi.game.platform; }
-                        InfoRow { label: "Lancement"; value: DetailUi.game.launch-mode; }
-                        InfoRow { label: "Taille"; value: DetailUi.game.size; }
-                        InfoRow { label: "Développeur"; value: DetailUi.game.developer; }
-                        InfoRow { label: "Éditeur"; value: DetailUi.game.publisher; }
-                        InfoRow { label: "Sortie"; value: DetailUi.game.release; }
-                        Rectangle { height: 1px; background: Theme.border; }
+                // Fiche technique : sur l'aperçu seulement, pour laisser la place aux autres onglets.
+                if root.tab == 0 && root.width > 900px: VerticalLayout {
+                    width: 300px;
+                    spacing: 28px;
+                    alignment: start;
+                    FactGroup {
+                        title: @tr("Suivi");
+                        InfoRow { label: @tr("Temps de jeu"); value: DetailUi.game.playtime + (DetailUi.game.playtime-origin != "" ? " (" + DetailUi.game.playtime-origin + ")" : ""); }
+                        if DetailUi.game.status != 0: InfoRow { label: @tr("Statut"); value: ["", @tr("À jouer"), @tr("En cours"), @tr("Terminé"), @tr("Abandonné")][DetailUi.game.status]; }
+                        InfoRow { label: @tr("Dernier lancement"); value: DetailUi.game.last-played; }
+                        InfoRow { label: @tr("Sessions (Halcyon)"); value: DetailUi.game.sessions; }
+                        if DetailUi.game.update-pending: InfoRow { label: @tr("Mise à jour"); value: DetailUi.game.update-state; }
+                    }
+                    FactGroup {
+                        title: @tr("Installation");
+                        InfoRow { label: @tr("Source"); value: DetailUi.game.source; }
+                        if DetailUi.game.platform != "": InfoRow { label: @tr("Plateforme"); value: DetailUi.game.platform; }
+                        InfoRow { label: @tr("Lancement"); value: DetailUi.game.launch-mode; }
+                        InfoRow { label: @tr("Taille"); value: DetailUi.game.size; }
                         Text {
-                            text: "Emplacement";
+                            text: DetailUi.game.install-dir != "" ? DetailUi.game.install-dir : @tr("Emplacement inconnu");
                             color: Theme.text-dim;
-                            font-size: Theme.t-small;
-                        }
-                        Text {
-                            text: DetailUi.game.install-dir != "" ? DetailUi.game.install-dir : "—";
-                            color: Theme.text-muted;
                             font-size: Theme.t-caption;
                             wrap: word-wrap;
                         }
-                        if DetailUi.links.length > 0: Rectangle { height: 1px; background: Theme.border; }
-                        if DetailUi.links.length > 0: Text { text: "Liens"; color: Theme.text-dim; font-size: Theme.t-small; }
-                        for l in DetailUi.links: Text {
-                            text: l.label + " ↗";
-                            color: link-ta.has-hover ? Theme.accent-hover : Theme.accent;
-                            font-size: Theme.t-small;
-                            link-ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-url(l.url); } }
+                    }
+                    FactGroup {
+                        title: @tr("Édition");
+                        InfoRow { label: @tr("Développeur"); value: DetailUi.game.developer; }
+                        InfoRow { label: @tr("Éditeur"); value: DetailUi.game.publisher; }
+                        InfoRow { label: @tr("Sortie"); value: DetailUi.game.release; }
+                    }
+                    if DetailUi.links.length > 0: FactGroup {
+                        title: @tr("Liens");
+                        for l in DetailUi.links: HorizontalLayout {
+                            alignment: start;
+                            TextButton { text: l.label + " ↗"; clicked => { Actions.open-url(l.url); } }
                         }
+                    }
+                    VerticalLayout {
+                        spacing: 8px;
                         SecondaryButton {
-                            h: 34px;
-                            text: "Créer un raccourci sur le Bureau";
+                            text: @tr("Créer un raccourci sur le Bureau");
                             icon: Icons.plus;
                             has-icon: true;
                             clicked => { SystemUi.create-shortcut(DetailUi.game.id); }
                         }
                         if DetailUi.can-publish: SecondaryButton {
-                            h: 34px;
-                            text: "Publier dans Sunshine…";
+                            text: @tr("Publier dans Sunshine…");
                             icon: Icons.monitor;
                             has-icon: true;
                             clicked => { DetailUi.publish-sunshine(DetailUi.game.id); }

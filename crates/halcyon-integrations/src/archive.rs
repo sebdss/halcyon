@@ -94,7 +94,7 @@ pub fn extract_prefix(archive: &Path, prefix: &str, dest: &Path) -> io::Result<u
         if f.is_dir() || rest.is_empty() {
             continue;
         }
-        let rel = safe_relative(rest).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, format!("chemin refusé : {name}")))?;
+        let rel = safe_relative(rest).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, tr!("chemin refusé : {name}", name = name)))?;
         let out = dest.join(rel);
         if let Some(parent) = out.parent() {
             std::fs::create_dir_all(parent)?;
@@ -125,7 +125,7 @@ pub fn walk_files(root: &Path, limit: usize) -> io::Result<Vec<PathBuf>> {
                 if let Ok(rel) = p.strip_prefix(root) {
                     out.push(rel.to_path_buf());
                     if out.len() > limit {
-                        return Err(io::Error::other(format!("plus de {limit} fichiers dans {}", root.display())));
+                        return Err(io::Error::other(trn!(limit, "plus de {n} fichier dans {root}", "plus de {n} fichiers dans {root}", root = root.display())));
                     }
                 }
             }

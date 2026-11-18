@@ -1,0 +1,137 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"Language: en-US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Halcyon-Native-Name: English\n"
+"X-Halcyon-Thousands-Separator: ,\n"
+"X-Halcyon-Decimal-Separator: .\n"
+"X-Halcyon-Domain: console\n"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:94
+msgid "Non suivis"
+msgstr "Not tracked"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:344
+msgid "Aucun jeu pour l'instant. Ouvrez la bibliothèque, ou analysez vos sources depuis le centre de contrôle."
+msgstr "No games yet. Open the library, or scan your sources from the control center."
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:415
+msgid "La bibliothèque est vide."
+msgstr "The library is empty."
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:437
+msgid "Rechercher un jeu"
+msgstr "Search for a game"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:555
+msgid "Aucun succès suivi pour ce jeu."
+msgstr "No achievements tracked for this game."
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:592
+msgid "A"
+msgstr "A"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:592
+msgid "Valider"
+msgstr "Select"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:593
+msgid "B"
+msgstr "B"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:594
+msgid "X"
+msgstr "X"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:595
+msgid "Select"
+msgstr "Select"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:595
+msgid "Options du jeu"
+msgstr "Game options"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:596
+msgid "Start"
+msgstr "Start"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:596 crates/halcyon-app/ui/pages/bigpicture.slint:645
+msgid "Centre de contrôle"
+msgstr "Control center"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:597
+msgid "LB  RB"
+msgstr "LB  RB"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:597
+msgid "Filtre"
+msgstr "Filter"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:597
+msgid "Section"
+msgstr "Section"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:158
+msgid "Récents"
+msgstr "Recent"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:239
+#, placeholders
+msgid "Installé · {b}"
+msgstr "Installed · {b}"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:282
+msgid "Tapez un nom de jeu"
+msgstr "Type a game name"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:313
+msgid "Ouvrir la fiche du jeu"
+msgstr "Open game page"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:317
+msgid "Ouvrir sur le bureau"
+msgstr "Open on the desktop"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:341 crates/halcyon-app/src/ctl_bigpicture.rs:352
+msgid "Activé"
+msgstr "On"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:347
+#, placeholders
+msgid "{active} en cours"
+msgstr "{active} in progress"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:352
+msgid "Coupé"
+msgstr "Muted"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:354
+#, placeholders
+msgid "{percent} %"
+msgstr "{percent}%"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:356 crates/halcyon-app/src/ctl_bigpicture.rs:357
+msgid "En cours…"
+msgstr "In progress…"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:357
+msgid "Synchroniser les succès"
+msgstr "Sync achievements"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:358
+msgid "Paramètres complets"
+msgstr "All settings"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:358
+msgid "Sur le bureau"
+msgstr "On the desktop"
+
+#: crates/halcyon-app/src/ctl_bigpicture.rs:359
+msgid "Quitter le mode console"
+msgstr "Exit console mode"

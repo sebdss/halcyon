@@ -7,7 +7,7 @@ import {
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
     UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
-    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem
+    StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
 
 /// Éléments de la barre latérale affichés (personnalisation).
@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft
+    remote, plugins, appearance, minecraft, performance, downloads
 }
 
 export global Nav {
@@ -77,15 +77,15 @@ export global LibraryUi {
     in-out property <string> search;
     /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres (standalone + manuels)
     in-out property <int> source;
-    in property <[string]> collection-labels: ["Toutes les collections"];
+    in property <[string]> collection-labels: [@tr("Toutes les collections")];
     in-out property <int> collection;
-    in property <[string]> genre-labels: ["Tous les genres"];
+    in property <[string]> genre-labels: [@tr("Tous les genres")];
     in-out property <int> genre;
     in-out property <bool> installed-only;
     in-out property <bool> favorites-only;
     in-out property <bool> show-hidden;
     in-out property <int> sort;
-    in property <[string]> sort-labels: ["Nom", "Dernier lancement", "Ajout récent", "Temps de jeu"];
+    in property <[string]> sort-labels: [@tr("Nom"), @tr("Dernier lancement"), @tr("Ajout récent"), @tr("Temps de jeu")];
     in-out property <bool> list-view;
     /// Vue : 0 grille, 1 liste, 2 carrousel, 3 immersive, 4 compacte.
     in-out property <int> view-mode;
@@ -154,6 +154,9 @@ export global HomeUi {
 
 export global DetailUi {
     in property <GameDetail> game;
+    /// Actualités officielles (jeux Steam, en ligne), 1.0.0.
+    in property <[NewsRow]> news;
+    in property <string> news-status;
     in-out property <int> tab;
     in property <[image]> screenshots;
     /// Captures locales du jeu (Steam) et fond d'ambiance (sans bannière).
@@ -169,7 +172,7 @@ export global DetailUi {
     in property <string> ach-status;
     in property <bool> ach-syncing;
     in-out property <bool> show-hidden-ach;
-    in property <[string]> emulator-options: ["Par défaut"];
+    in property <[string]> emulator-options: [@tr("Par défaut")];
     in-out property <int> emulator-index;
     callback save-launch(int, string, string, string, string);
     callback save-metadata(int, string, string, string, string, string, string);
@@ -198,7 +201,7 @@ export global DetailUi {
 
     // Profils de lancement
     in property <[ProfileRow]> profiles;
-    in property <[string]> profile-labels: ["Sans profil"];
+    in property <[string]> profile-labels: [@tr("Sans profil")];
     in-out property <int> profile-index;
     in property <string> engine;
     in property <[string]> profile-notes;
@@ -245,9 +248,9 @@ export global DetailUi {
     in-out property <int> mod-adapter;
     in-out property <string> mod-target;
     in property <string> mod-hint;
-    in property <[string]> mod-profile-labels: ["Par défaut"];
+    in property <[string]> mod-profile-labels: [@tr("Par défaut")];
     in-out property <int> mod-profile;
-    in property <[string]> mod-launch-labels: ["Ne pas changer les mods"];
+    in property <[string]> mod-launch-labels: [@tr("Ne pas changer les mods")];
     in property <string> mod-status;
     in property <[string]> mod-conflicts;
     in property <[string]> mod-external;
@@ -269,7 +272,7 @@ export global DetailUi {
     /// Liens fournis par les extensions.
     in property <[LinkRow]> links;
     /// Profil de manette associé aux profils de lancement (0 : aucun).
-    in property <[string]> pad-profile-labels: ["Aucun"];
+    in property <[string]> pad-profile-labels: [@tr("Aucun")];
     // Jeu à distance
     in property <bool> can-publish;
     callback publish-sunshine(int);
@@ -295,6 +298,8 @@ export global SavesUi {
 }
 
 export global StatsUi {
+    /// Export des statistiques : « csv-games », « csv-sessions » ou « json » (1.0.0).
+    callback export(string);
     in property <string> total;
     in property <string> total-detail;
     in property <int> games-played;
@@ -513,35 +518,70 @@ export global McUi {
 
 export global BpUi {
     in property <bool> active;
-    /// 0 = accueil, 1 = fiche, 2 = recherche
-    in property <int> view;
-    in property <[BpRow]> rows;
-    in property <int> focus-row;
+    /// Sections : 0 Jouer, 1 Bibliothèque, 2 Recherche.
+    in property <int> section;
+    /// Zone de focus : 0 barre des sections, 1 première zone, 2 deuxième zone.
+    in property <int> zone: 1;
+    in property <bool> menu-open;
+    in property <bool> sheet-open;
+    in property <bool> options-open;
+    // Jeu mis en avant.
+    in property <bool> has-focused;
     in property <GameDetail> focused;
     in property <string> focused-meta;
     in property <string> focused-ach;
-    in property <int> game-button;
-    in property <[AchievementRow]> achievements;
-    in property <int> ach-index;
+    /// 0–1, ou -1 sans succès connus.
+    in property <float> focused-ach-ratio: -1;
+    in property <string> focused-state;
+    in property <string> focused-update;
+    // Jouer.
+    in property <[GameCard]> strip;
+    in property <int> strip-index;
+    in property <int> button;
+    // Bibliothèque.
+    in property <[string]> filters;
+    in property <int> filter;
+    in property <[GameCard]> grid;
+    in property <int> grid-index;
+    in property <string> grid-position;
+    // Recherche.
     in property <string> query;
     in property <[string]> keys;
     in property <int> key-index;
-    /// Vrai quand le focus est sur les résultats de recherche.
-    in property <bool> in-results;
     in property <BpRow> results;
-    in property <string> clock;
-    in property <bool> pad-connected;
-    /// Réglages (vue 3) : libellé, valeur actuelle ; ligne sélectionnée.
+    // Fiche.
+    in property <int> sheet-button;
+    in property <[AchievementRow]> achievements;
+    in property <int> ach-index;
+    in property <int> ach-count;
+    // Menu d'options d'un jeu.
+    in property <[string]> options;
+    in property <int> option-index;
+    // Centre de contrôle.
     in property <[KeyValue]> settings;
     in property <int> setting-index;
+    in property <int> downloads;
+    in property <string> clock;
+    in property <bool> pad-connected;
     callback input(string);
 }
 
 export global SettingsUi {
     /// Sections affichées (recherche, filtre) : Plateformes, Dossiers, Comptes, Comportement,
-    /// Hors ligne, Système, Raccourcis, Configuration, Mises à jour, Stockage, Son.
-    in property <[bool]> shown: [true, true, true, true, true, true, true, true, true, true, true];
-    in property <int> match-count: 11;
+    /// Hors ligne, Système, Raccourcis, Configuration, Mises à jour, Stockage, Son, Langue.
+    in property <[bool]> shown: [true, true, true, true, true, true, true, true, true, true, true, true];
+    in property <int> match-count: 12;
+    /// Langues proposées : « Automatique (…) » puis chaque langue sous son nom natif.
+    in property <[string]> languages;
+    /// Index dans `languages` (0 : automatique).
+    in property <int> language-index;
+    /// Langue détectée sur le système (affichée sous « Automatique »).
+    in property <string> language-detected;
+    /// La langue du système n'est pas proposée : l'anglais est utilisé.
+    in property <bool> language-fallback;
+    /// Code de la langue du système (« ja-JP »…).
+    in property <string> language-system;
+    callback set-language(int);
     // Son : général, navigation, interactions, notifications, actions importantes.
     in property <bool> sound-enabled: true;
     in property <bool> sound-muted;
@@ -554,11 +594,12 @@ export global SettingsUi {
     callback sound-preview(int);
     callback sound-reset();
     /// Section choisie (-1 : toutes).
-    in-out property <int> section: -1;
+    in-out property <int> section: 0;
     in-out property <string> search;
     callback search-changed(string);
     in property <SourceInfo> steam;
     in property <SourceInfo> epic;
+    in property <SourceInfo> gog;
     in property <[string]> folders;
     in property <bool> online-artwork;
     in property <bool> scan-on-startup;
@@ -585,7 +626,6 @@ export global SettingsUi {
     in property <bool> sync-on-startup;
     in property <bool> check-updates;
     in property <string> update-repo;
-    in property <string> update-status;
     in property <bool> start-big-picture;
     in property <bool> update-notifications;
     in property <string> nexus-key;
@@ -596,7 +636,6 @@ export global SettingsUi {
     callback export-config(bool, bool);
     callback import-config(string);
     callback set-text(string, string);
-    callback check-update();
     callback clear-cache();
     callback open-logs();
     callback open-data();
@@ -625,7 +664,7 @@ export global AppUi {
     in-out property <bool> confirm-open;
     in property <string> confirm-title;
     in property <string> confirm-text;
-    in property <string> confirm-button: "Confirmer";
+    in property <string> confirm-button: @tr("Confirmer");
     callback confirm-accepted();
     /// Mode d'interface : 0 standard, 1 minimaliste, 2 cinéma.
     in property <int> ui-mode;
@@ -647,6 +686,11 @@ export global AppUi {
 }
 
 export global ThemeUi {
+    /// Profils d'interface enregistrés (1.0.0).
+    in property <[string]> ui-profiles;
+    callback save-profile(string);
+    callback apply-profile(int);
+    callback delete-profile(int);
     in property <[ThemeRow]> themes;
     in property <int> selected;
     in property <[color]> accents;
@@ -773,11 +817,8 @@ export global SystemUi {
     in property <bool> companion;
     in property <[ShortcutRow]> shortcuts;
     in property <string> integrity-status;
+    /// Niveau de vérification des mises à jour de cette compilation.
     in property <bool> integrity-running;
-    in property <string> update-asset;
-    in property <string> update-progress;
-    in property <bool> update-ready;
-    in property <bool> update-is-setup;
     /// Combinaison saisie, transmise à Rust qui l'interprète (texte, Ctrl, Alt, Maj, Méta).
     pure callback shortcut(string, bool, bool, bool, bool) -> bool;
     pure callback combo-of(string, bool, bool, bool, bool) -> string;
@@ -786,8 +827,6 @@ export global SystemUi {
     callback reset-shortcuts();
     callback set-global-hotkey(string);
     callback check-integrity();
-    callback download-update();
-    callback install-update();
     callback create-shortcut(int);
     callback mini-mode();
     /// Incrémenté par Rust pour donner le focus à la recherche de la bibliothèque.

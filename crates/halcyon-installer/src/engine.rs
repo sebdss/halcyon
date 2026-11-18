@@ -107,16 +107,20 @@ pub enum Event {
     Warning(String),
 }
 
+/// Langue choisie dans l'installateur, écrite à côté de l'exécutable : Halcyon la reprend
+/// au premier lancement, et le programme de maintenance s'ouvre dans cette langue.
+pub const LANGUAGE_FILE: &str = "install-language.txt";
+
 /// Étapes de `repair_integration`.
-pub const REPAIR_STEPS: [&str; 4] = ["Préparation", "Vérification des fichiers", "Raccourcis et intégration", "Enregistrement"];
+pub const REPAIR_STEPS: [&str; 4] = [tr_noop!("Préparation"), tr_noop!("Vérification des fichiers"), tr_noop!("Raccourcis et intégration"), tr_noop!("Enregistrement")];
 
 pub const STEPS: [&str; 6] = [
-    "Préparation",
-    "Copie des fichiers",
-    "Vérification de l'intégrité",
-    "Mise en place",
-    "Raccourcis et intégration",
-    "Enregistrement",
+    tr_noop!("Préparation"),
+    tr_noop!("Copie des fichiers"),
+    tr_noop!("Vérification de l'intégrité"),
+    tr_noop!("Mise en place"),
+    tr_noop!("Raccourcis et intégration"),
+    tr_noop!("Enregistrement"),
 ];
 
 #[derive(Serialize, Deserialize)]
@@ -132,10 +136,22 @@ pub fn now_unix() -> i64 {
 }
 
 /// Compare deux versions « x.y.z » (`None` si illisibles).
+/// Comparaison semver (pré-versions comprises : `1.0.0-alpha.1` < `1.0.0`). Avant la 1.0,
+/// une pré-version rendait la comparaison impossible et l'installateur proposait une
+/// réinstallation au lieu d'une mise à jour.
 pub fn compare_versions(a: &str, b: &str) -> Option<std::cmp::Ordering> {
-    let parse = |v: &str| -> Option<Vec<u64>> { v.trim().trim_start_matches('v').split('.').map(|p| p.parse().ok()).collect() };
-    let (x, y) = (parse(a)?, parse(b)?);
-    Some(x.cmp(&y))
+    use halcyon_core::util::version_newer;
+    let ok = |v: &str| v.trim().trim_start_matches('v').starts_with(|c: char| c.is_ascii_digit());
+    if !ok(a) || !ok(b) {
+        return None;
+    }
+    Some(if version_newer(b, a) {
+        std::cmp::Ordering::Less
+    } else if version_newer(a, b) {
+        std::cmp::Ordering::Greater
+    } else {
+        std::cmp::Ordering::Equal
+    })
 }
 
 pub fn read_record(dir: &Path) -> Option<Record> {
@@ -272,7 +288,7 @@ fn nearest_existing(dir: &Path) -> Option<PathBuf> {
 
 /// Peut-on écrire dans `dir` (ou dans le premier dossier parent existant) ?
 pub fn writable(dir: &Path) -> Result<(), String> {
-    let base = nearest_existing(dir).ok_or("aucun dossier parent existant")?;
+    let base = nearest_existing(dir).ok_or(tr!("aucun dossier parent existant"))?;
     let probe = base.join(format!(".halcyon-write-test-{}", std::process::id()));
     std::fs::write(&probe, b"").map_err(|e| e.to_string())?;
     let _ = std::fs::remove_file(&probe);
@@ -314,66 +330,66 @@ pub fn system_checks(payload: &Payload, opts: &Options, found: &Found, mode: Mod
     let mut out = Vec::new();
     let here = platform::current_platform();
     out.push(if m.platform == here {
-        check("Système", Level::Ok, sysinfo::System::long_os_version().unwrap_or(here))
+        check(&tr!("Système"), Level::Ok, sysinfo::System::long_os_version().unwrap_or(here))
     } else {
-        check("Système", Level::Error, format!("ce programme d'installation est prévu pour {}, ce système est {here}", m.platform))
+        check(&tr!("Système"), Level::Error, tr!("ce programme d'installation est prévu pour {platform}, ce système est {here}", platform = m.platform, here = here))
     });
     out.push(if std::env::consts::ARCH == "x86_64" {
-        check("Architecture", Level::Ok, "x86_64 (64 bits)")
+        check(&tr!("Architecture"), Level::Ok, tr!("x86_64 (64 bits)"))
     } else {
-        check("Architecture", Level::Error, format!("{} non prise en charge (x86_64 requis)", std::env::consts::ARCH))
+        check(&tr!("Architecture"), Level::Error, tr!("{arch} non prise en charge (x86_64 requis)", arch = std::env::consts::ARCH))
     });
     if let Some(min) = &m.min_glibc {
         out.push(match glibc_version() {
             Some(v) if compare_versions(&v, min).is_some_and(|o| o != std::cmp::Ordering::Less) => {
-                check("Bibliothèque C (glibc)", Level::Ok, format!("{v} (minimum {min})"))
+                check(&tr!("Bibliothèque C (glibc)"), Level::Ok, tr!("{v} (minimum {min})", v = v, min = min))
             }
-            Some(v) => check("Bibliothèque C (glibc)", Level::Error, format!("{v} trop ancienne : {min} ou plus récente requise (Ubuntu 24.04, Debian 13, Fedora 40 ou équivalent)")),
-            None => check("Bibliothèque C (glibc)", Level::Warning, format!("version non déterminée (minimum {min})")),
+            Some(v) => check(&tr!("Bibliothèque C (glibc)"), Level::Error, tr!("{v} trop ancienne : {min} ou plus récente requise (Ubuntu 24.04, Debian 13, Fedora 40 ou équivalent)", v = v, min = min)),
+            None => check(&tr!("Bibliothèque C (glibc)"), Level::Warning, tr!("version non déterminée (minimum {min})", min = min)),
         });
     }
     if cfg!(target_os = "linux") {
         match shared_libs() {
             Some(libs) => {
-                let missing: Vec<&str> = [("libasound.so.2", "ALSA (son)"), ("libfontconfig.so.1", "Fontconfig (polices)"), ("libudev.so.1", "udev (manettes)")]
+                let missing: Vec<String> = [("libasound.so.2", tr_noop!("ALSA (son)")), ("libfontconfig.so.1", tr_noop!("Fontconfig (polices)")), ("libudev.so.1", tr_noop!("udev (manettes)"))]
                     .iter()
                     .filter(|(lib, _)| !libs.contains(lib))
-                    .map(|(_, name)| *name)
+                    .map(|(_, name)| halcyon_i18n::t(name))
                     .collect();
                 out.push(if missing.is_empty() {
-                    check("Dépendances", Level::Ok, "ALSA, Fontconfig, udev présents")
+                    check(&tr!("Dépendances"), Level::Ok, tr!("ALSA, Fontconfig, udev présents"))
                 } else {
-                    check("Dépendances", Level::Error, format!("manquantes : {} (installez-les avec le gestionnaire de paquets)", missing.join(", ")))
+                    check(&tr!("Dépendances"), Level::Error, tr!("manquantes : {join} (installez-les avec le gestionnaire de paquets)", join = missing.join(", ")))
                 });
             }
-            None => out.push(check("Dépendances", Level::Warning, "non vérifiées (ldconfig introuvable)")),
+            None => out.push(check(&tr!("Dépendances"), Level::Warning, tr!("non vérifiées (ldconfig introuvable)"))),
         }
     }
     out.push(space_check(free_space(&opts.dir), required_space(m.total_size())));
     out.push(match writable(&opts.dir) {
-        Ok(()) => check("Permissions", Level::Ok, format!("écriture possible dans {}", opts.dir.display())),
-        Err(e) => check("Permissions", Level::Error, format!("écriture impossible dans {} : {e}", opts.dir.display())),
+        Ok(()) => check(&tr!("Permissions"), Level::Ok, tr!("écriture possible dans {dir}", dir = opts.dir.display())),
+        Err(e) => check(&tr!("Permissions"), Level::Error, tr!("écriture impossible dans {dir} : {e}", dir = opts.dir.display(), e = e)),
     });
     out.push(match found {
-        Found::Nothing => check("Installation existante", Level::Ok, "aucune : nouvelle installation"),
+        Found::Nothing => check(&tr!("Installation existante"), Level::Ok, tr!("aucune : nouvelle installation")),
         Found::Installed { record, health } => {
-            let state = if health.ok() { "intacte".to_string() } else { format!("{} fichier(s) manquant(s), {} endommagé(s)", health.missing.len(), health.corrupt.len()) };
+            let state = if health.ok() { tr!("intacte") } else { tr!("Fichiers manquants : {missing} · endommagés : {corrupt}", missing = health.missing.len(), corrupt = health.corrupt.len()) };
             let level = if health.ok() { Level::Info } else { Level::Warning };
-            check("Installation existante", level, format!("version {} dans {} ({state})", record.version, record.options.dir.display()))
+            check(&tr!("Installation existante"), level, tr!("version {version} dans {dir} ({state})", version = record.version, dir = record.options.dir.display(), state = state))
         }
         Found::Unmanaged { dir, version, origin } => {
             let what = match origin {
-                Origin::InnoSetup => "ancien installateur Windows",
-                Origin::ArchiveScript => "archive (install.sh)",
-                Origin::Partial => "installation sans manifeste",
+                Origin::InnoSetup => tr!("ancien installateur Windows"),
+                Origin::ArchiveScript => tr!("archive (install.sh)"),
+                Origin::Partial => tr!("installation sans manifeste"),
             };
             check(
-                "Installation existante",
+                &tr!("Installation existante"),
                 Level::Info,
-                format!("{}{} dans {} : elle sera reprise, vos données sont conservées", version.as_deref().map(|v| format!("version {v}, ")).unwrap_or_default(), what, dir.display()),
+                tr!("{v}{what} dans {dir} : elle sera reprise, vos données sont conservées", v = version.as_deref().map(|v| tr!("version {v}, ", v = v)).unwrap_or_default(), what = what, dir = dir.display()),
             )
         }
-        Found::Interrupted { dir } => check("Installation existante", Level::Warning, format!("opération interrompue dans {} : elle sera réparée", dir.display())),
+        Found::Interrupted { dir } => check(&tr!("Installation existante"), Level::Warning, tr!("opération interrompue dans {dir} : elle sera réparée", dir = dir.display())),
     });
     let installed_version = match found {
         Found::Installed { record, .. } => Some(record.version.clone()),
@@ -382,18 +398,18 @@ pub fn system_checks(payload: &Payload, opts: &Options, found: &Found, mode: Mod
     };
     if let Some(v) = installed_version {
         if compare_versions(&v, &m.version) == Some(std::cmp::Ordering::Greater) && mode != Mode::Repair {
-            out.push(check("Version", Level::Warning, format!("la version installée ({v}) est plus récente que {} : retour à une version antérieure", m.version)));
+            out.push(check(&tr!("Version"), Level::Warning, tr!("la version installée ({v}) est plus récente que {version} : retour à une version antérieure", v = v, version = m.version)));
         }
     }
     if running_from(&opts.dir) {
-        out.push(check("Halcyon en cours d'exécution", Level::Error, "fermez Halcyon (icône de la zone de notification › Quitter), puis relancez la vérification"));
+        out.push(check(&tr!("Halcyon en cours d'exécution"), Level::Error, tr!("fermez Halcyon (icône de la zone de notification › Quitter), puis relancez la vérification")));
     }
     #[cfg(not(windows))]
     if Path::new("/usr/bin/halcyon").exists() {
-        out.push(check("Conflit", Level::Warning, "Halcyon est aussi installé par le paquet système (/usr/bin/halcyon) : le menu peut afficher deux entrées"));
+        out.push(check(&tr!("Conflit"), Level::Warning, tr!("Halcyon est aussi installé par le paquet système (/usr/bin/halcyon) : le menu peut afficher deux entrées")));
     }
     if opts.all_users && cfg!(not(windows)) {
-        out.push(check("Installation pour tous", Level::Error, "sous Linux, utilisez le paquet .deb (géré par le système) pour tous les utilisateurs"));
+        out.push(check(&tr!("Installation pour tous"), Level::Error, tr!("sous Linux, utilisez le paquet .deb (géré par le système) pour tous les utilisateurs")));
     }
     out
 }
@@ -405,15 +421,15 @@ pub fn required_space(total: u64) -> u64 {
 
 pub fn space_check(free: Option<u64>, need: u64) -> Check {
     match free {
-        Some(free) if free >= need => check("Espace disque", Level::Ok, format!("{} libres, {} nécessaires", fmt_size(free), fmt_size(need))),
-        Some(free) => check("Espace disque", Level::Error, format!("{} libres, {} nécessaires : libérez de la place ou choisissez un autre dossier", fmt_size(free), fmt_size(need))),
-        None => check("Espace disque", Level::Warning, "espace libre non déterminé"),
+        Some(free) if free >= need => check(&tr!("Espace disque"), Level::Ok, tr!("{free} libres, {need} nécessaires", free = fmt_size(free), need = fmt_size(need))),
+        Some(free) => check(&tr!("Espace disque"), Level::Error, tr!("{free} libres, {need} nécessaires : libérez de la place ou choisissez un autre dossier", free = fmt_size(free), need = fmt_size(need))),
+        None => check(&tr!("Espace disque"), Level::Warning, tr!("espace libre non déterminé")),
     }
 }
 
 pub fn fmt_size(b: u64) -> String {
     let mb = b as f64 / 1_000_000.0;
-    if mb >= 1000.0 { format!("{:.1} Go", mb / 1000.0).replace('.', ",") } else { format!("{mb:.0} Mo") }
+    if mb >= 1000.0 { tr!("{v} Go", v = halcyon_i18n::decimal(mb / 1000.0, 1)) } else { tr!("{v} Mo", v = halcyon_i18n::number(mb.round() as u64)) }
 }
 
 // ---------------------------------------------------------------------------- opérations
@@ -427,14 +443,14 @@ pub struct Report {
 }
 
 fn rel_path(dir: &Path, rel: &str) -> Result<PathBuf, String> {
-    safe_relative(rel).map(|r| dir.join(r)).ok_or_else(|| format!("chemin refusé : {rel}"))
+    safe_relative(rel).map(|r| dir.join(r)).ok_or_else(|| tr!("chemin refusé : {rel}", rel = rel))
 }
 
 /// Reprise après coupure : remet en place les anciens fichiers et nettoie.
 pub fn recover(dir: &Path) -> Result<(), String> {
     let jpath = dir.join(JOURNAL);
     if let Ok(text) = std::fs::read_to_string(&jpath) {
-        let j: Journal = serde_json::from_str(&text).map_err(|e| format!("journal illisible : {e}"))?;
+        let j: Journal = serde_json::from_str(&text).map_err(|e| tr!("journal illisible : {e}", e = e))?;
         for rel in &j.created {
             let _ = std::fs::remove_file(rel_path(dir, rel)?);
         }
@@ -443,7 +459,7 @@ pub fn recover(dir: &Path) -> Result<(), String> {
             let to = rel_path(dir, rel)?;
             if from.exists() {
                 let _ = std::fs::remove_file(&to);
-                std::fs::rename(&from, &to).map_err(|e| format!("restauration de {rel} : {e}"))?;
+                std::fs::rename(&from, &to).map_err(|e| tr!("restauration de {rel} : {e}", rel = rel, e = e))?;
             }
         }
     }
@@ -480,7 +496,7 @@ pub fn run(
     } else {
         m.files.iter().collect()
     };
-    on(Event::Component(format!("{} fichier(s) à écrire", todo.len()), true, String::new()));
+    on(Event::Component(trn!(todo.len(), "{n} fichier à écrire", "{n} fichiers à écrire"), true, String::new()));
 
     // 2. Copie dans le dossier temporaire, empreinte vérifiée au fil de l'écriture.
     on(Event::Step(1));
@@ -492,7 +508,7 @@ pub fn run(
     for f in &todo {
         if cancel.load(Ordering::SeqCst) {
             let _ = std::fs::remove_dir_all(&staging);
-            return Err("installation annulée : rien n'a été modifié".into());
+            return Err(tr!("installation annulée : rien n'a été modifié").into());
         }
         on(Event::File(f.path.clone()));
         let dest = rel_path(&staging, &f.path)?;
@@ -515,12 +531,12 @@ pub fn run(
         let p = rel_path(&staging, &f.path)?;
         if sha256_file(&p).map_err(|e| e.to_string())? != f.sha256 {
             let _ = std::fs::remove_dir_all(&staging);
-            return Err(format!("{} : empreinte incorrecte après écriture (disque défaillant ?)", f.path));
+            return Err(tr!("{path} : empreinte incorrecte après écriture (disque défaillant ?)", path = f.path));
         }
         checked += f.size;
         on(Event::Bytes(checked, total));
     }
-    on(Event::Component("Intégrité des fichiers".into(), true, format!("{} vérifié(s)", todo.len())));
+    on(Event::Component(tr!("Intégrité des fichiers"), true, trn!(todo.len(), "{n} vérifié", "{n} vérifiés")));
 
     // 4. Mise en place : anciens fichiers mis de côté, nouveaux posés ; retour arrière si
     //    une étape échoue.
@@ -533,7 +549,7 @@ pub fn run(
         let target = rel_path(dir, rel)?;
         if target.is_dir() {
             // Jamais de dossier déplacé ou supprimé : il peut contenir des données.
-            return Err(format!("{rel} : un dossier porte déjà ce nom dans {}", dir.display()));
+            return Err(tr!("{rel} : un dossier porte déjà ce nom dans {dir}", rel = rel, dir = dir.display()));
         }
         if target.exists() {
             let b = rel_path(&backup, rel)?;
@@ -577,30 +593,30 @@ pub fn run(
         }
     }
     if let Err(e) = result {
-        recover(dir).map_err(|r| format!("{e} ; retour arrière incomplet : {r}"))?;
-        return Err(format!("{e} (l'installation précédente a été rétablie)"));
+        recover(dir).map_err(|r| tr!("{e} ; retour arrière incomplet : {r}", e = e, r = r))?;
+        return Err(tr!("{e} (l'installation précédente a été rétablie)", e = e));
     }
     report.replaced = journal.moved.len();
     // Programme de maintenance (réparation, désinstallation) : l'installateur sans sa charge utile.
     if let Some(stub) = stub {
         if let Err(e) = copy_stub(stub, &dir.join(platform::maintenance_exe_name())) {
-            report.warnings.push(format!("programme de désinstallation non copié : {e}"));
-            on(Event::Warning(format!("programme de désinstallation non copié : {e}")));
+            report.warnings.push(tr!("programme de désinstallation non copié : {e}", e = e));
+            on(Event::Warning(tr!("programme de désinstallation non copié : {e}", e = e)));
         }
     }
-    on(Event::Component("Fichiers de Halcyon".into(), true, format!("{} écrit(s), {} remplacé(s)", report.written, report.replaced)));
+    on(Event::Component(tr!("Fichiers de Halcyon"), true, tr!("Écrits : {written} · remplacés : {replaced}", written = report.written, replaced = report.replaced)));
 
     // 5. Intégration au système.
     on(Event::Step(4));
     let integration = match integrate(env, opts, m, dir) {
         Ok(list) => {
-            on(Event::Component("Raccourcis et menu".into(), true, format!("{} élément(s)", list.len())));
+            on(Event::Component(tr!("Raccourcis et menu"), true, trn!(list.len(), "{n} élément", "{n} éléments")));
             list
         }
         Err(e) => {
             // Les fichiers sont en place et valides : l'intégration se refait par « Réparer ».
-            on(Event::Component("Raccourcis et menu".into(), false, e.clone()));
-            report.warnings.push(format!("intégration au système incomplète : {e}"));
+            on(Event::Component(tr!("Raccourcis et menu"), false, e.clone()));
+            report.warnings.push(tr!("intégration au système incomplète : {e}", e = e));
             Vec::new()
         }
     };
@@ -625,7 +641,7 @@ pub fn run(
     let _ = std::fs::remove_dir_all(&backup);
     let _ = std::fs::remove_dir_all(&staging);
     let _ = std::fs::remove_file(dir.join(JOURNAL));
-    on(Event::Component("Installation enregistrée".into(), true, format!("version {}", m.version)));
+    on(Event::Component(tr!("Installation enregistrée").into(), true, tr!("version {version}", version = m.version)));
     Ok(report)
 }
 
@@ -676,7 +692,7 @@ fn cleanup_legacy(env: &Env, dir: &Path, report: &mut Report, on: &mut dyn FnMut
                 let root = winreg::RegKey::predef(if all { winreg::enums::HKEY_LOCAL_MACHINE } else { winreg::enums::HKEY_CURRENT_USER });
                 let _ = root.delete_subkey_all(platform::windows::INNO_KEY);
             }
-            on(Event::Component("Ancien installateur retiré".into(), true, String::new()));
+            on(Event::Component(tr!("Ancien installateur retiré").into(), true, String::new()));
         }
     }
     let _ = (dir, report, &on);
@@ -694,15 +710,16 @@ pub fn repair_integration(record: &Record, env: &Env, on: &mut dyn FnMut(Event))
     let health = check_health(dir, &record.files);
     if !health.ok() {
         let n = health.missing.len() + health.corrupt.len();
-        on(Event::Component("Intégrité des fichiers".into(), false, format!("{n} fichier(s) manquant(s) ou endommagé(s)")));
-        return Err(format!(
-            "{n} fichier(s) manquant(s) ou endommagé(s) ({}). Ce programme de maintenance ne contient pas les fichiers de Halcyon : \
-             lancez le programme d'installation de la version {} pour les rétablir.",
-            health.missing.iter().chain(&health.corrupt).take(3).cloned().collect::<Vec<_>>().join(", "),
-            record.version
+        on(Event::Component(tr!("Intégrité des fichiers"), false, trn!(n, "{n} fichier manquant ou endommagé", "{n} fichiers manquants ou endommagés")));
+        return Err(trn!(
+            n,
+            "{n} fichier manquant ou endommagé ({files}). Ce programme de maintenance ne contient pas les fichiers de Halcyon : lancez le programme d'installation de la version {version} pour le rétablir.",
+            "{n} fichiers manquants ou endommagés ({files}). Ce programme de maintenance ne contient pas les fichiers de Halcyon : lancez le programme d'installation de la version {version} pour les rétablir.",
+            files = health.missing.iter().chain(&health.corrupt).take(3).cloned().collect::<Vec<_>>().join(", "),
+            version = record.version
         ));
     }
-    on(Event::Component("Intégrité des fichiers".into(), true, format!("{} vérifié(s)", record.files.len())));
+    on(Event::Component(tr!("Intégrité des fichiers"), true, trn!(record.files.len(), "{n} vérifié", "{n} vérifiés")));
     on(Event::Step(2));
     let m = crate::payload::Manifest {
         product: "Halcyon".into(),
@@ -713,11 +730,11 @@ pub fn repair_integration(record: &Record, env: &Env, on: &mut dyn FnMut(Event))
         files: record.files.clone(),
     };
     let integration = integrate(env, &record.options, &m, dir)?;
-    on(Event::Component("Raccourcis et menu".into(), true, format!("{} élément(s)", integration.len())));
+    on(Event::Component(tr!("Raccourcis et menu"), true, trn!(integration.len(), "{n} élément", "{n} éléments")));
     on(Event::Step(3));
     let rec = Record { integration, ..record.clone() };
     std::fs::write(dir.join(RECORD), serde_json::to_vec_pretty(&rec).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
-    on(Event::Component("Installation enregistrée".into(), true, format!("version {}", rec.version)));
+    on(Event::Component(tr!("Installation enregistrée").into(), true, tr!("version {version}", version = rec.version)));
     report.written = 0;
     Ok(report)
 }
@@ -738,7 +755,7 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
     let mut report = Report::default();
     on(Event::Step(0));
     if running_from(dir) {
-        return Err("Halcyon est ouvert : quittez-le (icône de la zone de notification › Quitter), puis relancez la désinstallation. Rien n'a été retiré.".into());
+        return Err(tr!("Halcyon est ouvert : quittez-le (icône de la zone de notification › Quitter), puis relancez la désinstallation. Rien n'a été retiré.").into());
     }
     // Raccourcis et entrées du système.
     for p in &record.integration {
@@ -747,7 +764,7 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
         #[cfg(windows)]
         let removed = std::fs::remove_file(p).is_ok();
         if !removed && p.exists() {
-            report.warnings.push(format!("{} conservé (modifié depuis l'installation)", p.display()));
+            report.warnings.push(tr!("{p} conservé (modifié depuis l'installation)", p = p.display()));
         }
     }
     #[cfg(windows)]
@@ -768,11 +785,11 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
             }
         }
         if n > 0 {
-            on(Event::Component("Raccourcis de jeux".into(), true, format!("{n} retiré(s)")));
+            on(Event::Component(tr!("Raccourcis de jeux"), true, trn!(n, "{n} retiré", "{n} retirés")));
         }
         platform::linux::refresh_caches(env);
     }
-    on(Event::Component("Raccourcis et entrées du système".into(), true, String::new()));
+    on(Event::Component(tr!("Raccourcis et entrées du système").into(), true, String::new()));
     // Fichiers du programme.
     on(Event::Step(1));
     let total: u64 = record.files.iter().map(|f| f.size).sum();
@@ -789,15 +806,20 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
         on(Event::Bytes(done, total));
     }
     let _ = std::fs::remove_file(dir.join(RECORD));
+    // État des mises à jour automatiques (HUS) : journal, paquets en attente, version
+    // précédente conservée, liste des fichiers posés. Propre à cette installation.
+    let _ = std::fs::remove_dir_all(dir.join(".hus"));
+    let _ = std::fs::remove_file(dir.join(".hus-installed.json"));
     // Programme de maintenance : sous Windows, il peut être celui en cours d'exécution
     // (la copie temporaire lancée par `--uninstall` le supprime ensuite).
     let _ = std::fs::remove_file(dir.join(platform::maintenance_exe_name()));
+    let _ = std::fs::remove_file(dir.join(LANGUAGE_FILE));
     let _ = std::fs::remove_dir(dir); // seulement s'il est vide : fichiers inconnus conservés
     let _ = std::fs::remove_file(env.pointer_file());
     if dir.exists() {
-        report.warnings.push(format!("{} conservé : il contient des fichiers qui ne viennent pas de l'installation", dir.display()));
+        report.warnings.push(tr!("{dir} conservé : il contient des fichiers qui ne viennent pas de l'installation", dir = dir.display()));
     }
-    on(Event::Component("Fichiers de Halcyon".into(), true, format!("{} supprimé(s)", report.written)));
+    on(Event::Component(tr!("Fichiers de Halcyon"), true, trn!(report.written, "{n} supprimé", "{n} supprimés")));
     // Cache et données, sur demande.
     on(Event::Step(2));
     if opts.remove_cache {
@@ -806,7 +828,7 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
                 std::fs::remove_dir_all(c).map_err(|e| format!("{} : {e}", c.display()))?;
             }
         }
-        on(Event::Component("Cache".into(), true, "supprimé".into()));
+        on(Event::Component(tr!("Cache"), true, tr!("supprimé").into()));
     }
     if opts.remove_data {
         for d in &env.user_data {
@@ -821,9 +843,9 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
             let _ = std::fs::remove_file(dir.join("portable.txt"));
             let _ = std::fs::remove_dir(dir);
         }
-        on(Event::Component("Données personnelles".into(), true, "supprimées".into()));
+        on(Event::Component(tr!("Données personnelles"), true, tr!("supprimées").into()));
     } else {
-        on(Event::Component("Données personnelles".into(), true, "conservées".into()));
+        on(Event::Component(tr!("Données personnelles"), true, tr!("conservées").into()));
     }
     Ok(report)
 }

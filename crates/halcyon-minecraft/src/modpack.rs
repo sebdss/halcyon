@@ -52,10 +52,10 @@ pub struct Pack {
 
 pub fn read_index(v: &Value) -> Result<Pack> {
     if v.get("game").and_then(|g| g.as_str()) != Some("minecraft") {
-        return Err(Error::Invalid("ce modpack n'est pas destiné à Minecraft".into()));
+        return Err(Error::Invalid(tr!("ce modpack n'est pas destiné à Minecraft").into()));
     }
-    let deps = v.get("dependencies").and_then(|d| d.as_object()).ok_or_else(|| Error::Invalid("modpack sans dépendances".into()))?;
-    let mc = deps.get("minecraft").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid("modpack sans version de Minecraft".into()))?.to_string();
+    let deps = v.get("dependencies").and_then(|d| d.as_object()).ok_or_else(|| Error::Invalid(tr!("modpack sans dépendances").into()))?;
+    let mc = deps.get("minecraft").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid(tr!("modpack sans version de Minecraft").into()))?.to_string();
     let mut loader = Loader::Vanilla;
     let mut loader_version = String::new();
     for (k, l) in [("fabric-loader", Loader::Fabric), ("quilt-loader", Loader::Quilt), ("forge", Loader::Forge), ("neoforge", Loader::NeoForge)] {
@@ -70,12 +70,12 @@ pub fn read_index(v: &Value) -> Result<Pack> {
             continue;
         }
         let path = f.get("path").and_then(|p| p.as_str()).unwrap_or_default();
-        let rel = safe_rel(path).ok_or_else(|| Error::Invalid(format!("chemin refusé dans le modpack : {path}")))?;
+        let rel = safe_rel(path).ok_or_else(|| Error::Invalid(tr!("chemin refusé dans le modpack : {path}", path = path)))?;
         let url = f
             .get("downloads")
             .and_then(|d| d.as_array())
             .and_then(|a| a.iter().filter_map(|u| u.as_str()).find(|u| allowed_url(u)))
-            .ok_or_else(|| Error::Invalid(format!("{path} : aucune adresse de téléchargement autorisée")))?;
+            .ok_or_else(|| Error::Invalid(tr!("{path} : aucune adresse de téléchargement autorisée", path = path)))?;
         files.push((
             rel,
             Job {
@@ -100,13 +100,13 @@ pub fn read_index(v: &Value) -> Result<Pack> {
 /// Lit `modrinth.index.json` d'une archive `.mrpack`.
 pub fn read_mrpack(path: &Path) -> Result<Pack> {
     let f = std::fs::File::open(path).map_err(|e| Error::Disk(format!("{} : {e}", path.display())))?;
-    let mut zip = zip::ZipArchive::new(f).map_err(|e| Error::Invalid(format!("archive illisible : {e}")))?;
+    let mut zip = zip::ZipArchive::new(f).map_err(|e| Error::Invalid(tr!("archive illisible : {e}", e = e)))?;
     let mut text = String::new();
     zip.by_name("modrinth.index.json")
-        .map_err(|_| Error::Invalid("ce fichier n'est pas un modpack Modrinth (.mrpack)".into()))?
+        .map_err(|_| Error::Invalid(tr!("ce fichier n'est pas un modpack Modrinth (.mrpack)").into()))?
         .read_to_string(&mut text)
         .map_err(|e| Error::Invalid(e.to_string()))?;
-    read_index(&serde_json::from_str(&text).map_err(|e| Error::Invalid(format!("index illisible : {e}")))?)
+    read_index(&serde_json::from_str(&text).map_err(|e| Error::Invalid(tr!("index illisible : {e}", e = e)))?)
 }
 
 /// Extrait `overrides/` puis `client-overrides/` dans le dossier de jeu ; renvoie les fichiers écrits.
@@ -122,7 +122,7 @@ fn extract_overrides(zip_path: &Path, dir: &Path, prefixes: &[&str]) -> Result<V
             if entry.is_dir() || rel.is_empty() {
                 continue;
             }
-            let rel_path = safe_rel(rel).ok_or_else(|| Error::Invalid(format!("chemin refusé dans le modpack : {rel}")))?;
+            let rel_path = safe_rel(rel).ok_or_else(|| Error::Invalid(tr!("chemin refusé dans le modpack : {rel}", rel = rel)))?;
             let dest = dir.join(&rel_path);
             if let Some(d) = dest.parent() {
                 std::fs::create_dir_all(d).map_err(|e| Error::Disk(e.to_string()))?;
@@ -157,9 +157,9 @@ pub fn install_mrpack(http: &Http, layout: &Layout, mrpack: &Path, reference: Mo
         profile.mods.retain(|m| m.source != "modpack");
     }
     let jobs: Vec<Job> = pack.files.iter().map(|(rel, j)| Job { dest: dir.join(rel), ..j.clone() }).collect();
-    sink(Event::Step(format!("Téléchargement des fichiers du modpack ({})", jobs.len())));
+    sink(Event::Step(tr!("Téléchargement des fichiers du modpack ({jobs})", jobs = jobs.len())));
     fetch_all(http, jobs, true, cancel, sink)?;
-    sink(Event::Step("Fichiers de configuration du modpack".into()));
+    sink(Event::Step(tr!("Fichiers de configuration du modpack").into()));
     let mut files: Vec<String> = pack.files.iter().map(|(rel, _)| rel.to_string_lossy().replace('\\', "/")).collect();
     files.extend(extract_overrides(mrpack, &dir, &["overrides", "client-overrides"])?);
     for (rel, job) in &pack.files {
@@ -277,14 +277,14 @@ fn collect(dir: &Path, prefix: &str, out: &mut Vec<(String, PathBuf)>) {
 #[allow(clippy::type_complexity)]
 pub fn read_curseforge(path: &Path) -> Result<(String, String, String, Loader, String, Vec<(u64, u64)>)> {
     let f = std::fs::File::open(path).map_err(|e| Error::Disk(e.to_string()))?;
-    let mut zip = zip::ZipArchive::new(f).map_err(|e| Error::Invalid(format!("archive illisible : {e}")))?;
+    let mut zip = zip::ZipArchive::new(f).map_err(|e| Error::Invalid(tr!("archive illisible : {e}", e = e)))?;
     let mut text = String::new();
     zip.by_name("manifest.json")
-        .map_err(|_| Error::Invalid("ce fichier n'est ni un .mrpack ni un modpack CurseForge".into()))?
+        .map_err(|_| Error::Invalid(tr!("ce fichier n'est ni un .mrpack ni un modpack CurseForge").into()))?
         .read_to_string(&mut text)
         .map_err(|e| Error::Invalid(e.to_string()))?;
     let v: Value = serde_json::from_str(&text).map_err(|e| Error::Invalid(e.to_string()))?;
-    let mc = v.pointer("/minecraft/version").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid("manifeste sans version de Minecraft".into()))?.to_string();
+    let mc = v.pointer("/minecraft/version").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid(tr!("manifeste sans version de Minecraft").into()))?.to_string();
     let primary = v
         .pointer("/minecraft/modLoaders")
         .and_then(|l| l.as_array())
@@ -314,7 +314,7 @@ pub fn read_curseforge(path: &Path) -> Result<(String, String, String, Loader, S
 /// fichiers que l'auteur interdit de télécharger hors du site (à déposer à la main).
 pub fn install_curseforge(http: &Http, key: &str, layout: &Layout, zip_path: &Path, cancel: &AtomicBool, sink: Sink) -> Result<(Profile, Vec<String>)> {
     if key.trim().is_empty() {
-        return Err(Error::Invalid("CurseForge demande une clé d'API (Minecraft › Paramètres)".into()));
+        return Err(Error::Invalid(tr!("CurseForge demande une clé d'API (Minecraft › Paramètres)").into()));
     }
     let (name, version, mc, loader, lv, files) = read_curseforge(zip_path)?;
     sink(Event::Step(format!("Modpack {name} {version}")));

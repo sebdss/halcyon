@@ -141,7 +141,7 @@ pub fn export_profile(layout: &Layout, official: &Path, p: &Profile, java_args: 
         std::fs::copy(&file, &backup)?;
     }
     let text = std::fs::read_to_string(&file)?;
-    let mut root: serde_json::Value = serde_json::from_str(&text).map_err(|e| std::io::Error::other(format!("launcher_profiles.json illisible : {e}")))?;
+    let mut root: serde_json::Value = serde_json::from_str(&text).map_err(|e| std::io::Error::other(tr!("launcher_profiles.json illisible : {e}", e = e)))?;
     if !root.get("profiles").is_some_and(|x| x.is_object()) {
         root["profiles"] = serde_json::json!({});
     }

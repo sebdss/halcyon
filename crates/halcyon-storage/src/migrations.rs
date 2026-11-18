@@ -177,4 +177,24 @@ pub const MIGRATIONS: &[&str] = &[
     r#"
     CREATE INDEX IF NOT EXISTS idx_sessions_started ON play_sessions(started_at);
     "#,
+    // v6 (Halcyon 1.0) — historique des performances : un résumé par partie (aucun
+    // échantillon brut). Nouvelle table seulement : une base v6 reste lisible par la 0.5.
+    r#"
+    CREATE TABLE perf_sessions (
+        id           INTEGER PRIMARY KEY,
+        game_id      INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+        started_at   INTEGER NOT NULL,
+        duration_secs INTEGER NOT NULL,
+        samples      INTEGER NOT NULL,
+        cpu_avg      REAL    NOT NULL,
+        cpu_max      REAL    NOT NULL,
+        ram_avg_mb   INTEGER NOT NULL,
+        ram_max_mb   INTEGER NOT NULL,
+        ram_total_mb INTEGER NOT NULL,
+        gpu_avg      REAL,
+        gpu_max      REAL,
+        vram_max_mb  INTEGER
+    );
+    CREATE INDEX idx_perf_sessions_game ON perf_sessions(game_id, started_at);
+    "#,
 ];

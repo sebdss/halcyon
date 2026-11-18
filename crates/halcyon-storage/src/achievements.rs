@@ -62,7 +62,7 @@ impl Database {
         list: &[AchievementData],
     ) -> Result<Vec<Achievement>> {
         if provider == AchievementProvider::Custom {
-            return Err(StorageError::Conflict("les succès personnalisés ne se synchronisent pas".into()));
+            return Err(StorageError::Conflict(tr!("les succès personnalisés ne se synchronisent pas").into()));
         }
         let tx = self.conn.transaction()?;
         let previous: HashMap<String, bool> = {
@@ -126,8 +126,8 @@ impl Database {
                 self.log_activity(
                     crate::ActivityKind::Achievement,
                     Some(game),
-                    &format!("Succès débloqué : {}", a.data.name),
-                    &format!("{name} · {}", provider_label(provider)),
+                    &tr_later!("Succès débloqué : {name}", name = a.data.name),
+                    &tr_later!("{name} · {provider}", name = name, provider = provider_label(provider)),
                 )?;
             }
         }
@@ -194,7 +194,7 @@ impl Database {
     pub fn add_custom_achievement(&self, game: GameId, name: &str, description: &str) -> Result<()> {
         let name = name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict("le nom du succès est vide".into()));
+            return Err(StorageError::Conflict(tr!("le nom du succès est vide").into()));
         }
         let order: i64 = self.conn.query_row(
             "SELECT COALESCE(MAX(display_order), 0) + 1 FROM achievements WHERE game_id = ?1 AND provider = 'custom'",
@@ -224,8 +224,8 @@ impl Database {
             self.log_activity(
                 crate::ActivityKind::Achievement,
                 Some(game),
-                &format!("Objectif personnel atteint : {ach}"),
-                &format!("{name} · personnalisé"),
+                &tr_later!("Objectif personnel atteint : {ach}", ach = ach),
+                &tr_later!("{name} · personnalisé", name = name),
             )?;
         }
         Ok(())
@@ -304,11 +304,11 @@ impl Database {
     }
 }
 
-fn provider_label(p: AchievementProvider) -> &'static str {
+fn provider_label(p: AchievementProvider) -> String {
     match p {
-        AchievementProvider::Steam => "Steam",
-        AchievementProvider::RetroAchievements => "RetroAchievements",
-        AchievementProvider::Custom => "personnalisé",
+        AchievementProvider::Steam => "Steam".into(),
+        AchievementProvider::RetroAchievements => "RetroAchievements".into(),
+        AchievementProvider::Custom => tr!("personnalisé"),
     }
 }
 

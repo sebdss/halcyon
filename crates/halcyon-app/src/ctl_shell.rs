@@ -23,6 +23,8 @@ fn page_from_name(name: &str) -> Option<Page> {
         "plugins" => Page::Plugins,
         "emulators" => Page::Emulators,
         "minecraft" => Page::Minecraft,
+        "performance" => Page::Performance,
+        "downloads" => Page::Downloads,
         _ => return None,
     })
 }
@@ -108,8 +110,8 @@ impl Controller {
         self.save_settings();
         self.apply_ui_modes();
         self.sound(halcyon_audio::Cue::Mode);
-        let label = ["standard", "minimaliste", "cinéma"][mode as usize];
-        self.toast(format!("Mode {label}"), false);
+        let label = match mode as usize { 1 => tr!("Mode minimaliste"), 2 => tr!("Mode cinéma"), _ => tr!("Mode standard") };
+        self.toast(label, false);
         self.refresh_home();
     }
 
@@ -129,7 +131,7 @@ impl Controller {
         self.sound(if on { halcyon_audio::Cue::ToggleOn } else { halcyon_audio::Cue::ToggleOff });
         self.apply_ui_modes();
         self.on_performance_changed();
-        self.toast(if on { "Mode Performance activé" } else { "Mode Performance désactivé" }, false);
+        self.toast(if on { tr!("Mode Performance activé") } else { tr!("Mode Performance désactivé") }, false);
     }
 
     /// Mode Performance actif (manuel ou automatique).
@@ -140,6 +142,9 @@ impl Controller {
     /// Début d'une partie : mode Performance automatique si l'option est active.
     pub(crate) fn performance_session_started(&self) {
         self.audio.set_game_active(true);
+        if let Some(id) = self.active_session.get() {
+            self.perf_session_start(id);
+        }
         if self.settings.borrow().appearance.performance_auto && !self.perf_auto_active.get() {
             self.perf_auto_active.set(true);
             self.apply_ui_modes();
@@ -150,6 +155,7 @@ impl Controller {
     /// Fin de la partie : fonctionnement normal restauré.
     pub(crate) fn performance_session_ended(&self) {
         self.audio.set_game_active(false);
+        self.perf_session_stop();
         if self.perf_auto_active.replace(false) {
             self.apply_ui_modes();
             self.on_performance_changed();
@@ -285,16 +291,16 @@ impl Controller {
                 progress: t.progress,
                 state: t.state.code(),
                 time: match t.state {
-                    State::Running if elapsed >= 60 => format!("{} min", elapsed / 60),
-                    State::Running => format!("{elapsed} s"),
+                    State::Running if elapsed >= 60 => tr!("{v} min", v = elapsed / 60),
+                    State::Running => tr!("{elapsed} s", elapsed = elapsed),
                     _ => clock(t.ended.unwrap_or(t.started)),
                 }
                 .into(),
                 action: match &t.action {
                     Action::None => SharedString::new(),
-                    Action::OpenPage(_) => "Ouvrir".into(),
-                    Action::OpenGame(_) => "Voir la fiche".into(),
-                    Action::OpenFolder(_) => "Ouvrir le dossier".into(),
+                    Action::OpenPage(_) => tr!("Ouvrir").into(),
+                    Action::OpenGame(_) => tr!("Voir la fiche").into(),
+                    Action::OpenFolder(_) => tr!("Ouvrir le dossier").into(),
                 },
             }
         };
@@ -307,6 +313,7 @@ impl Controller {
         ui.set_running(active.len() as i32);
         ui.set_errors(errors as i32);
         ui.set_unread(if ui.get_open() { 0 } else { unread as i32 });
+        self.publish_download_rows(&active, &history);
         ui.set_active(ModelRc::new(VecModel::from(active)));
         ui.set_history(ModelRc::new(VecModel::from(history)));
     }

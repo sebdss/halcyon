@@ -1,107 +1,160 @@
-# Design system « Nocturne » — Halcyon 0.4
+# Système de design « Berge » — Halcyon 1.0
 
-Toutes les valeurs visuelles sont centralisées dans `crates/halcyon-app/ui/theme.slint`
-(global `Theme`) et les composants réutilisables dans `ui/components.slint` et `ui/shell.slint`.
-Aucune page ne doit coder en dur une couleur, une taille de texte ou une durée d'animation.
+> Successeur d'« Alcyon » (préversions 1.0) et de « Nocturne » (0.4–0.5), tous deux conservés
+> comme thèmes : « Alcyon (1.0 préversion) » et « Nocturne (0.5) » dans *Système › Apparence*.
 
-## Principes
+## Pourquoi une nouvelle direction
 
-1. **L'illustration d'abord.** Les jaquettes et bannières occupent la surface ; l'interface se fait discrète
-   (verre sombre, voiles, texte clair).
-2. **Une action principale visible.** Sur chaque écran, un seul bouton accentué (`PrimaryButton`).
-3. **Le focus est toujours visible.** Clavier et manette affichent un anneau `Theme.focus` de
-   `Theme.focus-width` ; la sélection n'est jamais signalée par la seule couleur.
-4. **Le mouvement informe, il ne décore pas.** Durées courtes, aucune animation bloquante,
-   trois niveaux réglables (complet / réduit / aucun).
-5. **Rien de fictif.** Une section sans données réelles est masquée ou affiche un état vide explicatif,
-   jamais des valeurs inventées.
+Les préversions avaient les traits des interfaces assemblées automatiquement : cartes arrondies
+partout, pilules, dégradé décoratif (la « ligne d'horizon »), halos lumineux, fond bleu saturé,
+grands titres resserrés, chaque bloc d'information posé dans sa propre carte. « Berge » repart
+du sujet plutôt que d'une tendance.
+
+## Le sujet
+
+Halcyon est le martin-pêcheur. Il se tient **immobile sur une branche au-dessus de l'eau**, puis
+plonge d'un **geste net**. Son logo réunit deux couleurs : le **bleu du plumage** et l'**orange
+des pattes**. L'interface en tire quatre principes :
+
+1. **Calme et mat.** Ardoise neutre, aucun verre, aucun dégradé décoratif, aucune lueur. Les
+   ombres sont réservées à ce qui flotte réellement (menus, dialogues, notifications).
+2. **Deux couleurs, deux rôles.** Le bleu dit *où l'on est* (sélection, focus, liens,
+   progression). L'orange est *le geste* : le bouton **Jouer**, l'état **en jeu**, ce qui est
+   vivant (téléchargement actif, succès débloqué). Jouer est orange partout, toujours dessiné de
+   la même façon : c'est la signature de Halcyon.
+3. **La perche.** Un trait d'accent court (3 px) marque l'élément actif : espace de navigation,
+   onglet, entrée d'un index, choix d'une liste, ligne sélectionnée. C'est la branche sur laquelle
+   l'oiseau se pose ; il n'y a pas d'autre ornement.
+4. **Une voix typographique.** Archivo Expanded pour les titres et les chiffres, Archivo pour le
+   texte. La hiérarchie vient de la taille, de la largeur et de la graisse du texte, pas des
+   boîtes.
 
 ## Couleurs
 
-| Jeton | Rôle |
-|---|---|
-| `bg` < `sidebar` < `surface` < `surface-hover` < `surface-active` | Couches de profondeur |
-| `border`, `border-strong` | Séparateurs, contours de cartes |
-| `glass`, `glass-strong` | Panneaux posés sur une image (opacité 72 / 88 %, sans flou coûteux) |
-| `scrim` | Voile sous le texte affiché sur une image |
-| `text`, `text-muted`, `text-dim` | Texte principal / secondaire / désactivé (contraste ≥ 4,5:1 pour les deux premiers sur `surface`) |
-| `accent` (+ `-hover`, `-pressed`, `-soft`, `-glow`) | Couleur d'accent personnalisable (thème ou réglage) |
-| `on-accent` | Texte sur fond accent |
-| `success`, `warm`, `danger` | États : réussi, avertissement, erreur/destructif |
-| `focus` | Anneau de focus |
-
-Les thèmes 0.3 (fichiers `.halcyon-theme`) restent compatibles : les noms d'origine sont conservés,
-les nouveaux jetons sont dérivés (`glass` dérive de `bg`, `accent-glow` de `accent`…).
-
-## Typographie (Inter)
-
-| Jeton | Taille de base | Usage |
+| Jeton | Valeur | Rôle |
 |---|---|---|
-| `t-display` | 44 px | Nom du jeu sur la fiche, titres Big Picture |
-| `t-title` | 30 px | Titre de page |
-| `t-heading` | 20 px | Titre de section |
-| `t-subheading` | 16 px | Titre de carte |
-| `t-body` | 14 px | Texte courant |
-| `t-small` | 13 px | Métadonnées |
-| `t-caption` | 12 px | Légendes, infobulles |
-| `t-overline` | 11 px | Sur-titres en capitales |
+| `sidebar` | `#0f1115` | colonne de navigation (la rive) |
+| `bg` | `#14171c` | page |
+| `surface` / `-hover` / `-active` | `#1b1f25` / `#232830` / `#2b313a` | groupes de réglages, menus, survol, sélection |
+| `border` / `border-strong` | blanc 8 % / 15 % | filets |
+| `text` / `text-muted` / `text-dim` | `#eceef1` / `#a3abb6` / `#7e8793` | texte principal, secondaire, discret |
+| `accent` | `#3d9be9` (bleu du logo) | sélection, focus, liens, progression |
+| `warm` | `#f08a24` (orange du logo) | Jouer, en jeu, vivant |
+| `danger` / `success` | `#e5534b` / `#3fb27f` | erreur, confirmation |
+| `bp-bg` | `#0e1014` | mode console |
 
-Toutes sont multipliées par `text-scale` (réglage d'accessibilité 90 % à 130 %).
+Contrastes WCAG mesurés sur `bg` : texte 15,5:1, secondaire 7,7:1, discret 4,9:1, bleu 6,0:1,
+orange 7,2:1. Texte sur bouton bleu 6,4:1, sur bouton orange 7,5:1. Sur `surface`, le texte
+discret reste à 4,5:1.
 
-## Espacements, formes
+## Typographie
 
-- Grille de 4 px : `s1` 4 · `s2` 8 · `s3` 12 · `s4` 16 · `s5` 24 · `s6` 32 · `s7` 48 (réduits en densité compacte).
-- `page-padding`, `control-height` (40 px, 34 px compact), `nav-height`.
-- Rayons : `radius-sm` 6 · `radius` 10 · `radius-lg` 14 · `radius-xl` 22.
+Police **Archivo** (SIL OFL), instanciée en fichiers statiques depuis la version variable :
+
+| Famille | Graisses | Usage |
+|---|---|---|
+| `Archivo Expanded` (`Theme.display`, largeur 125) | 600, 700, 800 | titres de page et de section, chiffres (temps de jeu, compteurs, mesures), libellé « Jouer », mode console |
+| `Archivo` (`Theme.font`, largeur 100) | 400, 500, 600, 700 | tout le texte courant |
+
+Échelle (× `text-scale`, 0,9 à 1,3) : 44 / 30 / 20 / 16 / 14 / 13 / 12 / 11 px. Aucune
+capitale espacée ; aucune approche négative ; les compteurs sont des chiffres composés dans la
+police d'affichage (« Outils 4 »), jamais des pastilles.
+
+## Forme et espacement
+
+- Rayons : 3 px (étiquettes, jaquettes, cases), 5 px (contrôles), 8 px (menus, dialogues). Plus
+  de pilules ; l'interrupteur a une piste droite et un curseur carré.
+- Grille de 4 px. Marge de page 40 px (28 px en densité compacte). Les réglages et l'apparence
+  se lisent dans une colonne bornée à environ 880 px.
+- Rangées de liste : 52 px (44 px compacte), séparées par un filet, sans carte.
+
+## Composition
+
+- **Pas de cartes par défaut.** Un sujet s'ouvre par une **rubrique** (`Rubric`) : filet de
+  tête, titre, contenu. Les jaquettes reposent sur la page. Les groupes de réglages
+  (`Panel`) sont un simple changement de teinte, sans contour.
+- **Un index à gauche** quand une page a beaucoup de filtres ou de catégories : bibliothèque
+  (sources, affichage, collections, genre), paramètres (catégories).
+- **Un chiffre-titre** quand une page a une mesure principale : complétion des succès, temps de
+  jeu total, processeur/mémoire/carte graphique.
+- **Une planche** pour l'image d'un jeu : bannière nette, coins presque droits, jamais fondue
+  dans un dégradé (sauf la vue immersive de la bibliothèque, choisie explicitement).
+
+## Écrans
+
+| Écran | Composition |
+|---|---|
+| Coque | Colonne de navigation (212 px, 64 px en icônes seules) : logo et nom, six espaces (Accueil, Bibliothèque, Minecraft, Activité, Outils, Système), puis Console et Analyser. L'espace actif prend la teinte de la page et porte la perche. Barre supérieure : historique, recherche (Ctrl K), états réels (en jeu, Performance, hors ligne) et modes. Barre d'espace : titre et onglets soulignés, compteurs en chiffres. |
+| Accueil | « Reprendre » : texte à gauche (titre, temps de jeu, dernière partie, source, Jouer), planche à droite. Puis les widgets choisis : étagères de jaquettes sur la page, widgets de données en rubriques. « Personnaliser l'accueil » en pied de page ; en édition, chaque widget montre son cadre. |
+| Bibliothèque | Index à gauche (sources, affichage, collections, genre), titre et nombre de jeux, barre d'outils (recherche, tri, taille, vue), puis grille, liste en tableau, carrousel, immersive ou compacte. Le carrousel et l'immersive rendent toute la largeur au jeu. |
+| Fiche de jeu | Bande illustrée nette, jaquette qui chevauche son bord, titre et provenance, Jouer et actions, chiffres réels à droite. Onglets soulignés. Corps en deux colonnes : contenu, et fiche technique (suivi, installation, édition, liens). |
+| Minecraft | Même structure que Halcyon ; son univers tient dans un bloc d'herbe dessiné au pixel et un filet herbe et terre sous les onglets. |
+| Activité | Succès : complétion en chiffre-titre, rubriques par plateforme et par mois. Statistiques : temps total en chiffre-titre, relevé, graphiques en rubriques. Journal : chronologie avec heure, repère de catégorie et fil. Que jouer ? : suggestions avec leur raison. |
+| Outils | Téléchargements et mises à jour en rangées à perche (actif) ; sauvegardes, émulateurs, manettes, jeu à distance et extensions en rangées et groupes. |
+| Système | Performances en instruments (filet épais, valeur en grand, courbe sur une ligne de base). Apparence : thèmes en miniatures de l'interface. Paramètres : index des catégories, colonne de lecture. |
+| Console | Mise à l'échelle de la hauteur d'écran (`u = height / 1080`), rayons réduits, Jouer orange ; le focus télé reste blanc. |
+
+## États
+
+| État | Traitement |
+|---|---|
+| Survol | teinte `surface` (rangées) ou `surface-hover` (contrôles) |
+| Focus clavier / manette | anneau `accent` 2 px à 3 px du contrôle, toujours visible |
+| Actif / sélectionné | perche `accent` et texte en graisse 650 |
+| Désactivé | texte `text-dim`, fond neutre ; l'infobulle dit pourquoi quand c'est utile |
+| Chargement | `Spinner`, `ProgressBar` (indéterminée : segment qui parcourt la piste), `Skeleton` (pulsation de teinte) |
+| Erreur | filet ou perche `danger`, message qui dit quoi faire |
+| Vide | ce qui manque et l'action qui le remplit (`EmptyState`, notes de rubrique) |
+| Confirmation | notification inversée (fond clair, perche de couleur d'état), en bas de la page |
 
 ## Mouvement
 
 | Jeton | Complet | Réduit | Aucun |
 |---|---|---|---|
-| `fast` (survol, focus, pression) | 120 ms | 70 ms | 0 |
-| `normal` (panneaux, onglets, menus) | 200 ms | 100 ms | 0 |
-| `slow` (transitions de page, apparition) | 320 ms | 140 ms | 0 |
-| `motion-distance` (glissement) | 12 px | 0 | 0 |
+| `fast` (survol, focus, pression) | 90 ms | 60 ms | 0 |
+| `normal` (perches, onglets, panneaux) | 160 ms | 90 ms | 0 |
+| `slow` (graphiques, apparition) | 240 ms | 120 ms | 0 |
+| `motion-distance` (glissement) | 6 px | 0 | 0 |
 
-Le mode Performance force « aucun », coupe `effects` (ombres larges, halo) et le fond animé.
-Le mode minimal plafonne au niveau « réduit ».
+Rien ne flotte ni ne rebondit : les tuiles ne se soulèvent plus au survol (léger éclaircissement
+et bouton Jouer). Le mode Performance force « aucun » et coupe les ombres.
 
-Règle d'implémentation (performance de compilation et d'exécution) : un composant réutilisé garde une
-racine « propre » (pas d'`animate`, d'`opacity`, d'ombre ni de `visible` sur la racine) ; les effets vont
-sur un enfant `bg := Rectangle`. Sinon le compilateur Slint duplique le composant à chaque usage.
+Règle d'implémentation : un composant réutilisé garde une racine « propre » (pas d'`animate`,
+d'`opacity`, d'ombre ni de `visible` sur la racine) ; les effets vont sur un enfant. Sinon le
+compilateur Slint duplique le composant à chaque usage.
 
 ## Iconographie
 
-Icônes SVG au trait 2 px, grille 24 × 24, `ui/icons/*.svg`, exposées par le global `Icons`
-et colorées via `colorize`. Une icône seule doit toujours avoir une infobulle (`IconButton.tooltip`).
+Icônes SVG maison, grille 24 × 24, trait 1,6 px, **extrémités carrées et angles vifs** (accord
+avec Archivo), rayons de 1 px au plus. Exposées par le global `Icons`, colorées par `colorize`.
+Une icône seule a toujours une infobulle.
 
 ## Composants
 
-| Composant | Rôle / particularités |
+| Composant | Rôle |
 |---|---|
-| `Focusable`, `FocusRing` | Base clavier/manette : Entrée/Espace → `activated` |
-| `PrimaryButton`, `SecondaryButton`, `IconButton` | `enabled`, `badge`, infobulle ; un bouton désactivé explique pourquoi via son infobulle |
-| `Chip`, `Segmented`, `Tabs`, `Dropdown`, `Toggle` | Navigables aux flèches ; `Tabs.hidden` masque les onglets sans données |
-| `TextField`, `TextArea` | Champs de saisie |
-| `GameCover`, `GameTile` | Jaquette avec chargement progressif ; tuile avec état sélectionné, menu contextuel (clic droit / touche Menu / bouton ☰ manette) |
-| `Skeleton`, `Spinner`, `ProgressBar` | États de chargement ; `ProgressBar.value < 0` = indéterminé |
-| `Badge`, `KeyHint`, `Notice`, `EmptyState` | Statuts, raccourcis, messages, états vides |
-| `Panel`, `SectionTitle`, `Overline`, `InfoRow`, `BigStat`, `BarChart`, `MeterRow`, `PageHeader` | Mise en page de contenu |
-| `ContextMenu` + `MenuEntry` | Menu contextuel clavier/manette, entrées désactivables et destructives (rouge) |
-| `Modal`, `ModalPanel` | Dialogues ; toute action destructive passe par une confirmation |
-| `Sidebar`, `TopBar`, `CommandCenter` (`shell.slint`) | Coquille : navigation repliable, historique, recherche, centre de commandes |
+| `PlayButton` | Jouer (orange), `big` pour les en-têtes, `busy` pour « en jeu » |
+| `PrimaryButton`, `SecondaryButton`, `TextButton`, `IconButton` | Valider (bleu), action secondaire (contour), lien d'action, icône (infobulle, état actif souligné) |
+| `Chip`, `Segmented`, `Tabs`, `Dropdown`, `Toggle`, `ValueSlider` | Choix ; navigables aux flèches |
+| `TextField`, `TextArea` | Saisie ; focus : contour et trait d'accent |
+| `GameCover`, `GameTile` | Jaquette (planche typographique générée sans image), tuile avec légende titre / source / temps |
+| `Rubric`, `SectionHeader`, `SectionTitle`, `Overline`, `SettingRow`, `InfoRow`, `BigStat`, `MeterRow`, `BarChart`, `PageHeader` | Composition des pages |
+| `Notice`, `EmptyState`, `Badge`, `KeyHint`, `Skeleton`, `Spinner`, `ProgressBar` | Notes, états, étiquettes |
+| `Panel`, `Modal`, `ModalPanel`, `ContextMenu` | Groupes, dialogues, menus |
+| `Sidebar`, `TopBar`, `SpaceBar`, `CommandCenter` (`shell.slint`) | Coque |
 
 ## Modes d'interface
 
 | Mode | Effet |
 |---|---|
-| Standard | Barre latérale complète |
-| Minimal | Barre repliée, accueil réduit (favoris, récents, recherche), animations réduites |
-| Cinéma | Barre latérale masquée, illustrations plein cadre |
-| Performance | Indépendant du mode : animations et effets coupés, tâches secondaires suspendues ; activable à la main ou automatiquement pendant une session de jeu, puis restauré |
+| Standard | Colonne de navigation complète |
+| Minimal | Colonne en icônes, accueil réduit (recherche, favoris, récents), animations réduites |
+| Cinéma | Colonne masquée |
+| Performance | Animations et effets coupés, tâches secondaires suspendues ; manuel ou automatique pendant une partie |
 
 ## Responsive
 
-Fenêtre minimale 800 × 560. Sous 1100 px de large, la barre latérale se replie automatiquement (icônes
-+ infobulles). Les grilles calculent leur nombre de colonnes à partir de la largeur disponible ; les textes
-longs sont élidés (`overflow: elide`) avec le texte complet en infobulle quand c'est utile.
+Fenêtre minimale 800 × 560. Sous 1080 px de large, la colonne de navigation passe en icônes ;
+sous 1000 px, l'index de la bibliothèque laisse place aux filtres en ligne ; sous 940 px, les
+paramètres passent en une colonne avec une liste déroulante de catégories. Les grilles calculent
+leurs colonnes d'après la largeur disponible ; les textes longs sont élidés.

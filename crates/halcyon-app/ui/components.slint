@@ -1,4 +1,4 @@
-// Composants du design system « Nocturne » (docs/DESIGN-SYSTEM.md).
+// Composants du système de design « Berge » (docs/DESIGN-SYSTEM.md).
 //
 // Règles de construction, vérifiées pour chaque composant :
 // - focalisables au clavier et à la manette (Tab, flèches via la manette), activation par
@@ -7,19 +7,26 @@
 //   sinon le compilateur Slint recopie le composant à chaque utilisation (code généré,
 //   mémoire de compilation et temps de création de l'interface multipliés). Les effets
 //   animés vivent dans un enfant ;
-// - aucune valeur visuelle en dur : tout vient de `Theme`.
+// - aucune valeur visuelle en dur : tout vient de `Theme` ;
+// - géométrie droite (rayons de 3 à 8 px), pas de lueur, pas de dégradé décoratif : l'état
+//   se lit à la teinte, à la graisse du texte et à la perche d'accent.
 
-import { Theme, Icons } from "theme.slint";
+import { Theme, Icons, Layout } from "theme.slint";
 import { Sound } from "sound.slint";
 import { GameCard, BarItem, MenuEntry } from "types.slint";
 
+/// Icône teintée. Dans une rangée, elle prend la hauteur de la rangée et se dessine
+/// centrée verticalement (le texte voisin et l'icône restent alignés à toute échelle).
 export component Icon inherits Image {
     in property <length> size: 20px;
     in property <color> tint: Theme.text;
     width: size;
-    height: size;
+    min-height: size;
+    preferred-height: size;
     colorize: tint;
     image-fit: contain;
+    vertical-alignment: center;
+    horizontal-alignment: center;
 }
 
 /// Zone focalisable commune : Entrée / Espace déclenchent `activated`.
@@ -35,57 +42,54 @@ component Focusable inherits FocusScope {
     }
 }
 
-/// Anneau de focus (dessiné par-dessus le contrôle).
+/// Anneau de focus (dessiné autour du contrôle, à 3 px).
 component FocusRing inherits Rectangle {
     in property <bool> shown;
     in property <length> corner;
-    border-radius: corner + 3px;
+    border-radius: corner + 2px;
     border-width: shown ? Theme.focus-width : 0px;
     border-color: Theme.focus;
 }
 
-/// Bouton principal (accent plein).
+/// Bouton principal : action de validation d'un écran (accent plein).
 export component PrimaryButton inherits Rectangle {
     in property <string> text;
     in property <image> icon;
     in property <bool> has-icon: false;
     in property <bool> enabled: true;
-    in property <length> font-size: Theme.t-body;
+    in property <length> font-size: Theme.t-small;
     in property <length> h: Theme.control-height;
     out property <bool> focused: fs.has-focus;
     callback clicked;
 
     height: h;
-    min-width: 96px;
+    min-width: 88px;
     accessible-role: button;
     accessible-label: text;
     accessible-action-default => { if (root.enabled) { root.clicked(); } }
     forward-focus: fs;
 
     bg := Rectangle {
-        border-radius: root.h / 2;
-        background: !root.enabled ? Theme.surface-active : ta.pressed ? Theme.accent-pressed : ta.has-hover || fs.has-focus ? Theme.accent-hover : Theme.accent;
-        drop-shadow-blur: root.enabled && Theme.effects && (ta.has-hover || fs.has-focus) ? 20px : 0px;
-        drop-shadow-color: Theme.accent-glow;
-        animate background, drop-shadow-blur { duration: Theme.fast; }
+        border-radius: Theme.radius;
+        background: !root.enabled ? Theme.surface-active : ta.pressed ? Theme.accent-pressed : ta.has-hover ? Theme.accent-hover : Theme.accent;
+        animate background { duration: Theme.fast; }
     }
-    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: root.h / 2; shown: fs.has-focus; }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: Theme.radius; shown: fs.has-focus; }
     HorizontalLayout {
-        padding-left: has-icon ? 16px : 22px;
-        padding-right: 22px;
+        padding-left: has-icon ? 14px : 18px;
+        padding-right: 18px;
         spacing: 8px;
         alignment: center;
         if has-icon: Icon {
             source: icon;
-            size: root.h * 0.4;
+            size: 16px;
             tint: enabled ? Theme.on-accent : Theme.text-dim;
-            y: (parent.height - self.height) / 2;
         }
         Text {
             text: root.text;
             color: enabled ? Theme.on-accent : Theme.text-dim;
             font-size: root.font-size;
-            font-weight: 650;
+            font-weight: 600;
             vertical-alignment: center;
         }
     }
@@ -100,7 +104,61 @@ export component PrimaryButton inherits Rectangle {
     }
 }
 
-/// Bouton secondaire (surface translucide).
+/// Bouton « Jouer » : le geste de Halcyon, toujours orange, toujours le même dessin.
+/// `big` : version des en-têtes (fiche, accueil, console).
+export component PlayButton inherits Rectangle {
+    in property <string> text: @tr("Jouer");
+    in property <bool> enabled: true;
+    in property <bool> big: false;
+    /// État « en cours » (lancement, jeu ouvert) : libellé conservé, bouton atténué.
+    in property <bool> busy: false;
+    out property <bool> focused: fs.has-focus;
+    callback clicked;
+
+    height: root.big ? 48px : Theme.control-height;
+    min-width: root.big ? 156px : 96px;
+    accessible-role: button;
+    accessible-label: text;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
+    forward-focus: fs;
+
+    bg := Rectangle {
+        border-radius: Theme.radius;
+        background: !root.enabled ? Theme.surface-active : root.busy ? Theme.warm.with-alpha(0.35) : ta.pressed ? Theme.warm.darker(0.12) : ta.has-hover ? Theme.warm-hover : Theme.warm;
+        animate background { duration: Theme.fast; }
+    }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: Theme.radius; shown: fs.has-focus; }
+    HorizontalLayout {
+        padding-left: root.big ? 22px : 14px;
+        padding-right: root.big ? 26px : 18px;
+        spacing: root.big ? 12px : 8px;
+        alignment: center;
+        Icon {
+            source: Icons.play;
+            size: root.big ? 18px : 14px;
+            tint: root.enabled ? Theme.on-warm : Theme.text-dim;
+        }
+        Text {
+            text: root.text;
+            color: root.enabled ? Theme.on-warm : Theme.text-dim;
+            font-family: Theme.display;
+            font-size: root.big ? Theme.t-subheading : Theme.t-small;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+    }
+    ta := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => { root.clicked(); }
+    }
+    fs := Focusable {
+        enabled: root.enabled;
+        activated => { root.clicked(); }
+    }
+}
+
+/// Bouton secondaire : contour fin, sans fond.
 export component SecondaryButton inherits Rectangle {
     in property <string> text;
     in property <image> icon;
@@ -119,25 +177,25 @@ export component SecondaryButton inherits Rectangle {
     property <color> fg: !root.enabled ? Theme.text-dim : root.danger ? Theme.danger : Theme.text;
 
     bg := Rectangle {
-        border-radius: root.h / 2;
-        background: ta.pressed ? Theme.surface-active : ta.has-hover || fs.has-focus ? Theme.surface-hover : Theme.text.with-alpha(0.05);
+        border-radius: Theme.radius;
+        background: !root.enabled ? transparent : ta.pressed ? Theme.surface-active : ta.has-hover ? Theme.surface-hover : transparent;
         border-width: 1px;
-        border-color: root.danger && root.enabled ? Theme.danger.with-alpha(0.4) : Theme.border;
+        border-color: root.danger && root.enabled ? Theme.danger.with-alpha(0.45) : ta.has-hover ? Theme.border-strong.with-alpha(0.3) : Theme.border-strong;
         animate background { duration: Theme.fast; }
     }
-    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: root.h / 2; shown: fs.has-focus; }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: Theme.radius; shown: fs.has-focus; }
     HorizontalLayout {
-        padding-left: has-icon ? 14px : 18px;
-        padding-right: 18px;
-        spacing: 8px;
+        // Icône seule : bouton carré, sans marge vide à droite.
+        padding-left: root.text == "" ? 9px : has-icon ? 12px : 16px;
+        padding-right: root.text == "" ? 9px : 16px;
+        spacing: root.text == "" ? 0px : 8px;
         alignment: center;
         if has-icon: Icon {
             source: icon;
             size: 16px;
             tint: root.fg;
-            y: (parent.height - self.height) / 2;
         }
-        Text {
+        if root.text != "": Text {
             text: root.text;
             color: root.fg;
             font-size: Theme.t-small;
@@ -156,14 +214,54 @@ export component SecondaryButton inherits Rectangle {
     }
 }
 
-/// Bouton rond contenant une icône. L'infobulle apparaît au survol et au focus.
+/// Lien d'action en texte (« Tout voir », « Modifier ») : accent, souligné au survol.
+export component TextButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> enabled: true;
+    in property <color> tint: Theme.accent;
+    callback clicked;
+    height: 28px;
+    width: lbl.preferred-width + 4px;
+    accessible-role: button;
+    accessible-label: text;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
+    forward-focus: fs;
+    lbl := Text {
+        x: 2px;
+        text: root.text;
+        color: !root.enabled ? Theme.text-dim : root.tint;
+        font-size: Theme.t-small;
+        font-weight: 600;
+        vertical-alignment: center;
+    }
+    Rectangle {
+        x: 2px;
+        y: root.height / 2 + lbl.preferred-height / 2;
+        width: ta.has-hover || fs.has-focus ? lbl.preferred-width : 0px;
+        height: 1px;
+        background: root.tint;
+    }
+    if fs.has-focus: Rectangle { x: -3px; width: root.width + 6px; border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
+    ta := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => { root.clicked(); }
+    }
+    fs := Focusable {
+        enabled: root.enabled;
+        activated => { root.clicked(); }
+    }
+}
+
+/// Bouton carré contenant une icône. L'infobulle apparaît au survol et au focus.
 export component IconButton inherits Rectangle {
     in property <image> icon;
-    in property <length> size: 36px;
+    in property <length> size: 34px;
     in property <length> icon-size: 18px;
     in property <color> tint: Theme.text-muted;
     in property <color> active-tint: Theme.text;
     in property <bool> active: false;
+    /// Posé sur une image : fond sombre opaque pour rester lisible.
     in property <bool> glass: false;
     in property <bool> enabled: true;
     in property <string> tooltip;
@@ -180,24 +278,32 @@ export component IconButton inherits Rectangle {
     forward-focus: fs;
 
     bg := Rectangle {
-        border-radius: root.size / 2;
-        background: root.glass ? (ta.has-hover || fs.has-focus ? #000000a0 : #00000070) : (ta.pressed ? Theme.surface-active : ta.has-hover || fs.has-focus || root.active ? Theme.surface-hover : transparent);
+        border-radius: Theme.radius;
+        background: root.glass ? (ta.has-hover || fs.has-focus ? #000000b8 : #00000080) : (ta.pressed ? Theme.surface-active : ta.has-hover || root.active ? Theme.surface-hover : transparent);
         animate background { duration: Theme.fast; }
     }
-    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: root.size / 2; shown: fs.has-focus; }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: Theme.radius; shown: fs.has-focus; }
     Icon {
         source: icon;
         size: icon-size;
-        tint: !root.enabled ? Theme.text-dim : root.active || ta.has-hover || fs.has-focus ? root.active-tint : root.tint;
+        tint: !root.enabled ? Theme.text-dim.with-alpha(0.5) : root.active || ta.has-hover || fs.has-focus ? root.active-tint : root.tint;
+    }
+    // Repère d'état actif : trait d'accent sous l'icône.
+    if root.active && !root.glass: Rectangle {
+        x: (root.width - self.width) / 2;
+        y: root.height - 4px;
+        width: 12px;
+        height: 2px;
+        background: root.active-tint == Theme.text ? Theme.accent : root.active-tint;
     }
     if root.badge != "": Rectangle {
-        x: root.width - 14px;
-        y: -2px;
-        width: max(16px, bt.preferred-width + 8px);
-        height: 16px;
-        border-radius: 8px;
+        x: root.width - self.width + 3px;
+        y: -3px;
+        width: max(15px, bt.preferred-width + 8px);
+        height: 15px;
+        border-radius: Theme.radius-sm;
         background: Theme.accent;
-        bt := Text { text: root.badge; color: Theme.on-accent; font-size: Theme.t-overline - 1px; font-weight: 700; }
+        bt := Text { text: root.badge; color: Theme.on-accent; font-size: 10px; font-weight: 700; }
     }
     if root.tooltip != "" && (ta.has-hover || fs.has-focus): Rectangle {
         y: root.height + 6px;
@@ -205,10 +311,8 @@ export component IconButton inherits Rectangle {
         width: tt.preferred-width + 16px;
         height: 26px;
         border-radius: Theme.radius-sm;
-        background: Theme.surface-active;
-        border-width: 1px;
-        border-color: Theme.border-strong;
-        tt := Text { text: root.tooltip; color: Theme.text; font-size: Theme.t-caption; }
+        background: Theme.text;
+        tt := Text { text: root.tooltip; color: Theme.bg; font-size: Theme.t-caption; font-weight: 500; }
     }
     ta := TouchArea {
         enabled: root.enabled;
@@ -229,7 +333,7 @@ export component Chip inherits Rectangle {
     in property <bool> has-icon: false;
     callback toggled;
 
-    height: 32px;
+    height: 30px;
     min-width: row.preferred-width;
     accessible-role: checkbox;
     accessible-checked: checked;
@@ -238,28 +342,27 @@ export component Chip inherits Rectangle {
     forward-focus: fs;
 
     bg := Rectangle {
-        border-radius: 16px;
-        background: root.checked ? Theme.accent-soft : ta.has-hover || fs.has-focus ? Theme.surface-hover : transparent;
+        border-radius: Theme.radius-sm;
+        background: root.checked ? Theme.accent-soft : ta.has-hover ? Theme.surface-hover : transparent;
         border-width: 1px;
-        border-color: root.checked ? Theme.accent.with-alpha(0.55) : Theme.border;
+        border-color: root.checked ? Theme.accent.with-alpha(0.5) : Theme.border-strong;
         animate background, border-color { duration: Theme.fast; }
     }
-    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: 16px; shown: fs.has-focus; }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: Theme.radius-sm; shown: fs.has-focus; }
     row := HorizontalLayout {
-        padding-left: 14px;
-        padding-right: 14px;
+        padding-left: 11px;
+        padding-right: 12px;
         spacing: 6px;
         if root.checked || root.has-icon: Icon {
             source: root.has-icon ? root.icon : Icons.check;
             size: 14px;
             tint: root.checked ? Theme.accent : Theme.text-muted;
-            y: (parent.height - self.height) / 2;
         }
         Text {
             text: root.text;
-            color: root.checked ? Theme.accent : Theme.text-muted;
+            color: root.checked ? Theme.text : Theme.text-muted;
             font-size: Theme.t-small;
-            font-weight: 550;
+            font-weight: root.checked ? 600 : 500;
             vertical-alignment: center;
         }
     }
@@ -276,11 +379,11 @@ export component Segmented inherits Rectangle {
     in-out property <int> selected;
     callback activated(int);
 
-    height: 34px;
-    border-radius: 17px;
+    height: 32px;
+    border-radius: Theme.radius;
     background: Theme.surface;
-    border-width: 1px;
-    border-color: fs.has-focus ? Theme.focus : Theme.border;
+    border-width: fs.has-focus ? Theme.focus-width : 0px;
+    border-color: Theme.focus;
     accessible-role: tab-list;
     forward-focus: fs;
 
@@ -289,17 +392,17 @@ export component Segmented inherits Rectangle {
         spacing: 2px;
         for item[i] in root.items: Rectangle {
             seg-bg := Rectangle {
-                border-radius: 14px;
+                border-radius: Theme.radius-sm;
                 background: root.selected == i ? Theme.surface-active : seg-ta.has-hover ? Theme.surface-hover : transparent;
                 animate background { duration: Theme.fast; }
             }
             HorizontalLayout {
-                padding-left: 14px;
-                padding-right: 14px;
+                padding-left: 12px;
+                padding-right: 12px;
                 Text {
                     text: item;
                     font-size: Theme.t-small;
-                    font-weight: root.selected == i ? 650 : 500;
+                    font-weight: root.selected == i ? 600 : 500;
                     color: root.selected == i ? Theme.text : Theme.text-muted;
                     vertical-alignment: center;
                 }
@@ -332,38 +435,38 @@ export component Segmented inherits Rectangle {
     }
 }
 
-/// Onglets avec indicateur animé.
+/// Onglets de contenu : texte seul, perche d'accent sous l'onglet actif.
 export component Tabs inherits HorizontalLayout {
     in property <[string]> items;
     /// Onglets masqués (section indisponible) : même longueur que `items`, vide = tous visibles.
     in property <[bool]> hidden;
     in-out property <int> selected;
     callback activated(int);
-    spacing: 4px;
+    spacing: 24px;
     alignment: start;
     for item[i] in root.items: Rectangle {
-        width: root.hidden.length > i && root.hidden[i] ? 0px : tab-text.preferred-width + 28px;
-        height: 46px;
+        width: root.hidden.length > i && root.hidden[i] ? 0px : tab-text.preferred-width;
+        height: 44px;
         accessible-role: tab;
         accessible-label: item;
         accessible-action-default => { root.selected = i; root.activated(i); }
         tab-text := Text {
+            x: 0;
             visible: !(root.hidden.length > i && root.hidden[i]);
             text: item;
-            color: root.selected == i ? Theme.text : tab-ta.has-hover || tab-fs.has-focus ? Theme.text-muted : Theme.text-dim;
+            color: root.selected == i ? Theme.text : tab-ta.has-hover || tab-fs.has-focus ? Theme.text : Theme.text-muted;
             font-size: Theme.t-body;
-            font-weight: root.selected == i ? 650 : 500;
+            font-weight: root.selected == i ? 600 : 500;
         }
-        indicator := Rectangle {
-            y: parent.height - 3px;
-            height: 3px;
-            x: (parent.width - self.width) / 2;
-            width: root.selected == i ? parent.width - 20px : 0px;
-            border-radius: 2px;
+        Rectangle {
+            x: 0;
+            y: parent.height - 2px;
+            height: 2px;
+            width: root.selected == i ? parent.width : 0px;
             background: Theme.accent;
             animate width { duration: Theme.normal; easing: ease-out; }
         }
-        if tab-fs.has-focus: Rectangle { border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
+        if tab-fs.has-focus: Rectangle { x: -6px; width: parent.width + 12px; y: 6px; height: parent.height - 12px; border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
         tab-ta := TouchArea {
             mouse-cursor: pointer;
             clicked => { root.selected = i; root.activated(i); }
@@ -383,7 +486,7 @@ export component Tabs inherits HorizontalLayout {
     }
 }
 
-/// Champ de saisie mono-ligne stylisé.
+/// Champ de saisie mono-ligne.
 export component TextField inherits Rectangle {
     in-out property <string> text;
     in property <string> placeholder;
@@ -394,18 +497,20 @@ export component TextField inherits Rectangle {
     callback edited(string);
     callback accepted(string);
 
-    height: 38px;
+    height: 36px;
     forward-focus: input;
     accessible-role: text-input;
     accessible-label: placeholder;
 
     bg := Rectangle {
-        border-radius: Theme.radius-sm + 2px;
-        background: input.has-focus ? Theme.surface-hover : Theme.surface;
-        border-width: input.has-focus ? Theme.focus-width : 1px;
+        border-radius: Theme.radius;
+        background: Theme.surface;
+        border-width: 1px;
         border-color: input.has-focus ? Theme.focus : ta.has-hover ? Theme.border-strong : Theme.border;
-        animate border-color, background { duration: Theme.fast; }
+        animate border-color { duration: Theme.fast; }
     }
+    // Focus : trait d'accent sous le champ, en plus du contour.
+    if input.has-focus: Rectangle { y: root.height - 2px; height: 2px; background: Theme.focus; }
     ta := TouchArea {
         mouse-cursor: MouseCursor.text;
         clicked => { input.focus(); }
@@ -417,8 +522,7 @@ export component TextField inherits Rectangle {
         if has-icon: Icon {
             source: root.icon;
             size: 16px;
-            tint: Theme.text-dim;
-            y: (parent.height - self.height) / 2;
+            tint: input.has-focus ? Theme.text-muted : Theme.text-dim;
         }
         Rectangle {
             clip: true;
@@ -453,9 +557,9 @@ export component TextArea inherits Rectangle {
     forward-focus: input;
     accessible-role: text-input;
     bg := Rectangle {
-        border-radius: Theme.radius-sm + 2px;
-        background: input.has-focus ? Theme.surface-hover : Theme.surface;
-        border-width: input.has-focus ? Theme.focus-width : 1px;
+        border-radius: Theme.radius;
+        background: Theme.surface;
+        border-width: 1px;
         border-color: input.has-focus ? Theme.focus : Theme.border;
     }
     TouchArea {
@@ -479,33 +583,35 @@ export component TextArea inherits Rectangle {
     }
 }
 
-/// Interrupteur on/off.
+/// Interrupteur on/off : piste droite, curseur carré (dessin propre à Halcyon).
 export component Toggle inherits Rectangle {
     in-out property <bool> checked;
     in property <bool> enabled: true;
     callback toggled(bool);
 
-    width: 44px;
-    height: 24px;
+    width: 38px;
+    height: 20px;
     accessible-role: switch;
     accessible-checked: checked;
     accessible-action-default => { if (root.enabled) { root.checked = !root.checked; root.toggled(root.checked); } }
     forward-focus: fs;
 
     track := Rectangle {
-        border-radius: 12px;
+        border-radius: Theme.radius-sm + 1px;
         background: !root.enabled ? Theme.surface : root.checked ? Theme.accent : Theme.surface-active;
-        animate background { duration: Theme.normal; }
+        border-width: root.checked || !root.enabled ? 0px : 1px;
+        border-color: Theme.border-strong;
+        animate background { duration: Theme.fast; }
     }
-    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: 12px; shown: fs.has-focus; }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; corner: Theme.radius-sm + 1px; shown: fs.has-focus; }
     knob := Rectangle {
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
         y: 3px;
         x: root.checked ? root.width - self.width - 3px : 3px;
-        border-radius: 9px;
+        border-radius: 2px;
         background: !root.enabled ? Theme.text-dim : root.checked ? Theme.on-accent : Theme.text-muted;
-        animate x { duration: Theme.normal; easing: ease-out; }
+        animate x { duration: Theme.fast; easing: ease-out; }
     }
     TouchArea {
         enabled: root.enabled;
@@ -526,24 +632,23 @@ export component Toggle inherits Rectangle {
     }
 }
 
-/// Petit badge texte (plateforme, état).
+/// Étiquette (plateforme, état) : rectangle discret, texte court.
 export component Badge inherits Rectangle {
     in property <string> text;
     in property <color> tint: Theme.text-muted;
     in property <bool> solid: false;
 
-    height: 22px;
-    min-width: lbl.preferred-width + 16px;
-    border-radius: 6px;
-    background: solid ? tint.with-alpha(0.18) : Theme.text.with-alpha(0.05);
-    border-width: 1px;
-    border-color: solid ? tint.with-alpha(0.35) : Theme.border;
+    height: 20px;
+    min-width: lbl.preferred-width + 12px;
+    border-radius: Theme.radius-sm;
+    background: solid ? tint.with-alpha(0.16) : transparent;
+    border-width: solid ? 0px : 1px;
+    border-color: tint == Theme.text-muted ? Theme.border-strong : tint.with-alpha(0.45);
     lbl := Text {
         text: root.text;
         color: root.tint;
         font-size: Theme.t-overline;
-        font-weight: 650;
-        letter-spacing: 0.3px;
+        font-weight: 600;
     }
 }
 
@@ -555,9 +660,9 @@ export component KeyHint inherits HorizontalLayout {
     alignment: start;
     Rectangle {
         width: max(26px, k.preferred-width + 12px);
-        height: 26px;
+        height: 24px;
         y: 0;
-        border-radius: 13px;
+        border-radius: Theme.radius-sm;
         background: Theme.surface-active;
         border-width: 1px;
         border-color: Theme.border-strong;
@@ -566,16 +671,15 @@ export component KeyHint inherits HorizontalLayout {
     Text { text: root.label; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
 }
 
-/// Bloc de chargement (skeleton) : reflet lent, figé si les animations sont coupées.
+/// Bloc de chargement : pulsation lente de la teinte, figée si les animations sont coupées.
 export component Skeleton inherits Rectangle {
     in property <length> corner: Theme.radius;
     border-radius: corner;
     background: Theme.surface;
     clip: true;
     if Theme.motion == 0 && Theme.animations: Rectangle {
-        width: root.width * 0.6;
-        x: (mod(animation-tick(), 1400ms) / 1400ms) * (root.width * 1.6) - root.width * 0.6;
-        background: @linear-gradient(90deg, transparent 0%, Theme.text.with-alpha(0.05) 50%, transparent 100%);
+        border-radius: root.corner;
+        background: Theme.text.with-alpha(0.04 * (1 + sin(mod(animation-tick(), 1600ms) / 1600ms * 360deg)));
     }
 }
 
@@ -594,30 +698,29 @@ export component Spinner inherits Rectangle {
     }
 }
 
-/// Barre de progression ; `value` < 0 : progression inconnue (bande animée).
+/// Barre de progression ; `value` < 0 : progression inconnue (segment qui parcourt la piste).
 export component ProgressBar inherits Rectangle {
     in property <float> value: -1;
     in property <color> tint: Theme.accent;
-    height: 6px;
-    border-radius: 3px;
+    height: 4px;
+    border-radius: 1px;
     background: Theme.surface-active;
     clip: true;
     if root.value >= 0: Rectangle {
         x: 0;
         width: root.width * min(1, max(0, root.value));
-        border-radius: 3px;
         background: root.tint;
         animate width { duration: Theme.normal; }
     }
     if root.value < 0: Rectangle {
         width: root.width * 0.3;
         x: Theme.animations && Theme.motion < 2 ? (mod(animation-tick(), 1300ms) / 1300ms) * (root.width * 1.3) - root.width * 0.3 : root.width * 0.35;
-        border-radius: 3px;
         background: root.tint;
     }
 }
 
-/// Jaquette d'un jeu, avec une jaquette générée (dégradé + initiales) en l'absence d'image.
+/// Jaquette d'un jeu. Sans image : planche typographique générée (couleur propre au jeu,
+/// initiales en filigrane, titre composé en bas à gauche).
 export component GameCover inherits Rectangle {
     in property <image> source;
     in property <bool> has-image;
@@ -625,37 +728,38 @@ export component GameCover inherits Rectangle {
     in property <color> color-b;
     in property <string> initials;
     in property <string> title;
-    in property <length> corner: Theme.radius;
+    in property <length> corner: Theme.radius-cover;
     in property <bool> show-title: true;
 
     border-radius: corner;
     clip: true;
-    background: has-image ? Theme.surface : @linear-gradient(155deg, root.color-a 0%, root.color-b 100%);
+    background: has-image ? Theme.surface : root.color-a.mix(#101215, 0.55);
 
     if !root.has-image: Rectangle {
-        // Voile pour la lisibilité du texte.
-        background: @linear-gradient(180deg, #00000000 35%, #00000066 100%);
+        // Bande de la seconde couleur : repère de la planche.
+        y: 0;
+        height: max(3px, root.height * 0.025);
+        background: root.color-b;
     }
     if !root.has-image: Text {
+        x: root.width * 0.08;
+        y: root.height * 0.07;
         text: root.initials;
-        color: #ffffffd9;
-        font-size: root.width * 0.24;
+        color: #ffffff2e;
+        font-family: Theme.display;
+        font-size: root.width * 0.34;
         font-weight: 800;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-        y: root.height * 0.30 - self.height / 2;
-        width: root.width;
     }
     if !root.has-image && root.show-title: Text {
-        x: 10px;
-        width: root.width - 20px;
-        y: root.height - self.height - 12px;
+        x: root.width * 0.08;
+        width: root.width * 0.84;
+        y: root.height - self.height - root.width * 0.08;
         text: root.title;
         color: #ffffffee;
-        font-size: max(11px, root.width * 0.075);
-        font-weight: 650;
+        font-family: Theme.display;
+        font-size: max(10px, root.width * 0.082);
+        font-weight: 700;
         wrap: word-wrap;
-        horizontal-alignment: center;
         overflow: elide;
     }
     if root.has-image: Image {
@@ -668,12 +772,12 @@ export component GameCover inherits Rectangle {
     Rectangle {
         border-radius: root.corner;
         border-width: 1px;
-        border-color: #ffffff14;
+        border-color: #ffffff12;
     }
 }
 
-/// Carte d'un jeu (grille, carrousels) : jaquette, titre, état. `selected` : sélection au
-/// clavier ou à la manette (anneau d'accent et léger agrandissement).
+/// Tuile d'un jeu (grille, étagères) : jaquette, puis légende (titre, source, temps de
+/// jeu). `selected` : sélection au clavier ou à la manette (cadre d'accent).
 export component GameTile inherits Rectangle {
     in property <GameCard> game;
     in property <length> cover-width: 168px;
@@ -730,7 +834,8 @@ export component GameTile inherits Rectangle {
     }
 
     cover := GameCover {
-        y: root.lifted ? -Theme.motion-distance / 2 : 0px;
+        x: 0;
+        y: 0;
         width: root.cover-width;
         height: root.cover-width * 1.5;
         source: root.game.cover;
@@ -740,75 +845,68 @@ export component GameTile inherits Rectangle {
         initials: root.game.initials;
         title: root.game.title;
         show-title: root.show-text || !root.game.has-cover;
-        drop-shadow-blur: Theme.effects ? (root.lifted ? 26px : 8px) : 0px;
-        drop-shadow-offset-y: root.lifted ? 10px : 4px;
-        drop-shadow-color: #00000099;
-        animate y, drop-shadow-blur, drop-shadow-offset-y { duration: Theme.normal; easing: ease-out; }
 
-        // Jeu non installé : voile sombre.
+        // Jeu non installé : voile, et mention en bas de la jaquette.
         if !root.game.installed: Rectangle {
-            border-radius: Theme.radius;
-            background: Theme.bg.with-alpha(0.62);
+            background: Theme.bg.with-alpha(0.5);
         }
         if !root.game.installed: Rectangle {
-            x: 8px;
-            y: 8px;
-            height: 22px;
-            width: ni.preferred-width + 16px;
-            border-radius: 6px;
-            background: #000000b0;
-            ni := Text {
-                text: "Non installé";
+            x: 0;
+            y: parent.height - self.height;
+            height: 24px;
+            background: #000000b8;
+            Text {
+                x: 8px;
+                text: @tr("Non installé");
                 color: Theme.text-muted;
                 font-size: Theme.t-overline;
                 font-weight: 600;
+                vertical-alignment: center;
             }
         }
         if root.game.badge != "": Rectangle {
-            x: 8px;
-            y: root.game.installed ? 8px : 36px;
-            height: 22px;
+            x: 0;
+            y: 10px;
+            height: 20px;
             width: badge-text.preferred-width + 14px;
-            border-radius: 6px;
-            background: #000000b8;
+            background: Theme.accent;
             badge-text := Text {
                 text: root.game.badge;
-                color: Theme.accent;
+                color: Theme.on-accent;
                 font-size: Theme.t-overline - 1px;
                 font-weight: 700;
-                letter-spacing: 0.5px;
             }
         }
         if root.game.favorite: Rectangle {
-            x: parent.width - 30px;
-            y: 8px;
-            width: 22px;
-            height: 22px;
-            border-radius: 11px;
+            x: parent.width - 26px;
+            y: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: Theme.radius-sm;
             background: #000000a0;
             Icon {
                 source: Icons.star-filled;
-                size: 13px;
+                size: 12px;
                 tint: Theme.warm;
             }
         }
-        // Bouton « Jouer » au survol, dans le coin : un clic au centre ouvre la fiche,
-        // jamais un lancement accidentel.
+        // Survol : léger éclaircissement.
+        Rectangle { background: root.lifted ? #ffffff0f : transparent; animate background { duration: Theme.fast; } }
+        // « Jouer » au survol, dans le coin : un clic au centre ouvre la fiche, jamais un
+        // lancement accidentel.
         play-btn := Rectangle {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            x: parent.width - self.width - 10px;
-            y: parent.height - self.height - 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: Theme.radius;
+            x: parent.width - self.width - 8px;
+            y: parent.height - self.height - 8px;
             opacity: root.game.installed && root.lifted ? 1 : 0;
-            background: play-ta.has-hover ? Theme.accent-hover : Theme.accent;
-            drop-shadow-blur: 16px;
-            drop-shadow-color: #00000090;
-            animate opacity, background { duration: Theme.fast; }
+            background: play-ta.has-hover ? Theme.warm-hover : Theme.warm;
+            animate opacity { duration: Theme.fast; }
             Icon {
                 source: Icons.play;
-                size: 17px;
-                tint: Theme.on-accent;
+                size: 14px;
+                tint: Theme.on-warm;
                 x: (parent.width - self.width) / 2 + 1px;
             }
             play-ta := TouchArea {
@@ -818,60 +916,120 @@ export component GameTile inherits Rectangle {
             }
         }
     }
-    // Sélection clavier / manette.
+    // Sélection clavier / manette : cadre d'accent à 3 px de la jaquette.
     ring := Rectangle {
-        y: cover.y - 4px;
+        y: -4px;
         x: -4px;
         width: root.cover-width + 8px;
         height: root.cover-width * 1.5 + 8px;
-        border-radius: Theme.radius + 4px;
-        border-width: root.selected || fs.has-focus ? 3px : 0px;
+        border-radius: Theme.radius-cover + 3px;
+        border-width: root.selected || fs.has-focus ? 2px : 0px;
         border-color: Theme.focus;
     }
 
     if root.show-text: Text {
-        y: root.cover-width * 1.5 + 10px;
+        x: 0;
+        y: root.cover-width * 1.5 + 9px;
         width: root.width;
         text: root.game.title;
-        color: root.lifted ? Theme.text : Theme.text.with-alpha(0.88);
+        color: Theme.text;
         font-size: Theme.t-small;
         font-weight: 600;
         overflow: elide;
     }
     if root.show-text: Text {
-        y: root.cover-width * 1.5 + 29px;
-        width: root.width;
-        text: root.game.source + (root.game.playtime != "" ? "  ·  " + root.game.playtime : "");
+        x: 0;
+        y: root.cover-width * 1.5 + 28px;
+        width: root.width - (root.game.playtime != "" ? pt.preferred-width + 8px : 0px);
+        text: root.game.source;
         color: Theme.text-dim;
         font-size: Theme.t-caption;
         overflow: elide;
     }
+    pt := Text {
+        visible: root.show-text && root.game.playtime != "";
+        x: root.width - self.preferred-width;
+        y: root.cover-width * 1.5 + 28px;
+        text: root.game.playtime;
+        color: Theme.text-muted;
+        font-size: Theme.t-caption;
+        font-weight: 500;
+    }
 }
 
-/// Titre de section.
+/// Titre de section : police d'affichage, commun à toutes les pages.
 export component SectionTitle inherits Text {
+    vertical-alignment: center;
     color: Theme.text;
+    font-family: Theme.display;
     font-size: Theme.t-subheading + 1px;
     font-weight: 700;
 }
 
-/// Petit titre en capitales (groupes, widgets).
-export component Overline inherits Text {
-    color: Theme.text-dim;
-    font-size: Theme.t-overline;
-    font-weight: 700;
-    letter-spacing: 0.9px;
+/// En-tête de section : titre, compteur facultatif (chiffre discret) et actions à droite.
+export component SectionHeader inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> count;
+    in property <string> note;
+    spacing: 12px;
+    height: 32px;
+    SectionTitle { text: root.title; }
+    if root.count != "": Text {
+        text: root.count;
+        color: Theme.text-dim;
+        font-family: Theme.display;
+        font-size: Theme.t-subheading + 1px;
+        font-weight: 600;
+        vertical-alignment: center;
+    }
+    if root.note != "": Text {
+        text: root.note;
+        color: Theme.text-dim;
+        font-size: Theme.t-small;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    Rectangle { horizontal-stretch: 1; }
+    @children
 }
 
-/// Carte de contenu (paramètres, informations).
+/// Rubrique : filet de tête, titre, actions facultatives, contenu. Remplace la carte : le
+/// filet et le titre suffisent à séparer les sujets d'une page.
+export component Rubric inherits VerticalLayout {
+    in property <string> title;
+    in property <string> note;
+    spacing: 14px;
+    alignment: start;
+    Rectangle { height: 1px; background: Theme.border-strong; }
+    HorizontalLayout {
+        spacing: 12px;
+        SectionTitle { text: root.title; overflow: elide; }
+        if root.note != "": Text { text: root.note; color: Theme.text-dim; font-size: Theme.t-small; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+    }
+    @children
+}
+
+/// Petit titre de groupe : casse normale, couleur atténuée.
+export component Overline inherits Text {
+    color: Theme.text-dim;
+    font-size: Theme.t-caption;
+    font-weight: 600;
+}
+
+/// Élément de liste : rangée ouverte sur la page, filet de pied, perche si `active`.
+export component ListItem inherits Rectangle {
+    in property <bool> active;
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+    if root.active: Rectangle { x: 0; y: 14px; width: Theme.perch; height: parent.height - 28px; background: Theme.accent; }
+}
+
+/// Zone groupée (réglages, informations) : simple changement de teinte, sans contour.
 export component Panel inherits Rectangle {
     background: Theme.surface;
     border-radius: Theme.radius-lg;
-    border-width: 1px;
-    border-color: Theme.border;
 }
 
-/// Ligne « libellé : valeur ».
+/// Ligne « libellé : valeur » (fiches techniques).
 export component InfoRow inherits HorizontalLayout {
     in property <string> label;
     in property <string> value;
@@ -887,10 +1045,29 @@ export component InfoRow inherits HorizontalLayout {
         text: root.value == "" ? "—" : root.value;
         color: Theme.text;
         font-size: Theme.t-small;
+        font-weight: 500;
         horizontal-alignment: right;
         overflow: elide;
         horizontal-stretch: 1;
     }
+}
+
+/// Rangée de réglage : libellé et explication à gauche, contrôle à droite.
+export component SettingRow inherits HorizontalLayout {
+    in property <string> label;
+    in property <string> description;
+    spacing: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    min-height: Theme.row-height;
+    VerticalLayout {
+        horizontal-stretch: 1;
+        alignment: center;
+        spacing: 3px;
+        Text { text: root.label; color: Theme.text; font-size: Theme.t-body; font-weight: 500; wrap: word-wrap; }
+        if root.description != "": Text { text: root.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+    }
+    @children
 }
 
 /// Liste déroulante compacte (clavier : Entrée ouvre, flèches changent la valeur).
@@ -902,9 +1079,9 @@ export component Dropdown inherits Rectangle {
     /// Menu aligné à gauche (formulaires) ; par défaut aligné à droite (barres d'outils).
     in property <bool> align-left: false;
     callback changed(int);
-    property <length> row-h: root.options.length > 10 ? 28px : 36px;
+    property <length> row-h: root.options.length > 10 ? 28px : 34px;
 
-    height: 34px;
+    height: 32px;
     min-width: dd-row.preferred-width;
     accessible-role: combobox;
     accessible-label: prefix;
@@ -912,15 +1089,15 @@ export component Dropdown inherits Rectangle {
     forward-focus: fs;
 
     bg := Rectangle {
-        border-radius: 17px;
-        background: ta.has-hover || fs.has-focus ? Theme.surface-hover : Theme.surface;
+        border-radius: Theme.radius;
+        background: ta.has-hover ? Theme.surface-hover : Theme.surface;
         border-width: fs.has-focus ? Theme.focus-width : 1px;
         border-color: fs.has-focus ? Theme.focus : Theme.border;
         animate background { duration: Theme.fast; }
     }
     dd-row := HorizontalLayout {
-        padding-left: 14px;
-        padding-right: 10px;
+        padding-left: 12px;
+        padding-right: 8px;
         spacing: 6px;
         Text {
             text: root.prefix;
@@ -938,9 +1115,8 @@ export component Dropdown inherits Rectangle {
         }
         Icon {
             source: Icons.chevron-down;
-            size: 16px;
+            size: 15px;
             tint: Theme.text-muted;
-            y: (parent.height - self.height) / 2;
         }
     }
     ta := TouchArea {
@@ -969,33 +1145,28 @@ export component Dropdown inherits Rectangle {
     }
     popup := PopupWindow {
         x: root.align-left ? 0px : min(0px, root.width - root.popup-width);
-        y: root.height + 6px;
+        y: root.height + 4px;
         width: root.popup-width;
-        height: root.options.length * root.row-h + 12px;
+        height: root.options.length * root.row-h + 10px;
         Rectangle {
             background: Theme.surface-hover;
-            border-radius: Theme.radius;
+            border-radius: Theme.radius-lg;
             border-width: 1px;
             border-color: Theme.border-strong;
-            drop-shadow-blur: 24px;
-            drop-shadow-color: #00000099;
-            drop-shadow-offset-y: 8px;
+            drop-shadow-blur: 18px;
+            drop-shadow-color: #00000080;
+            drop-shadow-offset-y: 6px;
             VerticalLayout {
-                padding: 6px;
+                padding: 5px;
                 for option[i] in root.options: Rectangle {
                     height: root.row-h;
                     border-radius: Theme.radius-sm;
                     background: item-ta.has-hover ? Theme.surface-active : transparent;
+                    // Choix courant : perche d'accent à gauche.
+                    if i == root.selected: Rectangle { x: 0; width: Theme.perch; y: 7px; height: parent.height - 14px; background: Theme.accent; }
                     HorizontalLayout {
-                        padding-left: 10px;
+                        padding-left: 12px;
                         padding-right: 10px;
-                        spacing: 10px;
-                        Icon {
-                            source: Icons.check;
-                            size: 15px;
-                            tint: i == root.selected ? Theme.accent : transparent;
-                            y: (parent.height - self.height) / 2;
-                        }
                         Text {
                             text: option;
                             color: i == root.selected ? Theme.text : Theme.text-muted;
@@ -1018,9 +1189,6 @@ export component Dropdown inherits Rectangle {
     }
 }
 
-/// Entrée de menu contextuel.
-
-
 /// Menu contextuel (clic droit, bouton « … », touche Menu de la manette).
 export component ContextMenu inherits Rectangle {
     in property <[MenuEntry]> entries;
@@ -1038,26 +1206,26 @@ export component ContextMenu inherits Rectangle {
         height: col.preferred-height;
         Rectangle {
             background: Theme.surface-hover;
-            border-radius: Theme.radius;
+            border-radius: Theme.radius-lg;
             border-width: 1px;
             border-color: Theme.border-strong;
-            drop-shadow-blur: 28px;
-            drop-shadow-color: #000000a8;
-            drop-shadow-offset-y: 10px;
+            drop-shadow-blur: 18px;
+            drop-shadow-color: #00000080;
+            drop-shadow-offset-y: 6px;
             col := VerticalLayout {
-                padding: 6px;
+                padding: 5px;
                 spacing: 1px;
                 for e[i] in root.entries: VerticalLayout {
                     if e.separator-before: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.border; } }
                     Rectangle {
-                        height: 34px;
+                        height: 32px;
                         border-radius: Theme.radius-sm;
                         background: e.enabled && m-ta.has-hover ? (e.danger ? Theme.danger.with-alpha(0.14) : Theme.surface-active) : transparent;
                         HorizontalLayout {
                             padding-left: 10px;
                             padding-right: 10px;
                             spacing: 10px;
-                            Icon { y: 9px; source: e.icon; size: 16px; tint: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text-muted; }
+                            Icon { source: e.icon; size: 16px; tint: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text-muted; }
                             Text {
                                 text: e.label;
                                 color: !e.enabled ? Theme.text-dim : e.danger ? Theme.danger : Theme.text;
@@ -1078,13 +1246,13 @@ export component ContextMenu inherits Rectangle {
     }
 }
 
-/// Grand chiffre et sa légende (tableaux de bord).
+/// Grand chiffre et sa légende : le chiffre parle, la légende le nomme.
 export component BigStat inherits VerticalLayout {
     in property <string> value;
     in property <string> label;
     spacing: 2px;
-    Text { text: root.value; color: Theme.text; font-size: Theme.t-title - 2px; font-weight: 800; overflow: elide; }
-    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+    Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 6px; font-weight: 700; overflow: elide; }
+    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
 }
 
 /// Histogramme vertical simple.
@@ -1106,9 +1274,9 @@ export component BarChart inherits HorizontalLayout {
             vertical-stretch: 1;
             Rectangle {
                 y: parent.height - self.height;
-                height: m.ratio > 0 ? max(3px, parent.height * m.ratio) : 2px;
-                border-radius: 4px;
-                background: m.ratio > 0 ? root.bar-color : Theme.surface-active;
+                height: m.ratio > 0 ? max(3px, parent.height * m.ratio) : 1px;
+                border-radius: 1px;
+                background: m.ratio > 0 ? root.bar-color : Theme.border-strong;
                 animate height { duration: Theme.slow; easing: ease-out; }
             }
         }
@@ -1124,7 +1292,7 @@ export component MeterRow inherits VerticalLayout {
     in property <color> bar-color: Theme.accent;
     spacing: 6px;
     HorizontalLayout {
-        Text { text: root.label; color: Theme.text; font-size: Theme.t-small; font-weight: 600; horizontal-stretch: 1; overflow: elide; }
+        Text { text: root.label; color: Theme.text; font-size: Theme.t-small; font-weight: 500; horizontal-stretch: 1; overflow: elide; }
         Text { text: root.value; color: Theme.text-muted; font-size: Theme.t-caption; }
     }
     ProgressBar { value: root.ratio; tint: root.bar-color; }
@@ -1136,75 +1304,70 @@ export component PageHeader inherits HorizontalLayout {
     in property <string> subtitle;
     spacing: 14px;
     VerticalLayout {
-        spacing: 4px;
+        spacing: 6px;
         horizontal-stretch: 1;
-        Text { text: root.title; color: Theme.text; font-size: Theme.t-title; font-weight: 800; letter-spacing: -0.4px; overflow: elide; }
-        if root.subtitle != "": Text { text: root.subtitle; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
+        alignment: center;
+        if !Layout.tabbed: Text { text: root.title; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title; font-weight: 700; overflow: elide; }
+        if root.subtitle != "": Text { text: root.subtitle; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
     }
     @children
 }
 
-/// Encadré d'information (limites d'une intégration, explications).
+/// Note en marge (limites d'une intégration, explications) : trait vertical et texte,
+/// sans encadré.
 export component Notice inherits Rectangle {
     in property <string> text;
     in property <bool> warning: false;
-    border-radius: Theme.radius;
-    background: root.warning ? Theme.warm.with-alpha(0.08) : Theme.accent-soft;
-    border-width: 1px;
-    border-color: root.warning ? Theme.warm.with-alpha(0.3) : Theme.accent.with-alpha(0.25);
     height: row.preferred-height;
+    Rectangle { x: 0; width: 2px; background: root.warning ? Theme.warm : Theme.accent; }
     row := HorizontalLayout {
-        padding: 14px;
-        spacing: 12px;
-        Icon { source: root.warning ? Icons.alert : Icons.info; size: 18px; tint: root.warning ? Theme.warm : Theme.accent; y: 0; }
-        Text { text: root.text; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; horizontal-stretch: 1; }
+        padding-left: 14px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        spacing: 10px;
+        Icon { source: root.warning ? Icons.alert : Icons.info; size: 16px; tint: root.warning ? Theme.warm : Theme.accent; }
+        Text { text: root.text; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; horizontal-stretch: 1; vertical-alignment: center; }
     }
 }
 
-/// État vide : icône, titre, explication et action facultative.
+/// État vide : ce qui manque et comment le remplir, aligné à gauche dans le flux.
 export component EmptyState inherits VerticalLayout {
     in property <image> icon: Icons.info;
     in property <string> title;
     in property <string> text;
     in property <string> action;
     callback action-clicked;
-    spacing: 10px;
+    spacing: 8px;
     alignment: center;
     padding: 32px;
     HorizontalLayout {
         alignment: center;
-        Rectangle {
-            width: 56px;
-            height: 56px;
-            border-radius: 28px;
-            background: Theme.surface;
-            Icon { source: root.icon; size: 24px; tint: Theme.text-muted; }
-        }
+        Icon { source: root.icon; size: 28px; tint: Theme.text-dim; }
     }
-    Text { text: root.title; color: Theme.text; font-size: Theme.t-subheading; font-weight: 700; horizontal-alignment: center; }
-    if root.text != "": Text { text: root.text; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; horizontal-alignment: center; }
+    Text { text: root.title; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading; font-weight: 700; horizontal-alignment: center; wrap: word-wrap; }
+    if root.text != "": Text { text: root.text; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; horizontal-alignment: center; }
     if root.action != "": HorizontalLayout {
         alignment: center;
-        padding-top: 6px;
-        SecondaryButton { text: root.action; h: 36px; clicked => { root.action-clicked(); } }
+        padding-top: 8px;
+        PrimaryButton { text: root.action; clicked => { root.action-clicked(); } }
     }
 }
 
 /// Voile sombre d'une fenêtre modale (un clic à l'extérieur la ferme).
 export component Modal inherits Rectangle {
     callback dismissed;
-    background: #000000b0;
+    background: #000000a8;
     TouchArea { clicked => { root.dismissed(); } }
 }
 
 /// Panneau centré d'une fenêtre modale.
 export component ModalPanel inherits Rectangle {
     border-radius: Theme.radius-lg;
-    background: Theme.surface-hover;
+    background: Theme.surface;
     border-width: 1px;
-    border-color: Theme.border;
-    drop-shadow-blur: 60px;
-    drop-shadow-color: #000000cc;
+    border-color: Theme.border-strong;
+    drop-shadow-blur: 40px;
+    drop-shadow-color: #000000b0;
     clip: true;
     // Les clics dans le panneau ne ferment pas la fenêtre.
     TouchArea { }
@@ -1223,27 +1386,26 @@ export component ValueSlider inherits Rectangle {
     accessible-label: root.label;
     accessible-value: round(root.value * 100) + " %";
     forward-focus: fs;
-    property <length> track-w: root.width - 18px;
+    property <length> track-w: root.width - 14px;
     Rectangle {
-        x: 9px;
-        y: (root.height - 6px) / 2;
+        x: 7px;
+        y: (root.height - 4px) / 2;
         width: root.track-w;
-        height: 6px;
-        border-radius: 3px;
+        height: 4px;
+        border-radius: 1px;
         background: Theme.surface-active;
         Rectangle {
             x: 0;
             width: parent.width * clamp(root.value, 0, 1);
-            border-radius: 3px;
             background: root.enabled ? Theme.accent : Theme.text-dim;
         }
     }
     knob := Rectangle {
         x: root.track-w * clamp(root.value, 0, 1);
-        y: (root.height - 18px) / 2;
-        width: 18px;
-        height: 18px;
-        border-radius: 9px;
+        y: (root.height - 14px) / 2;
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
         background: root.enabled ? Theme.text : Theme.text-dim;
         border-width: fs.has-focus ? Theme.focus-width : 0px;
         border-color: Theme.focus;
@@ -1254,7 +1416,7 @@ export component ValueSlider inherits Rectangle {
         // Appui : la valeur suit le pointeur ; relâchement : une seule validation.
         pointer-event(e) => {
             if (e.button == PointerEventButton.left && e.kind == PointerEventKind.down) {
-                root.value = clamp((self.mouse-x - 9px) / root.track-w, 0, 1);
+                root.value = clamp((self.mouse-x - 7px) / root.track-w, 0, 1);
             }
             if (e.button == PointerEventButton.left && e.kind == PointerEventKind.up) {
                 root.committed(root.value);
@@ -1262,7 +1424,7 @@ export component ValueSlider inherits Rectangle {
         }
         moved => {
             if (self.pressed) {
-                root.value = clamp((self.mouse-x - 9px) / root.track-w, 0, 1);
+                root.value = clamp((self.mouse-x - 7px) / root.track-w, 0, 1);
             }
         }
     }

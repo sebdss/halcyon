@@ -123,14 +123,12 @@ fn hsv(h: f32, s: f32, v: f32) -> Color {
     Color::from_rgb_u8(to(r), to(g), to(b))
 }
 
+/// Provenance du jeu. Le temps de jeu a sa propre place dans les légendes (tuile, liste) :
+/// la ligne de source ne le répète pas.
 fn source_line(g: &Game) -> String {
-    let src = match &g.platform {
+    match &g.platform {
         Some(p) => platform_names(p).1,
         None => g.source.label().to_string(),
-    };
-    match g.effective_playtime() {
-        0 => src,
-        s => format!("{src}  ·  {}", util::format_playtime(s)),
     }
 }
 
@@ -180,16 +178,16 @@ pub fn detail_for(g: &Game, images: &ImageCache, tracking: Tracking, now: i64) -
     let logo = img(Kind::Logo, &g.artwork.logo);
     let (a, b) = placeholder_colors(&g.name);
     let launch_mode = match g.launch_target() {
-        Some(halcyon_core::LaunchTarget::Uri(u)) if u.starts_with("heroic://") => "Via Heroic Games Launcher".to_string(),
-        Some(halcyon_core::LaunchTarget::Uri(_)) => format!("Via le client {}", g.source.label()),
-        Some(halcyon_core::LaunchTarget::Process { .. }) => "Via Legendary".to_string(),
-        Some(halcyon_core::LaunchTarget::Executable { .. }) => "Exécutable direct".to_string(),
-        None if g.source == halcyon_core::GameSource::Emulated => "Émulateur".to_string(),
-        None if g.source == halcyon_core::GameSource::Minecraft => "Onglet Minecraft (installation sélectionnée)".to_string(),
-        None => "Non configuré".to_string(),
+        Some(halcyon_core::LaunchTarget::Uri(u)) if u.starts_with("heroic://") => tr!("Via Heroic Games Launcher").to_string(),
+        Some(halcyon_core::LaunchTarget::Uri(_)) => tr!("Via le client {label}", label = g.source.label()),
+        Some(halcyon_core::LaunchTarget::Process { .. }) => tr!("Via Legendary").to_string(),
+        Some(halcyon_core::LaunchTarget::Executable { .. }) => tr!("Exécutable direct"),
+        None if g.source == halcyon_core::GameSource::Emulated => tr!("Émulateur"),
+        None if g.source == halcyon_core::GameSource::Minecraft => tr!("Onglet Minecraft (installation sélectionnée)"),
+        None => tr!("Non configuré"),
     };
     let sessions_text = match sessions {
-        (0, _) => "Aucune".to_string(),
+        (0, _) => tr!("Aucune"),
         (n, secs) => format!("{n} · {}", util::format_playtime(secs)),
     };
     GameDetail {
@@ -201,10 +199,10 @@ pub fn detail_for(g: &Game, images: &ImageCache, tracking: Tracking, now: i64) -
         publisher: s(&g.publisher),
         release: s(&g.release_date),
         playtime: util::format_playtime(g.effective_playtime()).into(),
-        last_played: g.last_played.map(|t| util::format_relative(t, now)).unwrap_or_else(|| "Jamais".into()).into(),
+        last_played: g.last_played.map(|t| util::format_relative(t, now)).unwrap_or_else(|| tr!("Jamais").into()).into(),
         sessions: sessions_text.into(),
         installed: g.installed,
-        install_state: if g.installed { "Installé" } else { "Non installé" }.into(),
+        install_state: if g.installed { tr!("Installé") } else { tr!("Non installé") }.into(),
         size: g.size_bytes.map(util::format_size).unwrap_or_default().into(),
         install_dir: p(&g.install_dir),
         launch_mode: launch_mode.into(),
@@ -235,21 +233,21 @@ pub fn detail_for(g: &Game, images: &ImageCache, tracking: Tracking, now: i64) -
         ra_id: g.ra_game_id.map(|i| i.to_string()).unwrap_or_default().into(),
         status: PlayStatus::ALL.iter().position(|s| *s == g.status).unwrap_or(0) as i32,
         notes: g.notes.as_str().into(),
-        tags: g.tags.join(", ").into(),
+        tags: g.tags.iter().map(|t| halcyon_i18n::tc("tag", t)).collect::<Vec<_>>().join(", ").into(),
         playtime_origin: match g.playtime_origin() {
-            PlaytimeOrigin::Platform => format!("selon {}", g.source.label()),
+            PlaytimeOrigin::Platform => tr!("selon {label}", label = g.source.label()),
             o => o.label().to_string(),
         }
         .into(),
         playtime_platform: match g.playtime_platform_secs {
             Some(s) if g.source.uses_platform_client() => util::format_playtime(s),
-            _ if g.source.uses_platform_client() => "Non fourni".into(),
-            _ => "Sans objet".into(),
+            _ if g.source.uses_platform_client() => tr!("Non fourni").into(),
+            _ => tr!("Sans objet").into(),
         }
         .into(),
         playtime_local: match sessions {
-            (0, _) => "Aucune session".to_string(),
-            (n, secs) => format!("{} · {n} session{}", util::format_playtime(secs), if n > 1 { "s" } else { "" }),
+            (0, _) => tr!("Aucune session"),
+            (n, secs) => trn!(n, "{time} · {n} session", "{time} · {n} sessions", time = util::format_playtime(secs)),
         }
         .into(),
         playtime_manual: g.playtime_manual_secs.map(util::format_playtime).unwrap_or_default().into(),
@@ -263,12 +261,8 @@ pub fn detail_for(g: &Game, images: &ImageCache, tracking: Tracking, now: i64) -
         version: g.version.clone().unwrap_or_default().into(),
         update_pending: g.update.state.pending(),
         update_state: match g.update.state {
-            UpdateState::None if !g.source.uses_platform_client() => "Non suivi pour cette source".to_string(),
-            UpdateState::Downloading if g.update.total > 0 => format!(
-                "Téléchargement : {} / {}",
-                util::format_size(g.update.downloaded),
-                util::format_size(g.update.total)
-            ),
+            UpdateState::None if !g.source.uses_platform_client() => tr!("Non suivi pour cette source"),
+            UpdateState::Downloading if g.update.total > 0 => tr!("Téléchargement : {downloaded} / {total}", downloaded = util::format_size(g.update.downloaded), total = util::format_size(g.update.total)),
             s => s.label().to_string(),
         }
         .into(),

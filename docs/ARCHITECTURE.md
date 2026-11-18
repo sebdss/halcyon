@@ -36,7 +36,7 @@ Mesures indicatives pour une fenêtre affichant une grille de jaquettes (Windows
 - **Performances** : pas de navigateur, pas de GC, UI compilée en code natif. Démarrage mesuré
   à ~50 ms avec 5 000 jeux, RAM dominée par les jaquettes visibles (décodées à la bonne taille).
 - **Qualité visuelle** : langage déclaratif `.slint` (proche de QML) avec animations
-  d'état, dégradés, ombres portées, coins arrondis, clipping, police Inter embarquée.
+  d'état, dégradés, ombres portées, coins arrondis, clipping, police Archivo embarquée.
 - **Maintenabilité** : un seul langage typé pour la logique, l'UI est vérifiée à la compilation
   (une propriété mal nommée = erreur de build, pas un bug silencieux).
 - **Distribution** : un exécutable unique (50 Mo en 0.3 avec police, icônes et définitions), sans runtime à installer.
@@ -317,6 +317,51 @@ Le même exécutable, copié sans sa charge utile dans le dossier d'installation
 programme de maintenance. Les entrées `.desktop` sont désormais produites par
 `halcyon_core::desktop`, partagé par l'application et l'installateur.
 
+## 5 quater. Version 1.0.0-alpha.1 — Performance Center et sécurité
+
+**Audit préalable** : `docs/AUDIT-1.0.md`. Constats principaux : clés d'API en clair dans
+`settings.json`, mises à jour vérifiées en intégrité mais pas en authenticité, aucune mesure
+système (le Performance Center demandé n'existait pas).
+
+**Sécurité** (`docs/SECURITE.md`) :
+- `halcyon-storage::secrets` : `SecretStore`, un fichier par clé (DPAPI sous Windows,
+  `0600`/`0700` sous Unix), écriture atomique synchronisée. `Settings::load` / `save`
+  l'utilisent de façon transparente (`SECRET_FIELDS`) : le reste du code ne change pas.
+- `halcyon-storage::audit` : `security.log`, lignes JSON, 512 Kio + un fichier précédent,
+  initialisé par `main`. Événements émis par les contrôleurs (extensions, Minecraft) et la
+  mise à jour.
+- `halcyon-integrations::update` : signature Ed25519 de `SHA256SUMS` (`ed25519-compact`,
+  aucune dépendance, sans génération de clés dans l'application). Clé publique fixée à la
+  compilation (`option_env!("HALCYON_UPDATE_PUBKEY")`).
+
+**Performance Center** :
+- `halcyon-integrations::sysmon` : `Monitor` (sysinfo : processeur, mémoire, processus,
+  disques, cartes graphiques via la fonctionnalité `gpu` — PDH/D3DKMT sous Windows, sysfs,
+  NVML ou Vulkan sous Linux) ; logique pure testée : regroupement des processus,
+  `History` (fenêtre glissante), `recommend`, `SessionAccumulator`.
+- `halcyon-integrations::frametimes` : lecture des CSV MangoHud / PresentMon, statistiques
+  (centiles, saccades), réduction de la courbe en gardant les pics.
+- `halcyon-storage::perf` + migration v6 (`perf_sessions`, purge à 50 parties par jeu).
+- `src/ctl_perf.rs` : deux fils de mesure (`perf-live` : 1,5 s, seulement page ouverte ;
+  `perf-session` : 10 s pendant une partie), arrêtés par drapeau + `unpark` (aucune attente).
+  Interface : `ui/perf_state.slint` (global `PerfUi` dans un fichier séparé, pour ne pas
+  alourdir `state.slint`) et `ui/pages/performance.slint`.
+
+**Version** : `version_newer` suit semver pour les pré-versions (`1.0.0-alpha.1` < `1.0.0`).
+
+## 5 quinquies. Halcyon Update System (1.0)
+
+Crate `halcyon-update` (bibliothèque sans interface, plus deux exécutables) : `version`
+(SemVer strict), `core` (canaux, états, sélection sans retour arrière), `manifest`,
+`security` (Ed25519, SHA-256, anti-retour, structure des paquets), `network` (GitHub
+Releases, ETag), `download` (HTTP Range), `install` (transaction ZIP / AppImage / migration),
+`recovery` (état, journal, verrou, santé), `runner` (déroulement de l'updater, décisions au
+démarrage), `client` (nature de l'installation, lancement de l'updater). Exécutables :
+`halcyon-updater` (installe Halcyon fermé, contrôle de santé, retour arrière, reprise) et
+`hus-release` (publication). Lanceur : `src/ctl_update.rs`, `ui/hus_state.slint`. Pas de
+runtime asynchrone : un fil de fond par opération, comme le reste de l'application.
+Détails : [`HUS.md`](HUS.md).
+
 ## 6. Arborescence
 
 ```
@@ -327,20 +372,21 @@ halcyon/
 ├── crates/
 │   ├── halcyon-core/             # modèle, contrats, recherche, règles, profils, stats, suggestions (pur, testé)
 │   │   └── src/{achievements,launch_args,lib,model,profiles,query,recommend,rules,scanner,search,stats,util}.rs
-│   ├── halcyon-storage/          # SQLite (migrations v1→v5), settings, journal, suivi, logs, chemins
-│   │   └── src/{achievements,activity,db,lib,logging,migrations,paths,repo,saves_mods,settings,tracking}.rs
+│   ├── halcyon-storage/          # SQLite (migrations v1→v6), settings, journal, suivi, logs, chemins
+│   │   └── src/{achievements,activity,audit,db,lib,logging,migrations,paths,perf,repo,saves_mods,secrets,settings,tracking}.rs
 │   ├── halcyon-integrations/     # plateformes, émulation, succès, lancement, sauvegardes, mods, extensions
 │   │   ├── data/{platforms,emulators}.json
-│   │   └── src/{archive,artwork,config_archive,emulators,engines,epic,gpu,launcher,lib,mods,plugins,process,rahash,remote_play,retro,roms,saves,standalone,steam,steam_web,update,vdf}.rs
+│   │   └── src/{archive,artwork,config_archive,emulators,engines,epic,frametimes,gpu,launcher,lib,mods,plugins,process,rahash,remote_play,retro,roms,saves,standalone,steam,steam_web,steamgriddb,sysmon,vdf}.rs
 │   ├── halcyon-audio/            # 0.4.1 : catalogue des sons, mélangeur, sortie cpal ; sounds/*.wav
 │   ├── halcyon-installer/        # 0.4.1 : programme d'installation (payload, engine, platform, ui/setup.slint)
+│   ├── halcyon-update/           # 1.0 : HUS (bibliothèque, halcyon-updater, hus-release, keys/release.pub, tests/)
 │   └── halcyon-app/              # binaire : UI Slint + contrôleurs
 │       ├── build.rs              # compilation de l'UI, icône Windows
 │       ├── ui/                   # app, theme, types, state, components, shell, pages/, icons/, fonts/
-│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
+│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
 ├── packaging/                    # windows/ (icône ; halcyon.iss, Inno Setup, hors CI), linux/ (.desktop, MIME, install/uninstall de l'archive)
 ├── tools/                        # make_demo_fixture.py, make_big_library.py, bench.py, package_linux.sh, sound/make_sounds.py
-└── .github/workflows/build.yml   # tests Windows + Linux, installeurs, SHA256SUMS, publication sur tag
+└── .github/workflows/            # build.yml (tests, compilation), release.yml (publication signée sur tag v*)
 ```
 
 ## 7. Feuille de route
@@ -361,7 +407,9 @@ halcyon/
 | V1+ lot 4 | Zone de notification, démarrage, instance unique, raccourcis, lancement rapide, mode compact, fenêtre compagnon, mise à jour vérifiée, intégrité, désinstallation propre | ✅ |
 | 0.4.0 | Design system, coquille, accueil en widgets, bibliothèque 5 vues, fiche cinématographique, manette sur tout le bureau, centre de commandes, modes et mode Performance, recherche universelle étendue, optimisations mesurées | ✅ |
 | 0.4.1 | Identité sonore originale et moteur audio, programme d'installation Windows/Linux (vérification, progression réelle, mise à jour, réparation, désinstallation) | ✅ Linux · Windows à valider sur machine réelle |
+| 0.5.0 | Minecraft Java Edition : versions, loaders, mods, modpacks, launcher officiel, connexion Microsoft | ✅ Windows · Linux sans réseau |
+| 1.0.0-alpha.1 | Audit 1.0, coffre des secrets, mises à jour signées, journal de sécurité, Performance Center (monitoring, applications, recommandations, historique par partie, FPS par journaux) | ✅ Linux · Windows à valider sur machine réelle |
 
-Pistes suivantes : empreintes RetroAchievements des jeux sur disque, GOG via Heroic,
+Pistes suivantes : gestionnaire de téléchargements unifié, empreintes RetroAchievements des jeux sur disque, GOG via Heroic,
 validation de bout en bout sous Windows (préférence GPU, `.lnk`, icône de notification,
 installateur) sur un vrai PC, puis profils de manette appliqués aux jeux via Steam Input.

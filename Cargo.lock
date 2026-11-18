@@ -1255,6 +1255,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edf234dd1594d6dd434a8fb8cada51ddbbc593e40e4a01556a0b31c62da2775b"
 
 [[package]]
+name = "ed25519-compact"
+version = "2.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9547879431a90e352a35863a54416d92898a787b9af09e6ae2e09a96bd78be80"
+dependencies = [
+ "getrandom 0.4.3",
+]
+
+[[package]]
 name = "either"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1899,16 +1908,18 @@ checksum = "b40ca9252762c466af32d0b1002e91e4e1bc5398f77455e55474deb466355ff5"
 
 [[package]]
 name = "halcyon-app"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
  "dirs",
  "gilrs",
  "global-hotkey",
  "halcyon-audio",
  "halcyon-core",
+ "halcyon-i18n",
  "halcyon-integrations",
  "halcyon-minecraft",
  "halcyon-storage",
+ "halcyon-update",
  "image",
  "ksni",
  "log",
@@ -1929,27 +1940,37 @@ dependencies = [
 
 [[package]]
 name = "halcyon-audio"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
  "cpal",
+ "halcyon-i18n",
  "log",
 ]
 
 [[package]]
 name = "halcyon-core"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
+ "halcyon-i18n",
  "serde",
  "serde_json",
  "thiserror 2.0.21",
 ]
 
 [[package]]
+name = "halcyon-i18n"
+version = "1.0.0-alpha.4"
+dependencies = [
+ "sys-locale",
+]
+
+[[package]]
 name = "halcyon-installer"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
  "dirs",
  "halcyon-core",
+ "halcyon-i18n",
  "log",
  "serde",
  "serde_json",
@@ -1965,11 +1986,15 @@ dependencies = [
 
 [[package]]
 name = "halcyon-integrations"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
  "base64",
  "dirs",
+ "ed25519-compact",
  "halcyon-core",
+ "halcyon-i18n",
+ "halcyon-storage",
+ "halcyon-update",
  "libc",
  "log",
  "md-5",
@@ -1985,10 +2010,12 @@ dependencies = [
 
 [[package]]
 name = "halcyon-minecraft"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
  "base64",
  "dirs",
+ "halcyon-core",
+ "halcyon-i18n",
  "log",
  "serde",
  "serde_json",
@@ -2002,16 +2029,34 @@ dependencies = [
 
 [[package]]
 name = "halcyon-storage"
-version = "0.5.0"
+version = "1.0.0-alpha.4"
 dependencies = [
  "dirs",
  "halcyon-core",
+ "halcyon-i18n",
  "log",
  "rusqlite",
  "serde",
  "serde_json",
  "tempfile",
  "thiserror 2.0.21",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "halcyon-update"
+version = "1.0.0-alpha.4"
+dependencies = [
+ "base64",
+ "ed25519-compact",
+ "halcyon-i18n",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sysinfo",
+ "tempfile",
+ "ureq",
+ "zip",
 ]
 
 [[package]]

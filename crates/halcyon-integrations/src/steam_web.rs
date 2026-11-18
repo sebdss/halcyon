@@ -44,8 +44,9 @@ impl SteamWeb {
     /// Succès d'un jeu. `Ok(None)` : le jeu n'a pas de succès.
     pub fn achievements(&self, dl: &Downloader, appid: u64) -> Result<Option<Vec<AchievementData>>, FetchError> {
         let schema = dl.get_json(&format!(
-            "{API}/ISteamUserStats/GetSchemaForGame/v2/?key={}&appid={appid}&l=french",
-            self.key
+            "{API}/ISteamUserStats/GetSchemaForGame/v2/?key={}&appid={appid}&l={}",
+            self.key,
+            steam_language()
         ))?;
         let defs = schema.pointer("/game/availableGameStats/achievements").and_then(Value::as_array);
         if defs.is_none_or(|d| d.is_empty()) {
@@ -56,7 +57,7 @@ impl SteamWeb {
             self.key, self.steam_id
         ))?;
         if player.pointer("/playerstats/success").and_then(Value::as_bool) == Some(false) {
-            let msg = player.pointer("/playerstats/error").and_then(Value::as_str).unwrap_or("erreur Steam");
+            let msg = player.pointer("/playerstats/error").and_then(Value::as_str).map(str::to_string).unwrap_or_else(|| tr!("erreur Steam"));
             return Err(FetchError::Unavailable(msg.to_string()));
         }
         // La rareté est publique ; son absence ne bloque pas la synchronisation.
@@ -141,9 +142,21 @@ pub fn combine(schema: &Value, player: &Value, global: &Value) -> Vec<Achievemen
         .unwrap_or_default()
 }
 
+/// Langue des textes demandés à Steam (descriptions, genres, succès) : celle de l'interface.
+pub fn steam_language() -> &'static str {
+    match halcyon_i18n::language().split('-').next() {
+        Some("fr") => "french",
+        Some("de") => "german",
+        Some("es") => "spanish",
+        Some("it") => "italian",
+        Some("pt") => "portuguese",
+        _ => "english",
+    }
+}
+
 /// Métadonnées publiques de la boutique (sans clé). `Ok(None)` : jeu absent de la boutique.
 pub fn store_metadata(dl: &Downloader, appid: u64) -> Result<Option<OnlineMetadata>, FetchError> {
-    let v = dl.get_json(&format!("https://store.steampowered.com/api/appdetails?appids={appid}&l=french"))?;
+    let v = dl.get_json(&format!("https://store.steampowered.com/api/appdetails?appids={appid}&l={}", steam_language()))?;
     Ok(parse_store(&v, appid))
 }
 
@@ -190,13 +203,13 @@ fn store_tags(d: &Value) -> Vec<String> {
     };
     let any = |list: &[u64]| ids.iter().any(|i| list.contains(i));
     // 1 multijoueur, 27 multi-plateforme, 36/37 en ligne/LAN JcJ, 47/48 LAN, 49 JcJ.
-    add(any(&[1, 27, 36, 37, 47, 48, 49, 9, 38, 39, 24]), "multijoueur");
+    add(any(&[1, 27, 36, 37, 47, 48, 49, 9, 38, 39, 24]), trc_noop!("tag", "multijoueur"));
     // 9 coop, 38 coop en ligne, 39/24 écran partagé.
-    add(any(&[9, 38, 39, 48]), "coop");
-    add(any(&[24, 37, 39]), "écran partagé");
-    add(any(&[2]), "solo");
-    add(any(&[28]), "manette");
-    add(any(&[18]), "manette partielle");
+    add(any(&[9, 38, 39, 48]), trc_noop!("tag", "coop"));
+    add(any(&[24, 37, 39]), trc_noop!("tag", "écran partagé"));
+    add(any(&[2]), trc_noop!("tag", "solo"));
+    add(any(&[28]), trc_noop!("tag", "manette"));
+    add(any(&[18]), trc_noop!("tag", "manette partielle"));
     tags
 }
 

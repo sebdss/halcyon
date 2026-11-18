@@ -3,18 +3,24 @@
 // Pas de console noire derrière la fenêtre en version publiée sous Windows.
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 mod controller;
 mod ctl_achievements;
 mod ctl_assistant;
 mod ctl_backup;
 mod ctl_bigpicture;
+mod ctl_downloads;
 mod ctl_emulators;
 mod ctl_home;
+mod ctl_lang;
 mod ctl_library;
 mod ctl_palette;
 mod ctl_minecraft;
 mod ctl_mods;
 mod ctl_pads;
+mod ctl_perf;
 mod ctl_plugins;
 mod ctl_profiles;
 mod ctl_remote;
@@ -24,11 +30,13 @@ mod ctl_sound;
 mod ctl_system;
 mod ctl_themes;
 mod ctl_tracking;
+mod ctl_update;
 mod desktop;
 mod dialogs;
 mod gamepad;
 mod images;
 mod instance;
+mod lang;
 mod models;
 mod nav;
 mod notify;
@@ -56,9 +64,22 @@ fn main() {
     }
     let level = if std::env::var_os("HALCYON_DEBUG").is_some() { log::LevelFilter::Debug } else { log::LevelFilter::Info };
     logging::init(&paths.logs_dir, level);
+    halcyon_storage::audit::init(&paths.logs_dir);
     log::info!("Halcyon {} — données : {}", env!("CARGO_PKG_VERSION"), paths.data_dir.display());
 
-    let settings = Settings::load(&paths.settings_path());
+    let first_run = !paths.settings_path().exists();
+    let mut settings = Settings::load(&paths.settings_path());
+    lang::init(&mut settings, first_run);
+    if first_run && settings.language.is_some() {
+        let _ = settings.save(&paths.settings_path());
+    }
+    // Mise à jour : reprise d'une installation interrompue, ou installation de la version en
+    // attente ; l'updater prend alors le relais et relance Halcyon.
+    if ctl_update::early_start(&settings, args.hus_health.as_deref(), args.hus_rolled_back) {
+        instance::release(&paths.data_dir);
+        log::logger().flush();
+        return;
+    }
     let db = open_database(&paths);
     let t_db = Instant::now();
     let games = db.load_games().unwrap_or_else(|e| {
@@ -76,6 +97,7 @@ fn main() {
             std::process::exit(1);
         }
     };
+    lang::apply_to_ui();
     app.window().set_size(slint::LogicalSize::new(settings.window_width as f32, settings.window_height as f32));
     if settings.window_maximized {
         app.window().set_maximized(true);
@@ -94,6 +116,7 @@ fn main() {
     slint::Timer::single_shot(Duration::from_millis(400), move || {
         if let Some(c) = weak.upgrade() {
             c.startup();
+            c.hus_init(args.hus_health.clone());
             // `--minimized` (démarrage avec la session) : dans la zone de notification si possible.
             if args.minimized {
                 if c.tray.borrow().is_some() {
@@ -150,6 +173,10 @@ struct Args {
     quick: bool,
     big_picture: bool,
     minimized: bool,
+    /// Contrôle de santé demandé par l'updater (identifiant de transaction).
+    hus_health: Option<String>,
+    /// Relancé par l'updater après un retour arrière.
+    hus_rolled_back: bool,
 }
 
 impl Args {
@@ -162,6 +189,8 @@ impl Args {
                 "--quick" => a.quick = true,
                 "--big-picture" => a.big_picture = true,
                 "--minimized" => a.minimized = true,
+                "--hus-health" => a.hus_health = it.next(),
+                "--hus-rolled-back" => a.hus_rolled_back = true,
                 other if !other.starts_with("--") && std::path::Path::new(other).is_file() => {
                     a.open = Some(std::path::PathBuf::from(other));
                 }

@@ -187,6 +187,28 @@ que pour les jeux Steam.
 Les extensions installées se trouvent dans `<données>/plugins/<id>`. Elles sont incluses dans
 l'export de configuration.
 
+## Signer une extension (1.0.0)
+
+Halcyon calcule une **empreinte** du contenu (SHA-256 de la liste triée des fichiers et de
+leurs empreintes, hors `plugin.sig`) et l'affiche. Pour prouver que l'extension vient de
+vous, signez-la :
+
+```sh
+cargo run -p halcyon-integrations --example release_sign -- keygen ma-cle.key
+cargo run -p halcyon-integrations --example release_sign -- sign-plugin ma-cle.key mon-extension/
+```
+
+Le fichier `plugin.sig` (clé publique + signature Ed25519) est ajouté au dossier ; à
+distribuer avec l'extension. Règles appliquées par Halcyon :
+
+- signature présente mais fausse (fichier modifié après signature) : extension refusée à
+  l'installation, et rendue inutilisable si le contenu installé change ;
+- une extension installée **signée** ne peut être remplacée que par une version signée par
+  **la même clé** ; une version non signée ou signée par une autre clé est refusée ;
+- une extension non signée reste acceptée, présentée comme « Non signée ».
+
+Signez après la dernière modification : toute retouche (même un thème) invalide la signature.
+
 ## Limites volontaires
 
 - Pas de code : pas de nouveau type de source de jeux, de fournisseur de succès ni d'action

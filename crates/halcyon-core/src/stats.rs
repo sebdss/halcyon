@@ -2,10 +2,9 @@
 //!
 //! Toutes les périodes sont calculées en heure locale (`tz` : décalage UTC en secondes).
 
-use crate::util::{civil_from_days, days_from_civil};
+use crate::util::{civil_from_days, days_from_civil, month_short};
 
 const DAY: i64 = 86_400;
-const MONTHS: [&str; 12] = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
 /// Une barre d'histogramme.
 #[derive(Clone, Debug, PartialEq)]
@@ -34,7 +33,7 @@ pub fn weekly(items: impl IntoIterator<Item = (i64, u64)>, now: i64, tz: i64, n:
         .map(|i| {
             let start = this_week - 7 * i as i64;
             let (_, m, d) = civil_from_days(start);
-            Bucket { label: format!("{d} {}", MONTHS[(m - 1) as usize]), start: start * DAY - tz, value: 0 }
+            Bucket { label: trc!("date", "{day} {month}", day = d, month = month_short(m)), start: start * DAY - tz, value: 0 }
         })
         .collect();
     for (t, v) in items {
@@ -57,9 +56,9 @@ pub fn monthly(items: impl IntoIterator<Item = (i64, u64)>, now: i64, tz: i64, n
             let idx = current - i as i64;
             let (yy, mm) = (idx.div_euclid(12), (idx.rem_euclid(12) + 1) as u32);
             let label = if mm == 1 || i == 0 || i == n - 1 {
-                format!("{} {}", MONTHS[(mm - 1) as usize], yy % 100)
+                trc!("date", "{month} {year}", month = month_short(mm), year = format!("{:02}", yy % 100))
             } else {
-                MONTHS[(mm - 1) as usize].to_string()
+                month_short(mm)
             };
             Bucket { label, start: days_from_civil(yy, mm, 1) * DAY - tz, value: 0 }
         })

@@ -63,7 +63,7 @@ impl Controller {
             pool = lib.games.iter().filter(|g| g.installed && !g.hidden).map(|g| g.id).collect();
         }
         if pool.is_empty() {
-            self.toast("Aucun jeu installé à proposer", true);
+            self.toast(tr!("Aucun jeu installé à proposer"), true);
             return;
         }
         let nanos = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.subsec_nanos()).unwrap_or(0);

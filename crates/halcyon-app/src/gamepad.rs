@@ -48,14 +48,14 @@ impl PadAction {
 
 /// Actions configurables (les directions restent sur la croix et le stick gauche).
 pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 8] = [
-    ("accept", "Valider / lancer", PadAction::Accept, Button::South),
-    ("back", "Retour", PadAction::Back, Button::East),
-    ("search", "Recherche", PadAction::Search, Button::North),
-    ("fav", "Favori", PadAction::Favorite, Button::West),
-    ("menu", "Entrer / quitter Big Picture", PadAction::Menu, Button::Start),
-    ("context", "Menu contextuel", PadAction::Context, Button::Select),
-    ("prev", "Onglet ou vue précédente", PadAction::Prev, Button::LeftTrigger),
-    ("next", "Onglet ou vue suivante", PadAction::Next, Button::RightTrigger),
+    ("accept", tr_noop!("Valider / lancer"), PadAction::Accept, Button::South),
+    ("back", tr_noop!("Retour"), PadAction::Back, Button::East),
+    ("search", tr_noop!("Recherche"), PadAction::Search, Button::North),
+    ("fav", tr_noop!("Favori"), PadAction::Favorite, Button::West),
+    ("menu", tr_noop!("Entrer / quitter Big Picture"), PadAction::Menu, Button::Start),
+    ("context", tr_noop!("Menu contextuel"), PadAction::Context, Button::Select),
+    ("prev", tr_noop!("Onglet ou vue précédente"), PadAction::Prev, Button::LeftTrigger),
+    ("next", tr_noop!("Onglet ou vue suivante"), PadAction::Next, Button::RightTrigger),
 ];
 
 /// Boutons proposés à l'association (noms stables, enregistrés dans les paramètres).
@@ -85,11 +85,11 @@ pub fn button_name(b: Button) -> Option<&'static str> {
 /// Libellé d'un bouton selon la marque de la manette.
 pub fn button_label(name: &str, brand: &str) -> String {
     let (s, e, n, w, lb, rb, lt, rt, sel, start) = match brand {
-        "PlayStation" => ("Croix", "Rond", "Triangle", "Carré", "L1", "R1", "L2", "R2", "Create / Select", "Options / Start"),
+        "PlayStation" => (tr_noop!("Croix"), tr_noop!("Rond"), tr_noop!("Triangle"), tr_noop!("Carré"), "L1", "R1", "L2", "R2", "Create / Select", "Options / Start"),
         "Nintendo" => ("B", "A", "X", "Y", "L", "R", "ZL", "ZR", "−", "+"),
         _ => ("A", "B", "Y", "X", "LB", "RB", "LT", "RT", "View / Back", "Menu / Start"),
     };
-    match name {
+    let label = match name {
         "South" => s,
         "East" => e,
         "North" => n,
@@ -100,11 +100,11 @@ pub fn button_label(name: &str, brand: &str) -> String {
         "RightTrigger2" => rt,
         "Select" => sel,
         "Start" => start,
-        "LeftThumb" => "Stick gauche (clic)",
-        "RightThumb" => "Stick droit (clic)",
+        "LeftThumb" => tr_noop!("Stick gauche (clic)"),
+        "RightThumb" => tr_noop!("Stick droit (clic)"),
         other => other,
-    }
-    .to_string()
+    };
+    halcyon_i18n::t(label)
 }
 
 pub fn brand_for(vendor: Option<u16>, name: &str) -> &'static str {
@@ -127,7 +127,7 @@ pub fn brand_for(vendor: Option<u16>, name: &str) -> &'static str {
             } else if n.contains("nintendo") || n.contains("switch") || n.contains("joy-con") {
                 "Nintendo"
             } else {
-                "Générique"
+                tr_noop!("Générique")
             }
         }
     }
@@ -191,11 +191,11 @@ const IDLE_WAIT_MS: u64 = 1000;
 
 fn power_label(p: PowerInfo) -> String {
     match p {
-        PowerInfo::Wired => "Filaire".into(),
-        PowerInfo::Discharging(l) => format!("Batterie {l} %"),
-        PowerInfo::Charging(l) => format!("En charge ({l} %)"),
-        PowerInfo::Charged => "Batterie pleine".into(),
-        PowerInfo::Unknown => "Alimentation inconnue".into(),
+        PowerInfo::Wired => tr!("Filaire").into(),
+        PowerInfo::Discharging(l) => tr!("Batterie {l} %", l = l),
+        PowerInfo::Charging(l) => tr!("En charge ({l} %)", l = l),
+        PowerInfo::Charged => tr!("Batterie pleine").into(),
+        PowerInfo::Unknown => tr!("Alimentation inconnue").into(),
     }
 }
 

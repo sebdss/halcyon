@@ -1,0 +1,194 @@
+{
+ "05-0": {
+  "raw": {
+   "ready_ms": [
+    68,
+    65,
+    45
+   ],
+   "scan_done_s": [
+    7.63,
+    0.8,
+    0.7
+   ],
+   "rss_home_mb": [
+    93,
+    94,
+    94
+   ],
+   "idle_cpu_pct": [
+    0.1,
+    0.1,
+    0.1
+   ],
+   "scroll_150_s": [
+    16.08,
+    16.09,
+    16.11
+   ],
+   "rss_after_scroll_mb": [
+    138,
+    139,
+    139
+   ],
+   "db_mb": [
+    3.4,
+    3.4,
+    3.4
+   ]
+  },
+  "median": {
+   "ready_ms": 65,
+   "scan_done_s": 0.8,
+   "rss_home_mb": 94,
+   "idle_cpu_pct": 0.1,
+   "scroll_150_s": 16.09,
+   "rss_after_scroll_mb": 139,
+   "db_mb": 3.4
+  }
+ },
+ "05-1": {
+  "raw": {
+   "ready_ms": [
+    122,
+    124,
+    147
+   ],
+   "scan_done_s": [
+    0.81,
+    0.8,
+    0.9
+   ],
+   "rss_home_mb": [
+    95,
+    96,
+    96
+   ],
+   "idle_cpu_pct": [
+    0.1,
+    0.1,
+    0.1
+   ],
+   "scroll_150_s": [
+    15.77,
+    15.75,
+    15.72
+   ],
+   "rss_after_scroll_mb": [
+    130,
+    131,
+    130
+   ],
+   "db_mb": [
+    3.4,
+    3.4,
+    3.4
+   ]
+  },
+  "median": {
+   "ready_ms": 124,
+   "scan_done_s": 0.81,
+   "rss_home_mb": 96,
+   "idle_cpu_pct": 0.1,
+   "scroll_150_s": 15.75,
+   "rss_after_scroll_mb": 130,
+   "db_mb": 3.4
+  }
+ },
+ "10-0": {
+  "raw": {
+   "ready_ms": [
+    47,
+    45,
+    45
+   ],
+   "scan_done_s": [
+    0.7,
+    0.71,
+    0.7
+   ],
+   "rss_home_mb": [
+    94,
+    95,
+    95
+   ],
+   "idle_cpu_pct": [
+    0.1,
+    0.1,
+    0.0
+   ],
+   "scroll_150_s": [
+    16.03,
+    16.04,
+    15.98
+   ],
+   "rss_after_scroll_mb": [
+    139,
+    140,
+    139
+   ],
+   "db_mb": [
+    3.42,
+    3.42,
+    3.42
+   ]
+  },
+  "median": {
+   "ready_ms": 45,
+   "scan_done_s": 0.7,
+   "rss_home_mb": 95,
+   "idle_cpu_pct": 0.1,
+   "scroll_150_s": 16.03,
+   "rss_after_scroll_mb": 139,
+   "db_mb": 3.42
+  }
+ },
+ "10-1": {
+  "raw": {
+   "ready_ms": [
+    133,
+    151,
+    134
+   ],
+   "scan_done_s": [
+    0.9,
+    0.9,
+    0.8
+   ],
+   "rss_home_mb": [
+    97,
+    97,
+    97
+   ],
+   "idle_cpu_pct": [
+    0.1,
+    0.1,
+    0.1
+   ],
+   "scroll_150_s": [
+    15.76,
+    15.76,
+    15.75
+   ],
+   "rss_after_scroll_mb": [
+    131,
+    131,
+    131
+   ],
+   "db_mb": [
+    3.42,
+    3.42,
+    3.42
+   ]
+  },
+  "median": {
+   "ready_ms": 134,
+   "scan_done_s": 0.9,
+   "rss_home_mb": 97,
+   "idle_cpu_pct": 0.1,
+   "scroll_150_s": 15.76,
+   "rss_after_scroll_mb": 131,
+   "db_mb": 3.42
+  }
+ }
+}

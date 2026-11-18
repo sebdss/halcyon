@@ -85,7 +85,7 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
                         let fit = 1.0 - (budget - a) as f32 / budget as f32;
                         return Some(Suggestion {
                             game: g.id,
-                            reason: format!("Vos sessions durent en moyenne {}", crate::util::format_playtime(a)),
+                            reason: tr!("Vos sessions durent en moyenne {a}", a = crate::util::format_playtime(a)),
                             score: 2.0 + fit + recency_bonus(g, ctx.now),
                         });
                     }
@@ -94,7 +94,7 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
                 let short = g.genres.iter().any(|x| SHORT_GENRES.iter().any(|s| genre_key(x).contains(s)));
                 (minutes <= 45 && short).then(|| Suggestion {
                     game: g.id,
-                    reason: "Genre adapté aux parties courtes".into(),
+                    reason: tr!("Genre adapté aux parties courtes").into(),
                     score: 1.0 + recency_bonus(g, ctx.now),
                 })
             })
@@ -110,15 +110,15 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
         .filter_map(|g| {
             let recent = g.last_played.is_some_and(|t| ctx.now - t <= 30 * DAY);
             if g.status == PlayStatus::Playing {
-                Some(Suggestion { game: g.id, reason: "Marqué « en cours »".into(), score: 3.0 + recency_bonus(g, ctx.now) })
+                Some(Suggestion { game: g.id, reason: tr!("Marqué « en cours »").into(), score: 3.0 + recency_bonus(g, ctx.now) })
             } else if recent && g.effective_playtime() > 0 {
                 let days = (ctx.now - g.last_played.unwrap_or(ctx.now)) / DAY;
                 Some(Suggestion {
                     game: g.id,
                     reason: match days {
-                        0 => "Joué aujourd'hui".into(),
-                        1 => "Joué hier".into(),
-                        d => format!("Joué il y a {d} jours"),
+                        0 => tr!("Joué aujourd'hui").into(),
+                        1 => tr!("Joué hier").into(),
+                        d => trn!(d, "Joué il y a {n} jour", "Joué il y a {n} jours"),
                     },
                     score: 1.0 + recency_bonus(g, ctx.now),
                 })
@@ -138,7 +138,7 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
             let pct = p.percent();
             (pct >= 70.0).then(|| Suggestion {
                 game: g.id,
-                reason: format!("{} / {} succès ({:.0} %) : il en reste {}", p.unlocked, p.total, pct, p.total - p.unlocked),
+                reason: trn!(p.total - p.unlocked, "{unlocked} / {total} succès ({pct} %) : il en reste {n}", "{unlocked} / {total} succès ({pct} %) : il en reste {n}", unlocked = p.unlocked, total = p.total, pct = format!("{:.0}", pct)),
                 score: pct / 100.0 + 1.0,
             })
         })
@@ -155,12 +155,12 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
             match genre_match(g) {
                 Some(_) => Suggestion {
                     game: g.id,
-                    reason: format!("Jamais lancé · genre que vous appréciez ({})", g.genres.first().cloned().unwrap_or_default()),
+                    reason: tr!("Jamais lancé · genre que vous appréciez ({v})", v = g.genres.first().cloned().unwrap_or_default()),
                     score: 2.0 - (added_days as f32 / 3650.0).min(0.5),
                 },
                 None => Suggestion {
                     game: g.id,
-                    reason: if g.status == PlayStatus::Backlog { "Dans votre liste « à jouer »".into() } else { "Jamais lancé".into() },
+                    reason: if g.status == PlayStatus::Backlog { tr!("Dans votre liste « à jouer »").into() } else { tr!("Jamais lancé").into() },
                     score: if g.status == PlayStatus::Backlog { 1.8 } else { 1.0 } - (added_days as f32 / 3650.0).min(0.5),
                 },
             }
@@ -177,7 +177,7 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
             let months = (ctx.now - g.last_played.unwrap_or(ctx.now)) / (30 * DAY);
             Suggestion {
                 game: g.id,
-                reason: format!("{} de jeu · pas lancé depuis {months} mois", crate::util::format_playtime(g.effective_playtime())),
+                reason: trn!(months, "{playtime} de jeu · pas lancé depuis {n} mois", "{playtime} de jeu · pas lancé depuis {n} mois", playtime = crate::util::format_playtime(g.effective_playtime())),
                 score: (g.effective_playtime() as f32 / 3600.0).ln_1p(),
             }
         })

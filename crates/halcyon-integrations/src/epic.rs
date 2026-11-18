@@ -145,11 +145,11 @@ impl GameScanner for EpicScanner {
         let dir = self.manifests_dir();
         let legendary = legendary_configs();
         if dir.is_none() && legendary.is_empty() {
-            return Err(io_err("ni le launcher Epic Games, ni Heroic, ni Legendary n'ont été trouvés"));
+            return Err(io_err(&tr!("ni le launcher Epic Games, ni Heroic, ni Legendary n'ont été trouvés")));
         }
         let mut report = ScanReport { complete: true, ..Default::default() };
         for cfg in &legendary {
-            ctx.progress(if cfg.heroic { "Epic Games : lecture de Heroic…" } else { "Epic Games : lecture de Legendary…" });
+            ctx.progress(&if cfg.heroic { tr!("Epic Games : lecture de Heroic…") } else { tr!("Epic Games : lecture de Legendary…") });
             match scan_legendary(cfg) {
                 Ok(games) => report.games.extend(games),
                 Err(e) => report.warnings.push(format!("{} : {e}", cfg.installed.display())),
@@ -160,13 +160,9 @@ impl GameScanner for EpicScanner {
             return Ok(report);
         };
         if let Some(p) = self.ignored_override() {
-            report.warnings.push(format!(
-                "{} ne contient aucun manifeste Epic : dossier détecté automatiquement utilisé ({})",
-                p.display(),
-                dir.display()
-            ));
+            report.warnings.push(tr!("{p} ne contient aucun manifeste Epic : dossier détecté automatiquement utilisé ({dir})", p = p.display(), dir = dir.display()));
         }
-        ctx.progress("Epic Games : lecture des manifestes…");
+        ctx.progress(&tr!("Epic Games : lecture des manifestes…"));
         let catalog = dir.parent().map(|data| read_catalog(&data.join("Catalog").join("catcache.bin"))).unwrap_or_default();
 
         let mut manifests = Vec::new();

@@ -30,14 +30,14 @@ pub enum ActivityKind {
 
 /// Catégories proposées comme filtres dans le journal.
 pub const CATEGORIES: &[(&str, &[ActivityKind])] = &[
-    ("Sessions", &[ActivityKind::Launch, ActivityKind::Session]),
-    ("Succès", &[ActivityKind::Achievement]),
-    ("Bibliothèque", &[ActivityKind::Added, ActivityKind::Installed, ActivityKind::Uninstalled, ActivityKind::Status]),
-    ("Mises à jour", &[ActivityKind::Update]),
-    ("Sauvegardes", &[ActivityKind::Save]),
-    ("Mods", &[ActivityKind::Mod]),
+    (tr_noop!("Sessions"), &[ActivityKind::Launch, ActivityKind::Session]),
+    (tr_noop!("Succès"), &[ActivityKind::Achievement]),
+    (tr_noop!("Bibliothèque"), &[ActivityKind::Added, ActivityKind::Installed, ActivityKind::Uninstalled, ActivityKind::Status]),
+    (tr_noop!("Mises à jour"), &[ActivityKind::Update]),
+    (tr_noop!("Sauvegardes"), &[ActivityKind::Save]),
+    (tr_noop!("Mods"), &[ActivityKind::Mod]),
     (
-        "Système",
+        tr_noop!("Système"),
         &[ActivityKind::Profile, ActivityKind::Settings, ActivityKind::Plugin, ActivityKind::Sync, ActivityKind::Error],
     ),
 ];
@@ -118,8 +118,9 @@ impl Database {
                 at: r.get(1)?,
                 kind: ActivityKind::parse(&r.get::<_, String>(2)?),
                 game_id: r.get(3)?,
-                title: r.get(4)?,
-                detail: r.get(5)?,
+                // textes enregistrés avec tr_later! : traduits dans la langue active
+                title: halcyon_i18n::render(&r.get::<_, String>(4)?),
+                detail: halcyon_i18n::render(&r.get::<_, String>(5)?),
             })
         })?;
         let mut out = Vec::new();

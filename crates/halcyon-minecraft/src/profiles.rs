@@ -168,11 +168,11 @@ pub fn new_profile(layout: &Layout, name: &str, mc: &str, loader: Loader, loader
 /// confirmation explicite.
 pub fn delete(layout: &Layout, id: &str) -> std::io::Result<()> {
     if id.is_empty() || id.contains(['/', '\\']) || id.starts_with('.') {
-        return Err(std::io::Error::other("identifiant refusé"));
+        return Err(std::io::Error::other(tr!("identifiant refusé")));
     }
     let dir = layout.profiles().join(id);
     if !dir.join(PROFILE_FILE).is_file() {
-        return Err(std::io::Error::other("ce dossier n'est pas une installation Halcyon"));
+        return Err(std::io::Error::other(tr!("ce dossier n'est pas une installation Halcyon")));
     }
     std::fs::remove_dir_all(dir)
 }

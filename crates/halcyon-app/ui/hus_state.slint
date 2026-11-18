@@ -1,0 +1,51 @@
+// Halcyon Update System : état présenté par Paramètres › Mises à jour. Toutes les valeurs
+// viennent de mesures ou de fichiers réels (manifeste signé, octets reçus) ; aucune
+// progression n'est estimée.
+
+export global HusUi {
+    in property <string> installed;
+    /// Dernière version disponible sur le canal (vide : inconnue ou à jour).
+    in property <string> latest;
+    /// 0 Stable, 1 Beta.
+    in property <int> channel;
+    /// Canal par défaut (jamais choisi explicitement).
+    in property <bool> channel-default;
+    /// Code de `halcyon_update::State` (0 Idle … 12 RolledBack).
+    in property <int> state;
+    in property <string> status;
+    in property <string> detail;
+    in property <bool> error;
+    /// Mise à jour de sécurité (version installée sous le plancher annoncé).
+    in property <bool> security;
+    in property <string> last-check;
+    in property <string> notes;
+    in property <string> release-url;
+    /// Installation automatique possible pour cette installation.
+    in property <bool> managed;
+    in property <string> kind;
+    in property <string> verification;
+    in property <bool> auto;
+    in property <bool> checking;
+    in property <bool> downloading;
+    /// Mise à jour vérifiée (signature et manifeste) et téléchargeable.
+    in property <bool> can-download;
+    in property <float> progress;
+    in property <string> progress-text;
+    in property <string> speed;
+    in property <string> eta;
+    in property <string> size-text;
+    /// Paquet vérifié en attente d'installation.
+    in property <bool> staged;
+    in property <bool> at-restart;
+    callback check();
+    callback download();
+    callback cancel();
+    callback install-now();
+    callback install-at-restart();
+    callback set-channel(int);
+    callback set-auto(bool);
+    callback open-release();
+    /// AppImage lancée hors de `~/.local/opt/halcyon` : installation pour le compte proposée.
+    in property <bool> can-install-user;
+    callback install-user();
+}

@@ -1,7 +1,7 @@
 import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { PluginsUi, AppUi, Actions } from "../state.slint";
-import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Toggle, Badge, Notice, IconButton } from "../components.slint";
+import { Panel, SectionTitle, PageHeader, SecondaryButton, PrimaryButton, TextField, Toggle, Badge, Notice, IconButton, ListItem, Rubric } from "../components.slint";
 
 export component PluginsPage inherits Rectangle {
     in-out property <string> path;
@@ -10,62 +10,63 @@ export component PluginsPage inherits Rectangle {
         content := VerticalLayout {
             width: root.width;
             padding: Theme.page-padding;
-            padding-top: 32px;
+            padding-top: 24px;
             spacing: 18px;
             alignment: start;
 
             PageHeader {
-                title: "Extensions";
-                subtitle: "Émulateurs, plateformes, emplacements de sauvegarde, thèmes, sources de métadonnées et liens supplémentaires.";
-                SecondaryButton { y: 6px; text: "Vérifier les mises à jour"; icon: Icons.refresh; has-icon: true; clicked => { PluginsUi.check-updates(); } }
+                title: @tr("Extensions");
+                subtitle: @tr("Émulateurs, plateformes, emplacements de sauvegarde, thèmes, sources de métadonnées et liens supplémentaires.");
+                SecondaryButton { y: 6px; text: @tr("Vérifier les mises à jour"); icon: Icons.refresh; has-icon: true; clicked => { PluginsUi.check-updates(); } }
             }
             Notice {
-                text: "Les extensions sont déclaratives : elles ne contiennent que des données et Halcyon n'exécute jamais leur contenu. Une extension installée reste désactivée tant que vous ne l'avez pas activée après avoir vu ses autorisations. Les fichiers exécutables sont refusés à l'installation.";
+                text: @tr("Les extensions sont déclaratives : elles ne contiennent que des données et Halcyon n'exécute jamais leur contenu. Une extension installée reste désactivée tant que vous ne l'avez pas activée après avoir vu ses autorisations. Les fichiers exécutables sont refusés à l'installation.");
             }
 
             Panel {
                 VerticalLayout {
                     padding: 20px;
                     spacing: 12px;
-                    Text { text: "Installer une extension"; color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
+                    Text { text: @tr("Installer une extension"); color: Theme.text; font-size: Theme.t-body; font-weight: 650; }
                     HorizontalLayout {
                         spacing: 8px;
-                        TextField { text <=> root.path; mono: true; placeholder: "Dossier, fichier plugin.json ou archive .zip"; }
+                        TextField { text <=> root.path; mono: true; placeholder: @tr("Dossier, fichier plugin.json ou archive .zip"); }
                         if AppUi.can-browse: SecondaryButton {
-                            text: "Fichier…";
-                            h: 38px;
+                            text: @tr("Fichier…");
+                            h: 36px;
                             clicked => {
                                 let p = AppUi.browse-file();
                                 if (p != "") { root.path = p; }
                             }
                         }
                         if AppUi.can-browse: SecondaryButton {
-                            text: "Dossier…";
-                            h: 38px;
+                            text: @tr("Dossier…");
+                            h: 36px;
                             clicked => {
                                 let p = AppUi.browse-folder();
                                 if (p != "") { root.path = p; }
                             }
                         }
-                        PrimaryButton { h: 38px; text: "Installer…"; enabled: root.path != ""; clicked => { PluginsUi.install(root.path); root.path = ""; } }
+                        PrimaryButton { h: 36px; text: @tr("Installer…"); enabled: root.path != ""; clicked => { PluginsUi.install(root.path); root.path = ""; } }
                     }
                     HorizontalLayout {
                         spacing: 10px;
-                        Text { text: "Dossier des extensions : " + PluginsUi.dir; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                        SecondaryButton { h: 32px; text: "Ouvrir"; clicked => { PluginsUi.open-dir(); } }
+                        Text { text: @tr("Dossier des extensions : {}", PluginsUi.dir); color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                        SecondaryButton { h: 32px; text: @tr("Ouvrir"); clicked => { PluginsUi.open-dir(); } }
                     }
                     if PluginsUi.status != "": Text { text: PluginsUi.status; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                 }
             }
 
-            SectionTitle { text: "Installées (" + PluginsUi.plugins.length + ")"; }
+            Rubric { title: @tr("Installées"); note: @tr("{n} extension" | "{n} extensions" % PluginsUi.plugins.length); }
             if PluginsUi.plugins.length == 0: Text {
-                text: "Aucune extension. La documentation pour en créer se trouve dans docs/PLUGINS.md (un exemple est fourni dans examples/plugins).";
+                text: @tr("Aucune extension. La documentation pour en créer se trouve dans docs/PLUGINS.md (un exemple est fourni dans examples/plugins).");
                 color: Theme.text-dim;
                 font-size: Theme.t-small;
                 wrap: word-wrap;
             }
-            for p in PluginsUi.plugins: Panel {
+            for p in PluginsUi.plugins: ListItem {
+                active: p.enabled;
                 VerticalLayout {
                     padding: 18px;
                     spacing: 8px;
@@ -78,15 +79,16 @@ export component PluginsPage inherits Rectangle {
                                 spacing: 8px;
                                 Text { text: p.name; color: Theme.text; font-size: Theme.t-body + 1px; font-weight: 700; }
                                 Badge { text: "v" + p.version; }
-                                if p.update != "": Badge { text: "v" + p.update + " disponible"; tint: Theme.accent; solid: true; }
-                                if !p.usable: Badge { text: "INUTILISABLE"; tint: Theme.danger; }
+                                if p.update != "": Badge { text: @tr("v{} disponible", p.update); tint: Theme.accent; solid: true; }
+                                if !p.usable: Badge { text: @tr("Inutilisable"); tint: Theme.danger; }
                                 Rectangle { horizontal-stretch: 1; }
                             }
-                            Text { text: (p.author != "" ? "par " + p.author + " · " : "") + p.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                            Text { text: (p.author != "" ? @tr("par {}", p.author) + ", " : "") + p.description; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                            if p.trust != "": Text { text: p.trust; color: p.signed ? Theme.success : Theme.text-dim; font-size: Theme.t-overline; overflow: elide; }
                         }
                         Toggle { y: 4px; enabled: p.usable; checked: p.enabled; toggled(v) => { PluginsUi.set-enabled(p.id, v); } }
-                        if p.homepage != "": IconButton { icon: Icons.info; tooltip: "Page de l'extension"; clicked => { Actions.open-url(p.homepage); } }
-                        IconButton { icon: Icons.trash; active-tint: Theme.danger; tooltip: "Désinstaller"; clicked => { PluginsUi.uninstall(p.id); } }
+                        if p.homepage != "": IconButton { icon: Icons.info; tooltip: @tr("Page de l'extension"); clicked => { Actions.open-url(p.homepage); } }
+                        IconButton { icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Désinstaller"); clicked => { PluginsUi.uninstall(p.id); } }
                     }
                     for perm in p.permissions: Text { text: "• " + perm; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                     if p.errors != "": Text { text: p.errors; color: Theme.danger; font-size: Theme.t-caption; wrap: word-wrap; }

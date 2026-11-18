@@ -1,0 +1,206 @@
+name: Release
+
+# Publication d'une version à partir d'un tag :
+#   v1.0.0         → canal Stable (validation humaine : environnement « release-stable »)
+#   v1.1.0-beta.1  → canal Beta   (environnement « release-beta »)
+#
+# 1. détection du tag et contrôle de cohérence avec Cargo.toml ;
+# 2. compilation, tests et paquets Windows (ZIP HUS, installateur, portable) et Linux
+#    (AppImage HUS, installateur, .deb, archive) ;
+# 3. SHA-256, manifeste HUS, signature Ed25519 (clé privée : secret de l'environnement) ;
+# 4. publication de la version GitHub ;
+# 5. vérification des fichiers réellement publiés, comme le fera Halcyon.
+#
+# Permissions minimales : lecture seule partout, écriture du dépôt uniquement dans le job
+# de publication. La clé privée n'est exposée qu'à l'étape de signature.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Clé publique (variable de dépôt, non secrète), intégrée aux binaires en plus de
+  # crates/halcyon-update/keys/release.pub.
+  HALCYON_UPDATE_PUBKEY: ${{ vars.HALCYON_UPDATE_PUBKEY }}
+
+jobs:
+  meta:
+    name: Version et canal
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      channel: ${{ steps.v.outputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        name: Tag cohérent avec Cargo.toml
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          CARGO=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          [ "$TAG" = "$CARGO" ] || { echo "::error::tag $GITHUB_REF_NAME différent de la version de Cargo.toml ($CARGO)"; exit 1; }
+          echo "$TAG" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$' || { echo "::error::version non SemVer : $TAG"; exit 1; }
+          case "$TAG" in *-*) CH=beta ;; *) CH=stable ;; esac
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "channel=$CH" >> "$GITHUB_OUTPUT"
+          echo "Version $TAG, canal $CH"
+
+  windows:
+    name: Windows — tests et paquets
+    needs: meta
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.meta.outputs.version }}
+      WINDOWS_CERT_PFX: ${{ secrets.WINDOWS_CERT_PFX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace
+      - run: cargo test -p halcyon-update --features fault-injection
+      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update
+      - name: Signature Authenticode (si un certificat est configuré)
+        if: ${{ env.WINDOWS_CERT_PFX != '' }}
+        env:
+          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        shell: pwsh
+        run: |
+          [IO.File]::WriteAllBytes("cert.pfx", [Convert]::FromBase64String($env:WINDOWS_CERT_PFX))
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | Select-Object -Last 1
+          & $signtool sign /f cert.pfx /p $env:WINDOWS_CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 target/release/halcyon.exe target/release/halcyon-updater.exe
+      - name: Paquet HUS (ZIP) et installateur
+        shell: pwsh
+        run: |
+          $v = $env:VERSION
+          New-Item -ItemType Directory -Force dist/payload | Out-Null
+          Copy-Item target/release/halcyon.exe dist/payload/Halcyon.exe
+          Copy-Item target/release/halcyon-updater.exe dist/payload/halcyon-updater.exe
+          Copy-Item README.md, CHANGELOG.md, docs/GUIDE.md, docs/PLUGINS.md, docs/SON.md, docs/INSTALLATEUR.md, docs/HUS.md, crates/halcyon-app/ui/fonts/LICENSE-Archivo.txt dist/payload/
+          & target/release/hus-release.exe zip dist/payload "dist/Halcyon-$v-Windows-x64.zip"
+          if ($LASTEXITCODE -ne 0) { throw "zip HUS" }
+          & target/release/halcyon-setup.exe --pack dist/payload $v "dist/Halcyon-$v-windows-x86_64-setup.exe"
+          if ($LASTEXITCODE -ne 0) { throw "--pack a échoué" }
+      - name: Signature Authenticode de l'installateur
+        if: ${{ env.WINDOWS_CERT_PFX != '' }}
+        env:
+          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        shell: pwsh
+        run: |
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | Select-Object -Last 1
+          & $signtool sign /f cert.pfx /p $env:WINDOWS_CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 (Get-Item dist/*-setup.exe).FullName
+          Remove-Item cert.pfx
+      - name: Version portable
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/Halcyon-portable | Out-Null
+          Copy-Item dist/payload/* dist/Halcyon-portable/ -Recurse
+          New-Item -ItemType File dist/Halcyon-portable/portable.txt | Out-Null
+          Compress-Archive -Path dist/Halcyon-portable/* -DestinationPath "dist/Halcyon-$env:VERSION-windows-portable.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+  linux:
+    name: Linux — tests et paquets
+    needs: meta
+    runs-on: ubuntu-22.04
+    env:
+      VERSION: ${{ needs.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Dépendances système
+        run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libfontconfig1-dev libudev-dev libdbus-1-dev libasound2-dev pkg-config squashfs-tools
+      - run: cargo test --workspace -j 2
+      - run: cargo test -p halcyon-update --features fault-injection
+      - run: cargo build --release -p halcyon-app -p halcyon-installer -p halcyon-update
+      - name: AppImage (HUS), installateur, .deb, archive
+        run: |
+          sh tools/package_appimage.sh
+          sh tools/package_linux.sh
+          mkdir -p dist/out
+          cp dist/$VERSION/Halcyon-$VERSION-x86_64.AppImage dist/$VERSION/halcyon* dist/out/
+          ./dist/out/halcyon-*-linux-x86_64-setup --info | head -8
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/out/*
+
+  publish:
+    name: Manifeste, signature et publication
+    needs: [meta, windows, linux]
+    runs-on: ubuntu-latest
+    # Stable : validation humaine (relecteurs requis dans les réglages de l'environnement).
+    environment: ${{ needs.meta.outputs.channel == 'stable' && 'release-stable' || 'release-beta' }}
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.meta.outputs.version }}
+      CHANNEL: ${{ needs.meta.outputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - run: cargo build --release -p halcyon-update --bin hus-release
+      - name: Notes de version (section du CHANGELOG)
+        run: |
+          awk -v v="## $VERSION" 'index($0, v) == 1 {on=1; next} /^## / && on {exit} on' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Halcyon $VERSION" > notes.md
+          wc -l notes.md
+      - name: Manifeste HUS (SHA-256 des paquets)
+        run: |
+          target/release/hus-release manifest --version "$VERSION" --notes notes.md --out artifacts/halcyon-manifest.json \
+            "artifacts/Halcyon-$VERSION-Windows-x64.zip" "artifacts/Halcyon-$VERSION-x86_64.AppImage"
+          cat artifacts/halcyon-manifest.json
+      - name: Empreintes des autres fichiers (installateurs, .deb, archives)
+        run: |
+          cd artifacts
+          sha256sum $(ls | grep -v -e '^halcyon-manifest' -e '^SHA256SUMS') > SHA256SUMS
+          cat SHA256SUMS
+      - name: Signature Ed25519
+        env:
+          HALCYON_SIGNING_KEY: ${{ secrets.HALCYON_SIGNING_KEY }}
+        run: |
+          KEYS=$(grep -v '^#' crates/halcyon-update/keys/release.pub | tr -d '[:space:]')
+          if [ -z "$HALCYON_UPDATE_PUBKEY$KEYS" ]; then
+            echo "::warning::aucune clé publique intégrée : version publiée sans signature, Halcyon la signalera sans l'installer"
+            exit 0
+          fi
+          [ -n "$HALCYON_SIGNING_KEY" ] || { echo "::error::secret HALCYON_SIGNING_KEY absent : les clients refuseraient cette version"; exit 1; }
+          target/release/hus-release sign artifacts/halcyon-manifest.json
+          # Clients 0.5 (mise à jour par SHA256SUMS signé) : même clé.
+          cargo run -q --release -p halcyon-integrations --example release_sign -- sign - artifacts/SHA256SUMS
+          target/release/hus-release verify artifacts
+      - name: Publication
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          prerelease: ${{ env.CHANNEL == 'beta' }}
+          make_latest: ${{ env.CHANNEL == 'stable' }}
+          body_path: notes.md
+
+  verify:
+    name: Vérification des fichiers publiés
+    needs: [meta, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release -p halcyon-update --bin hus-release
+      - name: Téléchargement et contrôle, comme Halcyon
+        run: |
+          KEYS=$(grep -v '^#' crates/halcyon-update/keys/release.pub | tr -d '[:space:]')
+          if [ -z "$HALCYON_UPDATE_PUBKEY$KEYS" ]; then echo "::warning::pas de clé : vérification ignorée"; exit 0; fi
+          target/release/hus-release verify-remote --repo "$GITHUB_REPOSITORY" --tag "$GITHUB_REF_NAME"

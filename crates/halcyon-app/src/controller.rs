@@ -23,7 +23,7 @@ use halcyon_core::{
 use halcyon_integrations::artwork::{url_candidates, Downloader, FetchError};
 use halcyon_integrations::emulators::{Detected, Registry};
 use halcyon_integrations::launcher::{self, LaunchOptions};
-use halcyon_integrations::{epic, roms, standalone, steam, steam_web, update};
+use halcyon_integrations::{epic, roms, standalone, steam, steam_web};
 use halcyon_storage::{now_unix, AppPaths, ArtworkKind, Database, MergeStats, Settings};
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
 use std::cell::{Cell, RefCell};
@@ -111,6 +111,9 @@ pub struct Controller {
     pub(crate) pad_edit: RefCell<Option<halcyon_storage::settings::PadProfile>>,
     pub(crate) remote_state: RefCell<crate::ctl_remote::RemoteState>,
     pub(crate) mc: RefCell<crate::ctl_minecraft::McState>,
+    pub(crate) perfc: RefCell<crate::ctl_perf::PerfState>,
+    pub(crate) downloads_timer: RefCell<Option<slint::Timer>>,
+    pub(crate) news_cache: RefCell<HashMap<GameId, (i64, Vec<halcyon_integrations::news::NewsItem>)>>,
     pub(crate) tray: RefCell<Option<crate::tray::Tray>>,
     pub(crate) hotkey: RefCell<Option<(global_hotkey::GlobalHotKeyManager, global_hotkey::hotkey::HotKey)>>,
     pub(crate) system_timer: RefCell<Option<slint::Timer>>,
@@ -118,8 +121,7 @@ pub struct Controller {
     pub(crate) companion: RefCell<Option<crate::CompanionWindow>>,
     pub(crate) companion_timer: RefCell<Option<slint::Timer>>,
     pub(crate) companion_game: Cell<Option<GameId>>,
-    pub(crate) latest_release: RefCell<Option<halcyon_integrations::update::Release>>,
-    pub(crate) update_file: RefCell<Option<PathBuf>>,
+    pub(crate) hus: RefCell<crate::ctl_update::Hus>,
     pub(crate) history: RefCell<crate::nav::History<Page>>,
     pub(crate) tasks: RefCell<crate::tasks::TaskCenter>,
     /// Mode Performance automatique (partie en cours).
@@ -199,11 +201,13 @@ impl Controller {
             companion: RefCell::new(None),
             companion_timer: RefCell::new(None),
             companion_game: Cell::new(None),
-            latest_release: RefCell::new(None),
-            update_file: RefCell::new(None),
+            hus: RefCell::new(Default::default()),
             history: RefCell::new(crate::nav::History::new(Page::Home, 60)),
             tasks: RefCell::new(crate::tasks::TaskCenter::default()),
             perf_auto_active: Cell::new(false),
+            perfc: RefCell::new(Default::default()),
+            downloads_timer: RefCell::new(None),
+            news_cache: RefCell::new(HashMap::new()),
             audio,
             shell_timer: RefCell::new(None),
             paths,
@@ -247,6 +251,7 @@ impl Controller {
 
     /// Tâches de démarrage, une fois la première image affichée.
     pub fn startup(self: &Rc<Self>) {
+        self.apply_download_settings();
         // Badge « Mises à jour » et compteurs des collections intelligentes : différés après
         // l'affichage de la première image.
         self.refresh_updates();
@@ -273,9 +278,6 @@ impl Controller {
             self.start_scan();
         } else if s.sync_achievements_on_startup {
             self.start_ach_sync(None, false);
-        }
-        if s.check_updates && !s.update_repo.trim().is_empty() {
-            self.check_update(false);
         }
     }
 
@@ -330,7 +332,7 @@ impl Controller {
 
         let ui = app.global::<AppUi>();
         ui.set_can_browse(dialogs::AVAILABLE);
-        ui.set_scan_status("Jamais analysé pendant cette session".into());
+        ui.set_scan_status(tr!("Jamais analysé pendant cette session").into());
     }
 
     fn wire(self: &Rc<Self>, app: &AppWindow) {
@@ -479,8 +481,8 @@ impl Controller {
         sui.on_add_folder(with!(|c, path| c.add_folder(&path)));
         sui.on_remove_folder(with!(|c, i| c.remove_folder(i as usize)));
         sui.on_set_option(with!(|c, name, v| c.set_option(&name, v)));
+        sui.on_set_language(with!(|c, i| c.set_ui_language(i)));
         sui.on_set_text(with!(|c, key, value| c.set_text(&key, &value)));
-        sui.on_check_update(with!(|c| c.check_update(true)));
         sui.on_clear_cache(with!(|c| c.clear_cache()));
         sui.on_open_logs(with!(|c| c.open_folder(&c.paths.logs_dir.to_string_lossy())));
         sui.on_open_data(with!(|c| c.open_folder(&c.paths.data_dir.to_string_lossy())));
@@ -511,6 +513,9 @@ impl Controller {
         tui.on_import_theme(with!(|c, p| c.import_theme(&p)));
         tui.on_export_theme(with!(|c| c.export_theme()));
         tui.on_reset(with!(|c| c.reset_appearance()));
+        tui.on_save_profile(with!(|c, n| c.save_ui_profile(&n)));
+        tui.on_apply_profile(with!(|c, i| c.apply_ui_profile(i.max(0) as usize)));
+        tui.on_delete_profile(with!(|c, i| c.delete_ui_profile(i.max(0) as usize)));
 
         let pui = app.global::<crate::PluginsUi>();
         pui.on_install(with!(|c, p| c.install_plugin(&p)));
@@ -540,6 +545,20 @@ impl Controller {
         rui.on_open_sunshine(with!(|c| c.open_sunshine()));
         rui.on_set_moonlight_path(with!(|c, p| c.set_moonlight_path(&p)));
 
+        app.global::<crate::StatsUi>().on_export(with!(|c, f| c.export_stats(&f)));
+
+        let dl = app.global::<crate::DownloadsUi>();
+        dl.on_set_paused(with!(|c, on| c.set_downloads_paused(on)));
+        dl.on_set_limit(with!(|c, k| c.set_download_limit(k)));
+        dl.on_set_concurrency(with!(|c, n| c.set_download_concurrency(n)));
+        dl.on_cancel_minecraft(with!(|c| c.mc.borrow().cancel.store(true, Ordering::SeqCst)));
+
+        let perf = app.global::<crate::PerfUi>();
+        perf.on_reco_action(with!(|c, a| c.perf_reco_action(&a)));
+        perf.on_set_history(with!(|c, on| c.set_perf_history(on)));
+        perf.on_open_frame_log(with!(|c| c.perf_open_frame_log(false)));
+        perf.on_open_latest_log(with!(|c| c.perf_open_frame_log(true)));
+
         let aui = app.global::<crate::AssistUi>();
         aui.on_refresh(with!(|c| c.refresh_assistant()));
         aui.on_surprise(with!(|c| c.surprise()));
@@ -552,6 +571,7 @@ impl Controller {
             None => slint::CloseRequestResponse::HideWindow,
         });
         self.wire_system(app);
+        self.wire_hus(app);
         self.wire_shell(app);
         self.wire_home(app);
         self.wire_sound(app);
@@ -603,6 +623,7 @@ impl Controller {
                 3 => SourceFilter::Only(GameSource::Emulated),
                 4 => SourceFilter::Only(GameSource::Standalone),
                 5 => SourceFilter::Only(GameSource::Minecraft),
+                6 => SourceFilter::Only(GameSource::Gog),
                 _ => SourceFilter::All,
             },
             installed_only: lui.get_installed_only(),
@@ -627,7 +648,7 @@ impl Controller {
             if q.errors.is_empty() {
                 String::new()
             } else {
-                format!("Filtre non reconnu : {} (exemples : statut:terminé, temps:>10h, succès:manquants)", q.errors.join(", "))
+                tr!("Filtre non reconnu : {join} (exemples : statut:terminé, temps:>10h, succès:manquants)", join = q.errors.join(", "))
             }
         };
         app.global::<LibraryUi>().set_search_warning(warning.into());
@@ -655,7 +676,7 @@ impl Controller {
         };
         genres.sort_by_key(|g| util::sort_key(g));
         let lui = app.global::<LibraryUi>();
-        let mut glabels: Vec<SharedString> = vec!["Tous les genres".into()];
+        let mut glabels: Vec<SharedString> = vec![tr!("Tous les genres").into()];
         glabels.extend(genres.iter().map(|g| SharedString::from(g.as_str())));
         // Conserve le genre sélectionné si possible.
         let current = (lui.get_genre() as usize).checked_sub(1).and_then(|i| self.genres.borrow().get(i).cloned());
@@ -666,10 +687,10 @@ impl Controller {
 
         let counts = self.smart_counts();
         let cols = self.collections.borrow();
-        let mut clabels: Vec<SharedString> = vec!["Toutes les collections".into()];
+        let mut clabels: Vec<SharedString> = vec![tr!("Toutes les collections").into()];
         clabels.extend(cols.iter().map(|c| SharedString::from(format!("{} ({})", c.name, c.count))));
         clabels.extend(
-            self.smart.borrow().iter().zip(counts).map(|(s, n)| SharedString::from(format!("⚡ {} ({n})", s.name))),
+            self.smart.borrow().iter().zip(counts).map(|(s, n)| SharedString::from(format!("⚡ {} ({n})", halcyon_i18n::t(&s.name)))),
         );
         let n = clabels.len();
         lui.set_collection_labels(ModelRc::new(VecModel::from(clabels)));
@@ -687,13 +708,13 @@ impl Controller {
     pub(crate) fn meta_line(&self, g: &Game, now: i64) -> String {
         let mut meta = vec![g.source.label().to_string()];
         if g.effective_playtime() > 0 {
-            meta.push(format!("{} de jeu", util::format_playtime(g.effective_playtime())));
+            meta.push(tr!("{effective_playtime} de jeu", effective_playtime = util::format_playtime(g.effective_playtime())));
         }
         if let Some(t) = g.last_played {
-            meta.push(format!("Joué : {}", util::format_relative(t, now).to_lowercase()));
+            meta.push(tr!("Joué : {t}", t = util::format_relative(t, now).to_lowercase()));
         }
         if let Some(p) = self.progress.borrow().get(&g.id) {
-            meta.push(format!("{}/{} succès", p.unlocked, p.total));
+            meta.push(trn!(p.total, "{unlocked}/{n} succès", "{unlocked}/{n} succès", unlocked = halcyon_i18n::number(p.unlocked as u64)));
         }
         meta.join("  ·  ")
     }
@@ -709,8 +730,8 @@ impl Controller {
         let mut detail = detail_for(&g, &self.images, tracking, now_unix());
         if g.source == GameSource::Emulated {
             detail.launch_mode = match self.emulator_for(&g) {
-                Some((def, _)) => format!("Émulateur : {}", def.name),
-                None => "Aucun émulateur détecté pour cette plateforme".into(),
+                Some((def, _)) => tr!("Émulateur : {name}", name = def.name),
+                None => tr!("Aucun émulateur détecté pour cette plateforme").into(),
             }
             .into();
         }
@@ -850,13 +871,23 @@ impl Controller {
         }
     }
 
-    fn on_page_shown(&self, page: Page) {
+    pub(crate) fn on_page_shown(&self, page: Page) {
+        // Mesures en direct : uniquement tant que le Performance Center est affiché.
+        if page != Page::Performance {
+            self.perf_close();
+        }
+        if page != Page::Downloads {
+            self.downloads_close();
+        }
         match page {
+            Page::Downloads => self.downloads_open(),
+            Page::Performance => self.perf_open(),
             Page::Achievements => self.refresh_ach_page(),
             Page::Emulators => self.refresh_emulators_ui(),
             Page::Settings => {
                 self.refresh_settings_ui();
                 self.refresh_system_ui();
+                self.refresh_language_ui();
             }
             Page::Home => self.refresh_home(),
             Page::Stats => self.refresh_stats(),
@@ -915,6 +946,7 @@ impl Controller {
         app.global::<DetailUi>().set_save_diff(ModelRc::default());
         self.refresh_detail();
         self.refresh_game_tools();
+        self.refresh_game_news(id);
         let nav = app.global::<Nav>();
         if nav.get_page() != Page::Game {
             nav.set_page(Page::Game);
@@ -941,7 +973,7 @@ impl Controller {
     pub(crate) fn toggle_favorite(&self, id: GameId) {
         let Some(fav) = self.lib.borrow().get(id).map(|g| !g.favorite) else { return };
         if let Err(e) = self.db().set_favorite(id, fav) {
-            self.toast(format!("Erreur : {e}"), true);
+            self.toast(tr!("Erreur : {e}", e = e), true);
             return;
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
@@ -959,7 +991,7 @@ impl Controller {
     pub(crate) fn toggle_hidden(&self, id: GameId) {
         let Some((hidden, name)) = self.lib.borrow().get(id).map(|g| (!g.hidden, g.name.clone())) else { return };
         if let Err(e) = self.db().set_hidden(id, hidden) {
-            self.toast(format!("Erreur : {e}"), true);
+            self.toast(tr!("Erreur : {e}", e = e), true);
             return;
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
@@ -970,9 +1002,9 @@ impl Controller {
         self.refresh_detail();
         self.toast(
             if hidden {
-                format!("« {name} » est masqué (filtre « Masqués » pour le retrouver)")
+                tr!("« {name} » est masqué (filtre « Masqués » pour le retrouver)", name = name)
             } else {
-                format!("« {name} » est de nouveau visible")
+                tr!("« {name} » est de nouveau visible", name = name)
             },
             false,
         );
@@ -981,17 +1013,17 @@ impl Controller {
     pub(crate) fn open_folder(&self, path: &str) {
         let path = Path::new(path);
         if path.as_os_str().is_empty() {
-            self.toast("Aucun dossier associé", true);
+            self.toast(tr!("Aucun dossier associé"), true);
             return;
         }
         if !path.exists() {
             if let Err(e) = std::fs::create_dir_all(path) {
-                self.toast(format!("Ce dossier n'existe pas : {e}"), true);
+                self.toast(tr!("Ce dossier n'existe pas : {e}", e = e), true);
                 return;
             }
         }
         if let Err(e) = launcher::open_path(path) {
-            self.toast(format!("Ouverture impossible : {e}"), true);
+            self.toast(tr!("Ouverture impossible : {e}", e = e), true);
         }
     }
 
@@ -1000,7 +1032,7 @@ impl Controller {
             return;
         }
         if let Err(e) = launcher::open_uri(url) {
-            self.toast(format!("Ouverture impossible : {e}"), true);
+            self.toast(tr!("Ouverture impossible : {e}", e = e), true);
         }
     }
 
@@ -1029,13 +1061,13 @@ impl Controller {
         if current.source != GameSource::Emulated {
             if let Some(exe) = &update.executable {
                 if !exe.is_file() {
-                    self.toast(format!("Exécutable introuvable : {}", exe.display()), true);
+                    self.toast(tr!("Exécutable introuvable : {exe}", exe = exe.display()), true);
                     return;
                 }
             }
             if let Some(wd) = &update.working_dir {
                 if !wd.is_dir() {
-                    self.toast(format!("Répertoire introuvable : {}", wd.display()), true);
+                    self.toast(tr!("Répertoire introuvable : {wd}", wd = wd.display()), true);
                     return;
                 }
             }
@@ -1044,9 +1076,9 @@ impl Controller {
         match result {
             Ok(game) => {
                 self.replace_game(game);
-                self.toast("Paramètres enregistrés", false);
+                self.toast(tr!("Paramètres enregistrés"), false);
             }
-            Err(e) => self.toast(format!("Enregistrement impossible : {e}"), true),
+            Err(e) => self.toast(tr!("Enregistrement impossible : {e}", e = e), true),
         }
     }
 
@@ -1075,9 +1107,9 @@ impl Controller {
         match result {
             Ok(game) => {
                 self.replace_game(game);
-                self.toast("Métadonnées enregistrées", false);
+                self.toast(tr!("Métadonnées enregistrées"), false);
             }
-            Err(e) => self.toast(format!("Enregistrement impossible : {e}"), true),
+            Err(e) => self.toast(tr!("Enregistrement impossible : {e}", e = e), true),
         }
     }
 
@@ -1090,7 +1122,7 @@ impl Controller {
             _ => return,
         };
         if image::ImageReader::open(&src).and_then(|r| r.with_guessed_format()).map(|r| r.format().is_none()).unwrap_or(true) {
-            self.toast(format!("Image illisible : {}", src.display()), true);
+            self.toast(tr!("Image illisible : {src}", src = src.display()), true);
             return;
         }
         let dir = self.paths.data_dir.join("custom-artwork");
@@ -1098,11 +1130,11 @@ impl Controller {
         let dest = dir.join(format!("{id}-{}-{}.{ext}", if kind == ArtworkKind::Cover { "cover" } else { "banner" }, now_unix()));
         let result = std::fs::create_dir_all(&dir).and_then(|_| std::fs::copy(&src, &dest));
         if let Err(e) = result {
-            self.toast(format!("Copie impossible : {e}"), true);
+            self.toast(tr!("Copie impossible : {e}", e = e), true);
             return;
         }
         if let Err(e) = self.db().set_artwork(id, kind, Some(&dest), true) {
-            self.toast(format!("Enregistrement impossible : {e}"), true);
+            self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
             return;
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
@@ -1113,7 +1145,7 @@ impl Controller {
         }
         self.images.invalidate(id);
         self.game_changed(id);
-        self.toast("Visuel mis à jour", false);
+        self.toast(tr!("Visuel mis à jour"), false);
     }
 
     pub(crate) fn remove_game(&self, id: GameId) {
@@ -1129,7 +1161,7 @@ impl Controller {
                 }
                 self.refresh_library();
                 self.refresh_home();
-                self.toast("Jeu retiré de la bibliothèque", false);
+                self.toast(tr!("Jeu retiré de la bibliothèque"), false);
             }
             Err(e) => self.toast(e.to_string(), true),
         }
@@ -1138,13 +1170,13 @@ impl Controller {
     fn add_manual_game(&self, name: &str, exe: &str, args: &str, wd: &str) -> bool {
         let exe_path = PathBuf::from(exe.trim().trim_matches('"'));
         if !exe_path.is_file() {
-            self.toast(format!("Fichier introuvable : {}", exe_path.display()), true);
+            self.toast(tr!("Fichier introuvable : {exe_path}", exe_path = exe_path.display()), true);
             return false;
         }
         let wd = Some(PathBuf::from(wd.trim())).filter(|p| !p.as_os_str().is_empty());
         if let Some(wd) = &wd {
             if !wd.is_dir() {
-                self.toast(format!("Répertoire introuvable : {}", wd.display()), true);
+                self.toast(tr!("Répertoire introuvable : {wd}", wd = wd.display()), true);
                 return false;
             }
         }
@@ -1152,7 +1184,7 @@ impl Controller {
         let result = self.db().add_manual(&input);
         match result {
             Ok(game) => {
-                let msg = format!("« {} » a été ajouté", game.name);
+                let msg = tr!("« {name} » a été ajouté", name = game.name);
                 self.lib.borrow_mut().upsert(game);
                 self.refresh_library();
                 self.refresh_home();
@@ -1169,7 +1201,7 @@ impl Controller {
     fn toggle_collection(&self, game: GameId, collection: i64) {
         let member = self.db().game_collections(game).map(|s| s.contains(&collection)).unwrap_or(false);
         if let Err(e) = self.db().set_in_collection(collection, game, !member) {
-            self.toast(format!("Erreur : {e}"), true);
+            self.toast(tr!("Erreur : {e}", e = e), true);
             return;
         }
         self.sound(if member { halcyon_audio::Cue::Setting } else { halcyon_audio::Cue::Collection });
@@ -1190,7 +1222,7 @@ impl Controller {
                 self.refresh_filters();
                 self.refresh_detail();
                 self.sound(halcyon_audio::Cue::Collection);
-                self.toast(format!("Ajouté à la collection « {} »", name.trim()), false);
+                self.toast(tr!("Ajouté à la collection « {name} »", name = name.trim()), false);
             }
             Err(e) => self.toast(e.to_string(), true),
         }
@@ -1206,6 +1238,8 @@ impl Controller {
         let mut found = self.found.borrow_mut();
         found.insert(GameSource::Steam, (steam.is_some(), steam.map(|p| p.display().to_string()).unwrap_or_default()));
         found.insert(GameSource::Epic, (epic.is_some(), epic.map(|p| p.display().to_string()).unwrap_or_default()));
+        let gog = halcyon_integrations::gog::GogScanner::new(s.gog_heroic_path.clone()).location();
+        found.insert(GameSource::Gog, (gog.is_some(), gog.map(|p| p.display().to_string()).unwrap_or_default()));
     }
 
     pub(crate) fn start_scan(&self) {
@@ -1215,9 +1249,9 @@ impl Controller {
         if let Some(app) = self.app() {
             let ui = app.global::<AppUi>();
             ui.set_scanning(true);
-            ui.set_scan_status("Préparation…".into());
+            ui.set_scan_status(tr!("Préparation…").into());
         }
-        self.task_start("scan", "Analyse des sources");
+        self.task_start("scan", &tr!("Analyse des sources"));
         let mut settings = self.settings.borrow().clone();
         for f in self.plugin_game_folders() {
             if !settings.scan_folders.contains(&f) {
@@ -1250,6 +1284,9 @@ impl Controller {
                 }
                 if settings.epic_enabled {
                     scanners.push(Box::new(epic::EpicScanner::new(settings.epic_manifests_path.clone())));
+                }
+                if settings.gog_enabled {
+                    scanners.push(Box::new(halcyon_integrations::gog::GogScanner::new(settings.gog_heroic_path.clone())));
                 }
                 // Toujours exécutés : retirer un dossier rend ses jeux « non installés ».
                 scanners.push(Box::new(standalone::StandaloneScanner::new(settings.scan_folders.clone())));
@@ -1316,8 +1353,8 @@ impl Controller {
             Ok(g) => g,
             Err(e) => {
                 log::error!("relecture de la bibliothèque impossible : {e}");
-                self.task_finish_kind("scan", false, format!("Erreur de base de données : {e}"));
-                self.toast(format!("Erreur de base de données : {e}"), true);
+                self.task_finish_kind("scan", false, tr!("Erreur de base de données : {e}", e = e));
+                self.toast(tr!("Erreur de base de données : {e}", e = e), true);
                 if let Some(app) = self.app() {
                     app.global::<AppUi>().set_scanning(false);
                 }
@@ -1340,14 +1377,14 @@ impl Controller {
         self.refresh_smart_ui();
         let added: usize = results.iter().filter_map(|(_, r)| r.as_ref().ok()).map(|s| s.added).sum();
         let total = self.lib.borrow().games.iter().filter(|g| !g.hidden).count();
-        let status = format!("Terminée en {:.1} s · {total} jeux", elapsed.as_secs_f32());
+        let status = trn!(total, "Terminée en {secs} s · {n} jeu", "Terminée en {secs} s · {n} jeux", secs = halcyon_i18n::decimal(elapsed.as_secs_f64(), 1));
         // Nouveaux jeux installés (pas au tout premier inventaire).
         if added > 0 && total > added {
             self.sound(halcyon_audio::Cue::Install);
         }
         let scan = self.tasks.borrow().find_kind("scan");
         if let Some(id) = scan {
-            let detail = if added > 0 { format!("{status} · {added} nouveau(x)") } else { status.clone() };
+            let detail = if added > 0 { trn!(added, "{status} · {n} nouveau", "{status} · {n} nouveaux", status = status) } else { status.clone() };
             self.tasks.borrow_mut().finish(id, true, detail, crate::tasks::Action::OpenPage("library"), now_unix());
         }
         self.publish_tasks();
@@ -1362,9 +1399,9 @@ impl Controller {
             .filter_map(|(_, r)| r.as_ref().err())
             .collect();
         if let Some(e) = local_errors.first() {
-            self.toast(format!("Analyse incomplète : {e}"), true);
+            self.toast(tr!("Analyse incomplète : {e}", e = e), true);
         } else if added > 0 {
-            self.toast(format!("{added} nouveau{} jeu{} ajouté{}", plural(added, "x"), plural(added, "x"), plural(added, "s")), false);
+            self.toast(trn!(added, "{n} nouveau jeu ajouté", "{n} nouveaux jeux ajoutés"), false);
         }
         self.ensure_update_polling();
         self.start_online_jobs();
@@ -1459,11 +1496,11 @@ impl Controller {
             return;
         }
         log::info!("en ligne : {} visuels, {} jeux sur SteamGridDB, {} fiches à récupérer", art_jobs.len(), sgdb_jobs.len(), meta_jobs.len());
-        let task = self.task_start("online", "Visuels et fiches en ligne");
+        let task = self.task_start("online", tr!("Visuels et fiches en ligne"));
         self.task_update(
             task,
             None,
-            Some(&format!("{} visuel(s), {} fiche(s) à récupérer", art_jobs.len() + sgdb_jobs.len(), meta_jobs.len() + plugin_jobs.len())),
+            Some(&tr!("Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}", sgdb_jobs = art_jobs.len() + sgdb_jobs.len(), plugin_jobs = meta_jobs.len() + plugin_jobs.len())),
         );
         let db = self.db.clone();
         let flag = self.downloading.clone();
@@ -1530,9 +1567,9 @@ impl Controller {
                                 log::info!("SteamGridDB : « {name} » introuvable");
                                 failures.insert(key, now_unix());
                             }
-                            Err(FetchError::Unavailable(e)) if e.contains("accès refusé") => {
+                            Err(FetchError::Unavailable(e)) if *e == tr!("accès refusé (clé d'API invalide ou profil privé)") => {
                                 log::warn!("SteamGridDB : clé d'API refusée ({e})");
-                                post(|c| c.toast("SteamGridDB a refusé la clé d'API : vérifiez-la dans Paramètres › Comptes", true));
+                                post(|c| c.toast(tr!("SteamGridDB a refusé la clé d'API : vérifiez-la dans Paramètres › Comptes"), true));
                                 break;
                             }
                             Err(FetchError::Unavailable(e)) => {
@@ -1591,9 +1628,9 @@ impl Controller {
                 let interrupted = network_errors >= 3;
                 post(move |c| {
                     let detail = if interrupted {
-                        format!("{ok} visuel(s) récupéré(s) · réseau indisponible, reprise plus tard")
+                        trn!(ok, "{n} visuel récupéré · réseau indisponible, reprise plus tard", "{n} visuels récupérés · réseau indisponible, reprise plus tard")
                     } else {
-                        format!("{ok} visuel(s) récupéré(s)")
+                        trn!(ok, "{n} visuel récupéré", "{n} visuels récupérés")
                     };
                     c.task_finish(task, !interrupted, detail, crate::tasks::Action::None);
                 });
@@ -1644,7 +1681,7 @@ impl Controller {
         }
         if let Err(e) = self.settings.borrow().save(&self.paths.settings_path()) {
             log::error!("enregistrement des paramètres impossible : {e}");
-            self.toast(format!("Paramètres non enregistrés : {e}"), true);
+            self.toast(tr!("Paramètres non enregistrés : {e}", e = e), true);
         }
     }
 
@@ -1666,7 +1703,8 @@ impl Controller {
         };
         let sui = app.global::<SettingsUi>();
         sui.set_steam(info(GameSource::Steam, "Steam", s.steam_enabled, &s.steam_path));
-        sui.set_epic(info(GameSource::Epic, "Epic Games (launcher Epic, Heroic ou Legendary)", s.epic_enabled, &s.epic_manifests_path));
+        sui.set_epic(info(GameSource::Epic, &tr!("Epic Games (launcher Epic, Heroic ou Legendary)"), s.epic_enabled, &s.epic_manifests_path));
+        sui.set_gog(info(GameSource::Gog, &tr!("GOG (Heroic ou GOG Galaxy)"), s.gog_enabled, &s.gog_heroic_path));
         let folders: Vec<SharedString> = s.scan_folders.iter().map(|p| p.display().to_string().into()).collect();
         sui.set_folders(ModelRc::new(VecModel::from(folders)));
         sui.set_online_artwork(s.online_artwork);
@@ -1695,7 +1733,7 @@ impl Controller {
             + images::dir_size(&self.paths.artwork_dir())
             + images::dir_size(&self.paths.cache_dir.join("remote"));
         sui.set_cache_size(
-            format!("{} sur le disque · {} en mémoire", util::format_size(thumbs), util::format_size(self.images.memory_usage() as u64))
+            tr!("{thumbs} sur le disque · {u64} en mémoire", thumbs = util::format_size(thumbs), u64 = util::format_size(self.images.memory_usage() as u64))
                 .into(),
         );
         sui.set_data_dir(self.paths.data_dir.display().to_string().into());
@@ -1709,6 +1747,7 @@ impl Controller {
             match key {
                 "steam" => s.steam_enabled = enabled,
                 "epic" => s.epic_enabled = enabled,
+                "gog" => s.gog_enabled = enabled,
                 _ => return,
             }
         }
@@ -1720,7 +1759,7 @@ impl Controller {
         let path = Some(PathBuf::from(path.trim())).filter(|p| !p.as_os_str().is_empty());
         if let Some(p) = &path {
             if !p.is_dir() {
-                self.toast(format!("Dossier introuvable : {}", p.display()), true);
+                self.toast(tr!("Dossier introuvable : {p}", p = p.display()), true);
                 return;
             }
         }
@@ -1729,6 +1768,7 @@ impl Controller {
             match key {
                 "steam" => s.steam_path = path,
                 "epic" => s.epic_manifests_path = path,
+                "gog" => s.gog_heroic_path = path,
                 _ => return,
             }
         }
@@ -1737,7 +1777,7 @@ impl Controller {
         self.refresh_settings_ui();
         let ok = self.found.borrow().get(&if key == "steam" { GameSource::Steam } else { GameSource::Epic }).is_some_and(|f| f.0);
         self.toast(
-            if ok { "Source trouvée — lancez une analyse pour importer les jeux" } else { "Source toujours introuvable à cet emplacement" },
+            if ok { tr!("Source trouvée — lancez une analyse pour importer les jeux") } else { tr!("Source toujours introuvable à cet emplacement") },
             !ok,
         );
     }
@@ -1748,7 +1788,7 @@ impl Controller {
             return;
         }
         if !path.is_dir() {
-            self.toast(format!("Dossier introuvable : {}", path.display()), true);
+            self.toast(tr!("Dossier introuvable : {path}", path = path.display()), true);
             return;
         }
         let key = util::path_key(&path);
@@ -1756,7 +1796,7 @@ impl Controller {
             let mut s = self.settings.borrow_mut();
             if s.scan_folders.iter().any(|p| util::path_key(p) == key) {
                 drop(s);
-                self.toast("Ce dossier est déjà surveillé", true);
+                self.toast(tr!("Ce dossier est déjà surveillé"), true);
                 return;
             }
             s.scan_folders.push(path);
@@ -1821,7 +1861,7 @@ impl Controller {
                 "steam_id" => {
                     if !v.is_empty() && v.parse::<u64>().is_err() {
                         drop(s);
-                        self.toast("Le SteamID64 est un nombre (17 chiffres)", true);
+                        self.toast(tr!("Le SteamID64 est un nombre (17 chiffres)"), true);
                         return;
                     }
                     s.steam_id = v.clone();
@@ -1841,7 +1881,7 @@ impl Controller {
         }
         self.refresh_settings_ui();
         self.refresh_ach_page();
-        self.toast("Enregistré", false);
+        self.toast(tr!("Enregistré"), false);
     }
 
     fn clear_cache(&self) {
@@ -1857,47 +1897,7 @@ impl Controller {
             }
         }
         self.refresh_settings_ui();
-        self.toast(format!("{} libérés", util::format_size(removed)), false);
-    }
-
-    pub(crate) fn check_update(&self, manual: bool) {
-        if !self.net_allowed() {
-            if manual {
-                self.toast("Hors ligne : vérification impossible pour l'instant", true);
-            }
-            return;
-        }
-        let repo = self.settings.borrow().update_repo.clone();
-        if repo.trim().is_empty() {
-            if manual {
-                self.toast("Indiquez d'abord le dépôt GitHub des versions", true);
-            }
-            return;
-        }
-        if let Some(app) = self.app() {
-            app.global::<SettingsUi>().set_update_status("Vérification…".into());
-        }
-        std::thread::spawn(move || {
-            let result = update::check(&Downloader::new(), &repo, env!("CARGO_PKG_VERSION"));
-            post(move |c| {
-                let Some(app) = c.app() else { return };
-                let (status, release) = match result {
-                    Ok(Some(r)) => (format!("Version {} disponible", r.version), Some(r)),
-                    Ok(None) => (format!("Halcyon {} est à jour", env!("CARGO_PKG_VERSION")), None),
-                    Err(e) => (format!("Vérification impossible : {e}"), None),
-                };
-                app.global::<SettingsUi>().set_update_status(status.as_str().into());
-                *c.latest_release.borrow_mut() = release.clone();
-                if let Some(r) = release {
-                    let ui = app.global::<AppUi>();
-                    ui.set_update_version(r.version.as_str().into());
-                    ui.set_update_url(r.url.as_str().into());
-                }
-                if manual {
-                    c.toast(status, false);
-                }
-            });
-        });
+        self.toast(tr!("{removed} libérés", removed = util::format_size(removed)), false);
     }
 
     pub(crate) fn save_window_state(&self) {
@@ -1923,10 +1923,6 @@ impl Controller {
     }
 }
 
-fn plural(n: usize, suffix: &'static str) -> &'static str {
-    if n > 1 { suffix } else { "" }
-}
-
 fn sanitize(s: &str) -> String {
     let cleaned: String = s.chars().map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' }).collect();
     if cleaned.len() > 80 { format!("{:016x}", util::stable_hash(s)) } else { cleaned }
@@ -1943,5 +1939,69 @@ fn load_failures(paths: &AppPaths) -> HashMap<String, i64> {
 fn save_failures(paths: &AppPaths, failures: &HashMap<String, i64>) {
     if let Ok(data) = serde_json::to_vec(failures) {
         let _ = std::fs::write(failures_path(paths), data);
+    }
+}
+
+impl Controller {
+    /// Actualités officielles d'un jeu Steam (Game Hub, 1.0.0) : en ligne uniquement, une
+    /// requête par jeu et par heure au plus.
+    pub(crate) fn refresh_game_news(&self, id: GameId) {
+        let Some(app) = self.app() else { return };
+        let ui = app.global::<DetailUi>();
+        let game = self.lib.borrow().get(id).map(|g| (g.source, g.source_key.clone()));
+        let Some((GameSource::Steam, appid)) = game else {
+            ui.set_news(ModelRc::default());
+            ui.set_news_status("".into());
+            return;
+        };
+        let now = halcyon_storage::now_unix();
+        if let Some((at, items)) = self.news_cache.borrow().get(&id).cloned() {
+            if now - at < 3600 {
+                self.publish_news(id, &items, "");
+                return;
+            }
+        }
+        ui.set_news(ModelRc::default());
+        if !self.net_allowed() {
+            ui.set_news_status(tr!("Hors ligne : actualités indisponibles.").into());
+            return;
+        }
+        ui.set_news_status(tr!("Chargement des actualités…").into());
+        std::thread::Builder::new()
+            .name("news".into())
+            .spawn(move || {
+                let dl = halcyon_integrations::artwork::Downloader::new();
+                let r = halcyon_integrations::news::fetch_steam(&dl, &appid, 5);
+                post(move |c| match r {
+                    Ok(items) => {
+                        c.news_cache.borrow_mut().insert(id, (now, items.clone()));
+                        c.publish_news(id, &items, &if items.is_empty() { tr!("Aucune actualité publiée.") } else { String::new() });
+                    }
+                    Err(e) => {
+                        log::info!("actualités indisponibles : {e}");
+                        c.publish_news(id, &[], &tr!("Actualités indisponibles pour le moment."));
+                    }
+                });
+            })
+            .ok();
+    }
+
+    fn publish_news(&self, id: GameId, items: &[halcyon_integrations::news::NewsItem], status: &str) {
+        if self.detail_id.get() != Some(id) {
+            return;
+        }
+        let Some(app) = self.app() else { return };
+        let ui = app.global::<DetailUi>();
+        let rows: Vec<crate::NewsRow> = items
+            .iter()
+            .map(|n| crate::NewsRow {
+                title: n.title.as_str().into(),
+                url: n.url.as_str().into(),
+                meta: [halcyon_core::util::format_date(n.date), n.source.clone()].into_iter().filter(|s| !s.is_empty()).collect::<Vec<_>>().join(" · ").into(),
+                excerpt: n.excerpt.as_str().into(),
+            })
+            .collect();
+        ui.set_news(ModelRc::new(VecModel::from(rows)));
+        ui.set_news_status(status.into());
     }
 }

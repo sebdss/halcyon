@@ -1,5 +1,15 @@
 fn main() {
-    let config = slint_build::CompilerConfiguration::new().with_style("fluent-dark".into());
+    // Traductions : catalogues de locales/ fusionnés pour ce binaire, intégrés à l'exécutable.
+    let locales = halcyon_i18n::build::assemble(
+        std::path::Path::new("../../locales"),
+        &std::env::var("CARGO_PKG_NAME").unwrap(),
+        halcyon_i18n::build::Domains::Only(&["installer", "formats"]),
+    )
+    .expect("assemblage des traductions");
+    let config = slint_build::CompilerConfiguration::new()
+        .with_style("fluent-dark".into())
+        .with_bundled_translations(locales)
+        .with_default_translation_context(slint_build::DefaultTranslationContext::None);
     slint_build::compile_with_config("ui/setup.slint", config).expect("compilation de l'interface de l'installateur");
 
     // Windows : icône, informations de version et manifeste « asInvoker » (l'installation

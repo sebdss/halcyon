@@ -93,35 +93,35 @@ impl Manifest {
     pub fn permission_summary(&self) -> Vec<String> {
         let mut out = Vec::new();
         for d in self.network_domains() {
-            out.push(format!("Requêtes réseau vers {d}"));
+            out.push(tr!("Requêtes réseau vers {d}", d = d));
         }
         if self.permissions.iter().any(|p| p == "folders") && !self.provides.game_folders.is_empty() {
-            out.push(format!("Analyse de {} dossier(s) de jeux : {}", self.provides.game_folders.len(), self.provides.game_folders.join(", ")));
+            out.push(trn!(self.provides.game_folders.len(), "Analyse de {n} dossier de jeux : {join}", "Analyse de {n} dossiers de jeux : {join}", join = self.provides.game_folders.join(", ")));
         }
         let p = &self.provides;
         let mut adds = Vec::new();
         if !p.emulators.is_empty() {
-            adds.push(format!("{} émulateur(s)", p.emulators.len()));
+            adds.push(trn!(p.emulators.len(), "{n} émulateur", "{n} émulateurs"));
         }
         if !p.platforms.is_empty() {
-            adds.push(format!("{} plateforme(s)", p.platforms.len()));
+            adds.push(trn!(p.platforms.len(), "{n} plateforme", "{n} plateformes"));
         }
         if !p.save_locations.is_empty() {
-            adds.push(format!("emplacements de sauvegarde pour {} jeu(x)", p.save_locations.len()));
+            adds.push(trn!(p.save_locations.len(), "emplacements de sauvegarde pour {n} jeu", "emplacements de sauvegarde pour {n} jeux"));
         }
         if !p.themes.is_empty() {
-            adds.push(format!("{} thème(s)", p.themes.len()));
+            adds.push(trn!(p.themes.len(), "{n} thème", "{n} thèmes"));
         }
         if !p.metadata.is_empty() {
-            adds.push(format!("{} source(s) de métadonnées", p.metadata.len()));
+            adds.push(trn!(p.metadata.len(), "{n} source de métadonnées", "{n} sources de métadonnées"));
         }
         if !p.links.is_empty() {
-            adds.push(format!("{} lien(s) dans les fiches", p.links.len()));
+            adds.push(trn!(p.links.len(), "{n} lien dans les fiches", "{n} liens dans les fiches"));
         }
         if !adds.is_empty() {
-            out.push(format!("Ajoute : {}", adds.join(", ")));
+            out.push(tr!("Ajoute : {join}", join = adds.join(", ")));
         }
-        out.push("Aucun code n'est exécuté : l'extension ne contient que des données.".into());
+        out.push(tr!("Aucun code n'est exécuté : l'extension ne contient que des données.").into());
         out
     }
 
@@ -130,29 +130,29 @@ impl Manifest {
         let mut errors = Vec::new();
         let mut warnings = Vec::new();
         if self.id.is_empty() || !self.id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
-            errors.push("identifiant manquant ou invalide (lettres, chiffres, - et _)".into());
+            errors.push(tr!("identifiant manquant ou invalide (lettres, chiffres, - et _)"));
         }
         if self.name.trim().is_empty() {
-            errors.push("nom manquant".into());
+            errors.push(tr!("nom manquant"));
         }
         if self.version.trim().is_empty() {
-            errors.push("version manquante".into());
+            errors.push(tr!("version manquante").into());
         }
         if !self.min_halcyon.is_empty() && util::version_newer(&self.min_halcyon, current_version) {
-            errors.push(format!("nécessite Halcyon {} ou plus récent", self.min_halcyon));
+            errors.push(tr!("nécessite Halcyon {min_halcyon} ou plus récent", min_halcyon = self.min_halcyon));
         }
         for m in &self.provides.metadata {
             if !self.allows_url(&m.url) {
-                warnings.push(format!("source « {} » ignorée : domaine non déclaré dans les permissions (HTTPS requis)", m.name));
+                warnings.push(tr!("source « {name} » ignorée : domaine non déclaré dans les permissions (HTTPS requis)", name = m.name));
             }
         }
         for l in &self.provides.links {
             if !l.url.starts_with("https://") {
-                warnings.push(format!("lien « {} » ignoré : HTTPS requis", l.label));
+                warnings.push(tr!("lien « {label} » ignoré : HTTPS requis", label = l.label));
             }
         }
         if !self.provides.game_folders.is_empty() && !self.permissions.iter().any(|p| p == "folders") {
-            warnings.push("dossiers de jeux ignorés : permission « folders » absente".into());
+            warnings.push(tr!("dossiers de jeux ignorés : permission « folders » absente").into());
         }
         (errors, warnings)
     }
@@ -166,6 +166,8 @@ pub struct Installed {
     /// Fichier illisible ou incompatible.
     pub errors: Vec<String>,
     pub warnings: Vec<String>,
+    /// Empreinte et signature (1.0.0) ; `None` si le contenu n'a pas pu être lu.
+    pub trust: Option<crate::plugin_trust::Trust>,
 }
 
 impl Installed {
@@ -179,8 +181,8 @@ impl Installed {
 }
 
 pub fn read_manifest(path: &Path) -> Result<Manifest, String> {
-    let text = std::fs::read_to_string(path).map_err(|e| format!("{MANIFEST} illisible : {e}"))?;
-    serde_json::from_str(&text).map_err(|e| format!("{MANIFEST} invalide : {e}"))
+    let text = std::fs::read_to_string(path).map_err(|e| tr!("{MANIFEST} illisible : {e}", MANIFEST = MANIFEST, e = e))?;
+    serde_json::from_str(&text).map_err(|e| tr!("{file} invalide : {e}", file = MANIFEST, e = e))
 }
 
 /// Extensions présentes dans `root` (activées ou non).
@@ -193,10 +195,18 @@ pub fn list(root: &Path, current_version: &str) -> Vec<Installed> {
             let dir = e.path();
             match read_manifest(&dir.join(MANIFEST)) {
                 Ok(m) => {
-                    let (errors, warnings) = m.validate(current_version);
-                    Installed { dir, manifest: Some(m), errors, warnings }
+                    let (mut errors, warnings) = m.validate(current_version);
+                    // Une extension signée dont le contenu a changé est inutilisable.
+                    let trust = match crate::plugin_trust::verify(&dir) {
+                        Ok(t) => Some(t),
+                        Err(e) => {
+                            errors.push(e);
+                            None
+                        }
+                    };
+                    Installed { dir, manifest: Some(m), errors, warnings, trust }
                 }
-                Err(err) => Installed { dir, manifest: None, errors: vec![err], warnings: vec![] },
+                Err(err) => Installed { dir, manifest: None, errors: vec![err], warnings: vec![], trust: None },
             }
         })
         .collect();
@@ -216,7 +226,7 @@ pub fn stage(src: &Path, staging: &Path, current_version: &str) -> Result<Manife
     } else if src.extension().is_some_and(|e| e.eq_ignore_ascii_case("zip") || e.eq_ignore_ascii_case("halcyonplugin")) {
         crate::archive::extract_prefix(src, "", staging).map(|_| ())
     } else {
-        Err(io::Error::other("choisissez un dossier, un fichier plugin.json ou une archive .zip / .halcyonplugin"))
+        Err(io::Error::other(tr!("choisissez un dossier, un fichier plugin.json ou une archive .zip / .halcyonplugin")))
     };
     result.map_err(|e| e.to_string())?;
     // Archive contenant un dossier racine unique.
@@ -234,7 +244,7 @@ pub fn stage(src: &Path, staging: &Path, current_version: &str) -> Result<Manife
     for f in crate::archive::walk_files(staging, 5000).map_err(|e| e.to_string())? {
         let ext = f.extension().map(|e| e.to_string_lossy().to_lowercase()).unwrap_or_default();
         if matches!(ext.as_str(), "exe" | "dll" | "so" | "dylib" | "bat" | "cmd" | "ps1" | "sh" | "msi" | "scr" | "com" | "vbs" | "js" | "py") {
-            return Err(format!("fichier exécutable refusé dans l'extension : {}", f.display()));
+            return Err(tr!("fichier exécutable refusé dans l'extension : {f}", f = f.display()));
         }
     }
     let m = read_manifest(&staging.join(MANIFEST))?;
@@ -263,10 +273,10 @@ pub fn check_update(dl: &Downloader, m: &Manifest) -> Result<Option<String>, Str
         return Ok(None);
     }
     if !m.update_url.starts_with("https://") {
-        return Err("adresse de mise à jour non sécurisée (HTTPS requis)".into());
+        return Err(tr!("adresse de mise à jour non sécurisée (HTTPS requis)").into());
     }
     let v = dl.get_json(&m.update_url).map_err(|e| e.to_string())?;
-    let latest = v.get("version").and_then(|x| x.as_str()).ok_or("réponse sans numéro de version")?;
+    let latest = v.get("version").and_then(|x| x.as_str()).ok_or(tr!("réponse sans numéro de version"))?;
     Ok(util::version_newer(latest, &m.version).then(|| latest.to_string()))
 }
 
@@ -296,7 +306,7 @@ pub fn fetch_metadata(
 ) -> Result<halcyon_core::OnlineMetadata, String> {
     let url = fill_url(&src.url, name, steam_appid);
     if !m.allows_url(&url) {
-        return Err("domaine non autorisé".into());
+        return Err(tr!("domaine non autorisé").into());
     }
     let v = dl.get_json(&url).map_err(|e| e.to_string())?;
     Ok(extract_metadata(&v, src))

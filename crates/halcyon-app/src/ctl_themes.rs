@@ -65,15 +65,40 @@ pub fn builtin_themes() -> Vec<ThemeDef> {
     let t = |id: &str, name: &str, colors: Palette| ThemeDef { id: id.into(), name: name.into(), author: "Halcyon".into(), colors, source: String::new() };
     vec![
         t("halcyon", "Halcyon", Palette::default()),
-        t("minuit", "Minuit", palette("#0b0e1a", "#0e1220", "#151a2c", "#1c2238", "#252c46", "#6c8cff", "#0a1033", "#060812")),
-        t("braise", "Braise", Palette { warm: "#ffc46b".into(), ..palette("#110c0a", "#150f0c", "#1d1512", "#261c18", "#30231e", "#ff7a45", "#2a0f03", "#0a0706") }),
-        t("foret", "Forêt", palette("#0a100c", "#0c140f", "#121c16", "#18251d", "#1f2f25", "#5fd48a", "#04210f", "#060a07")),
+        // Apparence des premières préversions 1.0 (« Alcyon »), conservée telle quelle.
+        t("alcyon", &tr!("Alcyon (1.0 préversion)"), Palette {
+            border: "#9cc3ff12".into(),
+            border_strong: "#9cc3ff26".into(),
+            text: "#e9f0f8".into(),
+            text_muted: "#9fb3cc".into(),
+            text_dim: "#7b93b3".into(),
+            warm: "#ff8b3d".into(),
+            danger: "#ff6b78".into(),
+            success: "#4fd6a0".into(),
+            ..palette("#0c1726", "#091220", "#13223a", "#1a2d4a", "#22395c", "#32b4ff", "#04203a", "#070f1b")
+        }),
+        // Apparence des versions 0.4 et 0.5, conservée telle quelle.
+        t("nocturne", "Nocturne (0.5)", Palette {
+            border: "#9cc3ff12".into(),
+            border_strong: "#9cc3ff26".into(),
+            text: "#eceff4".into(),
+            text_muted: "#9aa3b3".into(),
+            text_dim: "#5f6777".into(),
+            warm: "#ff9f5a".into(),
+            danger: "#ff6b6b".into(),
+            success: "#5ad48a".into(),
+            ..palette("#0a0c10", "#0d1015", "#13171f", "#1a1f29", "#222835", "#2fd4c5", "#03201d", "#05070a")
+        }),
+        t("minuit", &tr!("Minuit"), palette("#0b0e1a", "#0e1220", "#151a2c", "#1c2238", "#252c46", "#6c8cff", "#0a1033", "#060812")),
+        t("braise", &tr!("Braise"), Palette { warm: "#ffc46b".into(), ..palette("#110c0a", "#150f0c", "#1d1512", "#261c18", "#30231e", "#ff7a45", "#2a0f03", "#0a0706") }),
+        t("foret", &tr!("Forêt"), palette("#0a100c", "#0c140f", "#121c16", "#18251d", "#1f2f25", "#5fd48a", "#04210f", "#060a07")),
         t("graphite", "Graphite", palette("#101010", "#141414", "#1b1b1b", "#232323", "#2c2c2c", "#d8dce3", "#111316", "#080808")),
     ]
 }
 
 /// Couleurs d'accent proposées (nom, valeur).
-pub const ACCENTS: [(&str, &str); 8] = [
+pub const ACCENTS: [(&str, &str); 9] = [
+    ("Martin-pêcheur", "#3d9be9"),
     ("Turquoise", "#2fd4c5"),
     ("Bleu", "#5b8cff"),
     ("Violet", "#a77bff"),
@@ -110,22 +135,22 @@ fn on_accent_for(c: Color) -> Color {
 
 /// Lit un fichier de thème ; refuse les identifiants des thèmes intégrés.
 pub fn read_theme_file(path: &Path) -> Result<ThemeDef, String> {
-    let text = std::fs::read_to_string(path).map_err(|e| format!("lecture impossible : {e}"))?;
-    let value: serde_json::Value = serde_json::from_str(&text).map_err(|e| format!("JSON invalide : {e}"))?;
+    let text = std::fs::read_to_string(path).map_err(|e| tr!("lecture impossible : {e}", e = e))?;
+    let value: serde_json::Value = serde_json::from_str(&text).map_err(|e| tr!("JSON invalide : {e}", e = e))?;
     theme_from_value(&value)
 }
 
 pub fn theme_from_value(value: &serde_json::Value) -> Result<ThemeDef, String> {
-    let t: ThemeDef = serde_json::from_value(value.clone()).map_err(|e| format!("thème invalide : {e}"))?;
+    let t: ThemeDef = serde_json::from_value(value.clone()).map_err(|e| tr!("thème invalide : {e}", e = e))?;
     let id_ok = !t.id.is_empty() && t.id.len() <= 64 && t.id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
     if !id_ok {
-        return Err("identifiant de thème invalide (lettres, chiffres, - et _)".into());
+        return Err(tr!("identifiant de thème invalide (lettres, chiffres, - et _)").into());
     }
     if t.name.trim().is_empty() {
-        return Err("nom de thème manquant".into());
+        return Err(tr!("nom de thème manquant").into());
     }
     if builtin_themes().iter().any(|b| b.id == t.id) {
-        return Err(format!("« {} » est un thème intégré : choisissez un autre identifiant", t.id));
+        return Err(tr!("« {id} » est un thème intégré : choisissez un autre identifiant", id = t.id));
     }
     let c = &t.colors;
     for (name, v) in [
@@ -135,7 +160,7 @@ pub fn theme_from_value(value: &serde_json::Value) -> Result<ThemeDef, String> {
         ("on_accent", &c.on_accent), ("warm", &c.warm), ("danger", &c.danger), ("success", &c.success), ("bp_bg", &c.bp_bg),
     ] {
         if !v.is_empty() && parse_hex(v).is_none() {
-            return Err(format!("couleur « {name} » invalide : {v}"));
+            return Err(tr!("couleur « {name} » invalide : {v}", name = name, v = v));
         }
     }
     Ok(t)
@@ -151,17 +176,17 @@ fn hex(c: Color) -> String {
 
 /// Entrées masquables de la barre latérale.
 pub const NAV_ITEMS: [(&str, &str); 11] = [
-    ("assistant", "Que jouer ?"),
-    ("big-picture", "Big Picture"),
-    ("achievements", "Succès"),
-    ("stats", "Statistiques"),
-    ("journal", "Journal"),
-    ("updates", "Mises à jour"),
-    ("saves", "Sauvegardes"),
-    ("emulators", "Émulateurs"),
-    ("controllers", "Manettes"),
-    ("remote", "Jeu à distance"),
-    ("plugins", "Extensions"),
+    ("assistant", tr_noop!("Que jouer ?")),
+    ("big-picture", tr_noop!("Console (Big Picture)")),
+    ("achievements", tr_noop!("Succès")),
+    ("stats", tr_noop!("Statistiques")),
+    ("journal", tr_noop!("Journal")),
+    ("updates", tr_noop!("Mises à jour")),
+    ("saves", tr_noop!("Sauvegardes")),
+    ("emulators", tr_noop!("Émulateurs")),
+    ("controllers", tr_noop!("Manettes")),
+    ("remote", tr_noop!("Jeu à distance")),
+    ("plugins", tr_noop!("Extensions")),
 ];
 
 impl Controller {
@@ -179,7 +204,7 @@ impl Controller {
             for f in files {
                 match read_theme_file(&f) {
                     Ok(mut t) if !out.iter().any(|o| o.id == t.id) => {
-                        t.source = "importé".into();
+                        t.source = tr!("importé").into();
                         out.push(t);
                     }
                     Ok(_) => {}
@@ -207,22 +232,22 @@ impl Controller {
         let themes = self.all_themes();
         let def = themes.iter().find(|t| t.id == a.theme).cloned().unwrap_or_else(|| themes[0].clone());
         let base = Palette {
-            bg: "#0a0c10".into(),
-            sidebar: "#0d1015".into(),
-            surface: "#13171f".into(),
-            surface_hover: "#1a1f29".into(),
-            surface_active: "#222835".into(),
-            border: "#ffffff12".into(),
-            border_strong: "#ffffff22".into(),
-            text: "#eceff4".into(),
-            text_muted: "#9aa3b3".into(),
-            text_dim: "#5f6777".into(),
-            accent: "#2fd4c5".into(),
-            on_accent: "#03201d".into(),
-            warm: "#ff9f5a".into(),
-            danger: "#ff6b6b".into(),
-            success: "#5ad48a".into(),
-            bp_bg: "#05070a".into(),
+            bg: "#14171c".into(),
+            sidebar: "#0f1115".into(),
+            surface: "#1b1f25".into(),
+            surface_hover: "#232830".into(),
+            surface_active: "#2b313a".into(),
+            border: "#ffffff14".into(),
+            border_strong: "#ffffff26".into(),
+            text: "#eceef1".into(),
+            text_muted: "#a3abb6".into(),
+            text_dim: "#7e8793".into(),
+            accent: "#3d9be9".into(),
+            on_accent: "#04121f".into(),
+            warm: "#f08a24".into(),
+            danger: "#e5534b".into(),
+            success: "#3fb27f".into(),
+            bp_bg: "#0e1014".into(),
         };
         let c = &def.colors;
         let pick = |v: &str, fallback: &str| parse_hex(v).or_else(|| parse_hex(fallback)).unwrap_or_default();
@@ -309,16 +334,18 @@ impl Controller {
 
     fn refresh_appearance_ui_with(&self, themes: &[ThemeDef]) {
         let Some(app) = self.app() else { return };
+        let names: Vec<SharedString> = self.settings.borrow().ui_profiles.iter().map(|p| p.name.as_str().into()).collect();
+        app.global::<ThemeUi>().set_ui_profiles(ModelRc::new(VecModel::from(names)));
         let a = self.settings.borrow().appearance.clone();
         let ui = app.global::<ThemeUi>();
-        let base_accent = parse_hex("#2fd4c5").unwrap_or_default();
+        let base_accent = parse_hex("#3d9be9").unwrap_or_default();
         let rows: Vec<ThemeRow> = themes
             .iter()
             .map(|t| ThemeRow {
                 id: t.id.clone().into(),
                 name: t.name.clone().into(),
-                bg: parse_hex(&t.colors.bg).unwrap_or_else(|| parse_hex("#0a0c10").unwrap_or_default()),
-                surface: parse_hex(&t.colors.surface).unwrap_or_else(|| parse_hex("#13171f").unwrap_or_default()),
+                bg: parse_hex(&t.colors.bg).unwrap_or_else(|| parse_hex("#14171c").unwrap_or_default()),
+                surface: parse_hex(&t.colors.surface).unwrap_or_else(|| parse_hex("#1b1f25").unwrap_or_default()),
                 accent: parse_hex(&t.colors.accent).unwrap_or(base_accent),
                 source: t.source.clone().into(),
             })
@@ -338,7 +365,7 @@ impl Controller {
         ui.set_background_opacity(a.background_opacity);
         let nav: Vec<ToggleRow> = NAV_ITEMS
             .iter()
-            .map(|(k, l)| ToggleRow { key: (*k).into(), label: (*l).into(), visible: !a.hidden_nav.iter().any(|h| h == k) })
+            .map(|(k, l)| ToggleRow { key: (*k).into(), label: halcyon_i18n::t(l).into(), visible: !a.hidden_nav.iter().any(|h| h == k) })
             .collect();
         ui.set_nav_items(ModelRc::new(VecModel::from(nav)));
         let sections: Vec<ToggleRow> = a
@@ -346,7 +373,7 @@ impl Controller {
             .iter()
             .map(|w| ToggleRow {
                 key: w.kind.to_string().into(),
-                label: crate::ctl_home::WIDGET_TITLES.get(usize::from(w.kind)).copied().unwrap_or("?").into(),
+                label: halcyon_i18n::t(crate::ctl_home::WIDGET_TITLES.get(usize::from(w.kind)).copied().unwrap_or("?")).into(),
                 visible: w.enabled,
             })
             .collect();
@@ -379,7 +406,7 @@ impl Controller {
     pub(crate) fn set_accent(&self, value: &str) {
         let value = value.trim();
         if !value.is_empty() && parse_hex(value).is_none_or(|c| c.alpha() != 255) {
-            self.theme_status(format!("« {value} » n'est pas une couleur #RRGGBB"));
+            self.theme_status(tr!("« {value} » n'est pas une couleur #RRGGBB", value = value));
             return;
         }
         let v = value.to_lowercase();
@@ -408,12 +435,12 @@ impl Controller {
         let path = path.trim();
         if path.is_empty() {
             self.update_appearance(|a| a.background = None);
-            self.theme_status("Fond retiré");
+            self.theme_status(&tr!("Fond retiré"));
             return;
         }
         let src = Path::new(path);
         if let Err(e) = slint::Image::load_from_path(src) {
-            self.theme_status(format!("Image illisible : {e:?}"));
+            self.theme_status(tr!("Image illisible : {e}", e = format!("{:?}", e)));
             return;
         }
         let dir = self.themes_dir().join("backgrounds");
@@ -428,9 +455,9 @@ impl Controller {
                 if let Some(old) = old.filter(|o| o.starts_with(&dir) && *o != dest) {
                     let _ = std::fs::remove_file(old);
                 }
-                self.theme_status("Fond appliqué (copie conservée dans les données de Halcyon)");
+                self.theme_status(&tr!("Fond appliqué (copie conservée dans les données de Halcyon)"));
             }
-            Err(e) => self.theme_status(format!("Copie de l'image impossible : {e}")),
+            Err(e) => self.theme_status(tr!("Copie de l'image impossible : {e}", e = e)),
         }
     }
 
@@ -489,12 +516,12 @@ impl Controller {
                             a.theme = id;
                             a.accent.clear();
                         });
-                        self.theme_status(format!("Thème « {} » {}", t.name, if existed { "mis à jour" } else { "importé" }));
+                        self.theme_status(&if existed { tr!("Thème « {name} » mis à jour", name = t.name) } else { tr!("Thème « {name} » importé", name = t.name) });
                     }
-                    Err(e) => self.theme_status(format!("Import impossible : {e}")),
+                    Err(e) => self.theme_status(tr!("Import impossible : {e}", e = e)),
                 }
             }
-            Err(e) => self.theme_status(format!("Thème refusé : {e}")),
+            Err(e) => self.theme_status(tr!("Thème refusé : {e}", e = e)),
         }
     }
 
@@ -508,7 +535,7 @@ impl Controller {
         let stamp = crate::ctl_backup::stamp(halcyon_storage::now_unix());
         let def = ThemeDef {
             id: format!("perso-{}", stamp.to_lowercase()),
-            name: format!("{name} (personnalisé)"),
+            name: tr!("{name} (personnalisé)", name = name),
             author: String::new(),
             source: String::new(),
             colors: Palette {
@@ -535,19 +562,19 @@ impl Controller {
         let result = std::fs::create_dir_all(&dir)
             .and_then(|_| std::fs::write(&dest, serde_json::to_string_pretty(&def).unwrap_or_default()));
         match result {
-            Ok(()) => self.theme_status(format!("Thème exporté : {}", dest.display())),
-            Err(e) => self.theme_status(format!("Export impossible : {e}")),
+            Ok(()) => self.theme_status(tr!("Thème exporté : {dest}", dest = dest.display())),
+            Err(e) => self.theme_status(tr!("Export impossible : {e}", e = e)),
         }
     }
 
     pub(crate) fn reset_appearance(self: &Rc<Self>) {
         self.confirm(
-            "Rétablir l'apparence d'origine ?",
-            "Thème, accent, densité, animations, fond, barre latérale et accueil reprennent leurs valeurs par défaut. Les thèmes importés restent disponibles.",
-            "Rétablir",
+            &tr!("Rétablir l'apparence d'origine ?"),
+            &tr!("Thème, accent, densité, animations, fond, barre latérale et accueil reprennent leurs valeurs par défaut. Les thèmes importés restent disponibles."),
+            &tr!("Rétablir"),
             |c| {
                 c.update_appearance(|a| *a = Appearance::default());
-                c.theme_status("Apparence d'origine rétablie");
+                c.theme_status(&tr!("Apparence d'origine rétablie"));
                 c.refresh_home();
             },
         );
@@ -583,5 +610,37 @@ mod tests {
     fn on_accent_contrast() {
         assert_eq!(on_accent_for(Color::from_rgb_u8(20, 20, 60)), Color::from_rgb_u8(255, 255, 255));
         assert!(on_accent_for(Color::from_rgb_u8(0xf2, 0xc9, 0x4c)).red() < 40);
+    }
+}
+
+impl Controller {
+    // ------------------------------------------------------------------ profils d'interface (1.0.0)
+
+    pub(crate) fn save_ui_profile(&self, name: &str) {
+        let ok = self.settings.borrow_mut().save_ui_profile(name);
+        if ok {
+            self.save_settings();
+            self.toast(format!("Profil d'interface « {} » enregistré", name.trim()), false);
+        } else {
+            self.toast("Nom vide, ou 20 profils déjà enregistrés", true);
+        }
+        self.refresh_appearance_ui();
+    }
+
+    pub(crate) fn apply_ui_profile(&self, index: usize) {
+        let name = self.settings.borrow().ui_profiles.get(index).map(|p| p.name.clone());
+        if self.settings.borrow_mut().apply_ui_profile(index) {
+            self.save_settings();
+            self.apply_appearance();
+            self.refresh_appearance_ui();
+            self.toast(format!("Profil « {} » appliqué", name.unwrap_or_default()), false);
+        }
+    }
+
+    pub(crate) fn delete_ui_profile(&self, index: usize) {
+        if self.settings.borrow_mut().delete_ui_profile(index) {
+            self.save_settings();
+            self.refresh_appearance_ui();
+        }
     }
 }

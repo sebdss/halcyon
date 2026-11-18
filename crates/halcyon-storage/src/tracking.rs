@@ -48,8 +48,8 @@ impl Database {
             params![id, status.as_str(), now_unix()],
         )?;
         let title = match status {
-            PlayStatus::Completed => format!("{name} terminé"),
-            PlayStatus::None => format!("Statut retiré pour {name}"),
+            PlayStatus::Completed => tr!("{name} terminé", name = name),
+            PlayStatus::None => tr!("Statut retiré pour {name}", name = name),
             s => format!("{name} : {}", s.label().to_lowercase()),
         };
         self.log_activity(ActivityKind::Status, Some(id), &title, "")
@@ -68,10 +68,10 @@ impl Database {
         )?;
         let name: String = self.conn.query_row("SELECT name FROM games WHERE id = ?1", [id], |r| r.get(0))?;
         let detail = match secs {
-            Some(s) => format!("Temps corrigé : {}", util::format_playtime(s)),
-            None => "Retour au temps calculé".into(),
+            Some(s) => tr!("Temps corrigé : {v}", v = util::format_playtime(s)),
+            None => tr!("Retour au temps calculé").into(),
         };
-        self.log_activity(ActivityKind::Status, Some(id), &format!("Temps de jeu de {name} modifié"), &detail)
+        self.log_activity(ActivityKind::Status, Some(id), &tr_later!("Temps de jeu de {name} modifié", name = name), &detail)
     }
 
     /// Progression d'une mise à jour en cours (relevée pendant le téléchargement).
@@ -173,7 +173,7 @@ impl Database {
     pub fn save_launch_profile(&self, p: &LaunchProfile) -> Result<i64> {
         let name = p.name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict("le profil doit avoir un nom".into()));
+            return Err(StorageError::Conflict(tr!("le profil doit avoir un nom").into()));
         }
         let data = serde_json::to_string(p)?;
         let id = if p.id == 0 {
@@ -223,17 +223,17 @@ impl Database {
     pub fn save_smart_collection(&self, id: i64, name: &str, rules: &RuleSet) -> Result<i64> {
         let name = name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict("le nom de la collection est vide".into()));
+            return Err(StorageError::Conflict(tr!("le nom de la collection est vide").into()));
         }
         if rules.rules.is_empty() {
-            return Err(StorageError::Conflict("ajoutez au moins une règle".into()));
+            return Err(StorageError::Conflict(tr!("ajoutez au moins une règle").into()));
         }
         let clash: Option<i64> = self
             .conn
             .query_row("SELECT id FROM smart_collections WHERE name = ?1 AND id != ?2", params![name, id], |r| r.get(0))
             .optional()?;
         if clash.is_some() {
-            return Err(StorageError::Conflict(format!("une collection « {name} » existe déjà")));
+            return Err(StorageError::Conflict(tr!("une collection « {name} » existe déjà", name = name)));
         }
         if id == 0 {
             self.conn.execute(
@@ -261,7 +261,7 @@ impl Database {
         let n: i64 = self.conn.query_row("SELECT COUNT(*) FROM smart_collections", [], |r| r.get(0))?;
         if n == 0 {
             for (name, rules) in halcyon_core::rules::presets() {
-                self.save_smart_collection(0, name, &rules)?;
+                self.save_smart_collection(0, &name, &rules)?;
             }
         }
         Ok(())

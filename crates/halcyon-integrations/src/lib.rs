@@ -5,15 +5,22 @@
 //! authentification n'est contournée, aucun DRM n'est touché. Le lancement des
 //! jeux Steam/Epic passe toujours par le client officiel (URI de protocole).
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod archive;
 pub mod artwork;
 pub mod config_archive;
 pub mod emulators;
 pub mod engines;
+pub mod frametimes;
 pub mod epic;
+pub mod gog;
 pub mod gpu;
 pub mod launcher;
 pub mod mods;
+pub mod news;
+pub mod plugin_trust;
 pub mod plugins;
 pub mod process;
 pub mod rahash;
@@ -25,7 +32,7 @@ pub mod standalone;
 pub mod steam;
 pub mod steam_web;
 pub mod steamgriddb;
-pub mod update;
+pub mod sysmon;
 pub mod vdf;
 
 use std::path::Path;

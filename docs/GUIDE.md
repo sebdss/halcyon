@@ -24,6 +24,9 @@ confidentialité, dépannage · 25 Désinstallation
   fichier `portable.txt` fourni place les données dans le dossier `data\` voisin.
 
 ### Linux
+- **AppImage** (recommandé, mises à jour automatiques) : `Halcyon-<version>-x86_64.AppImage`.
+  `chmod +x`, puis lancez-la ; *Paramètres › Mises à jour › Installer Halcyon pour mon compte*
+  la place dans `~/.local/opt/halcyon` avec son entrée de menu.
 - **Programme d'installation** (toutes distributions) : `chmod +x halcyon-<version>-linux-x86_64-setup`
   puis lancez-le. Installation dans `~/.local/opt/halcyon`, sans droits administrateur, avec
   entrée de menu, raccourci et « Gérer l'installation de Halcyon » (réparer, désinstaller).
@@ -52,8 +55,12 @@ temps de jeu et personnalisations sont conservés.
 
 ## 2 bis. Se repérer dans l'interface (0.4)
 
-- **Barre latérale** : repliable (bouton de la barre supérieure ou *Apparence › Barre latérale
-  repliée*), repliée automatiquement dans une fenêtre étroite (infobulles au survol).
+- **Menu (1.0)** : six espaces — Accueil, Bibliothèque, Minecraft, **Activité** (Que jouer ?,
+  Succès, Statistiques, Journal), **Outils** (Téléchargements, Mises à jour, Sauvegardes,
+  Émulateurs, Manettes, Jeu à distance, Extensions) et **Système** (Performances, Apparence,
+  Paramètres). Les trois derniers ont des onglets en haut de page ; chaque espace rouvre le
+  dernier onglet consulté. En bas du menu : **Console** (mode Big Picture) et **Analyser**.
+  *Apparence › Menu : icônes seules* masque les libellés.
 - **Barre supérieure** : précédent / suivant (aussi `Alt+←` / `Alt+→`, touche Retour du
   clavier multimédia), recherche universelle (`Ctrl+K`), indicateurs *En jeu*, *Performance*, *Hors ligne*,
   mode Performance, bascule de mode d'affichage, **centre de commandes** (cloche).
@@ -64,7 +71,7 @@ temps de jeu et personnalisations sont conservés.
   changer la largeur (1/3, 2/3, pleine) et de masquer chaque widget ; les widgets masqués
   apparaissent en haut pour les rajouter. *Réinitialiser* revient à la disposition d'origine.
 - **Modes** : *standard*, *minimaliste* (accueil réduit à la recherche, aux derniers jeux et aux
-  favoris), *cinéma* (sans barre latérale). Le **mode Performance** coupe animations et effets et
+  favoris), *cinéma* (sans menu). Le **mode Performance** coupe animations et effets et
   reporte les tâches secondaires ; il peut s'activer tout seul pendant les parties
   (*Apparence › Automatique pendant les parties*). Aucun programme n'est jamais fermé.
 
@@ -158,7 +165,7 @@ Configurez vos comptes dans **Paramètres › Comptes et succès** :
 
 ## 6. Mode Big Picture
 
-Entrée : bouton **Big Picture** de la barre latérale, touche **F11**, ou bouton **Start / Guide**
+Entrée : bouton **Console** du menu, touche **F11**, ou bouton **Start / Guide**
 de la manette. Option « Démarrer en mode Big Picture » dans les paramètres.
 
 | Action | Manette | Clavier |
@@ -180,7 +187,7 @@ Les touches se personnalisent dans la page **Manettes** (section 13).
 
 ## 6 bis. Minecraft (0.5.0)
 
-Menu **Minecraft** (sous Big Picture). Détails : [`MINECRAFT.md`](MINECRAFT.md).
+Espace **Minecraft** du menu. Détails : [`MINECRAFT.md`](MINECRAFT.md).
 
 1. **Loaders** (ou **Versions** pour du vanilla) : choisissez la version de Minecraft, le loader
    et sa version, puis **Installer**. La progression affiche fichiers et mégaoctets réels.
@@ -194,6 +201,72 @@ Menu **Minecraft** (sous Big Picture). Détails : [`MINECRAFT.md`](MINECRAFT.md)
    puis Jouer. C'est le launcher officiel qui connecte votre compte Microsoft.
 5. **Paramètres** : RAM, Java, arguments JVM, résolution ; mode direct (connexion Microsoft dans
    Halcyon) si vous avez un ID d'application Azure approuvé par Mojang.
+
+## 6 bis+. GOG (1.0.0)
+
+**Paramètres › Sources › GOG** : Halcyon lit les jeux GOG installés par **Heroic**
+(Linux et Windows, natif ou Flatpak) et par **GOG Galaxy** (Windows). Les jeux Heroic se
+lancent par Heroic (qui applique Wine/Proton) ; ceux de Galaxy par leur exécutable (jeux
+sans DRM). Si Heroic est installé ailleurs, indiquez son dossier de configuration (celui qui
+contient `gog_store`). Filtre « GOG » dans la bibliothèque. Les succès GOG ne sont pas
+disponibles (pas d'API publique sans connexion au compte) : utilisez les succès
+personnalisés.
+
+## 6 quater. Téléchargements (1.0.0)
+
+Menu **Téléchargements** : tout ce que Halcyon télécharge lui-même (versions et Java de
+Minecraft, loaders, mods, modpacks, mises à jour de Halcyon).
+
+- **Tout mettre en pause / Reprendre** : les transferts attendent sans rien perdre.
+- **Limite de débit** (illimitée à 50 Mio/s) et **téléchargements simultanés** (1 à 4) :
+  appliqués immédiatement ; au-delà, les opérations attendent dans la file.
+- Une coupure réseau ne fait pas tout recommencer : le fichier reprend où il s'était
+  arrêté quand le serveur le permet, et reste vérifié par son empreinte.
+- Les jeux Steam, Epic et GOG restent téléchargés par leur client : la page indique combien
+  de mises à jour sont en attente et renvoie vers **Mises à jour**.
+
+## 6 ter. Performances (1.0.0)
+
+Menu **Performances** (icône jauge), sous Minecraft.
+
+- **En direct** : processeur (total, courbe des 90 dernières secondes, une barre par unité de
+  calcul), mémoire et mémoire d'échange, carte(s) graphique(s) avec mémoire vidéo, stockage.
+  Les mesures ne tournent **que pendant que la page est ouverte** (toutes les 1,5 s) et
+  s'arrêtent dès que vous la quittez.
+- **Carte graphique** : utilisation et mémoire vidéo lues par le système (Windows : compteurs
+  de performance ; Linux : pilote AMD, NVIDIA par NVML, autres par Vulkan). Si le pilote ne
+  fournit pas une valeur, Halcyon affiche « non fourni par le pilote » : rien n'est estimé.
+- **Applications les plus gourmandes** : processus regroupés par application (un navigateur
+  en lance des dizaines), avec la consommation de Halcyon lui-même.
+- **Recommandations** : constats tirés des mesures (mémoire presque pleine, mémoire
+  d'échange utilisée, application qui occupe le processeur hors partie, carte graphique
+  occupée sans jeu, disque presque plein). La seule action proposée est réversible :
+  activer le mode Performance de Halcyon. Halcyon ne ferme jamais un programme et ne change
+  aucun réglage de Windows ou de Linux.
+- **Historique des parties** : pendant chaque partie lancée depuis Halcyon, un relevé toutes
+  les 10 s (processeur, mémoire, carte graphique) ; seul le résumé est gardé (50 parties par
+  jeu). Interrupteur « Mesurer pendant les parties » pour le désactiver.
+- **Images par seconde et temps d'image** : Halcyon n'injecte rien dans les jeux. Il lit les
+  journaux des outils dédiés :
+  - **Linux — MangoHud** : dans `~/.config/MangoHud/MangoHud.conf`, ajoutez
+    `output_folder=/home/vous/mangohud-logs` ; en jeu, Maj+F2 démarre et arrête
+    l'enregistrement (ou `autostart_log=1`). Lancez le jeu avec MangoHud (profil de
+    lancement, option « MangoHud » ou `mangohud %command%` dans Steam).
+  - **Windows — PresentMon** (Intel, gratuit) : enregistrez une capture en CSV.
+  - Bouton **Ouvrir un journal…** puis **Dernier journal** (le plus récent du même dossier).
+    Résultat : moyenne, « 1 % low » et « 0,1 % low » (1000 / 99ᵉ et 99,9ᵉ centiles du temps
+    d'image), pire image, nombre de saccades et courbe des temps d'image.
+
+## 6 quinquies. Autres nouveautés 1.0
+
+- **Export des statistiques** (page Statistiques) : temps par jeu (CSV), sessions (CSV)
+  ou tout (JSON). Les CSV s'ouvrent dans Excel, LibreOffice ou Google Sheets.
+- **Actualités** (fiche d'un jeu Steam, onglet Aperçu) : dernières annonces officielles ;
+  un clic ouvre l'article. En ligne uniquement.
+- **Profils d'interface** (Apparence) : enregistrez l'apparence actuelle sous un nom
+  (« Bureau », « Salon »…) et basculez d'un clic.
+- **Extensions** : chaque extension affiche son empreinte, et « Signée par l'auteur » si
+  elle est signée ; voir [`PLUGINS.md`](PLUGINS.md#signer-une-extension-100).
 
 ## 7. Recherche avancée et collections intelligentes
 
@@ -331,7 +404,7 @@ Thèmes intégrés (Halcyon, Minuit, Braise, Forêt, Graphite), importés (`.hal
 - le **mode d'affichage** (standard, minimaliste, cinéma), la barre latérale repliée, le mode
   Performance et son activation automatique pendant les parties ;
 - une image de fond avec son intensité et un fond animé facultatif ;
-- les entrées affichées dans la barre latérale ;
+- les entrées affichées (onglets d'Activité et d'Outils, bouton Console) ;
 - l'ordre et l'affichage des widgets de l'accueil (largeur : bouton crayon de l'accueil).
 
 *Exporter le thème actuel* produit un fichier partageable. *Rétablir* revient aux réglages
@@ -464,16 +537,36 @@ archive de sécurité de l'état actuel, puis redémarre Halcyon.
 
 ## 23. Mise à jour de Halcyon
 
-Dans **Paramètres › Mises à jour**, indiquez le dépôt GitHub qui publie Halcyon
-(`propriétaire/nom`). Une nouvelle version est signalée dans la barre latérale.
+Depuis la 1.0, Halcyon se met à jour tout seul (**Halcyon Update System**, détails :
+[`HUS.md`](HUS.md)). Dans **Paramètres › Mises à jour** :
 
-*Télécharger* récupère le paquet adapté au système : programme d'installation Windows ;
-sous Linux, le programme d'installation si Halcyon a été installé par lui, sinon le `.deb`.
-Le paquet n'est conservé que si son **empreinte SHA-256** correspond au fichier
-`SHA256SUMS` publié avec la version ; sinon il est supprimé. *Installer* ferme Halcyon et
-lance le programme d'installation vérifié. Pour un `.deb`, le dossier du paquet s'ouvre pour
-une installation par votre gestionnaire (`sudo apt install ./halcyon_….deb`). Vos données
-sont conservées.
+- **Canal** : *Stable* (versions finales) ou *Beta* (prépublications et versions stables plus
+  récentes). Le choix est conservé ; passer de Beta à Stable ne fait jamais redescendre de
+  version : la prochaine version stable plus récente sera proposée.
+- **Rechercher automatiquement** : au démarrage puis toutes les 6 heures.
+- **Mises à jour automatiques** : la nouvelle version est téléchargée et vérifiée en
+  arrière-plan, puis installée au démarrage suivant de Halcyon.
+- **Rechercher des mises à jour**, **Télécharger**, **Annuler** (le téléchargement reprendra
+  où il s'est arrêté), **Installer et redémarrer**, **Installer au prochain démarrage**.
+  La progression montre les octets reçus, la vitesse et le temps restant réels.
+
+Une version n'est installée que si son manifeste porte la **signature Ed25519** de l'auteur
+et si le paquet a la bonne **empreinte SHA-256** ; jamais une version plus ancienne. Pendant
+l'installation, Halcyon se ferme, un programme séparé (`halcyon-updater`) remplace les
+fichiers, relance Halcyon et vérifie qu'il démarre ; sinon l'ancienne version est restaurée
+et relancée, et vous en êtes averti. Une coupure de courant pendant l'installation est
+réparée au démarrage suivant. Vos jeux, paramètres et sauvegardes ne sont jamais touchés.
+
+Linux : l'AppImage peut être installée pour votre compte depuis cette page (*Installer
+Halcyon pour mon compte*). Une installation faite par le programme d'installation Linux passe
+à l'AppImage à sa première mise à jour, raccourcis conservés. Le paquet `.deb` reste mis à
+jour par votre gestionnaire de paquets.
+
+**Clés d'API** (Steam, RetroAchievements, Nexus Mods, SteamGridDB, CurseForge) : depuis la
+1.0, elles sont rangées dans un coffre (`<données>/secrets`, chiffré par Windows ; réservé à
+votre compte sous Linux) et non plus en clair dans `settings.json`. Le déplacement est
+automatique au premier lancement. Les événements sensibles sont inscrits dans
+`logs/security.log` (jamais la valeur d'une clé).
 
 **Vérification d'intégrité** (**Paramètres › Stockage et diagnostic**) : elle contrôle la base
 de données, les paramètres, l'accès au dossier des données, les dossiers des jeux installés,

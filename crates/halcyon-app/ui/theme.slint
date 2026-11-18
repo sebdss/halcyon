@@ -1,50 +1,68 @@
-// Design system « Nocturne » de Halcyon 0.4 — voir docs/DESIGN-SYSTEM.md.
+// Système de design « Berge » de Halcyon (1.0, successeur d'« Alcyon ») — voir
+// docs/DESIGN-SYSTEM.md.
+//
+// Le martin-pêcheur se tient immobile sur sa branche au-dessus de l'eau, puis plonge d'un
+// geste net. L'interface suit ce caractère :
+// - matière mate : ardoise neutre, aucun verre, aucun dégradé décoratif, ombres réservées
+//   aux éléments qui flottent réellement (menus, dialogues) ;
+// - deux couleurs, celles du logo, chacune avec un rôle : le bleu du plumage indique où
+//   l'on est (sélection, focus, progression), l'orange des pattes est le geste (Jouer, en
+//   jeu, ce qui est vivant) ;
+// - une voix typographique : Archivo Expanded pour les titres et les chiffres, Archivo
+//   pour le texte ; la hiérarchie vient de la taille et de la graisse, pas des boîtes ;
+// - une géométrie droite : petits rayons, alignements sur une grille de 4 px, la
+//   « perche » (trait d'accent court) marque l'élément actif.
 //
 // Toutes les valeurs visuelles passent par ce fichier : couleurs (modifiables depuis Rust
-// pour les thèmes et l'accent), échelle typographique, espacements, rayons, élévations et
-// mouvement. Les noms de la 0.3 sont conservés : les thèmes importés restent compatibles.
+// pour les thèmes et l'accent), typographie, espacements, rayons et mouvement. Les noms
+// de couleur des versions précédentes sont conservés : les thèmes importés restent valides.
 
 export global Theme {
     // ---------------------------------------------------------------- couleurs
-    // Couches : bg (fond) < sidebar < surface (cartes) < surface-hover < surface-active.
-    in-out property <color> bg: #0a0c10;
-    in-out property <color> sidebar: #0d1015;
-    in-out property <color> surface: #13171f;
-    in-out property <color> surface-hover: #1a1f29;
-    in-out property <color> surface-active: #222835;
-    in-out property <color> border: #ffffff12;
-    in-out property <color> border-strong: #ffffff22;
-    /// Verre : panneaux posés sur une illustration (opacité modérée, sans flou coûteux).
-    out property <color> glass: self.bg.with-alpha(0.72);
-    out property <color> glass-strong: self.bg.with-alpha(0.88);
-    /// Voile pour le texte sur une image.
+    // Couches : sidebar (colonne de navigation) < bg (page) < surface (groupes, menus)
+    // < surface-hover < surface-active.
+    in-out property <color> bg: #14171c;
+    in-out property <color> sidebar: #0f1115;
+    in-out property <color> surface: #1b1f25;
+    in-out property <color> surface-hover: #232830;
+    in-out property <color> surface-active: #2b313a;
+    in-out property <color> border: #ffffff14;
+    in-out property <color> border-strong: #ffffff26;
+    /// Voile pour le texte posé sur une image.
     out property <color> scrim: #000000a6;
 
-    in-out property <color> text: #eceff4;
-    in-out property <color> text-muted: #9aa3b3;
-    in-out property <color> text-dim: #5f6777;
+    in-out property <color> text: #eceef1;
+    in-out property <color> text-muted: #a3abb6;
+    in-out property <color> text-dim: #7e8793;
 
-    in-out property <color> accent: #2fd4c5;
-    out property <color> accent-hover: self.accent.brighter(0.15);
+    /// Plumage : sélection, focus, liens, progression.
+    in-out property <color> accent: #3d9be9;
+    out property <color> accent-hover: self.accent.brighter(0.12);
     out property <color> accent-pressed: self.accent.darker(0.15);
-    in-out property <color> on-accent: #03201d;
-    out property <color> accent-soft: self.accent.with-alpha(0.12);
-    out property <color> accent-glow: self.accent.with-alpha(0.35);
+    in-out property <color> on-accent: #04121f;
+    out property <color> accent-soft: self.accent.with-alpha(0.14);
     /// Anneau de focus (clavier, manette) : toujours visible, jamais seul indicateur d'état.
     out property <color> focus: self.accent;
 
-    in-out property <color> warm: #ff9f5a;
-    in-out property <color> danger: #ff6b6b;
-    in-out property <color> success: #5ad48a;
-    /// Fond du mode Big Picture.
-    in-out property <color> bp-bg: #05070a;
+    /// Pattes : le geste (Jouer), ce qui est vivant (en jeu, en cours).
+    in-out property <color> warm: #f08a24;
+    out property <color> warm-hover: self.warm.brighter(0.1);
+    out property <color> on-warm: #1f0e00;
+    in-out property <color> danger: #e5534b;
+    in-out property <color> success: #3fb27f;
+    /// Fond du mode console.
+    in-out property <color> bp-bg: #0e1014;
 
     // ---------------------------------------------------------------- forme
-    out property <length> radius-sm: 6px;
-    out property <length> radius: 10px;
-    out property <length> radius-lg: 14px;
-    out property <length> radius-xl: 22px;
+    out property <length> radius-sm: 3px;
+    out property <length> radius: 5px;
+    out property <length> radius-lg: 8px;
+    out property <length> radius-xl: 10px;
+    /// Jaquettes : presque droites, comme une planche imprimée.
+    out property <length> radius-cover: 3px;
     out property <length> focus-width: 2px;
+    /// La perche : trait d'accent qui marque l'élément actif.
+    out property <length> perch: 3px;
 
     // ---------------------------------------------------------------- espacements (grille de 4 px)
     /// Densité : 0 confortable, 1 compacte.
@@ -56,11 +74,17 @@ export global Theme {
     out property <length> s5: self.density == 1 ? 20px : 24px;
     out property <length> s6: self.density == 1 ? 26px : 32px;
     out property <length> s7: self.density == 1 ? 36px : 48px;
-    out property <length> page-padding: self.density == 1 ? 24px : 36px;
-    out property <length> nav-height: self.density == 1 ? 34px : 40px;
-    out property <length> control-height: self.density == 1 ? 34px : 40px;
+    out property <length> page-padding: self.density == 1 ? 28px : 40px;
+    out property <length> nav-height: self.density == 1 ? 34px : 38px;
+    out property <length> control-height: self.density == 1 ? 32px : 36px;
+    /// Hauteur d'une rangée de liste ou de réglage.
+    out property <length> row-height: self.density == 1 ? 44px : 52px;
 
-    // ---------------------------------------------------------------- typographie (Inter)
+    // ---------------------------------------------------------------- typographie
+    /// Police d'affichage : titres, chiffres, mode console.
+    out property <string> display: "Archivo Expanded";
+    /// Police du texte.
+    out property <string> font: "Archivo";
     /// Facteur de taille du texte (accessibilité) : 0,9 à 1,3.
     in-out property <float> text-scale: 1.0;
     out property <length> t-display: 44px * self.text-scale;
@@ -77,11 +101,11 @@ export global Theme {
     in-out property <int> motion: 0;
     /// Compatibilité 0.3 : vrai sauf en mode « aucun ».
     in-out property <bool> animations: true;
-    out property <duration> fast: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 70ms : 120ms;
-    out property <duration> normal: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 100ms : 200ms;
-    out property <duration> slow: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 140ms : 320ms;
+    out property <duration> fast: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 60ms : 90ms;
+    out property <duration> normal: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 90ms : 160ms;
+    out property <duration> slow: self.motion == 2 || !self.animations ? 0ms : self.motion == 1 ? 120ms : 240ms;
     /// Amplitude des déplacements animés (0 en mouvement réduit).
-    out property <length> motion-distance: self.motion == 0 && self.animations ? 12px : 0px;
+    out property <length> motion-distance: self.motion == 0 && self.animations ? 6px : 0px;
     /// Effets coûteux (ombres larges, fond animé) : coupés en mode Performance.
     in-out property <bool> effects: true;
 
@@ -91,6 +115,15 @@ export global Theme {
     in-out property <bool> has-background: false;
     in-out property <float> background-opacity: 0.18;
     in-out property <bool> animated-background: false;
+}
+
+/// Masques de fondu (images alpha teintées par `colorize`) : contrairement aux dégradés,
+/// une image mise à l'échelle se redessine à l'identique quand seule une partie de l'écran
+/// change (rendu logiciel), sans ligne de raccord.
+export global Art {
+    out property <image> fade-left: @image-url("art/fade-left.png");
+    out property <image> fade-bottom: @image-url("art/fade-bottom.png");
+    out property <image> fade-top: @image-url("art/fade-top.png");
 }
 
 export global Icons {
@@ -120,7 +153,7 @@ export global Icons {
     out property <image> pin: @image-url("icons/pin.svg");
     out property <image> spinner: @image-url("icons/spinner.svg");
     out property <image> alert: @image-url("icons/alert.svg");
-    out property <image> logo: @image-url("icons/logo.svg");
+    out property <image> logo: @image-url("icons/logo.png");
     out property <image> tv: @image-url("icons/tv.svg");
     out property <image> download: @image-url("icons/download.svg");
     out property <image> chart: @image-url("icons/chart.svg");
@@ -141,6 +174,7 @@ export global Icons {
     out property <image> compare: @image-url("icons/compare.svg");
     out property <image> restore: @image-url("icons/restore.svg");
     out property <image> cloud: @image-url("icons/cloud.svg");
+    out property <image> globe: @image-url("icons/globe.svg");
     out property <image> info: @image-url("icons/info.svg");
     out property <image> chevron-left: @image-url("icons/chevron-left.svg");
     out property <image> chevron-right: @image-url("icons/chevron-right.svg");
@@ -167,4 +201,10 @@ export global Icons {
     out property <image> heart: @image-url("icons/heart.svg");
     out property <image> user: @image-url("icons/user.svg");
     out property <image> power: @image-url("icons/power.svg");
+}
+
+/// Mise en page de la coque : vrai quand la page courante appartient à un espace à onglets
+/// (Activité, Outils, Système) dont la barre porte déjà le titre.
+export global Layout {
+    in-out property <bool> tabbed;
 }

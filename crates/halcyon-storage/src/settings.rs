@@ -8,6 +8,14 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+/// Champs de [`Settings`] conservés dans le coffre des secrets, jamais dans le JSON.
+pub const SECRET_FIELDS: &[&str] = &["steam_api_key", "ra_api_key", "nexus_api_key", "steamgriddb_api_key", "curseforge_api_key"];
+
+/// Coffre voisin du fichier de configuration (`<données>/secrets`).
+pub fn secret_store(settings_path: &Path) -> crate::secrets::SecretStore {
+    crate::secrets::SecretStore::new(settings_path.parent().unwrap_or(Path::new(".")).join("secrets"))
+}
+
 /// Configuration d'un émulateur (profil).
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
@@ -32,10 +40,16 @@ pub struct RomFolder {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    /// Langue de l'interface (« de-DE »…) ; `None` : langue du système (sinon anglais).
+    pub language: Option<String>,
     pub steam_enabled: bool,
     /// Dossier Steam forcé (sinon détection automatique).
     pub steam_path: Option<PathBuf>,
     pub epic_enabled: bool,
+    /// GOG (Heroic, GOG Galaxy), 1.0.0.
+    pub gog_enabled: bool,
+    /// Dossier de configuration Heroic forcé (sinon détection automatique).
+    pub gog_heroic_path: Option<PathBuf>,
     /// Dossier des manifestes Epic forcé (sinon détection automatique).
     pub epic_manifests_path: Option<PathBuf>,
     /// Dossiers parcourus à la recherche de jeux standalone.
@@ -77,8 +91,16 @@ pub struct Settings {
     pub online_metadata: bool,
 
     pub check_updates: bool,
-    /// Dépôt GitHub « propriétaire/nom » publiant les versions.
+    /// Dépôt GitHub « propriétaire/nom » publiant les versions (vide : dépôt officiel).
     pub update_repo: String,
+    /// Canal de mise à jour choisi (`stable` ou `beta`) ; `None` tant que l'utilisateur n'a
+    /// pas choisi : canal par défaut de la version installée. Jamais modifié sans action de
+    /// l'utilisateur.
+    pub update_channel: Option<String>,
+    /// Téléchargement en arrière-plan et installation au démarrage suivant.
+    pub update_auto: bool,
+    /// Dernière recherche de mise à jour (horodatage Unix).
+    pub update_last_check: i64,
     pub start_in_big_picture: bool,
     /// Notification système quand une mise à jour de jeu est détectée.
     pub update_notifications: bool,
@@ -98,6 +120,17 @@ pub struct Settings {
     pub steamgriddb_api_key: String,
     /// Aucune requête réseau, même si une connexion est disponible.
     pub offline_forced: bool,
+    /// Performance Center : résumé processeur / mémoire / carte graphique de chaque partie
+    /// (un échantillon toutes les 10 s pendant le jeu).
+    pub perf_history: bool,
+    /// Gestionnaire de téléchargements : limite en Kio/s (0 : illimitée).
+    pub download_limit_kib: u64,
+    /// Téléchargements simultanés (les suivants attendent).
+    pub download_concurrency: u32,
+    /// Profils d'interface enregistrés (1.0.0).
+    pub ui_profiles: Vec<UiProfile>,
+    /// Dossier des journaux de temps d'image (MangoHud `output_folder`, PresentMon).
+    pub frametime_dir: Option<PathBuf>,
 
     pub appearance: Appearance,
     /// Extensions activées (identifiants). Une extension installée reste inactive tant
@@ -174,6 +207,15 @@ impl SoundSettings {
         }
         self.in_game = self.in_game.min(2);
     }
+}
+
+/// Profil d'interface nommé (1.0.0) : une apparence complète enregistrée (« Bureau »,
+/// « Salon », « Portable sur batterie »…), appliquée d'un clic.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct UiProfile {
+    pub name: String,
+    pub appearance: Appearance,
 }
 
 /// Personnalisation de l'interface.
@@ -390,9 +432,12 @@ pub enum LibraryView {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            language: None,
             steam_enabled: true,
             steam_path: None,
             epic_enabled: true,
+            gog_enabled: true,
+            gog_heroic_path: None,
             epic_manifests_path: None,
             scan_folders: Vec::new(),
             online_artwork: true,
@@ -418,6 +463,9 @@ impl Default for Settings {
             online_metadata: true,
             check_updates: true,
             update_repo: String::new(),
+            update_channel: None,
+            update_auto: true,
+            update_last_check: 0,
             start_in_big_picture: false,
             update_notifications: true,
             save_root: None,
@@ -443,13 +491,47 @@ impl Default for Settings {
             sound: SoundSettings::default(),
             minecraft: MinecraftSettings::default(),
             curseforge_api_key: String::new(),
+            perf_history: true,
+            download_limit_kib: 0,
+            download_concurrency: 2,
+            ui_profiles: Vec::new(),
+            frametime_dir: None,
         }
     }
 }
 
 impl Settings {
     /// Charge la configuration ; ne renvoie jamais d'erreur bloquante.
+    ///
+    /// Les clés d'API sont lues dans le coffre `secrets/` voisin (voir [`crate::secrets`]).
+    /// Une clé encore présente en clair dans le fichier (version ≤ 0.5) est déplacée dans le
+    /// coffre, puis le fichier est réécrit sans elle.
     pub fn load(path: &Path) -> Self {
+        let mut s = Self::load_file(path);
+        let vault = secret_store(path);
+        let mut migrated = false;
+        for &name in SECRET_FIELDS {
+            let field = s.secret_mut(name);
+            if !field.trim().is_empty() {
+                match vault.set(name, field) {
+                    Ok(_) => migrated = true,
+                    Err(e) => log::error!("coffre des secrets : {name} non déplacée ({e})"),
+                }
+            } else if let Some(v) = vault.get(name) {
+                *field = v;
+            }
+        }
+        if migrated {
+            log::info!("clés d'API déplacées de settings.json vers le coffre des secrets");
+            crate::audit::event("secret.migrated", "settings.json → secrets/");
+            if let Err(e) = s.save(path) {
+                log::error!("réécriture de la configuration sans secrets impossible : {e}");
+            }
+        }
+        s
+    }
+
+    fn load_file(path: &Path) -> Self {
         match std::fs::read_to_string(path) {
             Ok(text) => match serde_json::from_str::<Settings>(&text) {
                 Ok(mut s) => {
@@ -470,13 +552,30 @@ impl Settings {
         }
     }
 
-    /// Enregistre de manière atomique.
+    /// Enregistre de manière atomique, fichier réservé à l'utilisateur (Unix : `0600`).
+    /// Les clés d'API vont dans le coffre ; le fichier JSON n'en contient aucune.
     pub fn save(&self, path: &Path) -> crate::Result<()> {
-        let tmp = path.with_extension("json.tmp");
-        let data = serde_json::to_vec_pretty(self)?;
-        std::fs::write(&tmp, data)?;
-        std::fs::rename(&tmp, path)?;
+        let vault = secret_store(path);
+        let mut clean = self.clone();
+        for &name in SECRET_FIELDS {
+            let field = clean.secret_mut(name);
+            vault.set(name, field)?;
+            field.clear();
+        }
+        let data = serde_json::to_vec_pretty(&clean)?;
+        crate::secrets::write_private(path, &data)?;
         Ok(())
+    }
+
+    fn secret_mut(&mut self, name: &str) -> &mut String {
+        match name {
+            "steam_api_key" => &mut self.steam_api_key,
+            "ra_api_key" => &mut self.ra_api_key,
+            "nexus_api_key" => &mut self.nexus_api_key,
+            "steamgriddb_api_key" => &mut self.steamgriddb_api_key,
+            "curseforge_api_key" => &mut self.curseforge_api_key,
+            _ => unreachable!("champ secret inconnu : {name}"),
+        }
     }
 
     fn sanitize(&mut self) {
@@ -492,6 +591,37 @@ impl Settings {
         if self.windows_runner.trim().is_empty() {
             self.windows_runner = "wine".into();
         }
+    }
+
+    /// Enregistre l'apparence actuelle sous `name` (remplace un profil du même nom, sans
+    /// tenir compte de la casse). Renvoie `false` si le nom est vide.
+    pub fn save_ui_profile(&mut self, name: &str) -> bool {
+        let name = name.trim();
+        if name.is_empty() {
+            return false;
+        }
+        let p = UiProfile { name: name.chars().take(40).collect(), appearance: self.appearance.clone() };
+        match self.ui_profiles.iter().position(|x| x.name.eq_ignore_ascii_case(name)) {
+            Some(i) => self.ui_profiles[i] = p,
+            None if self.ui_profiles.len() < 20 => self.ui_profiles.push(p),
+            None => return false,
+        }
+        true
+    }
+
+    /// Applique un profil. Le mode Performance en cours (manuel ou automatique) est conservé :
+    /// changer d'apparence ne doit pas réactiver d'effets pendant une partie.
+    pub fn apply_ui_profile(&mut self, index: usize) -> bool {
+        let Some(p) = self.ui_profiles.get(index) else { return false };
+        let (perf, auto) = (self.appearance.performance, self.appearance.performance_auto);
+        self.appearance = p.appearance.clone();
+        self.appearance.performance = perf;
+        self.appearance.performance_auto = auto;
+        true
+    }
+
+    pub fn delete_ui_profile(&mut self, index: usize) -> bool {
+        (index < self.ui_profiles.len()).then(|| self.ui_profiles.remove(index)).is_some()
     }
 
     /// Profil d'un émulateur (créé à la volée s'il n'existe pas encore).
@@ -567,6 +697,71 @@ impl MinecraftSettings {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ui_profiles_save_apply_delete() {
+        let mut s = Settings::default();
+        s.appearance.density = 2;
+        assert!(!s.save_ui_profile("  "));
+        assert!(s.save_ui_profile("Salon"));
+        s.appearance.density = 0;
+        s.appearance.performance = true;
+        assert!(s.save_ui_profile("salon"), "même nom : remplacé");
+        assert_eq!(s.ui_profiles.len(), 1);
+        s.appearance.density = 1;
+        s.appearance.performance = false;
+        assert!(s.apply_ui_profile(0));
+        assert_eq!(s.appearance.density, 0);
+        assert!(!s.appearance.performance, "le mode Performance courant est conservé");
+        assert!(!s.apply_ui_profile(5));
+        assert!(s.delete_ui_profile(0));
+        assert!(s.ui_profiles.is_empty());
+    }
+
+    #[test]
+    fn api_keys_live_in_the_vault_not_in_the_json() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("settings.json");
+        // Fichier 0.5 : clé en clair.
+        std::fs::write(&path, r#"{"steam_api_key":"PLAIN-KEY","card_width":180}"#).unwrap();
+        let s = Settings::load(&path);
+        assert_eq!(s.steam_api_key, "PLAIN-KEY", "la clé reste utilisable");
+        assert_eq!(s.card_width, 180);
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert!(!text.contains("PLAIN-KEY"), "fichier réécrit sans la clé");
+        assert_eq!(secret_store(&path).get("steam_api_key").as_deref(), Some("PLAIN-KEY"));
+
+        // Nouvel enregistrement : toujours rien en clair, relecture identique.
+        let s2 = Settings { curseforge_api_key: "CF".into(), ..s.clone() };
+        s2.save(&path).unwrap();
+        assert!(!std::fs::read_to_string(&path).unwrap().contains("CF\""));
+        assert_eq!(Settings::load(&path), s2);
+
+        // Clé effacée dans les paramètres : retirée du coffre.
+        let s3 = Settings { steam_api_key: String::new(), ..s2 };
+        s3.save(&path).unwrap();
+        assert_eq!(secret_store(&path).get("steam_api_key"), None);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            assert_eq!(std::fs::metadata(&path).unwrap().permissions().mode() & 0o777, 0o600);
+        }
+    }
+
+    #[test]
+    fn language_choice_persists_and_old_files_default_to_system() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("settings.json");
+        // Fichier d'une version sans langue : langue du système.
+        std::fs::write(&path, r#"{"card_width":180}"#).unwrap();
+        assert_eq!(Settings::load(&path).language, None);
+        let s = Settings { language: Some("de-DE".into()), ..Settings::load(&path) };
+        s.save(&path).unwrap();
+        assert_eq!(Settings::load(&path).language.as_deref(), Some("de-DE"), "choix conservé au redémarrage");
+        let back = Settings { language: None, ..s };
+        back.save(&path).unwrap();
+        assert_eq!(Settings::load(&path).language, None, "retour à « Automatique »");
+    }
 
     #[test]
     fn roundtrip_and_corruption_recovery() {

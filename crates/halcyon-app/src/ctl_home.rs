@@ -21,20 +21,20 @@ use std::rc::Rc;
 
 /// Titres des widgets, dans l'ordre des codes de `settings::widget`.
 pub const WIDGET_TITLES: [&str; widget::COUNT as usize] = [
-    "Continuer à jouer",
-    "Derniers jeux lancés",
-    "Favoris",
-    "Bibliothèque",
-    "Succès récents",
-    "Statistiques",
-    "Temps de jeu",
-    "Activité récente",
-    "Stockage",
-    "Émulateurs",
-    "Captures",
-    "Recommandations",
-    "Ajoutés récemment",
-    "En cours",
+    tr_noop!("Continuer à jouer"),
+    tr_noop!("Derniers jeux lancés"),
+    tr_noop!("Favoris"),
+    tr_noop!("Bibliothèque"),
+    tr_noop!("Succès récents"),
+    tr_noop!("Statistiques"),
+    tr_noop!("Temps de jeu"),
+    tr_noop!("Activité récente"),
+    tr_noop!("Stockage"),
+    tr_noop!("Émulateurs"),
+    tr_noop!("Captures"),
+    tr_noop!("Recommandations"),
+    tr_noop!("Ajoutés récemment"),
+    tr_noop!("En cours"),
 ];
 
 /// Nombre de jeux par étagère.
@@ -93,14 +93,13 @@ pub fn layout(widgets: &[WidgetConf], minimal: bool) -> Layout {
 fn fmt_bytes(b: u64) -> String {
     const GB: f64 = 1_000_000_000.0;
     let g = b as f64 / GB;
-    let s = if g >= 1000.0 {
-        format!("{:.1} To", g / 1000.0)
+    if g >= 1000.0 {
+        tr!("{v} To", v = halcyon_i18n::decimal(g / 1000.0, 1))
     } else if g >= 10.0 {
-        format!("{g:.0} Go")
+        tr!("{v} Go", v = halcyon_i18n::number(g.round() as u64))
     } else {
-        format!("{g:.1} Go")
-    };
-    s.replace('.', ",")
+        tr!("{v} Go", v = halcyon_i18n::decimal(g, 1))
+    }
 }
 
 /// Disque monté et occupation.
@@ -151,7 +150,7 @@ impl Controller {
         let shown: Vec<u8> = lay.rows.iter().flatten().map(|w| w.0).collect();
         let on = |k: u8| shown.contains(&k);
         let home = app.global::<HomeUi>();
-        let title = |k: u8| SharedString::from(WIDGET_TITLES.get(usize::from(k)).copied().unwrap_or("?"));
+        let title = |k: u8| SharedString::from(halcyon_i18n::t(WIDGET_TITLES.get(usize::from(k)).copied().unwrap_or("?")));
         let rows: Vec<WidgetRow> = lay
             .rows
             .iter()
@@ -227,7 +226,7 @@ impl Controller {
             home.set_has_hero(hero.is_some());
             if let Some(g) = hero {
                 home.set_hero(detail_for(g, &self.images, Tracking::default(), now));
-                home.set_hero_kicker(if g.last_played.is_some() { "REPRENDRE" } else { "À DÉCOUVRIR" }.into());
+                home.set_hero_kicker(if g.last_played.is_some() { tr!("Reprendre") } else { tr!("À découvrir") }.into());
                 home.set_hero_meta(self.meta_line(g, now).into());
             }
         } else {
@@ -254,8 +253,8 @@ impl Controller {
                 .map(|g| {
                     let origin = match g.playtime_origin() {
                         PlaytimeOrigin::Platform => g.source.label(),
-                        PlaytimeOrigin::Manual => "saisi",
-                        _ => "suivi local",
+                        PlaytimeOrigin::Manual => tr!("saisi"),
+                        _ => tr!("suivi local"),
                     };
                     KeyValue {
                         label: g.name.as_str().into(),
@@ -330,7 +329,7 @@ impl Controller {
                 days[d as usize] += s.duration_secs;
             }
         }
-        const NAMES: [&str; 7] = ["jeu", "ven", "sam", "dim", "lun", "mar", "mer"]; // 1970-01-01 : jeudi
+        const NAMES: [&str; 7] = [trc_noop!("weekday", "jeu"), trc_noop!("weekday", "ven"), trc_noop!("weekday", "sam"), trc_noop!("weekday", "dim"), trc_noop!("weekday", "lun"), trc_noop!("weekday", "mar"), trc_noop!("weekday", "mer")]; // 1970-01-01 : jeudi
         let max = days.iter().copied().max().unwrap_or(0).max(1) as f32;
         let bars: Vec<BarItem> = days
             .iter()
@@ -338,7 +337,7 @@ impl Controller {
             .map(|(i, &secs)| {
                 let day = today - 6 + i as i64;
                 BarItem {
-                    label: if i == 6 { "auj.".into() } else { NAMES[day.rem_euclid(7) as usize].into() },
+                    label: if i == 6 { trc!("weekday", "auj.").into() } else { halcyon_i18n::tc("weekday", NAMES[day.rem_euclid(7) as usize]).into() },
                     value: if secs > 0 { util::format_playtime(secs).into() } else { SharedString::new() },
                     ratio: secs as f32 / max * f32::from(u8::from(secs > 0)),
                 }
@@ -346,7 +345,7 @@ impl Controller {
             .collect();
         let home = app.global::<HomeUi>();
         let total: u64 = days.iter().sum();
-        home.set_week_total(if total > 0 { util::format_playtime(total) } else { "0 min".into() }.into());
+        home.set_week_total(if total > 0 { util::format_playtime(total) } else { tr!("0 min").into() }.into());
         home.set_week_bars(ModelRc::new(VecModel::from(bars)));
     }
 
@@ -397,7 +396,7 @@ impl Controller {
                         .count();
                     KeyValue {
                         label: def.name.as_str().into(),
-                        value: if n == 0 { "détecté".into() } else { format!("{n} jeu{}", if n > 1 { "x" } else { "" }).into() },
+                        value: if n == 0 { tr!("détecté").into() } else { trn!(n, "{n} jeu", "{n} jeux").into() },
                         ratio: 0.0,
                     }
                 })
@@ -436,13 +435,13 @@ impl Controller {
                         .iter()
                         .map(|d| KeyValue {
                             label: d.label.as_str().into(),
-                            value: format!("{} libres sur {}", fmt_bytes(d.total.saturating_sub(d.used)), fmt_bytes(d.total)).into(),
+                            value: tr!("{used} libres sur {total}", used = fmt_bytes(d.total.saturating_sub(d.used)), total = fmt_bytes(d.total)).into(),
                             ratio: d.used as f32 / d.total.max(1) as f32,
                         })
                         .collect();
                     if declared > 0 {
                         rows.push(KeyValue {
-                            label: format!("Jeux installés ({with_size} avec taille connue)").into(),
+                            label: tr!("Jeux installés ({with_size} avec taille connue)", with_size = with_size).into(),
                             value: fmt_bytes(declared).into(),
                             ratio: disks.iter().map(|d| d.total).max().map_or(0.0, |t| declared as f32 / t.max(1) as f32).min(1.0),
                         });
@@ -460,7 +459,7 @@ impl Controller {
             self.home_captures.borrow_mut().clear();
             if let Some(app) = self.app() {
                 let home = app.global::<HomeUi>();
-                home.set_captures_note("Aucune source de captures : Steam n'est pas installé ou introuvable.".into());
+                home.set_captures_note(tr!("Aucune source de captures : Steam n'est pas installé ou introuvable.").into());
                 home.set_captures(ModelRc::default());
             }
             return;
@@ -500,7 +499,7 @@ impl Controller {
                 .collect()
         };
         let home = app.global::<HomeUi>();
-        home.set_captures_note("Aucune capture Steam trouvée. Les captures prises avec F12 dans Steam apparaîtront ici.".into());
+        home.set_captures_note(tr!("Aucune capture Steam trouvée. Les captures prises avec F12 dans Steam apparaîtront ici.").into());
         home.set_captures(ModelRc::new(VecModel::from(items)));
     }
 
@@ -555,7 +554,7 @@ impl Controller {
         let shot = self.detail_captures.borrow().1.get(index).cloned();
         if let Some(s) = shot {
             if let Err(e) = launcher::open_path(&s.path) {
-                self.toast(format!("Ouverture impossible : {e}"), true);
+                self.toast(tr!("Ouverture impossible : {e}", e = e), true);
             }
         }
     }
@@ -564,7 +563,7 @@ impl Controller {
         let shot = self.home_captures.borrow().get(index).cloned();
         if let Some(s) = shot {
             if let Err(e) = launcher::open_path(&s.path) {
-                self.toast(format!("Ouverture impossible : {e}"), true);
+                self.toast(tr!("Ouverture impossible : {e}", e = e), true);
             }
         }
     }
@@ -624,7 +623,7 @@ impl Controller {
 
     pub(crate) fn widgets_reset(&self) {
         self.edit_widgets(|w| *w = Appearance::default_widgets());
-        self.toast("Disposition de l'accueil réinitialisée", false);
+        self.toast(tr!("Disposition de l'accueil réinitialisée"), false);
     }
 
     // ------------------------------------------------------------------ menu contextuel
@@ -638,30 +637,30 @@ impl Controller {
         let mut entries: Vec<MenuEntry> = Vec::new();
         let mut codes: Vec<SharedString> = Vec::new();
         let mut add = |code: &str, label: &str, icon: Image, enabled: bool, danger: bool, sep: bool| {
-            entries.push(MenuEntry { label: label.into(), icon, enabled, danger, separator_before: sep });
+            entries.push(MenuEntry { label: halcyon_i18n::t(label).into(), icon, enabled, danger, separator_before: sep });
             codes.push(code.into());
         };
         let icons = app.global::<crate::Icons>();
         if g.installed {
-            add("play", "Jouer", icons.get_play(), true, false, false);
+            add("play", tr_noop!("Jouer"), icons.get_play(), true, false, false);
         } else {
-            add("play", "Non installé", icons.get_play(), false, false, false);
+            add("play", tr_noop!("Non installé"), icons.get_play(), false, false, false);
         }
-        add("open", "Ouvrir la fiche", icons.get_info(), true, false, false);
-        add("fav", if g.favorite { "Retirer des favoris" } else { "Ajouter aux favoris" }, icons.get_star(), true, false, true);
-        add("achievements", "Succès", icons.get_trophy(), self.ach_mode(&g) != "unsupported", false, false);
-        add("saves", "Sauvegardes", icons.get_save(), true, false, false);
+        add("open", tr_noop!("Ouvrir la fiche"), icons.get_info(), true, false, false);
+        add("fav", if g.favorite { tr_noop!("Retirer des favoris") } else { tr_noop!("Ajouter aux favoris") }, icons.get_star(), true, false, true);
+        add("achievements", tr_noop!("Succès"), icons.get_trophy(), self.ach_mode(&g) != "unsupported", false, false);
+        add("saves", tr_noop!("Sauvegardes"), icons.get_save(), true, false, false);
         let has_dir = g.install_dir.as_ref().is_some_and(|d| d.is_dir());
-        add("folder", "Ouvrir le dossier du jeu", icons.get_folder(), has_dir, false, true);
-        add("shortcut", "Créer un raccourci sur le bureau", icons.get_external(), g.installed, false, false);
-        add("hide", if g.hidden { "Afficher dans la bibliothèque" } else { "Masquer de la bibliothèque" }, icons.get_eye_off(), true, false, true);
+        add("folder", tr_noop!("Ouvrir le dossier du jeu"), icons.get_folder(), has_dir, false, true);
+        add("shortcut", tr_noop!("Créer un raccourci sur le bureau"), icons.get_external(), g.installed, false, false);
+        add("hide", if g.hidden { tr_noop!("Afficher dans la bibliothèque") } else { tr_noop!("Masquer de la bibliothèque") }, icons.get_eye_off(), true, false, true);
         if g.source == GameSource::Manual {
-            add("remove", "Retirer de Halcyon…", icons.get_trash(), true, true, false);
+            add("remove", tr_noop!("Retirer de Halcyon…"), icons.get_trash(), true, true, false);
         }
         let ui = app.global::<GameMenu>();
         let size = app.window().size().to_logical(app.window().scale_factor());
         ui.set_game_id(id as i32);
-        ui.set_title(g.name.to_uppercase().into());
+        ui.set_title(g.name.clone().into());
         ui.set_entries(ModelRc::new(VecModel::from(entries)));
         ui.set_codes(ModelRc::new(VecModel::from(codes)));
         ui.set_selected(0);
@@ -698,9 +697,9 @@ impl Controller {
             "remove" => {
                 let name = self.lib.borrow().get(id).map(|g| g.name.clone()).unwrap_or_default();
                 self.confirm(
-                    "Retirer ce jeu ?",
-                    &format!("« {name} » sera retiré de Halcyon. Les fichiers du jeu ne sont pas supprimés."),
-                    "Retirer",
+                    &tr!("Retirer ce jeu ?"),
+                    &tr!("« {name} » sera retiré de Halcyon. Les fichiers du jeu ne sont pas supprimés.", name = name),
+                    &tr!("Retirer"),
                     move |c| c.remove_game(id),
                 );
             }

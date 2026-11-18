@@ -70,8 +70,8 @@ impl Controller {
         let db = self.db.clone();
         let manifest = self.manifest();
         let dest = dir.join(format!("halcyon-config-{}.zip", stamp(now_unix())));
-        self.set_backup_status("Export en cours…");
-        let task = self.task_start("export", "Export de la configuration");
+        self.set_backup_status(&tr!("Export en cours…"));
+        let task = self.task_start("export", &tr!("Export de la configuration"));
         self.task_update(task, Some(-1.0), None);
         std::thread::spawn(move || {
             let r = (|| -> Result<u64, String> {
@@ -85,17 +85,17 @@ impl Controller {
             })();
             post(move |c| match r {
                 Ok(size) => {
-                    let msg = format!("Exporté : {} ({})", dest.display(), util::format_size(size));
-                    let _ = c.db().log_activity(ActivityKind::Settings, None, "Configuration exportée", &dest.to_string_lossy());
+                    let msg = tr!("Exporté : {dest} ({size})", dest = dest.display(), size = util::format_size(size));
+                    let _ = c.db().log_activity(ActivityKind::Settings, None, &tr_later!("Configuration exportée"), &dest.to_string_lossy());
                     c.set_backup_status(&msg);
                     c.task_finish(task, true, msg.clone(), crate::tasks::Action::OpenFolder(dest.parent().map(|p| p.display().to_string()).unwrap_or_default()));
                     c.sound(halcyon_audio::Cue::Success);
-                    c.toast("Configuration exportée", false);
+                    c.toast(tr!("Configuration exportée"), false);
                 }
                 Err(e) => {
-                    c.set_backup_status(&format!("Export impossible : {e}"));
-                    c.task_finish(task, false, format!("Export impossible : {e}"), crate::tasks::Action::None);
-                    c.toast(format!("Export impossible : {e}"), true);
+                    c.set_backup_status(&tr!("Export impossible : {e}", e = e));
+                    c.task_finish(task, false, tr!("Export impossible : {e}", e = e), crate::tasks::Action::None);
+                    c.toast(tr!("Export impossible : {e}", e = e), true);
                 }
             });
         });
@@ -107,28 +107,27 @@ impl Controller {
         let manifest = match config_archive::inspect(&src) {
             Ok(m) => m,
             Err(e) => {
-                self.set_backup_status(&format!("Archive refusée : {e}"));
-                return self.toast(format!("Archive refusée : {e}"), true);
+                self.set_backup_status(&tr!("Archive refusée : {e}", e = e));
+                return self.toast(tr!("Archive refusée : {e}", e = e), true);
             }
         };
         if manifest.schema_version > saves_mods::schema_version() {
-            return self.toast("Archive créée par une version plus récente de Halcyon : mettez Halcyon à jour d'abord", true);
+            return self.toast(tr!("Archive créée par une version plus récente de Halcyon : mettez Halcyon à jour d'abord"), true);
         }
-        let text = format!(
-            "Archive du {} créée sur « {} » (Halcyon {}) : {} jeux, {}. \
-             Vos données actuelles seront d'abord exportées dans le dossier des exports, puis remplacées ; Halcyon redémarrera. \
-             Les fichiers des jeux, sauvegardes de parties et mods installés ne sont pas modifiés.",
-            util::format_date(manifest.created_at),
-            manifest.machine,
-            manifest.app_version,
+        let text = trn!(
             manifest.games,
-            manifest.sections.join(", ")
+            "Archive du {date} créée sur « {machine} » (Halcyon {version}) : {n} jeu, {sections}. Vos données actuelles seront d'abord exportées dans le dossier des exports, puis remplacées ; Halcyon redémarrera. Les fichiers des jeux, sauvegardes de parties et mods installés ne sont pas modifiés.",
+            "Archive du {date} créée sur « {machine} » (Halcyon {version}) : {n} jeux, {sections}. Vos données actuelles seront d'abord exportées dans le dossier des exports, puis remplacées ; Halcyon redémarrera. Les fichiers des jeux, sauvegardes de parties et mods installés ne sont pas modifiés.",
+            date = util::format_date(manifest.created_at),
+            machine = manifest.machine,
+            version = manifest.app_version,
+            sections = manifest.sections.join(", ")
         );
-        self.confirm("Restaurer cette configuration ?", &text, "Restaurer et redémarrer", move |c| c.run_import(src));
+        self.confirm(&tr!("Restaurer cette configuration ?"), &text, &tr!("Restaurer et redémarrer"), move |c| c.run_import(src));
     }
 
     fn run_import(self: &Rc<Self>, src: PathBuf) {
-        self.set_backup_status("Restauration : préparation…");
+        self.set_backup_status(&tr!("Restauration : préparation…"));
         let staging = self.paths.data_dir.join(".restore-staging");
         let dir = self.backups_dir();
         let data_dir = self.paths.data_dir.clone();
@@ -137,9 +136,9 @@ impl Controller {
         std::thread::spawn(move || {
             let r = (|| -> Result<PathBuf, String> {
                 config_archive::extract(&src, &staging).map_err(|e| e.to_string())?;
-                let version = saves_mods::inspect_database(&staging.join("library.db")).map_err(|e| format!("base de l'archive : {e}"))?;
+                let version = saves_mods::inspect_database(&staging.join("library.db")).map_err(|e| tr!("base de l'archive : {e}", e = e))?;
                 if version > saves_mods::schema_version() {
-                    return Err("base créée par une version plus récente".into());
+                    return Err(tr!("base créée par une version plus récente").into());
                 }
                 // Filet de sécurité : export complet de l'état actuel.
                 std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -153,7 +152,7 @@ impl Controller {
                     &ExportOptions { include_secrets: true, include_mod_files: false },
                     manifest,
                 )
-                .map_err(|e| format!("export de sécurité impossible, restauration annulée : {e}"))?;
+                .map_err(|e| tr!("export de sécurité impossible, restauration annulée : {e}", e = e))?;
                 let _ = std::fs::remove_file(&copy);
                 Ok(safety)
             })();
@@ -161,8 +160,8 @@ impl Controller {
                 Ok(safety) => c.finish_import(&staging, &safety),
                 Err(e) => {
                     let _ = std::fs::remove_dir_all(&staging);
-                    c.set_backup_status(&format!("Restauration annulée : {e}"));
-                    c.toast(format!("Restauration annulée : {e}"), true);
+                    c.set_backup_status(&tr!("Restauration annulée : {e}", e = e));
+                    c.toast(tr!("Restauration annulée : {e}", e = e), true);
                 }
             });
         });
@@ -175,7 +174,7 @@ impl Controller {
             let mut db = self.db();
             match Database::open_in_memory() {
                 Ok(mem) => *db = mem,
-                Err(e) => return self.toast(format!("Restauration impossible : {e}"), true),
+                Err(e) => return self.toast(tr!("Restauration impossible : {e}", e = e), true),
             }
         }
         let r = config_archive::install(staging, &self.paths.data_dir, &previous);
@@ -183,7 +182,7 @@ impl Controller {
         if let Err(e) = r {
             log::error!("restauration interrompue : {e} ; données d'origine dans {}", previous.display());
             self.toast(
-                format!("Restauration interrompue : {e}. Vos données d'origine sont dans {} et {}", previous.display(), safety.display()),
+                tr!("Restauration interrompue : {e}. Vos données d'origine sont dans {previous} et {safety}", e = e, previous = previous.display(), safety = safety.display()),
                 true,
             );
             return;
@@ -199,7 +198,7 @@ impl Controller {
         if let Ok(exe) = std::env::current_exe() {
             let args: Vec<String> = std::env::args().skip(1).collect();
             if let Err(e) = std::process::Command::new(exe).args(args).spawn() {
-                self.toast(format!("Redémarrez Halcyon manuellement ({e})"), true);
+                self.toast(tr!("Redémarrez Halcyon manuellement ({e})", e = e), true);
                 return;
             }
         }
@@ -249,14 +248,14 @@ impl Controller {
     /// Retour de la connexion : on relance ce qui attendait le réseau.
     fn on_reconnected(&self) {
         log::info!("connexion rétablie : synchronisation");
-        let _ = self.db().log_activity(ActivityKind::Sync, None, "Connexion rétablie", "Synchronisation des succès, visuels et métadonnées");
+        let _ = self.db().log_activity(ActivityKind::Sync, None, &tr_later!("Connexion rétablie"), &tr_later!("Synchronisation des succès, visuels et métadonnées"));
         let s = self.settings.borrow().clone();
         self.start_online_jobs();
         if s.sync_achievements_on_startup {
             self.start_ach_sync(None, false);
         }
-        if s.check_updates && !s.update_repo.trim().is_empty() {
-            self.check_update(false);
+        if s.check_updates {
+            crate::controller::post(|c| c.hus_check(false));
         }
         self.sync_pending_saves();
     }

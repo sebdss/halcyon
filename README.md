@@ -132,4 +132,4 @@ HALCYON_DATA_DIR=/tmp/halcyon-demo/data cargo run -p halcyon-app
 ## Licences
 
 Code : MIT. Interface : [Slint](https://slint.dev) (licence royalty-free pour applications desktop).
-Police : Inter (SIL Open Font License, `crates/halcyon-app/ui/fonts/LICENSE-Inter.txt`).
+Police : Archivo (SIL Open Font License, `crates/halcyon-app/ui/fonts/LICENSE-Archivo.txt`).
