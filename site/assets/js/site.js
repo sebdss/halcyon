@@ -15,7 +15,8 @@
       size: (mo) => (mo >= 100 ? Math.round(mo) : mo.toFixed(1)).toString().replace(".", ",") + " Mo",
       locale: "fr-FR", prerelease: "Préversion", published: (d) => "Publiée le " + d, notes: "Notes de version",
       yourSystem: "Votre système", downloadFor: (os) => "Télécharger pour " + os,
-      unavailableTitle: "Versions publiées sur GitHub", unavailableText: "La dernière version n'a pas pu être récupérée depuis cette page."
+      unavailableTitle: "Versions publiées sur GitHub", unavailableText: "La dernière version n'a pas pu être récupérée depuis cette page.",
+      filmReplay: "Revoir le film"
     },
     en: {
       openMenu: "Open menu", closeMenu: "Close menu",
@@ -23,7 +24,8 @@
       size: (mo) => (mo >= 100 ? Math.round(mo) : mo.toFixed(1)) + " MB",
       locale: "en-US", prerelease: "Pre-release", published: (d) => "Released " + d, notes: "Release notes",
       yourSystem: "Your system", downloadFor: (os) => "Download for " + os,
-      unavailableTitle: "Releases on GitHub", unavailableText: "The latest release couldn't be loaded from this page."
+      unavailableTitle: "Releases on GitHub", unavailableText: "The latest release couldn't be loaded from this page.",
+      filmReplay: "Watch again"
     }
   }[lang];
   // Textes de config.js : chaîne simple, ou { fr: "…", en: "…" }.
@@ -224,6 +226,46 @@
       });
     }, { passive: true });
     mark(0);
+  }
+
+  /* ---------- Le film : rien n'est chargé avant le clic ; pause quand il quitte l'écran ---------- */
+  // Chaque page référence le film de sa langue (fichiers -fr ou -en) ; le téléphone reçoit la
+  // version 720p par <source media>. Sans JavaScript, la vidéo garde ses commandes natives.
+  const film = $("[data-film]");
+  if (film) {
+    const video = $("video", film);
+    const play = $("[data-film-play]", film);
+    const label = $("[data-film-label]", film);
+    video.controls = false;
+    play.hidden = false;
+    const start = () => {
+      film.dataset.state = "playing";
+      video.controls = true;
+      const p = video.play();
+      if (p && p.catch) p.catch(() => { film.dataset.state = ""; video.controls = false; });
+    };
+    play.addEventListener("click", start);
+    video.addEventListener("ended", () => {
+      film.dataset.state = "ended";
+      video.controls = false;
+      if (label) label.textContent = STR.filmReplay;
+      play.setAttribute("aria-label", STR.filmReplay);
+      play.focus({ preventScroll: true });
+    });
+    // Liens « Voir le film » : défilement jusqu'au film, lecture dans le même geste.
+    $$("[data-film-start]").forEach((a) => a.addEventListener("click", (e) => {
+      e.preventDefault();
+      film.scrollIntoView({ behavior: reduced.matches ? "auto" : "smooth", block: "center" });
+      start();
+    }));
+    // Pause quand le film sort de l'écran (seulement après y être entré : un lancement
+    // depuis l'accueil commence pendant le défilement).
+    let seen = false;
+    new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= 0.25) { seen = true; return; }
+      if (seen && !video.paused) video.pause();
+      seen = false;
+    }, { threshold: [0, 0.25, 0.5] }).observe(film);
   }
 
   /* ---------- Partager le lien (téléphone) ---------- */

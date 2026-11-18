@@ -47,6 +47,21 @@
     "codeRepository": "https://github.com/sebdss/halcyon"
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": "Halcyon — le film de présentation",
+    "description": "Halcyon en 57 secondes : bibliothèque unifiée, vues, fiche de jeu, mode console, outils et émulateurs, avec de vraies captures du launcher.",
+    "thumbnailUrl": "https://sebdss.github.io/halcyon/assets/video/halcyon-film-fr-poster.webp",
+    "contentUrl": "https://sebdss.github.io/halcyon/assets/video/halcyon-film-fr-1080.mp4",
+    "uploadDate": "2026-11-17",
+    "duration": "PT57S",
+    "inLanguage": "fr",
+    "width": 1920,
+    "height": 1080
+  }
+  </script>
   <script>document.documentElement.classList.replace("no-js", "js");</script>
 </head>
 <body>
@@ -154,7 +169,7 @@
             <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
             Télécharger Halcyon
           </a>
-          <a class="btn btn--line btn--big" href="#a-propos">Découvrir Halcyon</a>
+          <a class="btn btn--line btn--big" href="#film" data-film-start><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg> Voir le film <span class="film__time" aria-hidden="true">0:57</span></a>
         </div>
         <ul class="hero__facts" aria-label="En bref">
           <li>Windows et Linux</li>
@@ -171,6 +186,30 @@
                alt="Écran d'accueil de Halcyon : colonne de navigation, bloc « Reprendre » sur Counter-Strike 2 avec le bouton Jouer orange, puis les derniers jeux lancés : Elden Ring, Cyberpunk 2077, Baldur's Gate 3, Marvel Rivals, Helldivers 2."></picture>
         </div>
       </figure>
+    </div>
+  </section>
+
+  <!-- Le film : version française, lue au clic seulement -->
+  <section class="film" id="film" data-nav-parent="accueil" data-film aria-labelledby="film-title">
+    <div class="wrap">
+      <div class="film__head reveal">
+        <div>
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg> Le film</p>
+          <h2 class="film__title" id="film-title">Halcyon en 57 secondes.</h2>
+        </div>
+        <p class="film__meta">Sans voix : musique et sons. Chaque écran vient du vrai launcher.</p>
+      </div>
+      <div class="film__player shot reveal">
+        <video controls preload="none" playsinline poster="assets/video/halcyon-film-fr-poster.webp" width="1920" height="1080" aria-describedby="film-desc">
+          <source media="(max-width: 720px)" src="assets/video/halcyon-film-fr-720.mp4" type="video/mp4">
+          <source src="assets/video/halcyon-film-fr-1080.mp4" type="video/mp4">
+          <p>Votre navigateur ne lit pas cette vidéo : <a class="link" href="assets/video/halcyon-film-fr-1080.mp4">télécharger le film (MP4)</a>.</p>
+        </video>
+        <button class="film__play" type="button" data-film-play hidden aria-label="Lire le film de présentation : 57 secondes, avec du son">
+          <span class="btn btn--warm btn--big"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span data-film-label>Lire le film</span><span class="film__time" aria-hidden="true">0:57</span></span>
+        </button>
+      </div>
+      <p class="sr-only" id="film-desc">Film de présentation sans voix, 57 secondes. Il montre l'accueil de Halcyon, la bibliothèque qui réunit Steam, Epic Games, GOG, Heroic, Legendary, vos dossiers et les émulateurs, ses vues (grille, liste, carrousel, immersive), la fiche d'un jeu, le mode console, les outils (mises à jour, Que jouer ?, statistiques, apparence), les émulateurs reconnus, puis le bouton Jouer. Textes à l'écran : « Immobile au-dessus de l'eau, puis un geste net. », « Tous vos jeux. Une seule bibliothèque. », « Natif. Léger. Hors ligne. », « Un seul geste pour jouer. »</p>
     </div>
   </section>
 

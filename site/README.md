@@ -17,6 +17,8 @@ site/
     ├── js/config.js         dépôt, canal, fichiers proposés  ← à modifier
     ├── js/site.js           navigation, onglets, galerie, téléchargement (textes FR et EN)
     ├── fonts/               Archivo (SIL OFL), sous-ensemble latin en woff2
+    ├── video/               film de présentation : halcyon-film-{fr,en}-{1080,720}.mp4,
+    │                        images d'attente halcyon-film-{fr,en}-poster.webp
     └── img/                 logo, favicons, images Open Graph (og.png, og-en.png),
                              captures (screens/ en français, screens/en/ en anglais)
 ```
@@ -40,6 +42,29 @@ Mettre à jour ce numéro s'il change.
 Pour modifier un texte : faire la même modification dans `index.html` et `en/index.html`.
 Les identifiants de section sont propres à chaque langue (`#telechargement`, `#download`) ;
 `data-nav-parent` rattache une section sans entrée de menu à l'entrée voisine.
+
+## Le film
+
+La section « Le film » (juste après l'accueil) lit le film de présentation de `promo/` dans
+la langue de la page : `index.html` pointe vers les fichiers `-fr`, `en/index.html` vers
+les fichiers `-en`. Rien n'est téléchargé avant le clic (`preload="none"`) ; les téléphones
+reçoivent la version 720p (`<source media>`), les ordinateurs la 1080p à 60 i/s. Le bouton
+« Voir le film » de l'accueil fait défiler jusqu'au film et le lance ; le film se met en pause
+quand il quitte l'écran. Sans JavaScript, la vidéo garde ses commandes natives. Les fichiers
+sont servis par le site lui-même (pas de plateforme vidéo tierce).
+
+Refaire les fichiers après un nouveau rendu du film (`promo/out/`) :
+
+```bash
+for L in fr en; do
+  SRC=../promo/out/halcyon-promo$( [ $L = en ] && echo -en ).mp4
+  ffmpeg -i $SRC -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -c:a aac -b:a 128k \
+    -movflags +faststart assets/video/halcyon-film-$L-1080.mp4
+  ffmpeg -i $SRC -c:v libx264 -preset slow -crf 24 -vf "scale=1280:720:flags=lanczos,fps=30" \
+    -pix_fmt yuv420p -c:a aac -b:a 112k -movflags +faststart assets/video/halcyon-film-$L-720.mp4
+  ffmpeg -ss 12.6 -i $SRC -frames:v 1 -c:v libwebp -quality 82 assets/video/halcyon-film-$L-poster.webp
+done
+```
 
 ## Aperçu local
 
