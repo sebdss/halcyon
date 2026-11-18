@@ -90,13 +90,15 @@ fn read_map(data: &[u8], pos: &mut usize, depth: usize) -> Result<Kv, String> {
             return if depth == 0 { Ok(Kv::Map(items)) } else { Err(tr!("fichier Steam incomplet")) };
         };
         *pos += 1;
-        if kind == 0x08 {
+        // 0x08 : fin de bloc ; 0x0B : variante de fin rencontrée dans certains fichiers.
+        if kind == 0x08 || kind == 0x0B {
             return Ok(Kv::Map(items));
         }
         let name = read_cstr(data, pos)?;
         let value = match kind {
             0x00 => read_map(data, pos, depth + 1)?,
             0x01 => Kv::Str(read_cstr(data, pos)?),
+            0x05 => Kv::Str(read_wstr(data, pos)?),
             0x02 | 0x04 | 0x06 => Kv::Int(i64::from(i32::from_le_bytes(take::<4>(data, pos)?))),
             0x03 => Kv::Float(f32::from_le_bytes(take::<4>(data, pos)?)),
             0x07 => Kv::Int(u64::from_le_bytes(take::<8>(data, pos)?) as i64),
@@ -113,6 +115,17 @@ fn read_cstr(data: &[u8], pos: &mut usize) -> Result<String, String> {
     let s = String::from_utf8_lossy(&rest[..end]).into_owned();
     *pos += end + 1;
     Ok(s)
+}
+
+/// Chaîne UTF-16 (petit-boutiste) terminée par deux octets nuls.
+fn read_wstr(data: &[u8], pos: &mut usize) -> Result<String, String> {
+    let rest = data.get(*pos..).ok_or_else(|| tr!("fichier Steam incomplet"))?;
+    let units: Vec<u16> = rest.chunks_exact(2).map(|c| u16::from_le_bytes([c[0], c[1]])).take_while(|&u| u != 0).collect();
+    if units.len() * 2 + 2 > rest.len() {
+        return Err(tr!("fichier Steam incomplet"));
+    }
+    *pos += units.len() * 2 + 2;
+    Ok(String::from_utf16_lossy(&units))
 }
 
 fn take<const N: usize>(data: &[u8], pos: &mut usize) -> Result<[u8; N], String> {
@@ -177,7 +190,9 @@ fn parse_schema(schema: &Kv, appid: u64, language: &str) -> Vec<Def> {
                 _ => None,
             })
         });
-        if !matches!(kind, Some(4) | Some(5)) {
+        // Type absent : la présence de « bits » suffit (comme Steam Achievement Manager et
+        // d'autres lecteurs) ; un autre type déclaré (entier, flottant…) n'est pas un succès.
+        if kind.is_some_and(|k| k != 4 && k != 5) {
             continue;
         }
         let stat_id = stat.get("id").and_then(Kv::as_i64).map(|i| i.to_string()).unwrap_or_else(|| stat_key.clone());
@@ -462,4 +477,21 @@ mod tests {
         assert_eq!(list[0].name, "Alpha", "nom simple sans traductions");
         assert!(list[0].unlocked);
     }
+
+    #[test]
+    fn reads_wide_strings_and_alternate_end_marker() {
+        // racine { "a" (UTF-16) = "é1", "b" = { } terminé par 0x0B }
+        let mut data = vec![0x05];
+        data.extend(b"a\0");
+        data.extend([0xE9, 0x00, 0x31, 0x00, 0x00, 0x00]);
+        data.push(0x00);
+        data.extend(b"b\0");
+        data.push(0x0B);
+        data.push(0x08);
+        let kv = parse_binary(&data).unwrap();
+        assert_eq!(kv.get("a").and_then(Kv::as_str), Some("é1"));
+        assert!(matches!(kv.get("b"), Some(Kv::Map(m)) if m.is_empty()));
+        assert!(parse_binary(&[0x05, b'a', 0, 0x41]).is_err());
+    }
+
 }
