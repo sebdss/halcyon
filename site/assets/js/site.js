@@ -300,6 +300,8 @@
   const fmtDate = (s) => new Date(s).toLocaleDateString(STR.locale, { day: "numeric", month: "long", year: "numeric" });
   const icon = (id, cls = "icon") => `<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // Adresses venues de l'API GitHub : HTTPS uniquement (jamais « javascript: » ni autre schéma).
+  const safeUrl = (u) => (/^https:\/\//.test(String(u)) ? String(u) : "#");
 
   // Comparaison de versions « 1.0.0-alpha.5 » : numéros, puis préversion (sans préversion = plus récent).
   function versionAtLeast(v, min) {
@@ -336,7 +338,7 @@
     $("[data-release-meta]", releaseBox).innerHTML =
       (pre ? `<span class="tag tag--warm">${STR.prerelease}</span> ` : "") +
       esc(STR.published(fmtDate(release.published_at))) +
-      ` · <a class="link" href="${esc(release.html_url)}" rel="noopener">${STR.notes}</a>`;
+      ` · <a class="link" href="${esc(safeUrl(release.html_url))}" rel="noopener">${STR.notes}</a>`;
     $("[data-prerelease-note]").hidden = !pre;
     // Note « interface en anglais à partir de… » : masquée dès que la version publiée l'inclut.
     const langNote = $("[data-lang-note]");
@@ -347,7 +349,7 @@
 
     const sums = release.assets.find((a) => cfg.checksums && cfg.checksums.test(a.name));
     const sumsLink = $("[data-checksums]");
-    if (sums && sumsLink) { sumsLink.href = sums.browser_download_url; sumsLink.hidden = false; }
+    if (sums && sumsLink) { sumsLink.href = safeUrl(sums.browser_download_url); sumsLink.hidden = false; }
 
     ["windows", "linux"].forEach((os) => {
       const col = $(`.os[data-os="${os}"]`);
@@ -359,15 +361,15 @@
       $("[data-os-hint]", col).textContent = isUser ? STR.yourSystem : "";
       const label = os === "windows" ? "Windows" : "Linux";
       $("[data-os-primary]", col).innerHTML =
-        `<a class="btn ${isUser ? "btn--warm" : "btn--line"} btn--big" href="${esc(main.asset.browser_download_url)}" download>` +
+        `<a class="btn ${isUser ? "btn--warm" : "btn--line"} btn--big" href="${esc(safeUrl(main.asset.browser_download_url))}" download>` +
         `${icon("download")} ${esc(STR.downloadFor(label))}</a>` +
         `<span class="os__file">${esc(L(main.label))} · <code>${esc(main.asset.name)}</code> · ${esc(fmtSize(main.asset.size))}</span>`;
       $("[data-os-files]", col).innerHTML = rest.map((f) =>
-        `<li><a href="${esc(f.asset.browser_download_url)}" download>` +
+        `<li><a href="${esc(safeUrl(f.asset.browser_download_url))}" download>` +
         `<b>${esc(L(f.label))}</b><small>${esc(L(f.note))}</small>` +
         `<span class="size">${esc(fmtSize(f.asset.size))}</span>${icon("download")}</a></li>`).join("");
       const footLink = $(`[data-dl-link="${os}"]`);
-      if (footLink) footLink.href = main.asset.browser_download_url;
+      if (footLink) footLink.href = safeUrl(main.asset.browser_download_url);
     });
   }
 
