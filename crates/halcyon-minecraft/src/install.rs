@@ -174,9 +174,9 @@ pub fn manifest(http: &Http, layout: &Layout, online: bool) -> Result<Manifest> 
             Err(e) => read_json(&cache).map_err(|_| e)?,
         }
     } else {
-        read_json(&cache).map_err(|_| Error::Network("hors ligne et liste des versions jamais téléchargée".into()))?
+        read_json(&cache).map_err(|_| Error::Network(tr!("hors ligne et liste des versions jamais téléchargée").into()))?
     };
-    serde_json::from_value(value).map_err(|e| Error::Invalid(format!("liste des versions illisible : {e}")))
+    serde_json::from_value(value).map_err(|e| Error::Invalid(tr!("liste des versions illisible : {e}", e = e)))
 }
 
 pub fn read_json(path: &Path) -> Result<serde_json::Value> {
@@ -199,8 +199,8 @@ pub fn version_json(http: &Http, layout: &Layout, id: &str, manifest: Option<&Ma
     if path.is_file() {
         return read_json(&path);
     }
-    let m = manifest.ok_or_else(|| Error::Invalid(format!("version {id} absente : liste des versions nécessaire")))?;
-    let entry = m.get(id).ok_or_else(|| Error::Invalid(format!("version inconnue : {id}")))?;
+    let m = manifest.ok_or_else(|| Error::Invalid(tr!("version {id} absente : liste des versions nécessaire", id = id)))?;
+    let entry = m.get(id).ok_or_else(|| Error::Invalid(tr!("version inconnue : {id}", id = id)))?;
     let v = http.get_json(&entry.url, &[])?;
     write_json(&path, &v)?;
     Ok(v)
@@ -219,7 +219,7 @@ pub fn resolve(http: &Http, layout: &Layout, id: &str, manifest: Option<&Manifes
             None => break,
         }
     }
-    let mut merged = chain.pop().ok_or_else(|| Error::Invalid("version vide".into()))?;
+    let mut merged = chain.pop().ok_or_else(|| Error::Invalid(tr!("version vide").into()))?;
     while let Some(child) = chain.pop() {
         merged = Version::merge(child, merged);
     }
@@ -283,12 +283,12 @@ pub fn jobs(http: &Http, layout: &Layout, v: &Version, env: &Env) -> Result<Vec<
 /// Installe (ou complète) une version et ses parents. `check_hash` : relit chaque fichier
 /// présent (vérification complète) au lieu de se fier à sa taille.
 pub fn install(http: &Http, layout: &Layout, id: &str, manifest: Option<&Manifest>, check_hash: bool, cancel: &AtomicBool, sink: Sink) -> Result<Version> {
-    sink(Event::Step(format!("Lecture de la version {id}")));
+    sink(Event::Step(tr!("Lecture de la version {id}", id = id)));
     let v = resolve(http, layout, id, manifest)?;
     let env = Env::current();
-    sink(Event::Step("Préparation de la liste des fichiers".into()));
+    sink(Event::Step(tr!("Préparation de la liste des fichiers").into()));
     let jobs = jobs(http, layout, &v, &env)?;
-    sink(Event::Step(format!("Téléchargement des fichiers ({})", jobs.len())));
+    sink(Event::Step(tr!("Téléchargement des fichiers ({jobs})", jobs = jobs.len())));
     fetch_all(http, jobs, check_hash, cancel, sink)?;
     sink(Event::Step("Assets".into()));
     prepare_legacy_assets(layout, &v, None)?;
@@ -407,13 +407,13 @@ pub fn installed(layout: &Layout) -> Vec<String> {
 /// Refuse si une autre version installée en dépend.
 pub fn remove(layout: &Layout, id: &str) -> Result<()> {
     if id.is_empty() || id.contains(['/', '\\']) || id == "." || id == ".." {
-        return Err(Error::Invalid(format!("identifiant refusé : {id}")));
+        return Err(Error::Invalid(tr!("identifiant refusé : {id}", id = id)));
     }
     for other in installed(layout) {
         if other != id {
             if let Ok(v) = read_json(&layout.version_json(&other)) {
                 if v.get("inheritsFrom").and_then(|p| p.as_str()) == Some(id) {
-                    return Err(Error::Invalid(format!("{other} dépend de {id} : supprimez-le d'abord")));
+                    return Err(Error::Invalid(tr!("{other} dépend de {id} : supprimez-le d'abord", other = other, id = id)));
                 }
             }
         }

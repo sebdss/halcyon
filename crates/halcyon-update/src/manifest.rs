@@ -80,9 +80,9 @@ fn is_rfc3339_utc(s: &str) -> bool {
 impl Manifest {
     pub fn parse(bytes: &[u8]) -> Result<Manifest, String> {
         if bytes.len() as u64 > MAX_MANIFEST {
-            return Err("manifeste trop volumineux".into());
+            return Err(tr!("manifeste trop volumineux").into());
         }
-        serde_json::from_slice(bytes).map_err(|e| format!("manifeste illisible : {e}"))
+        serde_json::from_slice(bytes).map_err(|e| tr!("manifeste illisible : {e}", e = e))
     }
 
     /// Cohérence interne, et avec la publication qui le porte (`tag` et marque
@@ -90,57 +90,57 @@ impl Manifest {
     /// (`security::verify_manifest`) et **avant** ceci.
     pub fn check(self, tag: Option<&Version>, flagged_prerelease: Option<bool>) -> Result<Checked, String> {
         if self.schema != SCHEMA {
-            return Err(format!("format de manifeste {} non pris en charge par cette version (attendu : {SCHEMA})", self.schema));
+            return Err(tr!("format de manifeste {schema} non pris en charge par cette version (attendu : {SCHEMA})", schema = self.schema, SCHEMA = SCHEMA));
         }
         if self.product != PRODUCT {
-            return Err(format!("manifeste d'un autre produit (« {} »)", self.product));
+            return Err(tr!("manifeste d'un autre produit (« {product} »)", product = self.product));
         }
-        let version: Version = self.version.parse().map_err(|e| format!("version du manifeste : {e}"))?;
+        let version: Version = self.version.parse().map_err(|e: String| tr!("version du manifeste : {e}", e = e))?;
         if let Some(t) = tag {
             if *t != version {
-                return Err(format!("le manifeste annonce {version} mais la publication est {t}"));
+                return Err(tr!("le manifeste annonce {version} mais la publication est {t}", version = version, t = t));
             }
         }
         let expected = Channel::of(&version, flagged_prerelease.unwrap_or(false));
         if self.channel != expected {
-            return Err(format!("canal incohérent : {version} publiée en « {} » (attendu « {} »)", self.channel.as_str(), expected.as_str()));
+            return Err(tr!("canal incohérent : {version} publiée en « {channel} » (attendu « {expected} »)", version = version, channel = self.channel.as_str(), expected = expected.as_str()));
         }
         if !is_rfc3339_utc(&self.published) {
-            return Err("date de publication invalide".into());
+            return Err(tr!("date de publication invalide").into());
         }
-        let min_updater: Version = self.min_updater.parse().map_err(|e| format!("version minimale de l'updater : {e}"))?;
+        let min_updater: Version = self.min_updater.parse().map_err(|e: String| tr!("version minimale de l'updater : {e}", e = e))?;
         let security_floor = match &self.security_floor {
             Some(f) => {
-                let f: Version = f.parse().map_err(|e| format!("version minimale de sécurité : {e}"))?;
+                let f: Version = f.parse().map_err(|e: String| tr!("version minimale de sécurité : {e}", e = e))?;
                 if f > version {
-                    return Err("version minimale de sécurité supérieure à la version publiée".into());
+                    return Err(tr!("version minimale de sécurité supérieure à la version publiée").into());
                 }
                 Some(f)
             }
             None => None,
         };
         if self.packages.is_empty() {
-            return Err("aucun paquet dans le manifeste".into());
+            return Err(tr!("aucun paquet dans le manifeste").into());
         }
         for (i, p) in self.packages.iter().enumerate() {
             if self.packages[..i].iter().any(|q| q.platform == p.platform) {
-                return Err(format!("deux paquets pour {}", p.platform.id()));
+                return Err(tr!("deux paquets pour {id}", id = p.platform.id()));
             }
             if p.format != p.platform.format() {
-                return Err(format!("format de paquet inattendu pour {}", p.platform.id()));
+                return Err(tr!("format de paquet inattendu pour {id}", id = p.platform.id()));
             }
             if p.name != p.platform.package_name(&version) {
-                return Err(format!("nom de paquet inattendu : {} (attendu {})", p.name, p.platform.package_name(&version)));
+                return Err(tr!("nom de paquet inattendu : {name} (attendu {version})", name = p.name, version = p.platform.package_name(&version)));
             }
             if !is_sha256(&p.sha256) {
-                return Err(format!("{} : empreinte SHA-256 invalide", p.name));
+                return Err(tr!("{name} : empreinte SHA-256 invalide", name = p.name));
             }
             if p.size == 0 || p.size > MAX_PACKAGE {
-                return Err(format!("{} : taille invalide", p.name));
+                return Err(tr!("{name} : taille invalide", name = p.name));
             }
         }
         if self.notes.len() > MAX_NOTES {
-            return Err("notes de version trop longues".into());
+            return Err(tr!("notes de version trop longues").into());
         }
         Ok(Checked { manifest: self, version, min_updater, security_floor })
     }

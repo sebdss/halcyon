@@ -20,10 +20,10 @@ pub enum Kind {
 impl Kind {
     pub fn describe(&self) -> String {
         match self {
-            Kind::Managed { target: Target::Zip, layout, .. } => format!("Installation utilisateur ({})", layout.root.display()),
+            Kind::Managed { target: Target::Zip, layout, .. } => tr!("Installation utilisateur ({root})", root = layout.root.display()),
             Kind::Managed { target: Target::Appimage { .. }, layout, .. } => format!("AppImage ({})", layout.root.display()),
-            Kind::Managed { target: Target::Migrate, layout, .. } => format!("Installation utilisateur ({}) : passera au format AppImage à la prochaine mise à jour", layout.root.display()),
-            Kind::PackageManager => "Paquet système : mises à jour par votre gestionnaire de paquets (apt…)".into(),
+            Kind::Managed { target: Target::Migrate, layout, .. } => tr!("Installation utilisateur ({root}) : passera au format AppImage à la prochaine mise à jour", root = layout.root.display()),
+            Kind::PackageManager => tr!("Paquet système : mises à jour par votre gestionnaire de paquets (apt…)").into(),
             Kind::Unsupported(why) => why.clone(),
         }
     }
@@ -46,34 +46,34 @@ fn dev_build(exe: &Path) -> bool {
 
 /// Détecte l'installation de ce processus.
 pub fn detect() -> Kind {
-    let Ok(exe) = std::env::current_exe() else { return Kind::Unsupported("emplacement de Halcyon inconnu".into()) };
+    let Ok(exe) = std::env::current_exe() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu").into()) };
     detect_from(&exe, std::env::var_os("APPIMAGE").map(PathBuf::from), std::env::var_os("APPDIR").map(PathBuf::from))
 }
 
 pub fn detect_from(exe: &Path, appimage: Option<PathBuf>, appdir: Option<PathBuf>) -> Kind {
     if cfg!(windows) {
-        let Some(root) = exe.parent() else { return Kind::Unsupported("emplacement de Halcyon inconnu".into()) };
+        let Some(root) = exe.parent() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu").into()) };
         if dev_build(exe) {
-            return Kind::Unsupported("Version compilée localement : mise à jour manuelle".into());
+            return Kind::Unsupported(tr!("Version compilée localement : mise à jour manuelle").into());
         }
         let updater = root.join(crate::security::WINDOWS_UPDATER);
         if !updater.is_file() {
-            return Kind::Unsupported("halcyon-updater.exe absent : réinstallez Halcyon avec le dernier programme d'installation".into());
+            return Kind::Unsupported(tr!("halcyon-updater.exe absent : réinstallez Halcyon avec le dernier programme d'installation").into());
         }
         if !writable(root) {
-            return Kind::Unsupported("Installation pour tous les utilisateurs : mise à jour par le programme d'installation (droits d'administrateur)".into());
+            return Kind::Unsupported(tr!("Installation pour tous les utilisateurs : mise à jour par le programme d'installation (droits d'administrateur)").into());
         }
         return Kind::Managed { layout: Layout::new(root), target: Target::Zip, updater };
     }
     if let Some(img) = appimage.filter(|p| p.is_file()) {
         let (Some(root), Some(name)) = (img.parent(), img.file_name().and_then(|n| n.to_str())) else {
-            return Kind::Unsupported("emplacement de l'AppImage inconnu".into());
+            return Kind::Unsupported(tr!("emplacement de l'AppImage inconnu").into());
         };
         let Some(updater) = appdir.map(|d| d.join("usr/bin/halcyon-updater")).filter(|p| p.is_file()) else {
-            return Kind::Unsupported("updater absent de cette AppImage".into());
+            return Kind::Unsupported(tr!("updater absent de cette AppImage").into());
         };
         if !writable(root) {
-            return Kind::Unsupported(format!("{} n'est pas modifiable : déplacez l'AppImage dans un dossier personnel", root.display()));
+            return Kind::Unsupported(tr!("{root} n'est pas modifiable : déplacez l'AppImage dans un dossier personnel", root = root.display()));
         }
         return Kind::Managed { layout: Layout::new(root), target: Target::Appimage { file: name.into() }, updater };
     }
@@ -81,19 +81,19 @@ pub fn detect_from(exe: &Path, appimage: Option<PathBuf>, appdir: Option<PathBuf
         return Kind::PackageManager;
     }
     if dev_build(exe) {
-        return Kind::Unsupported("Version compilée localement : mise à jour manuelle".into());
+        return Kind::Unsupported(tr!("Version compilée localement : mise à jour manuelle").into());
     }
-    let Some(root) = exe.parent() else { return Kind::Unsupported("emplacement de Halcyon inconnu".into()) };
+    let Some(root) = exe.parent() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu").into()) };
     if root.join(install::SETUP_RECORD).is_file() && root.join("halcyon-updater").is_file() && writable(root) {
         return Kind::Managed { layout: Layout::new(root), target: Target::Migrate, updater: root.join("halcyon-updater") };
     }
-    Kind::Unsupported("Archive ou installation manuelle : téléchargez la nouvelle version depuis GitHub".into())
+    Kind::Unsupported(tr!("Archive ou installation manuelle : téléchargez la nouvelle version depuis GitHub").into())
 }
 
 /// Lance l'updater (copie dans `.hus/runner`) pour installer le paquet en attente, puis le
 /// lanceur doit se fermer. `bootstrap` : updater extrait du nouveau paquet (trop ancien sinon).
 pub fn launch_apply(layout: &Layout, updater: &Path, current: &Version) -> Result<(), String> {
-    let pending = install::read_pending(layout).ok_or("aucune mise à jour en attente")?;
+    let pending = install::read_pending(layout).ok_or(tr!("aucune mise à jour en attente"))?;
     let manifest = std::fs::read(layout.pending().join(crate::manifest::MANIFEST_NAME)).ok();
     let min_updater = manifest
         .and_then(|b| crate::manifest::Manifest::parse(&b).ok())
@@ -115,8 +115,8 @@ pub fn launch_apply(layout: &Layout, updater: &Path, current: &Version) -> Resul
         "--wait-pid".into(),
         std::process::id().to_string(),
     ];
-    runner::spawn_detached(&copy, &args, &layout.root).map(|_| ()).map_err(|e| format!("démarrage de l'updater : {e}"))?;
-    crate::recovery::log(layout, &format!("updater lancé pour {} (lanceur {} en fermeture)", pending.version, std::process::id()));
+    runner::spawn_detached(&copy, &args, &layout.root).map(|_| ()).map_err(|e| tr!("démarrage de l'updater : {e}", e = e))?;
+    crate::recovery::log(layout, &tr!("updater lancé pour {version} (lanceur {id} en fermeture)", version = pending.version, id = std::process::id()));
     Ok(())
 }
 
@@ -124,7 +124,7 @@ pub fn launch_apply(layout: &Layout, updater: &Path, current: &Version) -> Resul
 pub fn launch_recover(layout: &Layout, updater: &Path, target: &Target) -> Result<(), String> {
     let copy = runner::prepare_runner(layout, updater)?;
     let args = vec!["recover".to_string(), "--root".into(), layout.root.display().to_string(), "--target".into(), target.arg(), "--wait-pid".into(), std::process::id().to_string()];
-    runner::spawn_detached(&copy, &args, &layout.root).map(|_| ()).map_err(|e| format!("démarrage de l'updater : {e}"))
+    runner::spawn_detached(&copy, &args, &layout.root).map(|_| ()).map_err(|e| tr!("démarrage de l'updater : {e}", e = e))
 }
 
 /// Marqueur « installer au prochain démarrage » (choix explicite de l'utilisateur).

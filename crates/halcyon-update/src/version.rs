@@ -40,12 +40,12 @@ impl Version {
 
 fn numeric(s: &str) -> Result<u64, String> {
     if s.is_empty() || !s.bytes().all(|b| b.is_ascii_digit()) {
-        return Err(format!("« {s} » n'est pas un nombre"));
+        return Err(tr!("« {s} » n'est pas un nombre", s = s));
     }
     if s.len() > 1 && s.starts_with('0') {
-        return Err(format!("« {s} » : zéro initial interdit"));
+        return Err(tr!("« {s} » : zéro initial interdit", s = s));
     }
-    s.parse().map_err(|_| format!("« {s} » : nombre trop grand"))
+    s.parse().map_err(|_| tr!("« {s} » : nombre trop grand", s = s))
 }
 
 fn ident_ok(s: &str) -> bool {
@@ -59,7 +59,7 @@ impl FromStr for Version {
         let t = text.trim();
         let t = t.strip_prefix('v').or_else(|| t.strip_prefix('V')).unwrap_or(t);
         if t.len() > 128 {
-            return Err("version trop longue".into());
+            return Err(tr!("version trop longue").into());
         }
         let (rest, build) = match t.split_once('+') {
             Some((a, b)) => (a, Some(b)),
@@ -67,7 +67,7 @@ impl FromStr for Version {
         };
         if let Some(b) = build {
             if !b.split('.').all(ident_ok) {
-                return Err(format!("« {text} » : métadonnées de compilation invalides"));
+                return Err(tr!("« {text} » : métadonnées de compilation invalides", text = text));
             }
         }
         let (core, pre) = match rest.split_once('-') {
@@ -76,13 +76,13 @@ impl FromStr for Version {
         };
         let parts: Vec<&str> = core.split('.').collect();
         if parts.len() != 3 {
-            return Err(format!("« {text} » : trois numéros attendus (majeur.mineur.correctif)"));
+            return Err(tr!("« {text} » : trois numéros attendus (majeur.mineur.correctif)", text = text));
         }
         let mut v = Version::new(numeric(parts[0])?, numeric(parts[1])?, numeric(parts[2])?);
         if let Some(p) = pre {
             for id in p.split('.') {
                 if !ident_ok(id) {
-                    return Err(format!("« {text} » : prépublication invalide"));
+                    return Err(tr!("« {text} » : prépublication invalide", text = text));
                 }
                 v.pre.push(if id.bytes().all(|b| b.is_ascii_digit()) { Ident::Num(numeric(id)?) } else { Ident::Alpha(id.to_string()) });
             }

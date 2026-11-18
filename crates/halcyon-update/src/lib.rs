@@ -12,6 +12,9 @@
 //! préparer ; l'installation elle-même est faite par l'exécutable indépendant
 //! `halcyon-updater`, lancé depuis une copie pour ne jamais se remplacer lui-même.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod client;
 pub mod core;
 pub mod download;

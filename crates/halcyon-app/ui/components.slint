@@ -107,7 +107,7 @@ export component PrimaryButton inherits Rectangle {
 /// Bouton « Jouer » : le geste de Halcyon, toujours orange, toujours le même dessin.
 /// `big` : version des en-têtes (fiche, accueil, console).
 export component PlayButton inherits Rectangle {
-    in property <string> text: "Jouer";
+    in property <string> text: @tr("Jouer");
     in property <bool> enabled: true;
     in property <bool> big: false;
     /// État « en cours » (lancement, jeu ouvert) : libellé conservé, bouton atténué.
@@ -857,7 +857,7 @@ export component GameTile inherits Rectangle {
             background: #000000b8;
             Text {
                 x: 8px;
-                text: "Non installé";
+                text: @tr("Non installé");
                 color: Theme.text-muted;
                 font-size: Theme.t-overline;
                 font-weight: 600;
@@ -1252,7 +1252,7 @@ export component BigStat inherits VerticalLayout {
     in property <string> label;
     spacing: 2px;
     Text { text: root.value; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 6px; font-weight: 700; overflow: elide; }
-    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+    Text { text: root.label; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
 }
 
 /// Histogramme vertical simple.

@@ -51,7 +51,7 @@ impl Net {
         let mut resp = self.agent.get(url).call().map_err(|e| net_error(&e))?;
         let status = resp.status().as_u16();
         if status != 200 {
-            return Err(format!("{} : réponse HTTP {status}", short(url)));
+            return Err(tr!("{url} : réponse HTTP {status}", url = short(url), status = status));
         }
         resp.body_mut().with_config().limit(limit).read_to_vec().map_err(|e| format!("{} : {e}", short(url)))
     }
@@ -69,12 +69,12 @@ fn short(url: &str) -> &str {
 
 pub(crate) fn net_error(e: &ureq::Error) -> String {
     match e {
-        ureq::Error::Timeout(_) => "délai dépassé : serveur injoignable ou connexion trop lente".into(),
-        ureq::Error::HostNotFound => "serveur introuvable : vérifiez la connexion à Internet".into(),
-        ureq::Error::ConnectionFailed => "connexion impossible : vérifiez la connexion à Internet".into(),
-        ureq::Error::RequireHttpsOnly(_) => "adresse non sécurisée refusée (HTTPS obligatoire)".into(),
-        ureq::Error::TooManyRedirects => "trop de redirections".into(),
-        other => format!("erreur réseau : {other}"),
+        ureq::Error::Timeout(_) => tr!("délai dépassé : serveur injoignable ou connexion trop lente").into(),
+        ureq::Error::HostNotFound => tr!("serveur introuvable : vérifiez la connexion à Internet").into(),
+        ureq::Error::ConnectionFailed => tr!("connexion impossible : vérifiez la connexion à Internet").into(),
+        ureq::Error::RequireHttpsOnly(_) => tr!("adresse non sécurisée refusée (HTTPS obligatoire)").into(),
+        ureq::Error::TooManyRedirects => tr!("trop de redirections").into(),
+        other => tr!("erreur réseau : {other}", other = other),
     }
 }
 
@@ -153,7 +153,7 @@ struct FeedCache {
 fn valid_repo(repo: &str) -> Result<&str, String> {
     let r = repo.trim().trim_matches('/');
     let ok = r.split('/').count() == 2 && r.split('/').all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_alphanumeric() || b"-_.".contains(&b)) && !p.starts_with('.'));
-    if ok { Ok(r) } else { Err(format!("dépôt invalide « {repo} » (attendu : propriétaire/nom)")) }
+    if ok { Ok(r) } else { Err(tr!("dépôt invalide « {repo} » (attendu : propriétaire/nom)", repo = repo)) }
 }
 
 /// Liste des publications, avec cache et `If-None-Match` (fichier `cache`).
@@ -173,7 +173,7 @@ pub fn fetch_releases(net: &Net, repo: &str, cache: &Path) -> Result<Vec<Release
         304 if usable_cache => cached.body,
         200 => {
             let etag = header("etag").unwrap_or_default();
-            let body = resp.body_mut().with_config().limit(8 * 1024 * 1024).read_to_string().map_err(|e| format!("liste des versions : {e}"))?;
+            let body = resp.body_mut().with_config().limit(8 * 1024 * 1024).read_to_string().map_err(|e| tr!("liste des versions : {e}", e = e))?;
             if let Some(dir) = cache.parent() {
                 let _ = std::fs::create_dir_all(dir);
             }
@@ -184,16 +184,16 @@ pub fn fetch_releases(net: &Net, repo: &str, cache: &Path) -> Result<Vec<Release
             let wait = header("x-ratelimit-reset")
                 .and_then(|r| r.parse::<u64>().ok())
                 .and_then(|reset| reset.checked_sub(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).ok()?.as_secs()))
-                .map(|s| format!(" (nouvel essai possible dans {} min)", s.div_ceil(60).max(1)))
+                .map(|s| tr!(" (nouvel essai possible dans {v} min)", v = s.div_ceil(60).max(1)))
                 .unwrap_or_default();
-            return Err(format!("GitHub limite temporairement les requêtes{wait}"));
+            return Err(tr!("GitHub limite temporairement les requêtes{wait}", wait = wait));
         }
-        403 | 429 => return Err("GitHub refuse temporairement la requête : réessayez plus tard".into()),
-        404 => return Err(format!("dépôt « {repo} » introuvable sur GitHub")),
-        s if s >= 500 => return Err(format!("GitHub indisponible (HTTP {s}) : réessayez plus tard")),
-        s => return Err(format!("réponse inattendue de GitHub (HTTP {s})")),
+        403 | 429 => return Err(tr!("GitHub refuse temporairement la requête : réessayez plus tard").into()),
+        404 => return Err(tr!("dépôt « {repo} » introuvable sur GitHub", repo = repo)),
+        s if s >= 500 => return Err(tr!("GitHub indisponible (HTTP {s}) : réessayez plus tard", s = s)),
+        s => return Err(tr!("réponse inattendue de GitHub (HTTP {s})", s = s)),
     };
-    let v: serde_json::Value = serde_json::from_str(&body).map_err(|e| format!("réponse de GitHub illisible : {e}"))?;
+    let v: serde_json::Value = serde_json::from_str(&body).map_err(|e| tr!("réponse de GitHub illisible : {e}", e = e))?;
     Ok(parse_releases(&v))
 }
 
@@ -238,15 +238,15 @@ pub fn inspect(net: &Net, release: &ReleaseInfo, q: &Query) -> Result<Option<Fou
         return Ok(None);
     };
     let bytes = net.fetch_small(&m_asset.url, manifest::MAX_MANIFEST)?;
-    let sig = String::from_utf8(net.fetch_small(&s_asset.url, manifest::MAX_SIGNATURE)?).map_err(|_| "signature illisible".to_string())?;
+    let sig = String::from_utf8(net.fetch_small(&s_asset.url, manifest::MAX_SIGNATURE)?).map_err(|_| tr!("signature illisible").to_string())?;
     security::verify_signature(q.keys, &bytes, &sig).map_err(|e| format!("{} : {e}", release.version))?;
     let checked = Manifest::parse(&bytes)?.check(Some(&release.version), Some(release.prerelease))?;
     let Some(package) = checked.package(q.platform).cloned() else {
-        return Err(format!("{} ne propose pas de paquet pour {}", release.version, q.platform.id()));
+        return Err(tr!("{version} ne propose pas de paquet pour {id}", version = release.version, id = q.platform.id()));
     };
-    let asset = release.asset(&package.name).ok_or_else(|| format!("{} absent de la publication {}", package.name, release.version))?;
+    let asset = release.asset(&package.name).ok_or_else(|| tr!("{name} absent de la publication {version}", name = package.name, version = release.version))?;
     if asset.size != package.size {
-        return Err(format!("{} : taille publiée ({}) différente du manifeste signé ({})", package.name, asset.size, package.size));
+        return Err(tr!("{name} : taille publiée ({size}) différente du manifeste signé ({size2})", name = package.name, size = asset.size, size2 = package.size));
     }
     security::check_version_policy(&checked.version, q.current, q.floor)?;
     let security = checked.security_floor.as_ref().is_some_and(|f| q.current < f);
@@ -264,9 +264,9 @@ pub fn check(net: &Net, q: &Query) -> Result<Outcome, String> {
         }
     }
     let note = if !skipped.is_empty() {
-        Some(format!("Version(s) {} publiée(s) sans manifeste signé : installation manuelle depuis GitHub uniquement", skipped.join(", ")))
+        Some(tr!("Versions publiées sans manifeste signé (installation manuelle depuis GitHub uniquement) : {join}", join = skipped.join(", ")))
     } else if q.channel == Channel::Stable && q.current.is_prerelease() {
-        Some(format!("Canal Stable : la prochaine version stable plus récente que {} sera proposée (pas de retour vers une version plus ancienne)", q.current))
+        Some(tr!("Canal Stable : la prochaine version stable plus récente que {current} sera proposée (pas de retour vers une version plus ancienne)", current = q.current))
     } else {
         None
     };

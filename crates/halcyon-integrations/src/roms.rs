@@ -41,7 +41,7 @@ impl GameScanner for RomScanner {
             }
             ctx.progress(&format!("ROM {} : {}", platform.short_or_name(), root.display()));
             if !root.is_dir() {
-                report.warnings.push(format!("dossier de ROM inaccessible : {}", root.display()));
+                report.warnings.push(tr!("dossier de ROM inaccessible : {root}", root = root.display()));
                 continue;
             }
             let mut files = Vec::new();

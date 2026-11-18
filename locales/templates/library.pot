@@ -1,0 +1,549 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Halcyon-Native-Name: Français\n"
+"X-Halcyon-Thousands-Separator: U+00A0\n"
+"X-Halcyon-Decimal-Separator: ,\n"
+"X-Halcyon-Domain: library\n"
+
+#: crates/halcyon-app/ui/pages/library.slint:112 crates/halcyon-app/ui/pages/library.slint:210
+msgid "Plus d'actions (touche Menu)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:249
+msgid "Grille"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:250
+msgid "Liste"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:251
+msgid "Carrousel"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:252
+msgid "Immersive"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:259
+#, placeholders
+msgid "Vue : {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:351
+msgid "Tous les jeux"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:363
+msgid "Sources"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:370
+msgid "Afficher"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:372
+msgid "Installés seulement"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:377
+msgid "Favoris seulement"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:382
+msgid "Jeux masqués"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:396 crates/halcyon-app/ui/pages/library.slint:630 crates/halcyon-app/ui/pages/smart.slint:94
+msgid "Collections intelligentes"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:399 crates/halcyon-core/src/rules.rs:66
+msgid "Genre"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:528
+msgid "Rechercher dans la bibliothèque  (Ctrl+F)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:538
+msgid "Syntaxe de recherche"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:556 crates/halcyon-core/src/rules.rs:73
+msgid "Recherche avancée"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:557
+msgid "Les fautes de frappe et les sigles sont tolérés (« witchr », « gta »). Combinez des filtres :"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:559
+msgid "dev:valve   éditeur:\"bandai namco\"   genre:rpg"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:560
+msgid "plateforme:snes   source:steam   tag:multijoueur"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:561
+msgid "installé:non   favori:oui   maj:oui"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:562
+msgid "statut:terminé   statut:\"en cours\"   statut:abandonné"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:563
+msgid "temps:>10h   temps:<30m   temps:0"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:564
+msgid "succès:complet   succès:manquants   succès:>80"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:565
+msgid "-filtre:valeur  exclut (ex. -installé:oui)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:567
+msgid "Flèches : sélection. Entrée : fiche. Espace : jouer. Menu : actions."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:573
+msgid "Trier par"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:593
+msgid "Ému."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:615
+msgid "Masqués"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:662
+msgid "Votre bibliothèque est vide"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:662
+msgid "Aucun jeu ne correspond"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:670
+msgid "Lancez une analyse ou ajoutez un dossier de jeux dans les paramètres."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:671
+msgid "Essayez un autre terme ou retirez des filtres. Champs de recherche : dev:, éditeur:, genre:, plateforme:, tag:, statut:, installé:, temps:, succès:, maj:"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:722
+msgid "Titre"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:782
+msgid "Parcourir"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:783
+msgid "Entrée"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:784
+msgid "Espace"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:785
+msgid "Menu"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:785
+msgid "Actions"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:30
+msgid "Sauf"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:44
+msgid "nombre"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:44
+msgid "valeur"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:71
+msgid "Retirer la règle"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:94
+msgid "Nouvelle collection intelligente"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:94
+msgid "Modifier la collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:101
+msgid "Mises à jour automatiquement selon vos règles : aucun jeu à ajouter à la main."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:143
+msgid "Aucune collection intelligente."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:151
+msgid "Nouvelle collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:160
+msgid "Nom de la collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:162
+msgid "Toutes les règles"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:162
+msgid "Au moins une"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:177
+msgid "Ajouter une règle"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/smart.slint:184
+#, placeholders
+msgid "{n} jeu correspond"
+msgid_plural "{n} jeux correspondent"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-core/src/model.rs:54
+msgid "Standalone"
+msgstr ""
+
+#: crates/halcyon-core/src/model.rs:157
+msgid "Téléchargement en cours"
+msgstr ""
+
+#: crates/halcyon-core/src/model.rs:158
+msgid "Mise à jour en pause"
+msgstr ""
+
+#: crates/halcyon-core/src/model.rs:395
+msgid "plateforme"
+msgstr ""
+
+#: crates/halcyon-core/src/model.rs:397
+msgid "corrigé"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:55
+msgid "Joué ces N derniers jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:56
+msgid "Pas joué depuis N jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:57
+msgid "Installé ces N derniers jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:58
+msgid "Ajouté ces N derniers jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:62 crates/halcyon-core/src/rules.rs:156 crates/halcyon-core/src/rules.rs:273
+msgid "Succès manquants"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:63 crates/halcyon-core/src/rules.rs:157
+msgid "Tous les succès obtenus"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:64
+msgid "Progression des succès ≥ N %"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:65
+msgid "Étiquette"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:68
+msgid "Plateforme émulée"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:69
+msgid "Sur le disque / dossier"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:70 crates/halcyon-core/src/rules.rs:164 crates/halcyon-core/src/rules.rs:275
+msgid "Mise à jour requise"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:71
+msgid "Temps de jeu ≥ N heures"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:72
+msgid "Temps de jeu < N heures"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:147
+#, placeholders
+msgid "Sauf : {v}"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:149
+#, placeholders
+msgid "Joué ces {days} derniers jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:150
+#, placeholders
+msgid "Pas joué depuis {n} jour"
+msgid_plural "Pas joué depuis {n} jours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-core/src/rules.rs:151
+#, placeholders
+msgid "Installé ces {days} derniers jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:152
+#, placeholders
+msgid "Ajouté ces {days} derniers jours"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:155
+#, placeholders
+msgid "Statut : {label}"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:158
+#, placeholders
+msgid "Progression des succès ≥ {percent} %"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:159
+#, placeholders
+msgid "Étiquette « {tag} »"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:160
+#, placeholders
+msgid "Genre « {genre} »"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:161
+#, placeholders
+msgid "Source : {label}"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:162
+#, placeholders
+msgid "Plateforme « {platform} »"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:163
+#, placeholders
+msgid "Sur {prefix}"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:165
+#, placeholders
+msgid "Temps de jeu ≥ {hours} h"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:166
+#, placeholders
+msgid "Temps de jeu < {hours} h"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:167
+#, placeholders
+msgid "Recherche « {query} »"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:236
+#, placeholders
+msgid "{a} et {b}"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:238
+#, placeholders
+msgid "{a} ou {b}"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:258
+msgid "Jamais lancés"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:259
+msgid "Installés récemment"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:260
+msgid "Joués cette semaine"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:261
+msgid "Terminés"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:263
+msgid "À terminer"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:270
+msgid "Succès presque complets"
+msgstr ""
+
+#: crates/halcyon-core/src/rules.rs:274
+msgid "Multijoueur"
+msgstr ""
+
+#: crates/halcyon-integrations/src/artwork.rs:33
+msgid "trop de requêtes, réessai plus tard"
+msgstr ""
+
+#: crates/halcyon-integrations/src/artwork.rs:86
+msgid "aucune URL"
+msgstr ""
+
+#: crates/halcyon-integrations/src/artwork.rs:110
+#, placeholders
+msgid "type de contenu inattendu « {other} »"
+msgstr ""
+
+#: crates/halcyon-integrations/src/artwork.rs:114
+msgid "image vide"
+msgstr ""
+
+#: crates/halcyon-integrations/src/epic.rs:148
+msgid "ni le launcher Epic Games, ni Heroic, ni Legendary n'ont été trouvés"
+msgstr ""
+
+#: crates/halcyon-integrations/src/epic.rs:152
+msgid "Epic Games : lecture de Heroic…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/epic.rs:152
+msgid "Epic Games : lecture de Legendary…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/epic.rs:163
+#, placeholders
+msgid "{p} ne contient aucun manifeste Epic : dossier détecté automatiquement utilisé ({dir})"
+msgstr ""
+
+#: crates/halcyon-integrations/src/epic.rs:165
+msgid "Epic Games : lecture des manifestes…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/gog.rs:78
+msgid "ni Heroic (GOG) ni GOG Galaxy n'ont été trouvés"
+msgstr ""
+
+#: crates/halcyon-integrations/src/gog.rs:83
+msgid "GOG : lecture de Heroic…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/gog.rs:90
+msgid "GOG : lecture de GOG Galaxy…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/standalone.rs:59
+#, placeholders
+msgid "Dossiers : {root}"
+msgstr ""
+
+#: crates/halcyon-integrations/src/standalone.rs:63
+#, placeholders
+msgid "dossier inaccessible {root} : {e}"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:82
+msgid "Steam n'a pas été trouvé sur cet ordinateur"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:83
+msgid "Steam : lecture des bibliothèques…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:99
+#, placeholders
+msgid "bibliothèque Steam inaccessible {lib} : {e}"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:126
+msgid "Steam : jeux possédés (en ligne)…"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:130
+#, placeholders
+msgid "jeux possédés indisponibles : {e}"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:180
+#, placeholders
+msgid "libraryfolders.vdf : {e}"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:189
+msgid "section AppState absente"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:190
+msgid "appid absent"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam.rs:191
+msgid "nom absent"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:60
+msgid "erreur Steam"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:206
+msgctxt "tag"
+msgid "multijoueur"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:208
+msgctxt "tag"
+msgid "coop"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:209
+msgctxt "tag"
+msgid "écran partagé"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:210
+msgctxt "tag"
+msgid "solo"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:211
+msgctxt "tag"
+msgid "manette"
+msgstr ""
+
+#: crates/halcyon-integrations/src/steam_web.rs:212
+msgctxt "tag"
+msgid "manette partielle"
+msgstr ""

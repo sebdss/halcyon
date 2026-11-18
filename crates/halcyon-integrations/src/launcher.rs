@@ -20,11 +20,11 @@ pub enum LaunchError {
 impl fmt::Display for LaunchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::MissingExecutable(p) => write!(f, "exécutable introuvable : {}", p.display()),
-            Self::MissingWorkingDir(p) => write!(f, "répertoire de travail introuvable : {}", p.display()),
-            Self::Spawn(e) => write!(f, "le jeu n'a pas pu démarrer : {e}"),
-            Self::Uri(e) => write!(f, "le client de la plateforme n'a pas pu être appelé : {e}"),
-            Self::NotLaunchable => write!(f, "aucun moyen de lancement n'est configuré pour ce jeu"),
+            Self::MissingExecutable(p) => write!(f, "{}", tr!("exécutable introuvable : {p}", p = p.display())),
+            Self::MissingWorkingDir(p) => write!(f, "{}", tr!("répertoire de travail introuvable : {p}", p = p.display())),
+            Self::Spawn(e) => write!(f, "{}", tr!("le jeu n'a pas pu démarrer : {e}", e = e)),
+            Self::Uri(e) => write!(f, "{}", tr!("le client de la plateforme n'a pas pu être appelé : {e}", e = e)),
+            Self::NotLaunchable => write!(f, "{}", tr!("aucun moyen de lancement n'est configuré pour ce jeu")),
         }
     }
 }
@@ -91,7 +91,7 @@ pub fn launch_with(
             }
         }
         Launched::Detached if !extras.is_empty() => {
-            warnings.push("réglages du profil non applicables : le lancement est délégué au système".into());
+            warnings.push(tr!("réglages du profil non applicables : le lancement est délégué au système").into());
         }
         Launched::Detached => {}
     }
@@ -120,10 +120,7 @@ fn apply_priority_after_spawn(child: &Child, p: ProcessPriority) -> Result<(), S
     // SAFETY : appels système sans pointeur, sur un PID que nous venons de créer.
     let rc = unsafe { libc::setpriority(libc::PRIO_PROCESS, pid as libc::id_t, p.nice()) };
     if rc != 0 {
-        return Err(format!(
-            "priorité « {} » refusée par le système (droits insuffisants pour l'augmenter)",
-            p.label()
-        ));
+        return Err(tr!("priorité « {label} » refusée par le système (droits insuffisants pour l'augmenter)", label = p.label()));
     }
     Ok(())
 }
@@ -199,7 +196,7 @@ fn spawn_target(target: Option<&LaunchTarget>, opts: &LaunchOptions, extras: &La
                     Ok(Launched::Process(cmd.spawn().map_err(|e| {
                         LaunchError::Spawn(std::io::Error::new(
                             e.kind(),
-                            format!("« {} » est requis pour lancer un jeu Windows ({e})", runner[0]),
+                            tr!("« {v} » est requis pour lancer un jeu Windows ({e})", v = runner[0], e = e),
                         ))
                     })?))
                 }
@@ -249,16 +246,16 @@ pub fn run_hook(command: &str, working_dir: Option<&Path>, timeout: Duration) ->
     if let Some(wd) = working_dir.filter(|d| d.is_dir()) {
         cmd.current_dir(wd);
     }
-    let mut child = cmd.spawn().map_err(|e| format!("commande impossible à lancer : {e}"))?;
+    let mut child = cmd.spawn().map_err(|e| tr!("commande impossible à lancer : {e}", e = e))?;
     let deadline = Instant::now() + timeout;
     loop {
         match child.try_wait() {
             Ok(Some(status)) if status.success() => return Ok(()),
-            Ok(Some(status)) => return Err(format!("la commande s'est terminée avec le code {}", status.code().unwrap_or(-1))),
+            Ok(Some(status)) => return Err(tr!("la commande s'est terminée avec le code {v}", v = status.code().unwrap_or(-1))),
             Ok(None) if Instant::now() > deadline => {
                 let _ = child.kill();
                 let _ = child.wait();
-                return Err(format!("commande interrompue après {} s", timeout.as_secs()));
+                return Err(tr!("commande interrompue après {as_secs} s", as_secs = timeout.as_secs()));
             }
             Ok(None) => std::thread::sleep(Duration::from_millis(100)),
             Err(e) => return Err(e.to_string()),
@@ -269,7 +266,7 @@ pub fn run_hook(command: &str, working_dir: Option<&Path>, timeout: Duration) ->
 /// Démarre un programme compagnon (outil lancé avec le jeu).
 pub fn spawn_companion(path: &Path, args: &str) -> Result<Child, String> {
     if !path.is_file() {
-        return Err(format!("programme introuvable : {}", path.display()));
+        return Err(tr!("programme introuvable : {path}", path = path.display()));
     }
     let mut cmd = Command::new(path);
     cmd.args(split_args(args));

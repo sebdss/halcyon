@@ -33,9 +33,9 @@ fn short_duration(secs: u64) -> String {
     if secs >= 3600 {
         format!("{} h", (secs as f64 / 3600.0).round() as u64)
     } else if secs >= 60 {
-        format!("{} min", secs / 60)
+        tr!("{v} min", v = secs / 60)
     } else if secs > 0 {
-        "< 1 min".into()
+        tr!("< 1 min").into()
     } else {
         String::new()
     }
@@ -130,9 +130,9 @@ impl Controller {
         dui.set_prereq_dir(prereq_dir.into());
         dui.set_prereq_note(
             match g.source {
-                GameSource::Steam => "Installés automatiquement par Steam au premier lancement si nécessaire.",
-                GameSource::Epic => "Normalement installés par le client Epic / Heroic.",
-                _ => "Si le jeu ne démarre pas, installez ces composants depuis ce dossier.",
+                GameSource::Steam => tr!("Installés automatiquement par Steam au premier lancement si nécessaire."),
+                GameSource::Epic => tr!("Normalement installés par le client Epic / Heroic."),
+                _ => tr!("Si le jeu ne démarre pas, installez ces composants depuis ce dossier."),
             }
             .into(),
         );
@@ -141,7 +141,7 @@ impl Controller {
     pub(crate) fn set_status(&self, id: GameId, index: usize) {
         let status = PlayStatus::ALL.get(index).copied().unwrap_or_default();
         if let Err(e) = self.db().set_status(id, status) {
-            return self.toast(format!("Enregistrement impossible : {e}"), true);
+            return self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
         }
         let game = self.db().get_game(id);
         if let Ok(g) = game {
@@ -152,13 +152,13 @@ impl Controller {
 
     pub(crate) fn save_notes(&self, id: GameId, notes: &str) {
         if let Err(e) = self.db().set_notes(id, notes) {
-            return self.toast(format!("Enregistrement impossible : {e}"), true);
+            return self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
             g.notes = notes.to_string();
         }
         self.refresh_detail();
-        self.toast("Notes enregistrées", false);
+        self.toast(tr!("Notes enregistrées"), false);
     }
 
     pub(crate) fn set_manual_playtime(&self, id: GameId, text: &str) {
@@ -167,18 +167,18 @@ impl Controller {
         } else {
             match parse_duration(text) {
                 Some(v) => Some(v),
-                None => return self.toast("Durée non reconnue : utilisez par exemple 12h30, 45m ou 3", true),
+                None => return self.toast(tr!("Durée non reconnue : utilisez par exemple 12h30, 45m ou 3"), true),
             }
         };
         if let Err(e) = self.db().set_manual_playtime(id, value) {
-            return self.toast(format!("Enregistrement impossible : {e}"), true);
+            return self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
             g.playtime_manual_secs = value;
         }
         self.game_changed(id);
         self.after_tracking_change();
-        self.toast(if value.is_some() { "Temps de jeu corrigé" } else { "Temps calculé rétabli" }, false);
+        self.toast(if value.is_some() { tr!("Temps de jeu corrigé") } else { tr!("Temps calculé rétabli") }, false);
     }
 
     /// Le statut ou le temps d'un jeu a changé : collections et vues dépendantes.
@@ -206,14 +206,12 @@ impl Controller {
         let manual = games.iter().filter(|g| g.playtime_manual_secs.is_some()).count();
         ui.set_total(util::format_playtime(total).into());
         ui.set_total_detail(
-            format!(
-                "Plateformes : {} · suivi local Halcyon : {} · {manual} correction{} manuelle{}. \
-                 Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé \
-                 entre la plateforme et le suivi local (sans double compte).",
-                util::format_playtime(platform),
-                util::format_playtime(local),
-                if manual > 1 { "s" } else { "" },
-                if manual > 1 { "s" } else { "" },
+            trn!(
+                manual,
+                "Plateformes : {platform} · suivi local Halcyon : {local} · {n} correction manuelle. Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé entre la plateforme et le suivi local (sans double compte).",
+                "Plateformes : {platform} · suivi local Halcyon : {local} · {n} corrections manuelles. Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé entre la plateforme et le suivi local (sans double compte).",
+                platform = util::format_playtime(platform),
+                local = util::format_playtime(local),
             )
             .into(),
         );
@@ -257,7 +255,7 @@ impl Controller {
             .collect();
         ui.set_top(ModelRc::new(VecModel::from(top_rows)));
 
-        let mut by_source: Vec<(&str, u64)> = vec![("Steam", 0), ("Epic Games", 0), ("Émulation", 0), ("Autres", 0)];
+        let mut by_source: Vec<(String, u64)> = vec![("Steam".into(), 0), ("Epic Games".into(), 0), (tr!("Émulation"), 0), (tr!("Autres"), 0)];
         for g in &games {
             let i = match g.source {
                 GameSource::Steam => 0,
@@ -271,7 +269,7 @@ impl Controller {
         let sources: Vec<BarItem> = by_source
             .iter()
             .map(|(name, v)| BarItem {
-                label: (*name).into(),
+                label: name.as_str().into(),
                 value: if *v == 0 { "—".into() } else { util::format_playtime(*v).into() },
                 ratio: *v as f32 / smax as f32,
             })
@@ -305,7 +303,7 @@ impl Controller {
                 *cats = vec![false; CATEGORIES.len()];
             }
             ui.set_categories(ModelRc::new(VecModel::from(
-                CATEGORIES.iter().map(|(n, _)| SharedString::from(*n)).collect::<Vec<_>>(),
+                CATEGORIES.iter().map(|(n, _)| SharedString::from(halcyon_i18n::t(n))).collect::<Vec<_>>(),
             )));
             ui.set_selected(ModelRc::new(VecModel::from(cats.clone())));
         }
@@ -376,12 +374,12 @@ impl Controller {
                     downloading: u.state == UpdateState::Downloading,
                     progress: if u.total > 0 { u.downloaded as f32 / u.total as f32 } else { 0.0 },
                     progress_text: if u.total > 0 {
-                        format!("{} sur {}", util::format_size(u.downloaded), util::format_size(u.total))
+                        tr!("{downloaded} sur {total}", downloaded = util::format_size(u.downloaded), total = util::format_size(u.total))
                     } else {
                         String::new()
                     }
                     .into(),
-                    version: g.version.as_deref().map(|v| format!("Version installée : {v}")).unwrap_or_default().into(),
+                    version: g.version.as_deref().map(|v| tr!("Version installée : {v}", v = v)).unwrap_or_default().into(),
                     client: client_label(g).into(),
                     card: card_for(g, &self.images, now),
                 }
@@ -412,10 +410,10 @@ impl Controller {
         match uri {
             Some(u) => {
                 if let Err(e) = launcher::open_uri(u) {
-                    self.toast(format!("Client introuvable : {e}"), true);
+                    self.toast(tr!("Client introuvable : {e}", e = e), true);
                 }
             }
-            None => self.toast("Ce client ne propose pas de page de téléchargements", true),
+            None => self.toast(tr!("Ce client ne propose pas de page de téléchargements"), true),
         }
     }
 
@@ -435,9 +433,9 @@ impl Controller {
         } else {
             let names: Vec<&str> = list.iter().take(3).map(|(_, n)| n.as_str()).collect();
             let more = list.len().saturating_sub(3);
-            if more > 0 { format!("{} et {more} autres", names.join(", ")) } else { names.join(", ") }
+            if more > 0 { trn!(more, "{names} et {n} autre", "{names} et {n} autres", names = names.join(", ")) } else { names.join(", ") }
         };
-        let title = if list.len() == 1 { "Mise à jour disponible".to_string() } else { format!("{} mises à jour disponibles", list.len()) };
+        let title = if list.len() == 1 { tr!("Mise à jour disponible") } else { tr!("{list} mises à jour disponibles", list = list.len()) };
         crate::notify::info(&title, &body);
     }
 
@@ -538,10 +536,10 @@ impl Controller {
             .borrow()
             .iter()
             .zip(counts)
-            .map(|(s, n)| SmartRow { id: s.id as i32, name: s.name.as_str().into(), description: s.rules.describe().into(), count: n as i32 })
+            .map(|(s, n)| SmartRow { id: s.id as i32, name: halcyon_i18n::t(&s.name).into(), description: s.rules.describe().into(), count: n as i32 })
             .collect();
         ui.set_collections(ModelRc::new(VecModel::from(rows)));
-        ui.set_kind_labels(ModelRc::new(VecModel::from(KINDS.iter().map(|(l, _)| SharedString::from(*l)).collect::<Vec<_>>())));
+        ui.set_kind_labels(ModelRc::new(VecModel::from(KINDS.iter().map(|(l, _)| SharedString::from(halcyon_i18n::t(l))).collect::<Vec<_>>())));
         ui.set_kind_params(ModelRc::new(VecModel::from(
             KINDS
                 .iter()
@@ -590,11 +588,11 @@ impl Controller {
         for (i, (k, p, n)) in edit.rules.iter().enumerate() {
             match Rule::from_parts(*k, p, *n) {
                 Some(r) => rules.push(r),
-                None => return Err(format!("Règle {} : valeur manquante ou invalide", i + 1)),
+                None => return Err(tr!("Règle {v} : valeur manquante ou invalide", v = i + 1)),
             }
         }
         if rules.is_empty() {
-            return Err("Ajoutez au moins une règle".into());
+            return Err(tr!("Ajoutez au moins une règle").into());
         }
         Ok(RuleSet { match_all: edit.match_all, rules })
     }
@@ -631,7 +629,7 @@ impl Controller {
         *self.smart_edit.borrow_mut() =
             SmartEdit { id, rules: s.rules.rules.iter().map(Rule::parts).collect(), match_all: s.rules.match_all };
         let ui = app.global::<SmartUi>();
-        ui.set_name(s.name.into());
+        ui.set_name(halcyon_i18n::t(&s.name).into());
         ui.set_match_all(s.rules.match_all);
         self.smart_rules.set_vec(Vec::new());
         self.smart_rule_rows();
@@ -689,7 +687,15 @@ impl Controller {
             Err(e) => return ui.set_error(e.into()),
         };
         let id = self.smart_edit.borrow().id;
-        let name = ui.get_name().to_string();
+        let mut name = ui.get_name().to_string();
+        // Collection proposée par défaut dont le nom n'a pas été modifié : garder le nom
+        // source pour qu'elle reste traduite dans toutes les langues.
+        if let Some(s) = self.smart.borrow().iter().find(|s| s.id == id) {
+            if name.trim() == halcyon_i18n::t(&s.name) {
+                name = s.name.clone();
+            }
+        }
+        let name_shown = halcyon_i18n::t(&name);
         let result = self.db().save_smart_collection(id, &name, &set);
         match result {
             Ok(_) => {
@@ -698,8 +704,8 @@ impl Controller {
                 self.refresh_library();
                 self.refresh_smart_ui();
                 ui.set_editing_id(-1);
-                let _ = self.db().log_activity(ActivityKind::Settings, None, &format!("Collection intelligente « {} » enregistrée", name.trim()), &set.describe());
-                self.toast(format!("Collection « {} » enregistrée", name.trim()), false);
+                let _ = self.db().log_activity(ActivityKind::Settings, None, &tr_later!("Collection intelligente « {name} » enregistrée", name = name_shown.trim()), &set.describe());
+                self.toast(tr!("Collection « {name} » enregistrée", name = name_shown.trim()), false);
             }
             Err(e) => ui.set_error(e.to_string().into()),
         }
@@ -711,12 +717,12 @@ impl Controller {
             app.global::<SmartUi>().set_open(false);
         }
         self.confirm(
-            "Supprimer la collection intelligente ?",
-            &format!("« {} » sera supprimée. Aucun jeu n'est retiré de la bibliothèque.", s.name),
-            "Supprimer",
+            &tr!("Supprimer la collection intelligente ?"),
+            &tr!("« {name} » sera supprimée. Aucun jeu n'est retiré de la bibliothèque.", name = halcyon_i18n::t(&s.name)),
+            &tr!("Supprimer"),
             move |c| {
                 if let Err(e) = c.db().delete_smart_collection(id) {
-                    return c.toast(format!("Suppression impossible : {e}"), true);
+                    return c.toast(tr!("Suppression impossible : {e}", e = e), true);
                 }
                 c.reload_smart();
                 c.refresh_filters();
@@ -725,7 +731,7 @@ impl Controller {
                 if let Some(app) = c.app() {
                     app.global::<SmartUi>().set_open(true);
                 }
-                c.toast(format!("Collection « {} » supprimée", s.name), false);
+                c.toast(tr!("Collection « {name} » supprimée", name = halcyon_i18n::t(&s.name)), false);
             },
         );
     }
@@ -753,12 +759,12 @@ fn client_uri(g: &Game) -> Option<&'static str> {
     }
 }
 
-fn client_label(g: &Game) -> &'static str {
+fn client_label(g: &Game) -> String {
     match client_uri(g) {
-        Some("steam://open/downloads") => "Ouvrir Steam",
-        Some("heroic://") => "Ouvrir Heroic",
-        Some(_) => "Ouvrir Epic Games",
-        None => "Client indisponible",
+        Some("steam://open/downloads") => tr!("Ouvrir Steam"),
+        Some("heroic://") => tr!("Ouvrir Heroic"),
+        Some(_) => tr!("Ouvrir Epic Games"),
+        None => tr!("Client indisponible"),
     }
 }
 
@@ -774,7 +780,7 @@ impl Controller {
         let Some(path) = crate::dialogs::save_file(name, ext) else { return };
         let sessions: Vec<export::SessionRow> = match self.db().sessions() {
             Ok(v) => v.into_iter().map(|s| export::SessionRow { game_id: s.game_id, started_at: s.started_at, duration_secs: s.duration_secs }).collect(),
-            Err(e) => return self.toast(format!("Lecture des sessions impossible : {e}"), true),
+            Err(e) => return self.toast(tr!("Lecture des sessions impossible : {e}", e = e), true),
         };
         let lib = self.lib.borrow();
         let data = match format {
@@ -786,8 +792,8 @@ impl Controller {
         // BOM UTF-8 pour les CSV : Excel affiche correctement les accents.
         let bytes = if ext == "csv" { [&[0xEF, 0xBB, 0xBF][..], data.as_bytes()].concat() } else { data.into_bytes() };
         match std::fs::write(&path, bytes) {
-            Ok(()) => self.toast(format!("Statistiques exportées : {}", path.display()), false),
-            Err(e) => self.toast(format!("Export impossible : {e}"), true),
+            Ok(()) => self.toast(tr!("Statistiques exportées : {path}", path = path.display()), false),
+            Err(e) => self.toast(tr!("Export impossible : {e}", e = e), true),
         }
     }
 }

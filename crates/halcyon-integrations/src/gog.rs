@@ -75,19 +75,19 @@ impl GameScanner for GogScanner {
         }
         let galaxy = galaxy_games();
         if roots.is_empty() && galaxy.is_none() {
-            return Err(io_err("ni Heroic (GOG) ni GOG Galaxy n'ont été trouvés"));
+            return Err(io_err(&tr!("ni Heroic (GOG) ni GOG Galaxy n'ont été trouvés")));
         }
         let mut report = ScanReport { complete: true, ..Default::default() };
         let mut seen = std::collections::HashSet::new();
         for root in &roots {
-            ctx.progress("GOG : lecture de Heroic…");
+            ctx.progress(&tr!("GOG : lecture de Heroic…"));
             match scan_heroic(root) {
                 Ok(games) => report.games.extend(games.into_iter().filter(|g| seen.insert(g.source_key.clone()))),
                 Err(e) => report.warnings.push(format!("{} : {e}", root.display())),
             }
         }
         if let Some(games) = galaxy {
-            ctx.progress("GOG : lecture de GOG Galaxy…");
+            ctx.progress(&tr!("GOG : lecture de GOG Galaxy…"));
             report.games.extend(games.into_iter().filter(|g| seen.insert(g.source_key.clone())));
         }
         log::info!("GOG : {} jeux trouvés", report.games.len());

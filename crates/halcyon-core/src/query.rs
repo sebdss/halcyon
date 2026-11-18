@@ -27,12 +27,12 @@ pub enum SortKey {
 impl SortKey {
     pub const ALL: [SortKey; 4] = [Self::Name, Self::LastPlayed, Self::RecentlyAdded, Self::Playtime];
 
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Name => "Nom",
-            Self::LastPlayed => "Dernier lancement",
-            Self::RecentlyAdded => "Ajout récent",
-            Self::Playtime => "Temps de jeu",
+            Self::Name => tr!("Nom"),
+            Self::LastPlayed => "Dernier lancement".into(),
+            Self::RecentlyAdded => tr!("Ajout récent"),
+            Self::Playtime => tr!("Temps de jeu"),
         }
     }
 

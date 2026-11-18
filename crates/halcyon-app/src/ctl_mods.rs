@@ -22,7 +22,7 @@ impl Controller {
         let state = self.db().mod_state(g.id).unwrap_or_default();
         let suggested = g.install_dir.as_deref().map(mods::suggest);
         match state.adapter.as_deref().and_then(|a| serde_json::from_str::<Adapter>(a).ok()) {
-            Some(a) => (a, "Méthode choisie pour ce jeu.".into()),
+            Some(a) => (a, tr!("Méthode choisie pour ce jeu.").into()),
             None => suggested.unwrap_or((Adapter::Generic { target: String::new() }, String::new())),
         }
     }
@@ -38,7 +38,7 @@ impl Controller {
             return p.clone();
         }
         // Pas encore enregistré : créé à la première modification.
-        ModProfile { id: 0, game_id: g.id, name: "Par défaut".into(), entries: vec![] }
+        ModProfile { id: 0, game_id: g.id, name: tr!("Par défaut").into(), entries: vec![] }
     }
 
     /// Les mods de la bibliothèque absents du profil y sont ajoutés (désactivés).
@@ -115,20 +115,15 @@ impl Controller {
         }
         dui.set_mod_profile_labels(ModelRc::new(VecModel::from(labels)));
         dui.set_mod_profile(profiles.iter().position(|p| p.id == profile.id).unwrap_or(0) as i32);
-        let mut launch_labels: Vec<SharedString> = vec!["Ne pas changer les mods".into()];
-        launch_labels.extend(profiles.iter().map(|p| SharedString::from(format!("Mods : {}", p.name))));
+        let mut launch_labels: Vec<SharedString> = vec![tr!("Ne pas changer les mods").into()];
+        launch_labels.extend(profiles.iter().map(|p| SharedString::from(tr!("Mods : {name}", name = p.name))));
         dui.set_mod_launch_labels(ModelRc::new(VecModel::from(launch_labels)));
         let deployed_profile = deployment.profile.and_then(|id| profiles.iter().find(|p| p.id == id)).map(|p| p.name.clone());
         dui.set_mod_status(
             if deployment.files.is_empty() {
-                "Aucun mod installé par Halcyon dans ce jeu.".to_string()
+                tr!("Aucun mod installé par Halcyon dans ce jeu.")
             } else {
-                format!(
-                    "Installés le {} : {} fichier(s){}. Retirer les mods remet le jeu dans son état d'origine.",
-                    date_time(deployment.at),
-                    deployment.files.len(),
-                    deployed_profile.map(|n| format!(" (profil « {n} »)")).unwrap_or_default()
-                )
+                trn!(deployment.files.len(), "Installés le {at} : {n} fichier{v}. Retirer les mods remet le jeu dans son état d'origine.", "Installés le {at} : {n} fichiers{v}. Retirer les mods remet le jeu dans son état d'origine.", at = date_time(deployment.at), v = deployed_profile.map(|n| format!(" (profil « {n} »)")).unwrap_or_default())
             }
             .into(),
         );
@@ -139,11 +134,11 @@ impl Controller {
             .map(|c| {
                 let names: Vec<String> =
                     c.mods.iter().map(|id| by_id.get(id.as_str()).map(|m| m.name.clone()).unwrap_or_else(|| id.clone())).collect();
-                SharedString::from(format!("{} — {} (gagnant : {})", c.rel, names.join(", "), names.last().cloned().unwrap_or_default()))
+                SharedString::from(tr!("{rel} — {join} (gagnant : {v})", rel = c.rel, join = names.join(", "), v = names.last().cloned().unwrap_or_default()))
             })
             .collect();
         if plan.ignored > 0 {
-            conflicts.push(format!("{} fichier(s) ignoré(s) par cette méthode d'installation", plan.ignored).into());
+            conflicts.push(trn!(plan.ignored, "{n} fichier ignoré par cette méthode d'installation", "{n} fichiers ignorés par cette méthode d'installation").into());
         }
         dui.set_mod_conflicts(ModelRc::new(VecModel::from(conflicts)));
         let external = g.install_dir.as_deref().map(|d| store.external(&key, d, &adapter)).unwrap_or_default();
@@ -160,7 +155,7 @@ impl Controller {
         let id = match result {
             Ok(id) => id,
             Err(e) => {
-                self.toast(format!("Enregistrement impossible : {e}"), true);
+                self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
                 return None;
             }
         };
@@ -202,7 +197,7 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let src = PathBuf::from(path.trim().trim_matches('"'));
         if !src.exists() {
-            return self.toast(format!("Introuvable : {}", src.display()), true);
+            return self.toast(tr!("Introuvable : {src}", src = src.display()), true);
         }
         let key = self.game_key(&g);
         let store = self.mod_store();
@@ -212,10 +207,10 @@ impl Controller {
             post(move |c| {
                 match r {
                     Ok(m) => {
-                        let _ = c.db().log_activity(ActivityKind::Mod, Some(id), &format!("Mod « {} » ajouté", m.name), &g.name);
-                        c.toast(format!("Mod « {} » importé ({} fichier(s)) — activez-le puis appliquez", m.name, m.files), false);
+                        let _ = c.db().log_activity(ActivityKind::Mod, Some(id), &tr_later!("Mod « {name} » ajouté", name = m.name), &g.name);
+                        c.toast(trn!(m.files, "Mod « {name} » importé ({n} fichier) — activez-le puis appliquez", "Mod « {name} » importé ({n} fichiers) — activez-le puis appliquez", name = m.name), false);
                     }
-                    Err(e) => c.toast(format!("Import impossible : {e}"), true),
+                    Err(e) => c.toast(tr!("Import impossible : {e}", e = e), true),
                 }
                 c.refresh_mods_tab(&g);
             });
@@ -227,12 +222,12 @@ impl Controller {
         let key = self.game_key(&g);
         let mid = mod_id.to_string();
         self.confirm(
-            "Supprimer ce mod de la bibliothèque ?",
-            "Ses fichiers sont supprimés de la bibliothèque de mods de Halcyon. Le jeu n'est pas modifié.",
-            "Supprimer",
+            &tr!("Supprimer ce mod de la bibliothèque ?"),
+            &tr!("Ses fichiers sont supprimés de la bibliothèque de mods de Halcyon. Le jeu n'est pas modifié."),
+            &tr!("Supprimer"),
             move |c| {
                 match c.mod_store().remove(&key, &mid) {
-                    Ok(()) => c.toast("Mod supprimé", false),
+                    Ok(()) => c.toast(tr!("Mod supprimé"), false),
                     Err(e) => c.toast(e.to_string(), true),
                 }
                 c.refresh_mods_tab(&g);
@@ -250,11 +245,11 @@ impl Controller {
             "" => None,
             v => match v.parse() {
                 Ok(n) => Some(n),
-                Err(_) => return self.toast("Identifiant Nexus : nombre attendu (visible dans l'adresse de la page du mod)", true),
+                Err(_) => return self.toast(tr!("Identifiant Nexus : nombre attendu (visible dans l'adresse de la page du mod)"), true),
             },
         };
         if let Err(e) = store.save_info(&key, &m) {
-            return self.toast(format!("Enregistrement impossible : {e}"), true);
+            return self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
         }
         self.refresh_mods_tab(&g);
     }
@@ -263,7 +258,7 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let target = target.trim().trim_matches(['/', '\\']).replace('\\', "/");
         if halcyon_integrations::archive::safe_relative(&target).is_none() && !target.is_empty() {
-            return self.toast("Dossier cible : chemin relatif au dossier du jeu attendu", true);
+            return self.toast(tr!("Dossier cible : chemin relatif au dossier du jeu attendu"), true);
         }
         let adapter = match index {
             1 => Adapter::BepInEx,
@@ -271,7 +266,7 @@ impl Controller {
                 let paks = if target.is_empty() {
                     match g.install_dir.as_deref().map(mods::suggest) {
                         Some((Adapter::UnrealPaks { paks }, _)) => paks,
-                        _ => return self.toast("Dossier Content/Paks introuvable : indiquez-le (ex. MonJeu/Content/Paks)", true),
+                        _ => return self.toast(tr!("Dossier Content/Paks introuvable : indiquez-le (ex. MonJeu/Content/Paks)"), true),
                     }
                 } else {
                     target
@@ -283,7 +278,7 @@ impl Controller {
         let mut st = self.db().mod_state(id).unwrap_or_default();
         st.adapter = serde_json::to_string(&adapter).ok();
         if let Err(e) = self.db().set_mod_state(id, &st) {
-            return self.toast(format!("Enregistrement impossible : {e}"), true);
+            return self.toast(tr!("Enregistrement impossible : {e}", e = e), true);
         }
         self.refresh_mods_tab(&g);
     }
@@ -314,7 +309,7 @@ impl Controller {
                 let mut st = self.db().mod_state(id).unwrap_or_default();
                 st.active_profile = Some(pid);
                 let _ = self.db().set_mod_state(id, &st);
-                self.toast(format!("Profil de mods « {} » créé (copie du profil actuel)", p.name), false);
+                self.toast(tr!("Profil de mods « {name} » créé (copie du profil actuel)", name = p.name), false);
             }
             Err(e) => self.toast(e.to_string(), true),
         }
@@ -325,12 +320,12 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let Some(p) = self.mod_profile_cache.borrow().clone() else { return };
         if p.id == 0 || self.db().mod_profiles(id).map(|l| l.len()).unwrap_or(0) <= 1 {
-            return self.toast("Gardez au moins un profil de mods", true);
+            return self.toast(tr!("Gardez au moins un profil de mods"), true);
         }
         self.confirm(
-            "Supprimer ce profil de mods ?",
-            &format!("Le profil « {} » (ordre et activation) sera supprimé. Les mods restent dans la bibliothèque.", p.name),
-            "Supprimer",
+            &tr!("Supprimer ce profil de mods ?"),
+            &tr!("Le profil « {name} » (ordre et activation) sera supprimé. Les mods restent dans la bibliothèque.", name = p.name),
+            &tr!("Supprimer"),
             move |c| {
                 let _ = c.db().delete_mod_profile(p.id);
                 c.refresh_mods_tab(&g);
@@ -343,7 +338,7 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let Some(dir) = g.install_dir.clone() else { return };
         if self.active_session.get() == Some(id) {
-            return self.toast("Fermez le jeu avant de modifier ses mods", true);
+            return self.toast(tr!("Fermez le jeu avant de modifier ses mods"), true);
         }
         let Some(mut p) = self.mod_profile_cache.borrow().clone() else { return };
         if p.id == 0 {
@@ -358,12 +353,12 @@ impl Controller {
             let r = job.run();
             if let Ok(n) = &r {
                 let lock = db.lock().unwrap_or_else(|e| e.into_inner());
-                let _ = lock.log_activity(ActivityKind::Mod, Some(id), &format!("Mods appliqués à {}", g.name), &format!("Profil « {} » · {n} fichier(s)", p.name));
+                let _ = lock.log_activity(ActivityKind::Mod, Some(id), &tr_later!("Mods appliqués à {name}", name = g.name), &trn_later!(*n, "Profil « {name} » · {n} fichier", "Profil « {name} » · {n} fichiers", name = p.name));
             }
             post(move |c| {
                 match r {
-                    Ok(n) => c.toast(format!("Mods appliqués ({n} fichier(s))"), false),
-                    Err(e) => c.toast(format!("Application impossible : {e}"), true),
+                    Ok(n) => c.toast(trn!(n, "Mods appliqués ({n} fichier)", "Mods appliqués ({n} fichiers)"), false),
+                    Err(e) => c.toast(tr!("Application impossible : {e}", e = e), true),
                 }
                 c.refresh_mods_tab(&g);
             });
@@ -374,7 +369,7 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let Some(dir) = g.install_dir.clone() else { return };
         if self.active_session.get() == Some(id) {
-            return self.toast("Fermez le jeu avant de modifier ses mods", true);
+            return self.toast(tr!("Fermez le jeu avant de modifier ses mods"), true);
         }
         let key = self.game_key(&g);
         let store = self.mod_store();
@@ -383,18 +378,18 @@ impl Controller {
             let r = store.undeploy(&key, &dir);
             if r.is_ok() {
                 let lock = db.lock().unwrap_or_else(|e| e.into_inner());
-                let _ = lock.log_activity(ActivityKind::Mod, Some(id), &format!("Mods retirés de {}", g.name), "");
+                let _ = lock.log_activity(ActivityKind::Mod, Some(id), &tr_later!("Mods retirés de {name}", name = g.name), "");
             }
             post(move |c| {
                 match r {
                     Ok(rep) if rep.kept_modified.is_empty() => {
-                        c.toast(format!("Mods retirés : {} fichier(s) supprimé(s), {} original(aux) rétabli(s)", rep.removed, rep.restored), false)
+                        c.toast(tr!("Mods retirés · fichiers supprimés : {removed} · originaux rétablis : {restored}", removed = rep.removed, restored = rep.restored), false)
                     }
                     Ok(rep) => c.toast(
-                        format!("{} fichier(s) modifié(s) depuis l'installation ont été laissés en place", rep.kept_modified.len()),
+                        trn!(rep.kept_modified.len(), "{n} fichier modifié depuis l'installation a été laissé en place", "{n} fichiers modifiés depuis l'installation ont été laissés en place"),
                         true,
                     ),
-                    Err(e) => c.toast(format!("Retrait impossible : {e}"), true),
+                    Err(e) => c.toast(tr!("Retrait impossible : {e}", e = e), true),
                 }
                 c.refresh_mods_tab(&g);
             });
@@ -425,14 +420,14 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let key_api = self.settings.borrow().nexus_api_key.trim().to_string();
         if key_api.is_empty() {
-            return self.toast("Ajoutez votre clé d'API Nexus Mods dans les paramètres (Comptes)", true);
+            return self.toast(tr!("Ajoutez votre clé d'API Nexus Mods dans les paramètres (Comptes)"), true);
         }
         if self.settings.borrow().offline_forced {
-            return self.toast("Mode hors ligne activé", true);
+            return self.toast(tr!("Mode hors ligne activé"), true);
         }
         let domain = domain.trim().to_lowercase();
         if domain.is_empty() || !domain.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
-            return self.toast("Indiquez le nom du jeu sur Nexus Mods (ex. « skyrimspecialedition », visible dans l'adresse)", true);
+            return self.toast(tr!("Indiquez le nom du jeu sur Nexus Mods (ex. « skyrimspecialedition », visible dans l'adresse)"), true);
         }
         let mut st = self.db().mod_state(id).unwrap_or_default();
         st.nexus_domain = Some(domain.clone());
@@ -462,9 +457,9 @@ impl Controller {
                 if let Some(e) = errors.first() {
                     c.toast(format!("Nexus Mods : {e}"), true);
                 } else if checked == 0 {
-                    c.toast("Aucun mod n'a d'identifiant Nexus : renseignez-le dans la ligne du mod", true);
+                    c.toast(tr!("Aucun mod n'a d'identifiant Nexus : renseignez-le dans la ligne du mod"), true);
                 } else {
-                    c.toast(format!("{checked} mod(s) vérifié(s) · {newer} mise(s) à jour disponible(s)"), false);
+                    c.toast(tr!("Mods vérifiés : {checked} · mises à jour disponibles : {newer}", checked = checked, newer = newer), false);
                 }
                 c.refresh_mods_tab(&g);
             });

@@ -29,11 +29,11 @@ impl AchievementProvider {
         Self::ALL.into_iter().find(|p| p.as_str() == s)
     }
 
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Steam => "Steam",
-            Self::RetroAchievements => "RetroAchievements",
-            Self::Custom => "Personnalisé",
+            Self::Steam => "Steam".into(),
+            Self::RetroAchievements => "RetroAchievements".into(),
+            Self::Custom => tr!("Personnalisé"),
         }
     }
 }
@@ -71,13 +71,13 @@ pub struct Achievement {
 }
 
 /// Niveau de rareté affiché.
-pub fn rarity_label(percent: f32) -> &'static str {
+pub fn rarity_label(percent: f32) -> String {
     match percent {
-        p if p < 5.0 => "Ultra rare",
-        p if p < 15.0 => "Très rare",
-        p if p < 35.0 => "Rare",
-        p if p < 60.0 => "Peu commun",
-        _ => "Commun",
+        p if p < 5.0 => tr!("Ultra rare"),
+        p if p < 15.0 => tr!("Très rare"),
+        p if p < 35.0 => tr!("Rare"),
+        p if p < 60.0 => tr!("Peu commun"),
+        _ => tr!("Commun"),
     }
 }
 

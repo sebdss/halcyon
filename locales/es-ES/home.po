@@ -1,0 +1,266 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"Language: es-ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Halcyon-Native-Name: Español\n"
+"X-Halcyon-Thousands-Separator: .\n"
+"X-Halcyon-Decimal-Separator: ,\n"
+"X-Halcyon-Domain: home\n"
+
+#: crates/halcyon-app/ui/pages/home.slint:119
+msgid "Dernière partie"
+msgstr "Última partida"
+
+#: crates/halcyon-app/ui/pages/home.slint:149
+msgid "Bienvenue dans Halcyon"
+msgstr "Te damos la bienvenida a Halcyon"
+
+#: crates/halcyon-app/ui/pages/home.slint:156
+msgid "Toute votre ludothèque au même endroit. Halcyon détecte les jeux installés via Steam et Epic Games, et les jeux rangés dans vos propres dossiers."
+msgstr "Toda tu colección de juegos en un solo lugar. Halcyon detecta los juegos instalados con Steam y Epic Games, y los que guardas en tus propias carpetas."
+
+#: crates/halcyon-app/ui/pages/home.slint:174
+msgid "Ajouter un dossier de jeux"
+msgstr "Añadir una carpeta de juegos"
+
+#: crates/halcyon-app/ui/pages/home.slint:243
+msgid "Déplacer avant"
+msgstr "Mover antes"
+
+#: crates/halcyon-app/ui/pages/home.slint:251
+msgid "Déplacer après"
+msgstr "Mover después"
+
+#: crates/halcyon-app/ui/pages/home.slint:259
+msgid "Taille : 1/3 (cliquer pour agrandir)"
+msgstr "Tamaño: 1/3 (clic para ampliar)"
+
+#: crates/halcyon-app/ui/pages/home.slint:259
+msgid "Taille : 2/3 (cliquer pour agrandir)"
+msgstr "Tamaño: 2/3 (clic para ampliar)"
+
+#: crates/halcyon-app/ui/pages/home.slint:259
+msgid "Taille : pleine largeur (cliquer pour réduire)"
+msgstr "Tamaño: ancho completo (clic para reducir)"
+
+#: crates/halcyon-app/ui/pages/home.slint:266
+msgid "Masquer ce widget"
+msgstr "Ocultar este widget"
+
+#: crates/halcyon-app/ui/pages/home.slint:314
+msgid "Lancer un jeu"
+msgstr "Iniciar un juego"
+
+#: crates/halcyon-app/ui/pages/home.slint:331
+msgid "Personnalisation de l'accueil : déplacez, redimensionnez ou masquez les widgets."
+msgstr "Personalizar el inicio: mueve, cambia el tamaño u oculta los widgets."
+
+#: crates/halcyon-app/ui/pages/home.slint:339
+msgid "Réinitialiser"
+msgstr "Restablecer"
+
+#: crates/halcyon-app/ui/pages/home.slint:357
+msgid "Widgets masqués : cliquer pour ajouter"
+msgstr "Widgets ocultos: clic para añadir"
+
+#: crates/halcyon-app/ui/pages/home.slint:396
+msgid "Aucun jeu installé à reprendre pour l'instant."
+msgstr "Aún no hay ningún juego instalado para continuar."
+
+#: crates/halcyon-app/ui/pages/home.slint:405
+msgid "Tout voir"
+msgstr "Ver todo"
+
+#: crates/halcyon-app/ui/pages/home.slint:431
+msgid "Aucun jeu lancé depuis Halcyon pour l'instant."
+msgstr "Aún no has iniciado ningún juego desde Halcyon."
+
+#: crates/halcyon-app/ui/pages/home.slint:431
+msgid "Aucun favori. Ajoutez-en depuis le menu d'un jeu (clic droit)."
+msgstr "No hay favoritos. Añádelos desde el menú de un juego (clic derecho)."
+
+#: crates/halcyon-app/ui/pages/home.slint:431
+msgid "Pas assez de données pour proposer des suggestions."
+msgstr "No hay datos suficientes para hacer sugerencias."
+
+#: crates/halcyon-app/ui/pages/home.slint:431
+msgid "Aucun jeu marqué « En cours »."
+msgstr "Ningún juego marcado como «Jugando»."
+
+#: crates/halcyon-app/ui/pages/home.slint:431
+msgid "Aucun jeu."
+msgstr "No hay juegos."
+
+#: crates/halcyon-app/ui/pages/home.slint:447
+msgid "jeux"
+msgstr "juegos"
+
+#: crates/halcyon-app/ui/pages/home.slint:448
+msgid "installés"
+msgstr "instalados"
+
+#: crates/halcyon-app/ui/pages/home.slint:450
+msgid "de jeu"
+msgstr "de juego"
+
+#: crates/halcyon-app/ui/pages/home.slint:459
+msgid "Tous les succès"
+msgstr "Todos los logros"
+
+#: crates/halcyon-app/ui/pages/home.slint:462
+msgid "Aucun succès débloqué connu. Les succès sont récupérés depuis Steam ou RetroAchievements une fois les comptes configurés."
+msgstr "Aún no hay logros desbloqueados. Los logros se obtienen de Steam o RetroAchievements una vez configuradas las cuentas."
+
+#: crates/halcyon-app/ui/pages/home.slint:506
+msgid "ces 7 derniers jours (suivi local)"
+msgstr "en los últimos 7 días (seguimiento local)"
+
+#: crates/halcyon-app/ui/pages/home.slint:516
+msgid "Aucun temps de jeu connu."
+msgstr "No hay tiempo de juego registrado."
+
+#: crates/halcyon-app/ui/pages/home.slint:527
+msgid "Aucune activité enregistrée."
+msgstr "No hay actividad registrada."
+
+#: crates/halcyon-app/ui/pages/home.slint:544
+msgid "Aucune information de stockage disponible."
+msgstr "No hay información de almacenamiento disponible."
+
+#: crates/halcyon-app/ui/pages/home.slint:558
+msgid "Gérer"
+msgstr "Gestionar"
+
+#: crates/halcyon-app/ui/pages/home.slint:560
+msgid "Aucun émulateur détecté. Ajoutez un dossier de ROM et installez un émulateur pris en charge."
+msgstr "No se ha detectado ningún emulador. Añade una carpeta de ROM e instala un emulador compatible."
+
+#: crates/halcyon-app/src/ctl_home.rs:24
+msgid "Continuer à jouer"
+msgstr "Seguir jugando"
+
+#: crates/halcyon-app/src/ctl_home.rs:25
+msgid "Derniers jeux lancés"
+msgstr "Iniciados recientemente"
+
+#: crates/halcyon-app/src/ctl_home.rs:28
+msgid "Succès récents"
+msgstr "Logros recientes"
+
+#: crates/halcyon-app/src/ctl_home.rs:31
+msgid "Activité récente"
+msgstr "Actividad reciente"
+
+#: crates/halcyon-app/src/ctl_home.rs:36
+msgid "Ajoutés récemment"
+msgstr "Añadidos recientemente"
+
+#: crates/halcyon-app/src/ctl_home.rs:97
+#, placeholders
+msgid "{v} To"
+msgstr "{v} TB"
+
+#: crates/halcyon-app/src/ctl_home.rs:256
+msgid "saisi"
+msgstr "introducido"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "jeu"
+msgstr "jue"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "ven"
+msgstr "vie"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "sam"
+msgstr "sáb"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "dim"
+msgstr "dom"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "lun"
+msgstr "lun"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "mar"
+msgstr "mar"
+
+#: crates/halcyon-app/src/ctl_home.rs:332
+msgctxt "weekday"
+msgid "mer"
+msgstr "mié"
+
+#: crates/halcyon-app/src/ctl_home.rs:340
+msgctxt "weekday"
+msgid "auj."
+msgstr "hoy"
+
+#: crates/halcyon-app/src/ctl_home.rs:348
+msgid "0 min"
+msgstr "0 min"
+
+#: crates/halcyon-app/src/ctl_home.rs:399
+msgid "détecté"
+msgstr "detectado"
+
+#: crates/halcyon-app/src/ctl_home.rs:438
+#, placeholders
+msgid "{used} libres sur {total}"
+msgstr "{used} libres de {total}"
+
+#: crates/halcyon-app/src/ctl_home.rs:444
+#, placeholders
+msgid "Jeux installés ({with_size} avec taille connue)"
+msgstr "Juegos instalados ({with_size} con tamaño conocido)"
+
+#: crates/halcyon-app/src/ctl_home.rs:462
+msgid "Aucune source de captures : Steam n'est pas installé ou introuvable."
+msgstr "No hay fuente de capturas: Steam no está instalado o no se encuentra."
+
+#: crates/halcyon-app/src/ctl_home.rs:502
+msgid "Aucune capture Steam trouvée. Les captures prises avec F12 dans Steam apparaîtront ici."
+msgstr "No se han encontrado capturas de Steam. Las capturas hechas con F12 en Steam aparecerán aquí."
+
+#: crates/halcyon-app/src/ctl_home.rs:626
+msgid "Disposition de l'accueil réinitialisée"
+msgstr "Diseño del inicio restablecido"
+
+#: crates/halcyon-app/src/ctl_home.rs:649
+msgid "Ouvrir la fiche"
+msgstr "Abrir ficha"
+
+#: crates/halcyon-app/src/ctl_home.rs:655
+msgid "Créer un raccourci sur le bureau"
+msgstr "Crear un acceso directo en el escritorio"
+
+#: crates/halcyon-app/src/ctl_home.rs:656
+msgid "Afficher dans la bibliothèque"
+msgstr "Mostrar en la biblioteca"
+
+#: crates/halcyon-app/src/ctl_home.rs:658
+msgid "Retirer de Halcyon…"
+msgstr "Quitar de Halcyon…"
+
+#: crates/halcyon-app/src/ctl_home.rs:700
+msgid "Retirer ce jeu ?"
+msgstr "¿Quitar este juego?"
+
+#: crates/halcyon-app/src/ctl_home.rs:701
+#, placeholders
+msgid "« {name} » sera retiré de Halcyon. Les fichiers du jeu ne sont pas supprimés."
+msgstr "«{name}» se quitará de Halcyon. Los archivos del juego no se eliminan."

@@ -12,6 +12,9 @@
 
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 use halcyon_installer::engine::{self, Event, Found, Level, Mode, Origin, Options, Record, UninstallOptions};
 use halcyon_installer::payload::{self, Payload};
 use halcyon_installer::platform::{self, Env};
@@ -25,7 +28,10 @@ use std::time::{Duration, Instant};
 
 slint::include_modules!();
 
-const UNINSTALL_STEPS: [&str; 3] = ["Raccourcis et entrées", "Fichiers du programme", "Cache et données"];
+// Catalogues de traduction de l'installateur (domaines « installer » et « formats »).
+include!(concat!(env!("OUT_DIR"), "/locales/catalogs.rs"));
+
+const UNINSTALL_STEPS: [&str; 3] = [tr_noop!("Raccourcis et entrées"), tr_noop!("Fichiers du programme"), tr_noop!("Cache et données")];
 
 struct State {
     env: Env,
@@ -69,6 +75,16 @@ fn main() {
 
     let env = Env::system();
     let found = engine::detect(&env);
+    // Langue : celle de l'installation existante (maintenance), sinon celle du système,
+    // sinon l'anglais. Modifiable sur l'écran d'accueil.
+    if let Err(e) = halcyon_i18n::register(CATALOGS) {
+        eprintln!("{e}");
+    }
+    let installed_language = match &found {
+        Found::Installed { record, .. } => std::fs::read_to_string(record.options.dir.join(engine::LANGUAGE_FILE)).ok().map(|s| s.trim().to_string()),
+        _ => None,
+    };
+    halcyon_i18n::set_language(&halcyon_i18n::startup_language(installed_language.as_deref()));
 
     // Windows : un programme ne peut pas supprimer son propre exécutable. Lancé depuis le
     // dossier d'installation, il se relance depuis une copie temporaire.
@@ -95,7 +111,11 @@ fn main() {
             std::process::exit(1);
         }
     };
+    apply_language_to_ui();
     let s = ui.global::<Setup>();
+    let langs = halcyon_i18n::languages();
+    s.set_languages(ModelRc::new(VecModel::from(langs.iter().map(|l| slint::SharedString::from(l.native_name.as_str())).collect::<Vec<_>>())));
+    s.set_language_index(langs.iter().position(|l| l.code == halcyon_i18n::language()).unwrap_or(0) as i32);
     let (payload, payload_error) = match Payload::from_exe(&exe) {
         Ok(p) => (p.map(Arc::new), None),
         Err(e) => (None, Some(e)),
@@ -125,12 +145,12 @@ fn main() {
     }));
 
     if let Some(e) = payload_error {
-        s.set_error(format!("La charge utile de ce programme d'installation est illisible ({e}). Le fichier est probablement incomplet : téléchargez-le à nouveau.").into());
+        s.set_error(tr!("La charge utile de ce programme d'installation est illisible ({e}). Le fichier est probablement incomplet : téléchargez-le à nouveau.", e = e).into());
         s.set_screen(9);
     } else {
         describe_found(&ui, &state.borrow());
         if state.borrow().payload.is_none() && matches!(state.borrow().found, Found::Nothing) {
-            s.set_error("Halcyon n'est pas installé, et ce programme de maintenance ne contient pas ses fichiers. Lancez le programme d'installation téléchargé (halcyon-…-setup).".into());
+            s.set_error(tr!("Halcyon n'est pas installé, et ce programme de maintenance ne contient pas ses fichiers. Lancez le programme d'installation téléchargé (halcyon-…-setup).").into());
             s.set_screen(9);
         }
     }
@@ -195,32 +215,31 @@ fn describe_found(ui: &SetupWindow, st: &State) {
             let dir = record.options.dir.display();
             if !health.ok() {
                 let n = health.missing.len() + health.corrupt.len();
-                (3, format!("Halcyon {} est endommagé.", record.version), format!("Dans {dir} : {n} fichier(s) manquant(s) ou modifié(s). La réparation les rétablit sans toucher à vos données."), true, true)
+                (3, tr!("Halcyon {version} est endommagé.", version = record.version), trn!(n, "Dans {dir} : {n} fichier manquant ou modifié. La réparation le rétablit sans toucher à vos données.", "Dans {dir} : {n} fichiers manquants ou modifiés. La réparation les rétablit sans toucher à vos données.", dir = dir), true, true)
             } else if pv.as_deref().is_some_and(|v| engine::compare_versions(&record.version, v) == Some(std::cmp::Ordering::Less)) {
-                (2, format!("Halcyon {} est installé.", record.version), format!("Dans {dir}. La version {} est disponible.", pv.unwrap_or_default()), true, true)
+                (2, tr!("Halcyon {version} est installé.", version = record.version), tr!("Dans {dir}. La version {pv} est disponible.", dir = dir, pv = pv.unwrap_or_default()), true, true)
             } else {
-                (1, format!("Halcyon {} est installé.", record.version), format!("Dans {dir}. Tous les fichiers sont intacts."), true, true)
+                (1, tr!("Halcyon {version} est installé.", version = record.version), tr!("Dans {dir}. Tous les fichiers sont intacts.", dir = dir), true, true)
             }
         }
         Found::Interrupted { dir } => (
             3,
-            "Une installation a été interrompue.".into(),
-            format!("Dans {}. La réparation remet l'installation dans un état cohérent ; vos données ne sont pas touchées.", dir.display()),
+            tr!("Une installation a été interrompue.").into(),
+            tr!("Dans {dir}. La réparation remet l'installation dans un état cohérent ; vos données ne sont pas touchées.", dir = dir.display()),
             st.payload.is_some(),
             false,
         ),
         Found::Unmanaged { dir, version, origin } => {
-            let v = version.as_deref().map(|v| format!(" {v}")).unwrap_or_default();
             let detail = match origin {
-                Origin::InnoSetup => format!("Installée par l'ancien programme d'installation dans {}. La mise à jour la reprend au même endroit ; bibliothèque, paramètres et sauvegardes sont conservés.", dir.display()),
-                Origin::ArchiveScript => format!(
-                    "Installée par le script de l'archive ({}). La mise à jour installe Halcyon dans {} et remplace l'ancien exécutable ; bibliothèque, paramètres et sauvegardes sont conservés.",
-                    platform_bin(&st.env).display(),
-                    st.env.default_dir.display()
-                ),
-                Origin::Partial => format!("Halcyon est présent dans {} sans fiche d'installation. La mise à jour le reprend au même endroit ; vos données sont conservées.", dir.display()),
+                Origin::InnoSetup => tr!("Installée par l'ancien programme d'installation dans {dir}. La mise à jour la reprend au même endroit ; bibliothèque, paramètres et sauvegardes sont conservés.", dir = dir.display()),
+                Origin::ArchiveScript => tr!("Installée par le script de l'archive ({env}). La mise à jour installe Halcyon dans {default_dir} et remplace l'ancien exécutable ; bibliothèque, paramètres et sauvegardes sont conservés.", env = platform_bin(&st.env).display(), default_dir = st.env.default_dir.display()),
+                Origin::Partial => tr!("Halcyon est présent dans {dir} sans fiche d'installation. La mise à jour le reprend au même endroit ; vos données sont conservées.", dir = dir.display()),
             };
-            (4, format!("Une version précédente de Halcyon{v} est présente."), detail, false, false)
+            let title = match version.as_deref() {
+                Some(v) => tr!("Une version précédente de Halcyon ({v}) est présente.", v = v),
+                None => tr!("Une version précédente de Halcyon est présente."),
+            };
+            (4, title, detail, false, false)
         }
     };
     s.set_found_kind(kind);
@@ -236,6 +255,33 @@ fn describe_found(ui: &SetupWindow, st: &State) {
     s.set_all_users_available(all.0);
     s.set_all_users_note(all.1.into());
     s.set_data_paths(st.env.user_data.iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(", ").into());
+}
+
+fn apply_language_to_ui() {
+    if let Err(e) = slint::select_bundled_translation(&halcyon_i18n::language()) {
+        eprintln!("traduction de l'interface : {e}");
+    }
+}
+
+/// Langue choisie sur l'écran d'accueil : appliquée à toute la suite de l'installation.
+fn set_language(ui: &SetupWindow, st: &State, index: i32) {
+    let Some(lang) = usize::try_from(index).ok().and_then(|i| halcyon_i18n::languages().into_iter().nth(i)) else { return };
+    halcyon_i18n::set_language(&lang.code);
+    apply_language_to_ui();
+    let s = ui.global::<Setup>();
+    s.set_language_index(index);
+    // Textes calculés côté Rust : recalculés dans la nouvelle langue.
+    describe_found(ui, st);
+    s.set_mode_label(mode_label(st.mode).into());
+    s.set_mode_noun(mode_noun(st.mode).into());
+    s.set_mode_busy(mode_busy(st.mode).into());
+}
+
+/// Enregistre la langue de l'installateur à côté de Halcyon (reprise au premier lancement).
+fn save_language(dir: &Path) {
+    if let Err(e) = std::fs::write(dir.join(engine::LANGUAGE_FILE), halcyon_i18n::language()) {
+        eprintln!("{} : {e}", engine::LANGUAGE_FILE);
+    }
 }
 
 fn platform_bin(env: &Env) -> PathBuf {
@@ -255,36 +301,45 @@ fn default_options(st: &State) -> Options {
     }
 }
 
-fn all_users_available() -> (bool, &'static str) {
+fn all_users_available() -> (bool, String) {
     #[cfg(windows)]
     {
         if platform::windows::elevated() {
-            (true, "Installe dans Program Files, avec les raccourcis communs.")
+            (true, tr!("Installe dans Program Files, avec les raccourcis communs."))
         } else {
-            (false, "Lancez le programme d'installation en tant qu'administrateur pour installer pour tous.")
+            (false, tr!("Lancez le programme d'installation en tant qu'administrateur pour installer pour tous."))
         }
     }
     #[cfg(not(windows))]
     {
-        (false, "Sous Linux, l'installation système passe par le paquet .deb.")
+        (false, tr!("Sous Linux, l'installation système passe par le paquet .deb."))
     }
 }
 
-fn mode_noun(m: Mode) -> &'static str {
+fn mode_noun(m: Mode) -> String {
     match m {
-        Mode::Install => "Installation",
-        Mode::Update => "Mise à jour",
-        Mode::Reinstall => "Réinstallation",
-        Mode::Repair => "Réparation",
+        Mode::Install => tr!("Installation"),
+        Mode::Update => tr!("Mise à jour"),
+        Mode::Reinstall => tr!("Réinstallation"),
+        Mode::Repair => tr!("Réparation"),
     }
 }
 
-fn mode_label(m: Mode) -> &'static str {
+fn mode_busy(m: Mode) -> String {
     match m {
-        Mode::Install => "Installer",
-        Mode::Update => "Mettre à jour",
-        Mode::Reinstall => "Réinstaller",
-        Mode::Repair => "Réparer",
+        Mode::Install => tr!("Installation en cours…"),
+        Mode::Update => tr!("Mise à jour en cours…"),
+        Mode::Reinstall => tr!("Réinstallation en cours…"),
+        Mode::Repair => tr!("Réparation en cours…"),
+    }
+}
+
+fn mode_label(m: Mode) -> String {
+    match m {
+        Mode::Install => tr!("Installer"),
+        Mode::Update => tr!("Mettre à jour"),
+        Mode::Reinstall => tr!("Réinstaller"),
+        Mode::Repair => tr!("Réparer"),
     }
 }
 
@@ -320,6 +375,15 @@ fn wire(ui: &SetupWindow, state: &Shared) {
 
     {
         let (w, st) = (ui.as_weak(), state.clone());
+        s.on_set_language(move |i| {
+            if let Some(ui) = w.upgrade() {
+                set_language(&ui, &st.borrow(), i);
+            }
+        });
+    }
+
+    {
+        let (w, st) = (ui.as_weak(), state.clone());
         s.on_start(move || {
             let Some(ui) = w.upgrade() else { return };
             let s = ui.global::<Setup>();
@@ -330,6 +394,7 @@ fn wire(ui: &SetupWindow, state: &Shared) {
                 apply_options(&s, &o);
                 s.set_mode_label(mode_label(Mode::Install).into());
                 s.set_mode_noun(mode_noun(Mode::Install).into());
+                s.set_mode_busy(mode_busy(Mode::Install).into());
                 s.set_dir_locked(false);
                 s.set_skip_config(false);
                 refresh_space(&s, &stt);
@@ -370,6 +435,7 @@ fn wire(ui: &SetupWindow, state: &Shared) {
             };
             s.set_mode_label(mode_label(mode).into());
             s.set_mode_noun(mode_noun(mode).into());
+            s.set_mode_busy(mode_busy(mode).into());
             s.set_dir_locked(locked);
             s.set_skip_config(mode == Mode::Repair);
             if mode == Mode::Repair {
@@ -484,7 +550,7 @@ fn wire(ui: &SetupWindow, state: &Shared) {
                 Ok(()) => {
                     let _ = slint::quit_event_loop();
                 }
-                Err(e) => ui.global::<Setup>().set_launch_error(format!("Halcyon n'a pas pu être lancé : {e}").into()),
+                Err(e) => ui.global::<Setup>().set_launch_error(tr!("Halcyon n'a pas pu être lancé : {e}", e = e).into()),
             }
         });
     }
@@ -532,14 +598,14 @@ fn wire(ui: &SetupWindow, state: &Shared) {
 fn checks_for(p: &Payload, opts: &Options, found: &Found, mode: Mode) -> Vec<engine::Check> {
     let mut out = Vec::new();
     if !opts.dir.is_absolute() {
-        out.push(engine::Check { label: "Dossier".into(), detail: "indiquez un chemin complet (par exemple celui proposé par défaut)".into(), level: Level::Error });
+        out.push(engine::Check { label: tr!("Dossier").into(), detail: tr!("indiquez un chemin complet (par exemple celui proposé par défaut)").into(), level: Level::Error });
         return out;
     }
     let ours = opts.dir.join(engine::RECORD).is_file() || opts.dir.join(platform::main_exe_name()).is_file();
     if !ours && std::fs::read_dir(&opts.dir).is_ok_and(|mut d| d.next().is_some()) {
         out.push(engine::Check {
-            label: "Dossier".into(),
-            detail: "il contient déjà des fichiers : ils ne seront ni modifiés ni supprimés, y compris à la désinstallation".into(),
+            label: tr!("Dossier").into(),
+            detail: tr!("il contient déjà des fichiers : ils ne seront ni modifiés ni supprimés, y compris à la désinstallation").into(),
             level: Level::Warning,
         });
     }
@@ -611,12 +677,12 @@ fn apply_event(ui: &SetupWindow, st: &State, ev: Event) {
             let label = st.labels.get(current_step(st)).cloned().unwrap_or_default();
             if total > 0 {
                 s.set_progress((done as f64 / total as f64).clamp(0.0, 1.0) as f32);
-                s.set_progress_text(format!("{label} · {} sur {}", engine::fmt_size(done), engine::fmt_size(total)).into());
+                s.set_progress_text(tr!("{label} · {done} sur {total}", label = label, done = engine::fmt_size(done), total = engine::fmt_size(total)).into());
             }
         }
         Event::File(f) => s.set_current_file(f.into()),
         Event::Component(label, ok, detail) => st.components.push(CompRow { label: label.into(), ok, detail: detail.into() }),
-        Event::Warning(w) => st.components.push(CompRow { label: "Avertissement".into(), ok: false, detail: w.into() }),
+        Event::Warning(w) => st.components.push(CompRow { label: tr!("Avertissement").into(), ok: false, detail: w.into() }),
     }
 }
 
@@ -630,7 +696,7 @@ fn begin(ui: &SetupWindow, st: &mut State, labels: Vec<String>) {
     s.set_warnings("".into());
     s.set_launch_error("".into());
     s.set_progress(-1.0);
-    s.set_progress_text("Démarrage…".into());
+    s.set_progress_text(tr!("Démarrage…").into());
     s.set_current_file("".into());
     s.set_busy(true);
 }
@@ -641,7 +707,7 @@ fn start_install(ui: &SetupWindow, state: &Shared) {
     let (payload, env, mode, previous, exe, cancel) = {
         let mut st = state.borrow_mut();
         let labels: &[&str] = if st.payload.is_some() { &engine::STEPS } else { &engine::REPAIR_STEPS };
-        begin(ui, &mut st, labels.iter().map(|l| l.to_string()).collect());
+        begin(ui, &mut st, labels.iter().map(|l| halcyon_i18n::t(l)).collect());
         let previous = match &st.found {
             Found::Installed { record, .. } => Some(record.clone()),
             _ => None,
@@ -657,9 +723,9 @@ fn start_install(ui: &SetupWindow, state: &Shared) {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match (&payload, &previous) {
             (Some(p), _) => engine::run(p, &opts, &env, mode, previous.as_ref(), Some(&exe), &cancel, &mut |e| fwd.send(e)),
             (None, Some(rec)) => engine::repair_integration(rec, &env, &mut |e| fwd.send(e)),
-            (None, None) => Err("aucun fichier à installer".into()),
+            (None, None) => Err(tr!("aucun fichier à installer").into()),
         }))
-        .unwrap_or_else(|_| Err("erreur interne du programme d'installation".into()));
+        .unwrap_or_else(|_| Err(tr!("erreur interne du programme d'installation").into()));
         let dir = opts.dir.clone();
         let version = engine::read_record(&dir).map(|r| r.version).unwrap_or_default();
         let _ = slint::invoke_from_event_loop(move || {
@@ -674,20 +740,21 @@ fn start_install(ui: &SetupWindow, state: &Shared) {
                     let n = st.steps.row_count();
                     set_step(&st, n, false);
                     s.set_progress(1.0);
-                    s.set_progress_text("Terminé".into());
+                    s.set_progress_text(tr!("Terminé").into());
                     let (title, text) = match mode {
-                        Mode::Install => ("Halcyon est prêt.".to_string(), "Installation terminée. Au premier lancement, Halcyon détecte les jeux déjà installés (Steam, Epic Games, standalone).".to_string()),
-                        Mode::Update => (format!("Halcyon {version} est prêt."), "Mise à jour terminée. Votre bibliothèque, vos paramètres et vos sauvegardes sont conservés.".to_string()),
-                        Mode::Reinstall => ("Halcyon est réinstallé.".to_string(), "Tous les fichiers du programme ont été réécrits. Vos données sont intactes.".to_string()),
+                        Mode::Install => (tr!("Halcyon est prêt."), tr!("Installation terminée. Au premier lancement, Halcyon détecte les jeux déjà installés (Steam, Epic Games, standalone).")),
+                        Mode::Update => (tr!("Halcyon {version} est prêt.", version = version), tr!("Mise à jour terminée. Votre bibliothèque, vos paramètres et vos sauvegardes sont conservés.")),
+                        Mode::Reinstall => (tr!("Halcyon est réinstallé."), tr!("Tous les fichiers du programme ont été réécrits. Vos données sont intactes.")),
                         Mode::Repair => (
-                            "Réparation terminée.".to_string(),
-                            if report.written > 0 { format!("{} fichier(s) rétabli(s) ; raccourcis et entrées du système recréés.", report.written) } else { "Les fichiers étaient intacts ; raccourcis et entrées du système recréés.".to_string() },
+                            tr!("Réparation terminée."),
+                            if report.written > 0 { trn!(report.written, "{n} fichier rétabli ; raccourcis et entrées du système recréés.", "{n} fichiers rétablis ; raccourcis et entrées du système recréés.") } else { tr!("Les fichiers étaient intacts ; raccourcis et entrées du système recréés.") },
                         ),
                     };
                     s.set_done_title(title.into());
                     s.set_done_text(text.into());
-                    s.set_warnings(if report.warnings.is_empty() { String::new() } else { format!("À noter : {}", report.warnings.join(" ; ")) }.into());
+                    s.set_warnings(if report.warnings.is_empty() { String::new() } else { tr!("À noter : {join}", join = report.warnings.join(" ; ")) }.into());
                     s.set_has_docs(dir.join("GUIDE.md").is_file());
+                    save_language(&dir);
                     st.done_dir = Some(dir);
                     st.found = engine::detect(&st.env);
                     describe_found(&ui, &st);
@@ -713,7 +780,7 @@ fn start_uninstall(ui: &SetupWindow, state: &Shared) {
         let mut st = state.borrow_mut();
         let Found::Installed { record, .. } = &st.found else { return };
         let record = record.clone();
-        begin(ui, &mut st, UNINSTALL_STEPS.iter().map(|l| l.to_string()).collect());
+        begin(ui, &mut st, UNINSTALL_STEPS.iter().map(|l| halcyon_i18n::t(l)).collect());
         (record, st.env.clone())
     };
     s.set_cancellable(false);
@@ -722,7 +789,7 @@ fn start_uninstall(ui: &SetupWindow, state: &Shared) {
     std::thread::spawn(move || {
         let mut fwd = Forward { w: w.clone(), last: Instant::now() - Duration::from_secs(1) };
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| engine::uninstall(&record, &env, &opts, &mut |e| fwd.send(e))))
-            .unwrap_or_else(|_| Err("erreur interne du programme de désinstallation".into()));
+            .unwrap_or_else(|_| Err(tr!("erreur interne du programme de désinstallation").into()));
         let _ = slint::invoke_from_event_loop(move || {
             let Some(ui) = w.upgrade() else { return };
             let s = ui.global::<Setup>();
@@ -733,12 +800,12 @@ fn start_uninstall(ui: &SetupWindow, state: &Shared) {
                 Ok(report) => {
                     let n = st.steps.row_count();
                     set_step(&st, n, false);
-                    s.set_done_title("Halcyon a été désinstallé.".into());
+                    s.set_done_title(tr!("Halcyon a été désinstallé.").into());
                     s.set_done_text(
-                        if opts.remove_data { "Le programme et vos données Halcyon ont été supprimés. Vos jeux n'ont pas été touchés." } else { "Le programme a été retiré. Vos données Halcyon sont conservées : une réinstallation les retrouvera. Vos jeux n'ont pas été touchés." }
+                        if opts.remove_data { tr!("Le programme et vos données Halcyon ont été supprimés. Vos jeux n'ont pas été touchés.") } else { tr!("Le programme a été retiré. Vos données Halcyon sont conservées : une réinstallation les retrouvera. Vos jeux n'ont pas été touchés.") }
                             .into(),
                     );
-                    s.set_warnings(if report.warnings.is_empty() { String::new() } else { format!("À noter : {}", report.warnings.join(" ; ")) }.into());
+                    s.set_warnings(if report.warnings.is_empty() { String::new() } else { tr!("À noter : {join}", join = report.warnings.join(" ; ")) }.into());
                     st.found = engine::detect(&st.env);
                     describe_found(&ui, &st);
                     s.set_screen(8);
@@ -815,16 +882,19 @@ fn browse() -> Option<PathBuf> {
             "-NoProfile",
             "-STA",
             "-Command",
-            "[Console]::OutputEncoding = [Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; \
-             $d.Description = 'Dossier d''installation de Halcyon'; if ($d.ShowDialog() -eq 'OK') { [Console]::Out.Write($d.SelectedPath) }",
+            &format!(
+                "[Console]::OutputEncoding = [Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; \
+                 $d.Description = '{}'; if ($d.ShowDialog() -eq 'OK') {{ [Console]::Out.Write($d.SelectedPath) }}",
+                tr!("Dossier d'installation de Halcyon").replace('\'', "''")
+            ),
         ])
         .output()
         .ok()?;
     #[cfg(not(windows))]
     let out = if in_path("zenity") {
-        std::process::Command::new("zenity").args(["--file-selection", "--directory", "--title=Dossier d'installation de Halcyon"]).output().ok()?
+        std::process::Command::new("zenity").args(["--file-selection", "--directory", &format!("--title={}", tr!("Dossier d'installation de Halcyon"))]).output().ok()?
     } else {
-        std::process::Command::new("kdialog").args(["--getexistingdirectory", "--title", "Dossier d'installation de Halcyon"]).output().ok()?
+        std::process::Command::new("kdialog").args(["--getexistingdirectory", "--title", &tr!("Dossier d'installation de Halcyon")]).output().ok()?
     };
     let text = String::from_utf8_lossy(&out.stdout).trim().to_string();
     if !out.status.success() || text.is_empty() {
@@ -848,10 +918,10 @@ fn pack_cli(stub: &Path, args: &[String]) -> Result<(), String> {
             pos.push(a.clone());
         }
     }
-    let [dir, version, out] = <[String; 3]>::try_from(pos).map_err(|_| "usage : --pack <dossier> <version> <sortie> [--min-glibc X.Y]".to_string())?;
+    let [dir, version, out] = <[String; 3]>::try_from(pos).map_err(|_| tr!("usage : --pack <dossier> <version> <sortie> [--min-glibc X.Y]"))?;
     let dir = PathBuf::from(dir);
     if !dir.join(platform::main_exe_name()).is_file() {
-        return Err(format!("{} absent de {}", platform::main_exe_name(), dir.display()));
+        return Err(tr!("{main_exe_name} absent de {dir}", main_exe_name = platform::main_exe_name(), dir = dir.display()));
     }
     let manifest = payload::Manifest {
         product: "Halcyon".into(),
@@ -866,7 +936,7 @@ fn pack_cli(stub: &Path, args: &[String]) -> Result<(), String> {
     // Le paquet produit doit se relire.
     match Payload::from_exe(Path::new(&out))? {
         Some(p) if p.manifest == m => Ok(()),
-        _ => Err("la charge utile produite ne se relit pas".into()),
+        _ => Err(tr!("la charge utile produite ne se relit pas").into()),
     }
 }
 

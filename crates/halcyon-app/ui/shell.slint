@@ -187,23 +187,23 @@ export component Sidebar inherits Rectangle {
                 vertical-alignment: center;
             }
         }
-        NavItem { collapsed: root.collapsed; text: "Accueil"; icon: Icons.home; active: Spaces.current == 0; clicked => { Spaces.open(0); } }
-        NavItem { collapsed: root.collapsed; text: "Bibliothèque"; icon: Icons.library; active: Spaces.current == 1; clicked => { Spaces.open(1); } }
-        NavItem { collapsed: root.collapsed; text: "Minecraft"; icon: Icons.cube; active: Spaces.current == 2; badge: McUi.playing ? "en jeu" : ""; warm-badge: true; clicked => { Spaces.open(2); } }
-        NavItem { collapsed: root.collapsed; text: "Activité"; icon: Icons.chart; active: Spaces.current == 3; clicked => { Spaces.open(3); } }
+        NavItem { collapsed: root.collapsed; text: @tr("Accueil"); icon: Icons.home; active: Spaces.current == 0; clicked => { Spaces.open(0); } }
+        NavItem { collapsed: root.collapsed; text: @tr("Bibliothèque"); icon: Icons.library; active: Spaces.current == 1; clicked => { Spaces.open(1); } }
+        NavItem { collapsed: root.collapsed; text: "Minecraft"; icon: Icons.cube; active: Spaces.current == 2; badge: McUi.playing ? @tr("en jeu") : ""; warm-badge: true; clicked => { Spaces.open(2); } }
+        NavItem { collapsed: root.collapsed; text: @tr("Activité"); icon: Icons.chart; active: Spaces.current == 3; clicked => { Spaces.open(3); } }
         NavItem {
             collapsed: root.collapsed;
-            text: "Outils";
+            text: @tr("Outils");
             icon: Icons.layers;
             active: Spaces.current == 4;
             badge: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : "";
             warm-badge: DownloadsUi.active.length > 0;
             clicked => { Spaces.open(4); }
         }
-        NavItem { collapsed: root.collapsed; text: "Système"; icon: Icons.sliders; active: Spaces.current == 5; badge: AppUi.update-version != "" ? "1" : ""; warm-badge: false; clicked => { Spaces.open(5); } }
+        NavItem { collapsed: root.collapsed; text: @tr("Système"); icon: Icons.sliders; active: Spaces.current == 5; badge: AppUi.update-version != "" ? "1" : ""; warm-badge: false; clicked => { Spaces.open(5); } }
         Rectangle { vertical-stretch: 1; }
-        if AppUi.nav.big-picture: NavItem { quiet: true; collapsed: root.collapsed; text: "Console"; icon: Icons.tv; clicked => { Actions.enter-big-picture(); } }
-        NavItem { quiet: true; collapsed: root.collapsed; text: AppUi.scanning ? "Analyse…" : "Analyser"; icon: Icons.refresh; clicked => { if (!AppUi.scanning) { Actions.rescan(); } } }
+        if AppUi.nav.big-picture: NavItem { quiet: true; collapsed: root.collapsed; text: @tr("Console"); icon: Icons.tv; clicked => { Actions.enter-big-picture(); } }
+        NavItem { quiet: true; collapsed: root.collapsed; text: AppUi.scanning ? @tr("Analyse…") : @tr("Analyser"); icon: Icons.refresh; clicked => { if (!AppUi.scanning) { Actions.rescan(); } } }
     }
 }
 
@@ -274,7 +274,7 @@ export component SpaceBar inherits Rectangle {
         padding-right: Theme.page-padding;
         spacing: 36px;
         Text {
-            text: Spaces.current == 3 ? "Activité" : Spaces.current == 4 ? "Outils" : "Système";
+            text: Spaces.current == 3 ? @tr("Activité") : Spaces.current == 4 ? @tr("Outils") : @tr("Système");
             color: Theme.text;
             font-family: Theme.display;
             font-size: 20px;
@@ -285,20 +285,20 @@ export component SpaceBar inherits Rectangle {
             spacing: 26px;
             alignment: start;
             horizontal-stretch: 1;
-            if Spaces.current == 3 && AppUi.nav.assistant: SpaceTab { text: "Que jouer ?"; active: Nav.page == Page.assistant; clicked => { Nav.go(Page.assistant); } }
-            if Spaces.current == 3 && AppUi.nav.achievements: SpaceTab { text: "Succès"; active: Nav.page == Page.achievements; count: AchUi.unlocked > 0 ? AchUi.unlocked : ""; clicked => { Nav.go(Page.achievements); } }
-            if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { text: "Statistiques"; active: Nav.page == Page.stats; clicked => { Nav.go(Page.stats); } }
-            if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { text: "Journal"; active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
-            if Spaces.current == 4: SpaceTab { text: "Téléchargements"; active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; warm: true; clicked => { Nav.go(Page.downloads); } }
-            if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { text: "Mises à jour"; active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; warm: true; clicked => { Nav.go(Page.updates); } }
-            if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { text: "Sauvegardes"; active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
-            if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { text: "Émulateurs"; active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
-            if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { text: "Manettes"; active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }
-            if Spaces.current == 4 && AppUi.nav.remote: SpaceTab { text: "Jeu à distance"; active: Nav.page == Page.remote; clicked => { Nav.go(Page.remote); } }
-            if Spaces.current == 4 && AppUi.nav.plugins: SpaceTab { text: "Extensions"; active: Nav.page == Page.plugins; clicked => { Nav.go(Page.plugins); } }
-            if Spaces.current == 5: SpaceTab { text: "Performances"; active: Nav.page == Page.performance; clicked => { Nav.go(Page.performance); } }
-            if Spaces.current == 5: SpaceTab { text: "Apparence"; active: Nav.page == Page.appearance; clicked => { Nav.go(Page.appearance); } }
-            if Spaces.current == 5: SpaceTab { text: "Paramètres"; active: Nav.page == Page.settings; count: AppUi.update-version != "" ? "nouvelle version" : ""; clicked => { Nav.go(Page.settings); } }
+            if Spaces.current == 3 && AppUi.nav.assistant: SpaceTab { text: @tr("Que jouer ?"); active: Nav.page == Page.assistant; clicked => { Nav.go(Page.assistant); } }
+            if Spaces.current == 3 && AppUi.nav.achievements: SpaceTab { text: @tr("Succès"); active: Nav.page == Page.achievements; count: AchUi.unlocked > 0 ? AchUi.unlocked : ""; clicked => { Nav.go(Page.achievements); } }
+            if Spaces.current == 3 && AppUi.nav.stats: SpaceTab { text: @tr("Statistiques"); active: Nav.page == Page.stats; clicked => { Nav.go(Page.stats); } }
+            if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { text: @tr("Journal"); active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
+            if Spaces.current == 4: SpaceTab { text: @tr("Téléchargements"); active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; warm: true; clicked => { Nav.go(Page.downloads); } }
+            if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { text: @tr("Mises à jour"); active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; warm: true; clicked => { Nav.go(Page.updates); } }
+            if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { text: @tr("Sauvegardes"); active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
+            if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { text: @tr("Émulateurs"); active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
+            if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { text: @tr("Manettes"); active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }
+            if Spaces.current == 4 && AppUi.nav.remote: SpaceTab { text: @tr("Jeu à distance"); active: Nav.page == Page.remote; clicked => { Nav.go(Page.remote); } }
+            if Spaces.current == 4 && AppUi.nav.plugins: SpaceTab { text: @tr("Extensions"); active: Nav.page == Page.plugins; clicked => { Nav.go(Page.plugins); } }
+            if Spaces.current == 5: SpaceTab { text: @tr("Performances"); active: Nav.page == Page.performance; clicked => { Nav.go(Page.performance); } }
+            if Spaces.current == 5: SpaceTab { text: @tr("Apparence"); active: Nav.page == Page.appearance; clicked => { Nav.go(Page.appearance); } }
+            if Spaces.current == 5: SpaceTab { text: @tr("Paramètres"); active: Nav.page == Page.settings; count: AppUi.update-version != "" ? @tr("nouvelle version") : ""; clicked => { Nav.go(Page.settings); } }
         }
     }
 }
@@ -309,7 +309,7 @@ component SearchPill inherits Rectangle {
     in property <bool> on-image;
     height: 34px;
     accessible-role: button;
-    accessible-label: "Rechercher";
+    accessible-label: @tr("Rechercher");
     accessible-action-default => { QuickUi.open = true; }
     forward-focus: fs;
     bg := Rectangle {
@@ -325,7 +325,7 @@ component SearchPill inherits Rectangle {
         spacing: 10px;
         Icon { source: Icons.search; size: 16px; tint: Theme.text-muted; }
         if !root.compact: Text {
-            text: "Rechercher un jeu, une page, un réglage";
+            text: @tr("Rechercher un jeu, une page, un réglage");
             color: Theme.text-dim;
             font-size: Theme.t-small;
             vertical-alignment: center;
@@ -339,7 +339,7 @@ component SearchPill inherits Rectangle {
             border-radius: Theme.radius-sm;
             border-width: 1px;
             border-color: Theme.border-strong;
-            kbd := Text { text: "Ctrl K"; color: Theme.text-muted; font-size: Theme.t-overline; font-weight: 600; }
+            kbd := Text { text: @tr("Ctrl K"); color: Theme.text-muted; font-size: Theme.t-overline; font-weight: 600; }
         }
     }
     ta := TouchArea { mouse-cursor: pointer; clicked => { QuickUi.open = true; } }
@@ -387,7 +387,7 @@ export component TopBar inherits Rectangle {
             icon: Icons.chevron-left;
             glass: root.transparent-bg;
             enabled: Nav.can-back;
-            tooltip: "Précédent (Alt+←)";
+            tooltip: @tr("Précédent (Alt+←)");
             clicked => { Nav.history(-1); }
         }
         IconButton {
@@ -395,7 +395,7 @@ export component TopBar inherits Rectangle {
             icon: Icons.chevron-right;
             glass: root.transparent-bg;
             enabled: Nav.can-forward;
-            tooltip: "Suivant (Alt+→)";
+            tooltip: @tr("Suivant (Alt+→)");
             clicked => { Nav.history(1); }
         }
         Rectangle { width: 12px; }
@@ -409,16 +409,16 @@ export component TopBar inherits Rectangle {
         HorizontalLayout {
             spacing: 20px;
             padding-right: 16px;
-            if AppUi.playing != "": StatusMark { text: root.narrow ? "En jeu" : "En jeu : " + AppUi.playing; tint: Theme.warm; }
-            if AppUi.performance: StatusMark { text: AppUi.performance-auto ? "Performance (auto)" : "Performance"; tint: Theme.accent; }
-            if !AppUi.online: StatusMark { text: "Hors ligne"; tint: Theme.text-dim; }
+            if AppUi.playing != "": StatusMark { text: root.narrow ? @tr("En jeu") : @tr("En jeu : {}", AppUi.playing); tint: Theme.warm; }
+            if AppUi.performance: StatusMark { text: AppUi.performance-auto ? @tr("Performance (auto)") : @tr("Performance"); tint: Theme.accent; }
+            if !AppUi.online: StatusMark { text: @tr("Hors ligne"); tint: Theme.text-dim; }
         }
         IconButton {
             y: 11px;
             icon: Icons.gauge;
             glass: root.transparent-bg;
             active: AppUi.performance;
-            tooltip: AppUi.performance ? "Quitter le mode Performance" : "Mode Performance";
+            tooltip: AppUi.performance ? @tr("Quitter le mode Performance") : @tr("Mode Performance");
             clicked => { AppUi.set-performance(!AppUi.performance); }
         }
         IconButton {
@@ -426,7 +426,7 @@ export component TopBar inherits Rectangle {
             icon: AppUi.ui-mode == 1 ? Icons.minimal : AppUi.ui-mode == 2 ? Icons.film : Icons.sidebar;
             glass: root.transparent-bg;
             active: AppUi.ui-mode != 0;
-            tooltip: AppUi.ui-mode == 0 ? "Mode standard (clic : minimaliste)" : AppUi.ui-mode == 1 ? "Mode minimaliste (clic : cinéma)" : "Mode cinéma (clic : standard)";
+            tooltip: AppUi.ui-mode == 0 ? @tr("Mode standard (clic : minimaliste)") : AppUi.ui-mode == 1 ? @tr("Mode minimaliste (clic : cinéma)") : @tr("Mode cinéma (clic : standard)");
             clicked => { AppUi.set-ui-mode(mod(AppUi.ui-mode + 1, 3)); }
         }
         IconButton {
@@ -435,7 +435,7 @@ export component TopBar inherits Rectangle {
             glass: root.transparent-bg;
             active: CommandUi.open;
             badge: CommandUi.running > 0 ? CommandUi.running : CommandUi.unread > 0 ? "•" : "";
-            tooltip: "Centre de commandes";
+            tooltip: @tr("Centre de commandes");
             clicked => {
                 CommandUi.open = !CommandUi.open;
                 if (CommandUi.open) { CommandUi.opened(); }
@@ -512,14 +512,14 @@ export component CommandCenter inherits Rectangle {
             VerticalLayout {
                 horizontal-stretch: 1;
                 spacing: 4px;
-                Text { text: "Centre de commandes"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading; font-weight: 700; }
+                Text { text: @tr("Centre de commandes"); color: Theme.text; font-family: Theme.display; font-size: Theme.t-subheading; font-weight: 700; }
                 Text {
-                    text: (CommandUi.running > 0 ? CommandUi.running + " tâche(s) en cours" : "Aucune tâche en cours") + (CommandUi.errors > 0 ? ", " + CommandUi.errors + " erreur(s) récente(s)" : "");
+                    text: (CommandUi.running > 0 ? @tr("{n} tâche en cours" | "{n} tâches en cours" % CommandUi.running) : @tr("Aucune tâche en cours")) + (CommandUi.errors > 0 ? ", " + @tr("{n} erreur récente" | "{n} erreurs récentes" % CommandUi.errors) : "");
                     color: CommandUi.errors > 0 ? Theme.danger.brighter(0.2) : Theme.text-dim;
                     font-size: Theme.t-caption;
                 }
             }
-            IconButton { icon: Icons.close; tooltip: "Fermer (Échap)"; clicked => { CommandUi.open = false; } }
+            IconButton { icon: Icons.close; tooltip: @tr("Fermer (Échap)"); clicked => { CommandUi.open = false; } }
         }
         Flickable {
             vertical-stretch: 1;
@@ -528,17 +528,17 @@ export component CommandCenter inherits Rectangle {
                 width: parent.width;
                 padding-bottom: 18px;
                 alignment: start;
-                if CommandUi.active.length > 0: HorizontalLayout { padding-left: 18px; height: 30px; Overline { vertical-alignment: center; text: "En cours"; } }
+                if CommandUi.active.length > 0: HorizontalLayout { padding-left: 18px; height: 30px; Overline { vertical-alignment: center; text: @tr("En cours"); } }
                 for t in CommandUi.active: TaskItem { task: t; }
                 HorizontalLayout {
                     padding-left: 18px;
                     padding-right: 18px;
                     height: 38px;
-                    Overline { text: "Récent"; vertical-alignment: center; horizontal-stretch: 1; }
-                    if CommandUi.history.length > 0: TextButton { y: 5px; text: "Effacer"; clicked => { CommandUi.clear-history(); } }
+                    Overline { text: @tr("Récent"); vertical-alignment: center; horizontal-stretch: 1; }
+                    if CommandUi.history.length > 0: TextButton { y: 5px; text: @tr("Effacer"); clicked => { CommandUi.clear-history(); } }
                 }
                 if CommandUi.history.length == 0: HorizontalLayout { padding-left: 18px; padding-right: 18px; Text {
-                    text: "Les analyses, téléchargements, synchronisations, sauvegardes, notifications et erreurs apparaîtront ici.";
+                    text: @tr("Les analyses, téléchargements, synchronisations, sauvegardes, notifications et erreurs apparaîtront ici.");
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                     wrap: word-wrap;

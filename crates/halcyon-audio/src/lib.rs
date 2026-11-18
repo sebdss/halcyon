@@ -10,6 +10,9 @@
 //! - Toute erreur (pas de périphérique, pilote en échec) est journalisée une fois ; l'audio
 //!   se désactive puis réessaie au bout d'une minute, sans jamais interrompre l'application.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 mod catalog;
 mod mixer;
 
@@ -167,7 +170,7 @@ fn run(rx: Receiver<Cmd>, mut mix: Mix) {
 fn open_output() -> Result<Output, String> {
     use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
     let host = cpal::default_host();
-    let device = host.default_output_device().ok_or("aucun périphérique de sortie")?;
+    let device = host.default_output_device().ok_or(tr!("aucun périphérique de sortie"))?;
     let supported = device.default_output_config().map_err(|e| e.to_string())?;
     let format = supported.sample_format();
     let config: cpal::StreamConfig = supported.config();
@@ -216,7 +219,7 @@ fn open_output() -> Result<Output, String> {
             err,
             None,
         ),
-        other => return Err(format!("format d'échantillon non pris en charge : {other:?}")),
+        other => return Err(tr!("format d'échantillon non pris en charge : {other}", other = format!("{:?}", other))),
     }
     .map_err(|e| e.to_string())?;
     stream.play().map_err(|e| e.to_string())?;

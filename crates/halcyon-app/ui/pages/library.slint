@@ -65,7 +65,7 @@ component ListRow inherits Rectangle {
                 alignment: start;
                 Text { text: root.game.source; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
                 if root.game.badge != "": Text { text: root.game.badge; color: Theme.accent; font-size: Theme.t-caption; font-weight: 600; }
-                if !root.game.installed: Text { text: "Non installé"; color: Theme.text-dim; font-size: Theme.t-caption; }
+                if !root.game.installed: Text { text: @tr("Non installé"); color: Theme.text-dim; font-size: Theme.t-caption; }
             }
         }
         // Temps de jeu : chiffre composé dans la police d'affichage ; « Jamais joué » en texte discret.
@@ -88,7 +88,7 @@ component ListRow inherits Rectangle {
                 tint: root.game.favorite ? Theme.warm : Theme.text-dim;
                 active-tint: Theme.warm;
                 icon-size: 16px;
-                tooltip: root.game.favorite ? "Retirer des favoris" : "Ajouter aux favoris";
+                tooltip: root.game.favorite ? @tr("Retirer des favoris") : @tr("Ajouter aux favoris");
                 clicked => { Actions.toggle-favorite(root.game.id); }
             }
         }
@@ -100,7 +100,7 @@ component ListRow inherits Rectangle {
                 enabled: root.game.installed;
                 tint: Theme.warm;
                 active-tint: Theme.warm-hover;
-                tooltip: root.game.installed ? "Jouer" : "Non installé";
+                tooltip: root.game.installed ? @tr("Jouer") : @tr("Non installé");
                 clicked => { Actions.play(root.game.id); }
             }
         }
@@ -109,7 +109,7 @@ component ListRow inherits Rectangle {
             IconButton {
                 icon: Icons.more;
                 icon-size: 16px;
-                tooltip: "Plus d'actions (touche Menu)";
+                tooltip: @tr("Plus d'actions (touche Menu)");
                 clicked => { GameMenu.request(root.game.id, self.absolute-position.x - 220px, self.absolute-position.y + 36px); }
             }
         }
@@ -186,12 +186,12 @@ component FocusInfo inherits VerticalLayout {
         padding-top: 6px;
         PlayButton {
             big: true;
-            text: LibraryUi.focus-game.installed ? "Jouer" : "Non installé";
+            text: LibraryUi.focus-game.installed ? @tr("Jouer") : @tr("Non installé");
             enabled: LibraryUi.focus-game.installed;
             clicked => { Actions.play(LibraryUi.focus-game.id); }
         }
         SecondaryButton {
-            text: "Voir la fiche";
+            text: @tr("Voir la fiche");
             h: 48px;
             clicked => { Actions.open-game(LibraryUi.focus-game.id); }
         }
@@ -200,14 +200,14 @@ component FocusInfo inherits VerticalLayout {
             icon: LibraryUi.focus-game.favorite ? Icons.star-filled : Icons.star;
             tint: LibraryUi.focus-game.favorite ? Theme.warm : Theme.text-muted;
             glass: root.large;
-            tooltip: LibraryUi.focus-game.favorite ? "Retirer des favoris" : "Ajouter aux favoris";
+            tooltip: LibraryUi.focus-game.favorite ? @tr("Retirer des favoris") : @tr("Ajouter aux favoris");
             clicked => { Actions.toggle-favorite(LibraryUi.focus-game.id); }
         }
         IconButton {
             y: 7px;
             icon: Icons.more;
             glass: root.large;
-            tooltip: "Plus d'actions (touche Menu)";
+            tooltip: @tr("Plus d'actions (touche Menu)");
             clicked => { GameMenu.request(LibraryUi.focus-game.id, self.absolute-position.x, self.absolute-position.y + 40px); }
         }
     }
@@ -246,17 +246,17 @@ component ViewSwitch inherits Rectangle {
     lay := HorizontalLayout {
         padding: 1px;
         for v[i] in [
-            { icon: Icons.grid, tip: "Grille" },
-            { icon: Icons.list, tip: "Liste" },
-            { icon: Icons.carousel, tip: "Carrousel" },
-            { icon: Icons.immersive, tip: "Immersive" },
-            { icon: Icons.compact, tip: "Compacte" },
+            { icon: Icons.grid, tip: @tr("Grille") },
+            { icon: Icons.list, tip: @tr("Liste") },
+            { icon: Icons.carousel, tip: @tr("Carrousel") },
+            { icon: Icons.immersive, tip: @tr("Immersive") },
+            { icon: Icons.compact, tip: @tr("Compacte") },
         ]: IconButton {
             size: 30px;
             icon-size: 16px;
             icon: v.icon;
             active: LibraryUi.view-mode == i;
-            tooltip: "Vue " + v.tip;
+            tooltip: @tr("Vue : {}", v.tip);
             clicked => {
                 LibraryUi.view-mode = i;
                 LibraryUi.view-changed();
@@ -270,7 +270,8 @@ component IndexItem inherits Rectangle {
     in property <string> text;
     in property <bool> active;
     callback clicked;
-    height: 30px;
+    // Une ligne d'ordinaire ; deux si le nom est long (selon la langue), sans couper le compte.
+    height: max(30px, label.preferred-height + 12px);
     accessible-role: radio-button;
     accessible-checked: root.active;
     accessible-label: root.text;
@@ -279,7 +280,7 @@ component IndexItem inherits Rectangle {
     background: ta.has-hover ? Theme.surface : transparent;
     border-radius: Theme.radius-sm;
     if root.active: Rectangle { x: 0; y: 7px; width: Theme.perch; height: parent.height - 14px; background: Theme.accent; }
-    Text {
+    label := Text {
         x: 12px;
         width: parent.width - 16px;
         text: root.text;
@@ -287,7 +288,7 @@ component IndexItem inherits Rectangle {
         font-size: Theme.t-small;
         font-weight: root.active ? 650 : 500;
         vertical-alignment: center;
-        overflow: elide;
+        wrap: word-wrap;
     }
     if fs.has-focus: Rectangle { border-radius: Theme.radius-sm; border-width: Theme.focus-width; border-color: Theme.focus; }
     ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
@@ -347,7 +348,7 @@ component IndexCheck inherits Rectangle {
 
 /// Index des filtres (colonne gauche).
 component FilterIndex inherits Rectangle {
-    property <[string]> sources: ["Tous les jeux", "Steam", "Epic Games", "Émulation", "Autres", "Minecraft", "GOG"];
+    property <[string]> sources: [@tr("Tous les jeux"), "Steam", "Epic Games", @tr("Émulation"), @tr("Autres"), "Minecraft", "GOG"];
     Rectangle { x: parent.width - 1px; width: 1px; background: Theme.border; }
     Flickable {
         width: parent.width - 1px;
@@ -359,31 +360,31 @@ component FilterIndex inherits Rectangle {
             padding-bottom: 30px;
             spacing: 2px;
             alignment: start;
-            Overline { text: "Sources"; height: 26px; x: 12px; vertical-alignment: top; }
+            Overline { text: @tr("Sources"); height: 26px; x: 12px; vertical-alignment: top; }
             for label[i] in root.sources: IndexItem {
                 text: label;
                 active: LibraryUi.source == i;
                 clicked => { LibraryUi.source = i; LibraryUi.query-changed(); }
             }
             Rectangle { height: 22px; }
-            Overline { text: "Afficher"; height: 26px; x: 12px; vertical-alignment: top; }
+            Overline { text: @tr("Afficher"); height: 26px; x: 12px; vertical-alignment: top; }
             IndexCheck {
-                text: "Installés seulement";
+                text: @tr("Installés seulement");
                 checked: LibraryUi.installed-only;
                 toggled => { LibraryUi.installed-only = !LibraryUi.installed-only; LibraryUi.query-changed(); }
             }
             IndexCheck {
-                text: "Favoris seulement";
+                text: @tr("Favoris seulement");
                 checked: LibraryUi.favorites-only;
                 toggled => { LibraryUi.favorites-only = !LibraryUi.favorites-only; LibraryUi.query-changed(); }
             }
             IndexCheck {
-                text: "Jeux masqués";
+                text: @tr("Jeux masqués");
                 checked: LibraryUi.show-hidden;
                 toggled => { LibraryUi.show-hidden = !LibraryUi.show-hidden; LibraryUi.query-changed(); }
             }
             Rectangle { height: 22px; }
-            Overline { text: "Collections"; height: 26px; x: 12px; vertical-alignment: top; }
+            Overline { text: @tr("Collections"); height: 26px; x: 12px; vertical-alignment: top; }
             for label[i] in LibraryUi.collection-labels: IndexItem {
                 text: label;
                 active: LibraryUi.collection == i;
@@ -392,10 +393,10 @@ component FilterIndex inherits Rectangle {
             HorizontalLayout {
                 padding-left: 12px;
                 padding-top: 4px;
-                TextButton { text: "Collections intelligentes"; clicked => { SmartUi.editing-id = -1; SmartUi.open = true; } }
+                TextButton { text: @tr("Collections intelligentes"); clicked => { SmartUi.editing-id = -1; SmartUi.open = true; } }
             }
             if LibraryUi.genre-labels.length > 1: Rectangle { height: 22px; }
-            if LibraryUi.genre-labels.length > 1: Overline { text: "Genre"; height: 26px; x: 12px; vertical-alignment: top; }
+            if LibraryUi.genre-labels.length > 1: Overline { text: @tr("Genre"); height: 26px; x: 12px; vertical-alignment: top; }
             if LibraryUi.genre-labels.length > 1: HorizontalLayout {
                 padding-left: 12px;
                 Dropdown {
@@ -487,7 +488,7 @@ export component LibraryPage inherits Rectangle {
                 padding-top: root.immersive ? 72px : 28px;
                 spacing: 14px;
                 Text {
-                    text: "Bibliothèque";
+                    text: @tr("Bibliothèque");
                     color: Theme.text;
                     font-family: Theme.display;
                     font-size: Theme.t-title;
@@ -506,7 +507,7 @@ export component LibraryPage inherits Rectangle {
                 }
                 SecondaryButton {
                     y: 4px;
-                    text: root.width > 1100px ? "Ajouter un jeu" : "";
+                    text: root.width > 1100px ? @tr("Ajouter un jeu") : "";
                     icon: Icons.plus;
                     has-icon: true;
                     clicked => { AppUi.add-dialog-open = true; }
@@ -524,7 +525,7 @@ export component LibraryPage inherits Rectangle {
                     min-width: 180px;
                     max-width: 380px;
                     horizontal-stretch: 1;
-                    placeholder: "Rechercher dans la bibliothèque  (Ctrl+F)";
+                    placeholder: @tr("Rechercher dans la bibliothèque  (Ctrl+F)");
                     icon: Icons.search;
                     has-icon: true;
                     text <=> LibraryUi.search;
@@ -534,7 +535,7 @@ export component LibraryPage inherits Rectangle {
                 help-btn := IconButton {
                     y: 1px;
                     icon: Icons.info;
-                    tooltip: "Syntaxe de recherche";
+                    tooltip: @tr("Syntaxe de recherche");
                     clicked => { help.show(); }
                 }
                 help := PopupWindow {
@@ -552,24 +553,24 @@ export component LibraryPage inherits Rectangle {
                         help-box := VerticalLayout {
                             padding: 18px;
                             spacing: 6px;
-                            Text { text: "Recherche avancée"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-body; font-weight: 700; }
-                            Text { text: "Les fautes de frappe et les sigles sont tolérés (« witchr », « gta »). Combinez des filtres :"; color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
+                            Text { text: @tr("Recherche avancée"); color: Theme.text; font-family: Theme.display; font-size: Theme.t-body; font-weight: 700; }
+                            Text { text: @tr("Les fautes de frappe et les sigles sont tolérés (« witchr », « gta »). Combinez des filtres :"); color: Theme.text-muted; font-size: Theme.t-caption; wrap: word-wrap; }
                             for line in [
-                                "dev:valve   éditeur:\"bandai namco\"   genre:rpg",
-                                "plateforme:snes   source:steam   tag:multijoueur",
-                                "installé:non   favori:oui   maj:oui",
-                                "statut:terminé   statut:\"en cours\"   statut:abandonné",
-                                "temps:>10h   temps:<30m   temps:0",
-                                "succès:complet   succès:manquants   succès:>80",
-                                "-filtre:valeur  exclut (ex. -installé:oui)",
+                                @tr("dev:valve   éditeur:\"bandai namco\"   genre:rpg"),
+                                @tr("plateforme:snes   source:steam   tag:multijoueur"),
+                                @tr("installé:non   favori:oui   maj:oui"),
+                                @tr("statut:terminé   statut:\"en cours\"   statut:abandonné"),
+                                @tr("temps:>10h   temps:<30m   temps:0"),
+                                @tr("succès:complet   succès:manquants   succès:>80"),
+                                @tr("-filtre:valeur  exclut (ex. -installé:oui)"),
                             ]: Text { text: line; color: Theme.accent; font-size: Theme.t-caption; font-family: "monospace"; }
-                            Text { text: "Flèches : sélection. Entrée : fiche. Espace : jouer. Menu : actions."; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                            Text { text: @tr("Flèches : sélection. Entrée : fiche. Espace : jouer. Menu : actions."); color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                         }
                     }
                 }
                 Rectangle { horizontal-stretch: 1; }
                 Dropdown {
-                    prefix: root.width > 1240px ? "Trier par" : "";
+                    prefix: root.width > 1240px ? @tr("Trier par") : "";
                     options: LibraryUi.sort-labels;
                     selected <=> LibraryUi.sort;
                     changed => { LibraryUi.query-changed(); }
@@ -589,13 +590,13 @@ export component LibraryPage inherits Rectangle {
                 padding-bottom: 18px;
                 spacing: 8px;
                 Segmented {
-                    items: root.width > 1480px ? ["Tous", "Steam", "Epic", "Émulation", "Autres", "Minecraft", "GOG"] : ["Tous", "Steam", "Epic", "Ému.", "Autres", "MC", "GOG"];
+                    items: root.width > 1480px ? [@tr("Tous"), "Steam", "Epic", @tr("Émulation"), @tr("Autres"), "Minecraft", "GOG"] : [@tr("Tous"), "Steam", "Epic", @tr("Ému."), @tr("Autres"), "MC", "GOG"];
                     selected <=> LibraryUi.source;
                     activated => { LibraryUi.query-changed(); }
                 }
                 Rectangle { width: 6px; }
                 Chip {
-                    text: "Installés";
+                    text: @tr("Installés");
                     checked: LibraryUi.installed-only;
                     toggled => {
                         LibraryUi.installed-only = !LibraryUi.installed-only;
@@ -603,7 +604,7 @@ export component LibraryPage inherits Rectangle {
                     }
                 }
                 Chip {
-                    text: "Favoris";
+                    text: @tr("Favoris");
                     checked: LibraryUi.favorites-only;
                     toggled => {
                         LibraryUi.favorites-only = !LibraryUi.favorites-only;
@@ -611,7 +612,7 @@ export component LibraryPage inherits Rectangle {
                     }
                 }
                 Chip {
-                    text: "Masqués";
+                    text: @tr("Masqués");
                     checked: LibraryUi.show-hidden;
                     toggled => {
                         LibraryUi.show-hidden = !LibraryUi.show-hidden;
@@ -626,7 +627,7 @@ export component LibraryPage inherits Rectangle {
                     changed => { LibraryUi.query-changed(); }
                 }
                 SecondaryButton {
-                    text: root.width > 1480px ? "Collections intelligentes" : "";
+                    text: root.width > 1480px ? @tr("Collections intelligentes") : "";
                     icon: Icons.bolt;
                     has-icon: true;
                     h: 30px;
@@ -658,7 +659,7 @@ export component LibraryPage inherits Rectangle {
                     padding-top: 40px;
                     spacing: 10px;
                     Text {
-                        text: LibraryUi.total == 0 ? "Votre bibliothèque est vide" : "Aucun jeu ne correspond";
+                        text: LibraryUi.total == 0 ? @tr("Votre bibliothèque est vide") : @tr("Aucun jeu ne correspond");
                         color: Theme.text;
                         font-family: Theme.display;
                         font-size: Theme.t-heading;
@@ -666,8 +667,8 @@ export component LibraryPage inherits Rectangle {
                     }
                     Text {
                         text: LibraryUi.total == 0
-                            ? "Lancez une analyse ou ajoutez un dossier de jeux dans les paramètres."
-                            : "Essayez un autre terme ou retirez des filtres. Champs de recherche : dev:, éditeur:, genre:, plateforme:, tag:, statut:, installé:, temps:, succès:, maj:";
+                            ? @tr("Lancez une analyse ou ajoutez un dossier de jeux dans les paramètres.")
+                            : @tr("Essayez un autre terme ou retirez des filtres. Champs de recherche : dev:, éditeur:, genre:, plateforme:, tag:, statut:, installé:, temps:, succès:, maj:");
                         color: Theme.text-muted;
                         font-size: Theme.t-body;
                         wrap: word-wrap;
@@ -676,7 +677,7 @@ export component LibraryPage inherits Rectangle {
                         alignment: start;
                         padding-top: 8px;
                         PrimaryButton {
-                            text: AppUi.scanning ? "Analyse en cours…" : "Rechercher mes jeux";
+                            text: AppUi.scanning ? @tr("Analyse en cours…") : @tr("Rechercher mes jeux");
                             enabled: !AppUi.scanning;
                             clicked => { Actions.rescan(); }
                         }
@@ -718,9 +719,9 @@ export component LibraryPage inherits Rectangle {
                         padding-bottom: 8px;
                         spacing: 16px;
                         Rectangle { width: 32px; }
-                        Overline { text: "Titre"; horizontal-stretch: 1; }
-                        Overline { width: 120px; text: "Temps de jeu"; }
-                        Overline { width: 150px; text: "Dernier lancement"; }
+                        Overline { text: @tr("Titre"); horizontal-stretch: 1; }
+                        Overline { width: 120px; text: @tr("Temps de jeu"); }
+                        Overline { width: 150px; text: @tr("Dernier lancement"); }
                         Rectangle { width: 134px; }
                     }
                     HorizontalLayout {
@@ -778,10 +779,10 @@ export component LibraryPage inherits Rectangle {
                         padding-left: Theme.page-padding;
                         spacing: Theme.s5;
                         alignment: start;
-                        KeyHint { key: "←→"; label: "Parcourir"; }
-                        KeyHint { key: "Entrée"; label: "Fiche"; }
-                        KeyHint { key: "Espace"; label: "Jouer"; }
-                        KeyHint { key: "Menu"; label: "Actions"; }
+                        KeyHint { key: "←→"; label: @tr("Parcourir"); }
+                        KeyHint { key: @tr("Entrée"); label: @tr("Fiche"); }
+                        KeyHint { key: @tr("Espace"); label: @tr("Jouer"); }
+                        KeyHint { key: @tr("Menu"); label: @tr("Actions"); }
                     }
                 }
             }

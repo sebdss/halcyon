@@ -3,6 +3,9 @@
 //! La base locale est la source de vérité de la bibliothèque : elle reste
 //! entièrement utilisable hors ligne.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod achievements;
 pub mod activity;
 pub mod audit;

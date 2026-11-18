@@ -30,12 +30,12 @@ pub enum Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Network(e) => write!(f, "réseau : {e}"),
+            Self::Network(e) => write!(f, "{}", tr!("réseau : {e}", e = e)),
             Self::Http(code, body) if body.is_empty() => write!(f, "HTTP {code}"),
             Self::Http(code, body) => write!(f, "HTTP {code} : {}", body.chars().take(300).collect::<String>()),
             Self::Invalid(e) => write!(f, "{e}"),
             Self::Disk(e) => write!(f, "disque : {e}"),
-            Self::Cancelled => write!(f, "annulé"),
+            Self::Cancelled => write!(f, "{}", tr!("annulé")),
         }
     }
 }
@@ -83,7 +83,7 @@ impl Http {
     }
 
     fn parse(bytes: &[u8], url: &str) -> Result<serde_json::Value> {
-        serde_json::from_slice(bytes).map_err(|e| Error::Invalid(format!("{url} : JSON invalide ({e})")))
+        serde_json::from_slice(bytes).map_err(|e| Error::Invalid(tr!("{url} : JSON invalide ({e})", url = url, e = e)))
     }
 
     /// GET renvoyant du JSON ; `headers` : en-têtes supplémentaires (clés d'API).
@@ -142,7 +142,7 @@ impl Http {
     /// pas, le fichier repart de zéro. L'empreinte porte toujours sur le fichier entier.
     pub fn download(&self, url: &str, dest: &Path, sha1: Option<&str>, cancel: &AtomicBool, progress: &mut dyn FnMut(u64)) -> Result<()> {
         if !url.starts_with("https://") {
-            return Err(Error::Invalid(format!("adresse non sécurisée refusée : {url}")));
+            return Err(Error::Invalid(tr!("adresse non sécurisée refusée : {url}", url = url)));
         }
         if let Some(d) = dest.parent() {
             std::fs::create_dir_all(d).map_err(|e| Error::Disk(format!("{} : {e}", d.display())))?;
@@ -217,7 +217,7 @@ impl Http {
         if let Some(want) = sha1 {
             if !want.eq_ignore_ascii_case(&got) {
                 let _ = std::fs::remove_file(&tmp);
-                return Err(Error::Invalid(format!("{} : empreinte incorrecte (fichier corrompu en route)", file_name(dest))));
+                return Err(Error::Invalid(tr!("{dest} : empreinte incorrecte (fichier corrompu en route)", dest = file_name(dest))));
             }
         }
         std::fs::rename(&tmp, dest).map_err(|e| Error::Disk(format!("{} : {e}", dest.display())))

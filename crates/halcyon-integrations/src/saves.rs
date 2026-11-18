@@ -192,7 +192,7 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
     if g.source == Some(GameSource::Steam) {
         if let (Some(root), Some(acct)) = (&env.steam_root, env.steam_account) {
             let remote = root.join("userdata").join(acct.to_string()).join(&g.source_key).join("remote");
-            push(remote, "Steam Cloud (copie locale, synchronisée par Steam)".into(), true);
+            push(remote, tr!("Steam Cloud (copie locale, synchronisée par Steam)").into(), true);
         }
         let mut prefixes: Vec<PathBuf> = Vec::new();
         if let Some(root) = &env.steam_root {
@@ -238,7 +238,7 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
                 }
                 let n = e.file_name().to_string_lossy().to_lowercase();
                 if SAVE_DIR_NAMES.contains(&n.as_str()) {
-                    push(p.clone(), format!("Dossier du jeu/{}", e.file_name().to_string_lossy()), true);
+                    push(p.clone(), tr!("Dossier du jeu/{file_name}", file_name = e.file_name().to_string_lossy()), true);
                 }
                 let unreal = p.join("Saved").join("SaveGames");
                 if unreal.is_dir() {
@@ -260,7 +260,7 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
         }
         for d in dirs_to_check {
             for ext in ROM_SAVE_EXTS {
-                push(d.join(format!("{stem}.{ext}")), format!("Sauvegarde d'émulateur ({ext})"), true);
+                push(d.join(format!("{stem}.{ext}")), tr!("Sauvegarde d'émulateur ({ext})", ext = ext), true);
             }
         }
     }
@@ -269,7 +269,7 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
     for pattern in &g.extra {
         let p = pattern.replace("{name}", &g.name);
         if let Some(path) = env.resolve(&p, g.install_dir.as_deref()) {
-            push(path, "Définition d'extension".into(), true);
+            push(path, tr!("Définition d'extension").into(), true);
         }
     }
     out
@@ -307,13 +307,13 @@ pub struct SnapshotMeta {
 }
 
 impl SnapshotMeta {
-    pub fn reason_label(&self) -> &'static str {
+    pub fn reason_label(&self) -> String {
         match self.reason.as_str() {
-            "before_session" => "Avant la session",
-            "after_session" => "Après la session",
-            "before_restore" => "Avant restauration",
-            "imported" => "Importée",
-            _ => "Manuelle",
+            "before_session" => tr!("Avant la session"),
+            "after_session" => tr!("Après la session"),
+            "before_restore" => tr!("Avant restauration"),
+            "imported" => tr!("Importée"),
+            _ => tr!("Manuelle"),
         }
     }
 
@@ -356,7 +356,7 @@ pub fn scan_locations(locations: &[Location]) -> io::Result<(Vec<FileEntry>, Vec
             let size = full.metadata()?.len();
             total += size;
             if total > MAX_BYTES {
-                return Err(io::Error::other("plus de 4 Go de données : emplacement trop volumineux pour une sauvegarde"));
+                return Err(io::Error::other(tr!("plus de 4 Go de données : emplacement trop volumineux pour une sauvegarde")));
             }
             files.push(FileEntry { loc: i, rel: entry_name("", &rel), size, hash: sha256_file(&full)? });
         }
@@ -518,7 +518,7 @@ impl SaveStore {
     /// Supprime un instantané.
     pub fn delete(&self, key: &str, id: &str) -> io::Result<()> {
         if id.contains(['/', '\\']) || id.contains("..") {
-            return Err(io::Error::other("identifiant invalide"));
+            return Err(io::Error::other(tr!("identifiant invalide")));
         }
         std::fs::remove_dir_all(self.game_dir(key).join(id))
     }
@@ -549,7 +549,7 @@ impl SaveStore {
         let r = archive::copy_dir(&src, &tmp).and_then(|_| {
             // Vérification de l'archive copiée avant de la publier.
             if archive::sha256_file(&src.join("snapshot.zip"))? != archive::sha256_file(&tmp.join("snapshot.zip"))? {
-                return Err(io::Error::other("copie corrompue"));
+                return Err(io::Error::other(tr!("copie corrompue")));
             }
             std::fs::rename(&tmp, dest_dir.join(id))
         });
@@ -563,7 +563,7 @@ impl SaveStore {
     /// L'appelant doit avoir créé un instantané de l'état actuel au préalable.
     pub fn restore(&self, snap: &SnapshotMeta, targets: &[PathBuf]) -> io::Result<usize> {
         if targets.len() != snap.locations.len() {
-            return Err(io::Error::other("emplacements incohérents avec l'instantané"));
+            return Err(io::Error::other(tr!("emplacements incohérents avec l'instantané")));
         }
         let archive = self.archive_path(&snap.game_key, &snap.id);
         let staging_root = self.root.join(".restore").join(&snap.id);
@@ -577,7 +577,7 @@ impl SaveStore {
             let p = f.rel.split('/').fold(staging_root.join(f.loc.to_string()), |p, s| p.join(s));
             if sha256_file(&p)? != f.hash {
                 let _ = std::fs::remove_dir_all(&staging_root);
-                return Err(io::Error::other(format!("archive corrompue : {}", f.rel)));
+                return Err(io::Error::other(tr!("archive corrompue : {rel}", rel = f.rel)));
             }
         }
         // 2. Remplacement emplacement par emplacement, avec retour arrière.

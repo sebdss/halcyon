@@ -115,21 +115,21 @@ component Hero inherits Rectangle {
             padding-bottom: 10px;
             spacing: 28px;
             alignment: start;
-            Fact { label: "Temps de jeu"; value: HomeUi.hero.playtime; }
-            Fact { label: "Dernière partie"; value: HomeUi.hero.last-played; }
-            if !root.card: Fact { label: "Source"; value: HomeUi.hero.source; }
+            Fact { label: @tr("Temps de jeu"); value: HomeUi.hero.playtime; }
+            Fact { label: @tr("Dernière partie"); value: HomeUi.hero.last-played; }
+            if !root.card: Fact { label: @tr("Source"); value: HomeUi.hero.source; }
         }
         HorizontalLayout {
             spacing: Theme.s3;
             alignment: start;
             PlayButton {
                 big: !root.card;
-                text: HomeUi.hero.installed ? "Jouer" : "Non installé";
+                text: HomeUi.hero.installed ? @tr("Jouer") : @tr("Non installé");
                 enabled: HomeUi.hero.installed;
                 clicked => { Actions.play(HomeUi.hero.id); }
             }
             SecondaryButton {
-                text: "Voir la fiche";
+                text: @tr("Voir la fiche");
                 h: root.card ? Theme.control-height : 48px;
                 clicked => { Actions.open-game(HomeUi.hero.id); }
             }
@@ -146,14 +146,14 @@ component Welcome inherits Rectangle {
         spacing: 16px;
         Image { source: Icons.logo; width: 56px; height: 56px; horizontal-alignment: left; }
         Text {
-            text: "Bienvenue dans Halcyon";
+            text: @tr("Bienvenue dans Halcyon");
             color: Theme.text;
             font-family: Theme.display;
             font-size: Theme.t-title;
             font-weight: 800;
         }
         Text {
-            text: "Toute votre ludothèque au même endroit. Halcyon détecte les jeux installés via Steam et Epic Games, et les jeux rangés dans vos propres dossiers.";
+            text: @tr("Toute votre ludothèque au même endroit. Halcyon détecte les jeux installés via Steam et Epic Games, et les jeux rangés dans vos propres dossiers.");
             color: Theme.text-muted;
             font-size: Theme.t-body;
             wrap: word-wrap;
@@ -163,7 +163,7 @@ component Welcome inherits Rectangle {
             spacing: 12px;
             padding-top: 10px;
             PrimaryButton {
-                text: AppUi.scanning ? "Analyse en cours…" : "Rechercher mes jeux";
+                text: AppUi.scanning ? @tr("Analyse en cours…") : @tr("Rechercher mes jeux");
                 icon: Icons.refresh;
                 has-icon: true;
                 enabled: !AppUi.scanning;
@@ -171,14 +171,14 @@ component Welcome inherits Rectangle {
                 clicked => { Actions.rescan(); }
             }
             SecondaryButton {
-                text: "Ajouter un dossier de jeux";
+                text: @tr("Ajouter un dossier de jeux");
                 icon: Icons.folder;
                 has-icon: true;
                 h: 40px;
                 clicked => { Nav.go(Page.settings); }
             }
             SecondaryButton {
-                text: "Ajouter un jeu";
+                text: @tr("Ajouter un jeu");
                 icon: Icons.plus;
                 has-icon: true;
                 h: 40px;
@@ -240,7 +240,7 @@ component WidgetFrame inherits Rectangle {
                 icon: Icons.chevron-left;
                 size: 30px;
                 icon-size: 16px;
-                tooltip: "Déplacer avant";
+                tooltip: @tr("Déplacer avant");
                 enabled: !root.first;
                 clicked => { HomeUi.widget-move(root.slot.kind, -1); }
             }
@@ -248,7 +248,7 @@ component WidgetFrame inherits Rectangle {
                 icon: Icons.chevron-right;
                 size: 30px;
                 icon-size: 16px;
-                tooltip: "Déplacer après";
+                tooltip: @tr("Déplacer après");
                 enabled: !root.last;
                 clicked => { HomeUi.widget-move(root.slot.kind, 1); }
             }
@@ -256,14 +256,14 @@ component WidgetFrame inherits Rectangle {
                 icon: Icons.resize;
                 size: 30px;
                 icon-size: 16px;
-                tooltip: root.slot.span == 1 ? "Taille : 1/3 (cliquer pour agrandir)" : root.slot.span == 2 ? "Taille : 2/3 (cliquer pour agrandir)" : "Taille : pleine largeur (cliquer pour réduire)";
+                tooltip: root.slot.span == 1 ? @tr("Taille : 1/3 (cliquer pour agrandir)") : root.slot.span == 2 ? @tr("Taille : 2/3 (cliquer pour agrandir)") : @tr("Taille : pleine largeur (cliquer pour réduire)");
                 clicked => { HomeUi.widget-resize(root.slot.kind, root.slot.span >= 3 ? 1 : root.slot.span + 1); }
             }
             if HomeUi.editing: IconButton {
                 icon: Icons.eye-off;
                 size: 30px;
                 icon-size: 16px;
-                tooltip: "Masquer ce widget";
+                tooltip: @tr("Masquer ce widget");
                 clicked => { HomeUi.widget-toggle(root.slot.kind, false); }
             }
         }
@@ -311,8 +311,8 @@ export component HomePage inherits Rectangle {
                         padding-right: 18px;
                         spacing: 12px;
                         Icon { source: Icons.search; size: 20px; tint: Theme.text-muted; }
-                        Text { text: "Lancer un jeu"; color: Theme.text-muted; font-size: Theme.t-subheading; vertical-alignment: center; horizontal-stretch: 1; }
-                        Text { text: "Ctrl K"; color: Theme.text-dim; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
+                        Text { text: @tr("Lancer un jeu"); color: Theme.text-muted; font-size: Theme.t-subheading; vertical-alignment: center; horizontal-stretch: 1; }
+                        Text { text: @tr("Ctrl K"); color: Theme.text-dim; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
                     }
                     ms-ta := TouchArea {
                         mouse-cursor: pointer;
@@ -328,7 +328,7 @@ export component HomePage inherits Rectangle {
                 spacing: Theme.s2;
                 height: 36px;
                 Text {
-                    text: "Personnalisation de l'accueil : déplacez, redimensionnez ou masquez les widgets.";
+                    text: @tr("Personnalisation de l'accueil : déplacez, redimensionnez ou masquez les widgets.");
                     color: Theme.text-muted;
                     font-size: Theme.t-small;
                     vertical-alignment: center;
@@ -336,13 +336,13 @@ export component HomePage inherits Rectangle {
                     overflow: elide;
                 }
                 SecondaryButton {
-                    text: "Réinitialiser";
+                    text: @tr("Réinitialiser");
                     icon: Icons.restore;
                     has-icon: true;
                     clicked => { HomeUi.widgets-reset(); }
                 }
                 PrimaryButton {
-                    text: "Terminé";
+                    text: @tr("Terminé");
                     icon: Icons.check;
                     has-icon: true;
                     clicked => { HomeUi.editing = false; }
@@ -354,7 +354,7 @@ export component HomePage inherits Rectangle {
                 padding-left: root.pad;
                 padding-right: root.pad;
                 spacing: Theme.s2;
-                Overline { text: "Widgets masqués : cliquer pour ajouter"; }
+                Overline { text: @tr("Widgets masqués : cliquer pour ajouter"); }
                 for hr in HomeUi.hidden-widgets: HorizontalLayout {
                     spacing: Theme.s2;
                     alignment: start;
@@ -393,7 +393,7 @@ export component HomePage inherits Rectangle {
                             slot: s;
                             first: is-first;
                             last: is-last;
-                            NoData { text: "Aucun jeu installé à reprendre pour l'instant."; }
+                            NoData { text: @tr("Aucun jeu installé à reprendre pour l'instant."); }
                         }
                     }
 
@@ -402,7 +402,7 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        action: "Tout voir";
+                        action: @tr("Tout voir");
                         bare: true;
                         action-clicked => {
                             if (s.kind == 1) {
@@ -428,7 +428,7 @@ export component HomePage inherits Rectangle {
                         property <[GameCard]> games: s.kind == 1 ? HomeUi.recent : s.kind == 2 ? HomeUi.favorites : s.kind == 11 ? HomeUi.suggested : s.kind == 12 ? HomeUi.added : HomeUi.playing;
                         if self.games.length > 0: Shelf { games: parent.games; tile: AppUi.ui-mode == 1 ? 120px : 148px; }
                         if self.games.length == 0: NoData {
-                            text: s.kind == 1 ? "Aucun jeu lancé depuis Halcyon pour l'instant." : s.kind == 2 ? "Aucun favori. Ajoutez-en depuis le menu d'un jeu (clic droit)." : s.kind == 11 ? "Pas assez de données pour proposer des suggestions." : s.kind == 13 ? "Aucun jeu marqué « En cours »." : "Aucun jeu.";
+                            text: s.kind == 1 ? @tr("Aucun jeu lancé depuis Halcyon pour l'instant.") : s.kind == 2 ? @tr("Aucun favori. Ajoutez-en depuis le menu d'un jeu (clic droit).") : s.kind == 11 ? @tr("Pas assez de données pour proposer des suggestions.") : s.kind == 13 ? @tr("Aucun jeu marqué « En cours ».") : @tr("Aucun jeu.");
                         }
                     }
 
@@ -437,15 +437,17 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        action: "Ouvrir";
+                        action: @tr("Ouvrir");
                         action-clicked => { Nav.go(Page.library); }
+                        // Temps de jeu sur sa propre ligne : la colonne est étroite et le texte
+                        // (« Jamais joué », « Nie gespielt »…) varie beaucoup selon la langue.
                         HorizontalLayout {
                             spacing: Theme.s6;
                             alignment: start;
-                            BigStat { value: HomeUi.stats.total; label: "jeux"; }
-                            BigStat { value: HomeUi.stats.installed; label: "installés"; }
-                            BigStat { value: HomeUi.stats.playtime; label: "de jeu"; }
+                            BigStat { value: HomeUi.stats.total; label: @tr("jeux"); }
+                            BigStat { value: HomeUi.stats.installed; label: @tr("installés"); }
                         }
+                        BigStat { value: HomeUi.stats.playtime; label: @tr("de jeu"); }
                         for kv in HomeUi.library-summary: MeterRow { label: kv.label; value: kv.value; ratio: kv.ratio; }
                     }
 
@@ -454,10 +456,10 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        action: "Tous les succès";
+                        action: @tr("Tous les succès");
                         action-clicked => { Nav.go(Page.achievements); }
                         if HomeUi.recent-achievements.length == 0: NoData {
-                            text: "Aucun succès débloqué connu. Les succès sont récupérés depuis Steam ou RetroAchievements une fois les comptes configurés.";
+                            text: @tr("Aucun succès débloqué connu. Les succès sont récupérés depuis Steam ou RetroAchievements une fois les comptes configurés.");
                         }
                         for a in HomeUi.recent-achievements: Rectangle {
                             height: 48px;
@@ -498,10 +500,10 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        action: "Statistiques";
+                        action: @tr("Statistiques");
                         action-clicked => { Nav.go(Page.stats); }
                         HorizontalLayout {
-                            BigStat { value: HomeUi.week-total; label: "ces 7 derniers jours (suivi local)"; }
+                            BigStat { value: HomeUi.week-total; label: @tr("ces 7 derniers jours (suivi local)"); }
                         }
                         BarChart { items: HomeUi.week-bars; height: 120px; }
                     }
@@ -511,7 +513,7 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        if HomeUi.playtime-summary.length == 0: NoData { text: "Aucun temps de jeu connu."; }
+                        if HomeUi.playtime-summary.length == 0: NoData { text: @tr("Aucun temps de jeu connu."); }
                         for kv in HomeUi.playtime-summary: MeterRow { label: kv.label; value: kv.value; ratio: kv.ratio; }
                     }
 
@@ -520,9 +522,9 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        action: "Journal";
+                        action: @tr("Journal");
                         action-clicked => { Nav.go(Page.journal); }
-                        if HomeUi.recent-activity.length == 0: NoData { text: "Aucune activité enregistrée."; }
+                        if HomeUi.recent-activity.length == 0: NoData { text: @tr("Aucune activité enregistrée."); }
                         for e in HomeUi.recent-activity: HorizontalLayout {
                             spacing: Theme.s3;
                             Text { text: e.time; color: Theme.text-dim; font-size: Theme.t-caption; width: 92px; overflow: elide; }
@@ -539,7 +541,7 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        if HomeUi.storage.length == 0: NoData { text: "Aucune information de stockage disponible."; }
+                        if HomeUi.storage.length == 0: NoData { text: @tr("Aucune information de stockage disponible."); }
                         for kv in HomeUi.storage: MeterRow {
                             label: kv.label;
                             value: kv.value;
@@ -553,9 +555,9 @@ export component HomePage inherits Rectangle {
                         slot: s;
                         first: is-first;
                         last: is-last;
-                        action: "Gérer";
+                        action: @tr("Gérer");
                         action-clicked => { Nav.go(Page.emulators); }
-                        if HomeUi.emulator-summary.length == 0: NoData { text: "Aucun émulateur détecté. Ajoutez un dossier de ROM et installez un émulateur pris en charge."; }
+                        if HomeUi.emulator-summary.length == 0: NoData { text: @tr("Aucun émulateur détecté. Ajoutez un dossier de ROM et installez un émulateur pris en charge."); }
                         for kv in HomeUi.emulator-summary: KvLine { label: kv.label; value: kv.value; }
                     }
 
@@ -612,7 +614,7 @@ export component HomePage inherits Rectangle {
                 padding-right: root.pad;
                 alignment: start;
                 SecondaryButton {
-                    text: "Personnaliser l'accueil";
+                    text: @tr("Personnaliser l'accueil");
                     icon: Icons.edit;
                     has-icon: true;
                     clicked => { HomeUi.editing = true; }

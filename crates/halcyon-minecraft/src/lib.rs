@@ -13,6 +13,9 @@
 //! Les fichiers sont rangés dans un dossier propre à Halcyon : le `.minecraft` du launcher
 //! officiel n'est jamais modifié.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod auth;
 pub mod http;
 pub mod install;

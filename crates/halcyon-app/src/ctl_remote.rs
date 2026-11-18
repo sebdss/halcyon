@@ -83,7 +83,7 @@ impl Controller {
     pub(crate) fn add_remote_host(&self, name: &str, address: &str) {
         let address = address.trim().to_string();
         if address.is_empty() || address.contains(char::is_whitespace) {
-            self.remote_status("Adresse invalide");
+            self.remote_status(tr!("Adresse invalide"));
             return;
         }
         let name = if name.trim().is_empty() { address.clone() } else { name.trim().to_string() };
@@ -91,7 +91,7 @@ impl Controller {
             let mut s = self.settings.borrow_mut();
             if s.remote_hosts.iter().any(|h| h.address.eq_ignore_ascii_case(&address)) {
                 drop(s);
-                self.remote_status("Cette machine est déjà dans la liste");
+                self.remote_status(tr!("Cette machine est déjà dans la liste"));
                 return;
             }
             s.remote_hosts.push(RemoteHost { name, address });
@@ -118,7 +118,7 @@ impl Controller {
     fn host_and_tool(&self, index: usize) -> Option<(RemoteHost, Tool)> {
         let host = self.settings.borrow().remote_hosts.get(index).cloned()?;
         let Some(tool) = self.remote_state.borrow().moonlight.clone() else {
-            self.remote_status("Moonlight n'est pas installé sur ce PC");
+            self.remote_status(tr!("Moonlight n'est pas installé sur ce PC"));
             return None;
         };
         Some((host, tool))
@@ -132,7 +132,7 @@ impl Controller {
         ui.set_apps(ModelRc::default());
         let Some((host, tool)) = self.host_and_tool(index) else { return };
         self.remote_busy(true);
-        self.remote_status(format!("Liste des jeux de {}…", host.name));
+        self.remote_status(tr!("Liste des jeux de {name}…", name = host.name));
         std::thread::Builder::new()
             .name("halcyon-remote-list".into())
             .spawn(move || {
@@ -146,7 +146,7 @@ impl Controller {
                     }
                     match result {
                         Ok(list) => {
-                            c.remote_status(format!("{} jeu(x) publié(s) par {}", list.len(), host.name));
+                            c.remote_status(trn!(list.len(), "{n} jeu publié par {name}", "{n} jeux publiés par {name}", name = host.name));
                             let items: Vec<SharedString> = list.into_iter().map(Into::into).collect();
                             ui.set_apps(ModelRc::new(VecModel::from(items)));
                         }
@@ -160,10 +160,7 @@ impl Controller {
     pub(crate) fn pair_remote(&self, index: usize) {
         let Some((host, tool)) = self.host_and_tool(index) else { return };
         match remote_play::pair(&tool, &host.address) {
-            Ok(()) => self.remote_status(format!(
-                "Appairage avec {} démarré : saisissez le code PIN affiché par Moonlight dans l'interface web de Sunshine de cette machine",
-                host.name
-            )),
+            Ok(()) => self.remote_status(tr!("Appairage avec {name} démarré : saisissez le code PIN affiché par Moonlight dans l'interface web de Sunshine de cette machine", name = host.name)),
             Err(e) => self.remote_status(e),
         }
     }
@@ -172,8 +169,8 @@ impl Controller {
         let Some((host, tool)) = self.host_and_tool(index) else { return };
         match remote_play::stream(&tool, &host.address, app_name) {
             Ok(()) => {
-                let _ = self.db().log_activity(halcyon_storage::ActivityKind::Launch, None, &format!("Diffusion de « {app_name} » depuis {}", host.name), "Moonlight");
-                self.remote_status(format!("Diffusion de « {app_name} » depuis {}", host.name));
+                let _ = self.db().log_activity(halcyon_storage::ActivityKind::Launch, None, &tr_later!("Diffusion de « {app_name} » depuis {name}", app_name = app_name, name = host.name), "Moonlight");
+                self.remote_status(tr!("Diffusion de « {app_name} » depuis {name}", app_name = app_name, name = host.name));
             }
             Err(e) => self.remote_status(e),
         }
@@ -181,13 +178,13 @@ impl Controller {
 
     pub(crate) fn quit_remote(&self, index: usize) {
         let Some((host, tool)) = self.host_and_tool(index) else { return };
-        self.remote_status(format!("Arrêt de la session sur {}…", host.name));
+        self.remote_status(tr!("Arrêt de la session sur {name}…", name = host.name));
         std::thread::Builder::new()
             .name("halcyon-remote-quit".into())
             .spawn(move || {
                 let r = remote_play::quit(&tool, &host.address);
                 post(move |c| match r {
-                    Ok(()) => c.remote_status(format!("Session arrêtée sur {}", host.name)),
+                    Ok(()) => c.remote_status(tr!("Session arrêtée sur {name}", name = host.name)),
                     Err(e) => c.remote_status(e),
                 });
             })
@@ -201,7 +198,7 @@ impl Controller {
         } else if p.is_file() {
             self.settings.borrow_mut().moonlight_path = Some(p);
         } else {
-            self.remote_status("Fichier introuvable");
+            self.remote_status(tr!("Fichier introuvable"));
             return;
         }
         self.save_settings();
@@ -224,22 +221,18 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let exe = match std::env::current_exe() {
             Ok(e) => e,
-            Err(e) => return self.toast(format!("Chemin de Halcyon introuvable : {e}"), true),
+            Err(e) => return self.toast(tr!("Chemin de Halcyon introuvable : {e}", e = e), true),
         };
         let command = format!("\"{}\" --launch {}", exe.display(), g.id);
         // Sunshine n'affiche que des jaquettes PNG.
         let cover = g.artwork.cover.clone().filter(|p| p.is_file() && p.extension().is_some_and(|e| e.eq_ignore_ascii_case("png")));
-        let text = format!(
-            "« {} » sera ajouté à {} (commande : {command}). Une copie de sauvegarde du fichier est créée avant modification. Sunshine doit être redémarré pour voir le jeu.",
-            g.name,
-            apps.display()
-        );
+        let text = tr!("« {name} » sera ajouté à {apps} (commande : {command}). Une copie de sauvegarde du fichier est créée avant modification. Sunshine doit être redémarré pour voir le jeu.", name = g.name, apps = apps.display(), command = command);
         let name = g.name.clone();
-        self.confirm("Publier dans Sunshine ?", &text, "Publier", move |c| {
+        self.confirm(&tr!("Publier dans Sunshine ?"), &text, &tr!("Publier"), move |c| {
             match remote_play::publish_to_sunshine(&apps, &name, &command, cover.as_deref()) {
                 Ok(backup) => {
-                    let _ = c.db().log_activity(halcyon_storage::ActivityKind::Settings, Some(id), &format!("« {name} » publié dans Sunshine"), &backup.display().to_string());
-                    c.toast(format!("« {name} » publié dans Sunshine (copie : {})", backup.display()), false);
+                    let _ = c.db().log_activity(halcyon_storage::ActivityKind::Settings, Some(id), &tr_later!("« {name} » publié dans Sunshine", name = name), &backup.display().to_string());
+                    c.toast(tr!("« {name} » publié dans Sunshine (copie : {backup})", name = name, backup = backup.display()), false);
                 }
                 Err(e) => c.toast(e, true),
             }

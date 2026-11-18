@@ -23,7 +23,7 @@ pub struct VdfError(pub String);
 
 impl fmt::Display for VdfError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "VDF invalide : {}", self.0)
+        write!(f, "{}", tr!("VDF invalide : {e}", e = self.0))
     }
 }
 
@@ -105,13 +105,13 @@ impl Parser<'_> {
         loop {
             self.skip_ws();
             match self.s.get(self.i) {
-                None if nested => return Err(VdfError("accolade fermante manquante".into())),
+                None if nested => return Err(VdfError(tr!("accolade fermante manquante").into())),
                 None => return Ok(pairs),
                 Some(b'}') if nested => {
                     self.i += 1;
                     return Ok(pairs);
                 }
-                Some(b'}') => return Err(VdfError(format!("accolade inattendue (octet {})", self.i))),
+                Some(b'}') => return Err(VdfError(tr!("accolade inattendue (octet {i})", i = self.i))),
                 _ => {}
             }
             let key = self.parse_token()?;
@@ -122,7 +122,7 @@ impl Parser<'_> {
                     Vdf::Obj(self.parse_pairs(true)?)
                 }
                 Some(_) => Vdf::Str(self.parse_token()?),
-                None => return Err(VdfError(format!("valeur manquante pour « {key} »"))),
+                None => return Err(VdfError(tr!("valeur manquante pour « {key} »", key = key))),
             };
             pairs.push((key, value));
         }
@@ -148,7 +148,7 @@ impl Parser<'_> {
                     c => out.push(c),
                 }
             }
-            Err(VdfError("chaîne non terminée".into()))
+            Err(VdfError(tr!("chaîne non terminée").into()))
         } else {
             let start = self.i;
             while let Some(&c) = self.s.get(self.i) {
@@ -158,7 +158,7 @@ impl Parser<'_> {
                 self.i += 1;
             }
             if start == self.i {
-                return Err(VdfError(format!("jeton attendu (octet {start})")));
+                return Err(VdfError(tr!("jeton attendu (octet {start})", start = start)));
             }
             Ok(String::from_utf8_lossy(&self.s[start..self.i]).into_owned())
         }

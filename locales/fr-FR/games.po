@@ -1,0 +1,1518 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"Language: fr-FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Halcyon-Native-Name: Français\n"
+"X-Halcyon-Thousands-Separator: U+00A0\n"
+"X-Halcyon-Decimal-Separator: ,\n"
+"X-Halcyon-Domain: games\n"
+
+#: crates/halcyon-app/ui/pages/game.slint:106 crates/halcyon-app/ui/pages/game.slint:144
+msgid "Nom affiché"
+msgstr "Nom affiché"
+
+#: crates/halcyon-app/ui/pages/game.slint:112
+msgid "Laisser vide pour lancer via le client de la plateforme (recommandé : succès, cloud et DRM restent gérés par la plateforme)."
+msgstr "Laisser vide pour lancer via le client de la plateforme (recommandé : succès, cloud et DRM restent gérés par la plateforme)."
+
+#: crates/halcyon-app/ui/pages/game.slint:114
+msgid "Lancement via la plateforme"
+msgstr "Lancement via la plateforme"
+
+#: crates/halcyon-app/ui/pages/game.slint:114
+msgid "Chemin de l'exécutable"
+msgstr "Chemin de l'exécutable"
+
+#: crates/halcyon-app/ui/pages/game.slint:119
+msgid "Non transmis lors d'un lancement via la plateforme : définissez-les dans Steam / Epic, ou indiquez un exécutable ci-dessus."
+msgstr "Non transmis lors d'un lancement via la plateforme : définissez-les dans Steam / Epic, ou indiquez un exécutable ci-dessus."
+
+#: crates/halcyon-app/ui/pages/game.slint:120
+msgid "Séparés par des espaces ; utilisez des guillemets pour les valeurs contenant des espaces."
+msgstr "Séparés par des espaces ; utilisez des guillemets pour les valeurs contenant des espaces."
+
+#: crates/halcyon-app/ui/pages/game.slint:121
+msgid "ex. -windowed -nosplash"
+msgstr "ex. -windowed -nosplash"
+
+#: crates/halcyon-app/ui/pages/game.slint:125
+msgid "Par défaut : le dossier de l'exécutable."
+msgstr "Par défaut : le dossier de l'exécutable."
+
+#: crates/halcyon-app/ui/pages/game.slint:126
+msgid "Dossier de l'exécutable"
+msgstr "Dossier de l'exécutable"
+
+#: crates/halcyon-app/ui/pages/game.slint:131
+msgid "Enregistrer le lancement"
+msgstr "Enregistrer le lancement"
+
+#: crates/halcyon-app/ui/pages/game.slint:149
+msgid "Renommer"
+msgstr "Renommer"
+
+#: crates/halcyon-app/ui/pages/game.slint:157
+msgid "« Par défaut » utilise l'émulateur choisi pour la plateforme dans la page Émulateurs."
+msgstr "« Par défaut » utilise l'émulateur choisi pour la plateforme dans la page Émulateurs."
+
+#: crates/halcyon-app/ui/pages/game.slint:169
+msgid "Identifiant RetroAchievements"
+msgstr "Identifiant RetroAchievements"
+
+#: crates/halcyon-app/ui/pages/game.slint:170
+msgid "Trouvé automatiquement par empreinte pour les consoles à cartouche. Pour les jeux sur disque, saisissez l'ID visible dans l'adresse de la page du jeu sur retroachievements.org."
+msgstr "Trouvé automatiquement par empreinte pour les consoles à cartouche. Pour les jeux sur disque, saisissez l'ID visible dans l'adresse de la page du jeu sur retroachievements.org."
+
+#: crates/halcyon-app/ui/pages/game.slint:173
+msgid "ex. 1446"
+msgstr "ex. 1446"
+
+#: crates/halcyon-app/ui/pages/game.slint:175 crates/halcyon-app/ui/pages/game.slint:884
+msgid "Associer"
+msgstr "Associer"
+
+#: crates/halcyon-app/ui/pages/game.slint:194
+msgid "Métadonnées"
+msgstr "Métadonnées"
+
+#: crates/halcyon-app/ui/pages/game.slint:196
+msgid "Description"
+msgstr "Description"
+
+#: crates/halcyon-app/ui/pages/game.slint:201 crates/halcyon-app/ui/pages/game.slint:1549
+msgid "Développeur"
+msgstr "Développeur"
+
+#: crates/halcyon-app/ui/pages/game.slint:202 crates/halcyon-app/ui/pages/game.slint:1550
+msgid "Éditeur"
+msgstr "Éditeur"
+
+#: crates/halcyon-app/ui/pages/game.slint:206
+msgid "Date de sortie"
+msgstr "Date de sortie"
+
+#: crates/halcyon-app/ui/pages/game.slint:206
+msgid "ex. 2023-02-10"
+msgstr "ex. 2023-02-10"
+
+#: crates/halcyon-app/ui/pages/game.slint:207
+msgid "Genres (séparés par des virgules)"
+msgstr "Genres (séparés par des virgules)"
+
+#: crates/halcyon-app/ui/pages/game.slint:207
+msgid "Action, RPG"
+msgstr "Action, RPG"
+
+#: crates/halcyon-app/ui/pages/game.slint:210
+msgid "Étiquettes (séparées par des virgules)"
+msgstr "Étiquettes (séparées par des virgules)"
+
+#: crates/halcyon-app/ui/pages/game.slint:211
+msgid "Utilisées par la recherche (tag:…) et les collections intelligentes, ex. multijoueur, coop, solo."
+msgstr "Utilisées par la recherche (tag:…) et les collections intelligentes, ex. multijoueur, coop, solo."
+
+#: crates/halcyon-app/ui/pages/game.slint:212
+msgid "multijoueur, coop"
+msgstr "multijoueur, coop"
+
+#: crates/halcyon-app/ui/pages/game.slint:217
+msgid "Enregistrer les métadonnées"
+msgstr "Enregistrer les métadonnées"
+
+#: crates/halcyon-app/ui/pages/game.slint:224
+msgid "Visuels personnalisés"
+msgstr "Visuels personnalisés"
+
+#: crates/halcyon-app/ui/pages/game.slint:226
+msgid "Jaquette (portrait 2:3)"
+msgstr "Jaquette (portrait 2:3)"
+
+#: crates/halcyon-app/ui/pages/game.slint:227
+msgid "L'image est copiée dans les données de Halcyon et remplace la jaquette de la plateforme."
+msgstr "L'image est copiée dans les données de Halcyon et remplace la jaquette de la plateforme."
+
+#: crates/halcyon-app/ui/pages/game.slint:230 crates/halcyon-app/ui/pages/game.slint:238
+msgid "Fichier image (.jpg, .png, .webp)"
+msgstr "Fichier image (.jpg, .png, .webp)"
+
+#: crates/halcyon-app/ui/pages/game.slint:235
+msgid "Bannière (paysage)"
+msgstr "Bannière (paysage)"
+
+#: crates/halcyon-app/ui/pages/game.slint:245
+msgid "Retirer de la bibliothèque"
+msgstr "Retirer de la bibliothèque"
+
+#: crates/halcyon-app/ui/pages/game.slint:296
+msgid "Succès caché"
+msgstr "Succès caché"
+
+#: crates/halcyon-app/ui/pages/game.slint:302
+msgid "Hardcore"
+msgstr "Hardcore"
+
+#: crates/halcyon-app/ui/pages/game.slint:303
+msgid "Personnalisé, non vérifié"
+msgstr "Personnalisé, non vérifié"
+
+#: crates/halcyon-app/ui/pages/game.slint:308
+msgid "Débloquez-le pour découvrir sa description."
+msgstr "Débloquez-le pour découvrir sa description."
+
+#: crates/halcyon-app/ui/pages/game.slint:328
+msgid "Verrouillé"
+msgstr "Verrouillé"
+
+#: crates/halcyon-app/ui/pages/game.slint:348
+msgid "Marquer comme verrouillé"
+msgstr "Marquer comme verrouillé"
+
+#: crates/halcyon-app/ui/pages/game.slint:348
+msgid "Marquer comme débloqué"
+msgstr "Marquer comme débloqué"
+
+#: crates/halcyon-app/ui/pages/game.slint:434
+msgid "Révéler les succès cachés"
+msgstr "Révéler les succès cachés"
+
+#: crates/halcyon-app/ui/pages/game.slint:450
+msgid "Créer un succès personnalisé"
+msgstr "Créer un succès personnalisé"
+
+#: crates/halcyon-app/ui/pages/game.slint:456
+msgid "Ce jeu ne dispose d'aucun système de succès reconnu. Vos succès personnalisés sont marqués comme tels et ne sont jamais présentés comme vérifiés par une plateforme."
+msgstr "Ce jeu ne dispose d'aucun système de succès reconnu. Vos succès personnalisés sont marqués comme tels et ne sont jamais présentés comme vérifiés par une plateforme."
+
+#: crates/halcyon-app/ui/pages/game.slint:463
+msgid "Nom (ex. Terminer en difficulté maximale)"
+msgstr "Nom (ex. Terminer en difficulté maximale)"
+
+#: crates/halcyon-app/ui/pages/game.slint:464
+msgid "Description (facultatif)"
+msgstr "Description (facultatif)"
+
+#: crates/halcyon-app/ui/pages/game.slint:512
+msgid "Rapporté par la plateforme"
+msgstr "Rapporté par la plateforme"
+
+#: crates/halcyon-app/ui/pages/game.slint:513
+msgid "Suivi par Halcyon"
+msgstr "Suivi par Halcyon"
+
+#: crates/halcyon-app/ui/pages/game.slint:514
+msgid "Session moyenne"
+msgstr "Session moyenne"
+
+#: crates/halcyon-app/ui/pages/game.slint:515
+msgid "Première session suivie"
+msgstr "Première session suivie"
+
+#: crates/halcyon-app/ui/pages/game.slint:516
+msgid "Correction manuelle"
+msgstr "Correction manuelle"
+
+#: crates/halcyon-app/ui/pages/game.slint:520
+msgid "Temps réel, ex. 12h30 ou 45m"
+msgstr "Temps réel, ex. 12h30 ou 45m"
+
+#: crates/halcyon-app/ui/pages/game.slint:522
+msgid "Corriger"
+msgstr "Corriger"
+
+#: crates/halcyon-app/ui/pages/game.slint:528
+msgid "Revenir au temps calculé"
+msgstr "Revenir au temps calculé"
+
+#: crates/halcyon-app/ui/pages/game.slint:534
+msgid "La correction remplace le temps affiché partout (bibliothèque, statistiques). Les données de la plateforme et du suivi local sont conservées."
+msgstr "La correction remplace le temps affiché partout (bibliothèque, statistiques). Les données de la plateforme et du suivi local sont conservées."
+
+#: crates/halcyon-app/ui/pages/game.slint:547
+msgid "Enregistrer les notes"
+msgstr "Enregistrer les notes"
+
+#: crates/halcyon-app/ui/pages/game.slint:555 crates/halcyon-app/ui/pages/game.slint:1075 crates/halcyon-installer/src/engine.rs:401
+msgid "Version"
+msgstr "Version"
+
+#: crates/halcyon-app/ui/pages/game.slint:560
+msgid "Non fournie par la plateforme"
+msgstr "Non fournie par la plateforme"
+
+#: crates/halcyon-app/ui/pages/game.slint:579
+msgid "Prérequis fournis avec le jeu"
+msgstr "Prérequis fournis avec le jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:591
+msgid "Sessions suivies"
+msgstr "Sessions suivies"
+
+#: crates/halcyon-app/ui/pages/game.slint:593
+msgid "Aucune session suivie par Halcyon pour ce jeu."
+msgstr "Aucune session suivie par Halcyon pour ce jeu."
+
+#: crates/halcyon-app/ui/pages/game.slint:629
+#, placeholders
+msgid "Modifier « {} »"
+msgstr "Modifier « {} »"
+
+#: crates/halcyon-app/ui/pages/game.slint:630
+#, placeholders
+msgid "Moteur détecté : {}. Les réglages sans équivalent pour ce jeu ou ce mode de lancement sont signalés à l'enregistrement, jamais simulés."
+msgstr "Moteur détecté : {}. Les réglages sans équivalent pour ce jeu ou ce mode de lancement sont signalés à l'enregistrement, jamais simulés."
+
+#: crates/halcyon-app/ui/pages/game.slint:633
+msgid "Nom du profil"
+msgstr "Nom du profil"
+
+#: crates/halcyon-app/ui/pages/game.slint:633
+msgid "ex. Performance, Fenêtré, Streaming"
+msgstr "ex. Performance, Fenêtré, Streaming"
+
+#: crates/halcyon-app/ui/pages/game.slint:636
+msgid "Profil par défaut"
+msgstr "Profil par défaut"
+
+#: crates/halcyon-app/ui/pages/game.slint:642
+msgid "Ajoutés à ceux du jeu, sauf si l'option ci-dessous est activée."
+msgstr "Ajoutés à ceux du jeu, sauf si l'option ci-dessous est activée."
+
+#: crates/halcyon-app/ui/pages/game.slint:643
+msgid "ex. -dx11 -novid"
+msgstr "ex. -dx11 -novid"
+
+#: crates/halcyon-app/ui/pages/game.slint:648
+msgid "Remplacer les arguments du jeu"
+msgstr "Remplacer les arguments du jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:653 crates/halcyon-core/src/profiles.rs:204
+msgid "Résolution"
+msgstr "Résolution"
+
+#: crates/halcyon-app/ui/pages/game.slint:654
+msgid "Limite d'images/s"
+msgstr "Limite d'images/s"
+
+#: crates/halcyon-app/ui/pages/game.slint:654
+msgid "ex. 60"
+msgstr "ex. 60"
+
+#: crates/halcyon-app/ui/pages/game.slint:660
+msgid "Affichage"
+msgstr "Affichage"
+
+#: crates/halcyon-app/ui/pages/game.slint:661 crates/halcyon-core/src/profiles.rs:25
+msgid "Réglage du jeu"
+msgstr "Réglage du jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:661 crates/halcyon-core/src/profiles.rs:26
+msgid "Fenêtré"
+msgstr "Fenêtré"
+
+#: crates/halcyon-app/ui/pages/game.slint:661 crates/halcyon-core/src/profiles.rs:28
+msgid "Fenêtré sans bordure"
+msgstr "Fenêtré sans bordure"
+
+#: crates/halcyon-app/ui/pages/game.slint:665 crates/halcyon-core/src/profiles.rs:47
+msgid "Choix du système"
+msgstr "Choix du système"
+
+#: crates/halcyon-app/ui/pages/game.slint:665 crates/halcyon-core/src/profiles.rs:48
+msgid "Haute performance (GPU dédié)"
+msgstr "Haute performance (GPU dédié)"
+
+#: crates/halcyon-app/ui/pages/game.slint:665 crates/halcyon-core/src/profiles.rs:49
+msgid "Économie d'énergie (GPU intégré)"
+msgstr "Économie d'énergie (GPU intégré)"
+
+#: crates/halcyon-app/ui/pages/game.slint:668
+msgid "Priorité du processus"
+msgstr "Priorité du processus"
+
+#: crates/halcyon-app/ui/pages/game.slint:669 crates/halcyon-core/src/profiles.rs:68
+msgid "Basse"
+msgstr "Basse"
+
+#: crates/halcyon-app/ui/pages/game.slint:669 crates/halcyon-core/src/profiles.rs:69
+msgid "Inférieure à la normale"
+msgstr "Inférieure à la normale"
+
+#: crates/halcyon-app/ui/pages/game.slint:669 crates/halcyon-core/src/profiles.rs:70
+msgid "Normale"
+msgstr "Normale"
+
+#: crates/halcyon-app/ui/pages/game.slint:669 crates/halcyon-core/src/profiles.rs:71
+msgid "Supérieure à la normale"
+msgstr "Supérieure à la normale"
+
+#: crates/halcyon-app/ui/pages/game.slint:669 crates/halcyon-core/src/profiles.rs:72
+msgid "Haute"
+msgstr "Haute"
+
+#: crates/halcyon-app/ui/pages/game.slint:676
+msgid "Autoriser Halcyon à modifier temporairement la préférence graphique Windows de cet exécutable (rétablie après la session)."
+msgstr "Autoriser Halcyon à modifier temporairement la préférence graphique Windows de cet exécutable (rétablie après la session)."
+
+#: crates/halcyon-app/ui/pages/game.slint:686
+msgid "Celui du jeu"
+msgstr "Celui du jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:689
+msgid "Mods au lancement"
+msgstr "Mods au lancement"
+
+#: crates/halcyon-app/ui/pages/game.slint:690
+msgid "Le profil de mods choisi est appliqué avant le lancement s'il n'est pas déjà en place."
+msgstr "Le profil de mods choisi est appliqué avant le lancement s'il n'est pas déjà en place."
+
+#: crates/halcyon-app/ui/pages/game.slint:697
+msgid "Profil de manette"
+msgstr "Profil de manette"
+
+#: crates/halcyon-app/ui/pages/game.slint:698
+msgid "Les options de manette de ce profil pour l'émulateur sont ajoutées à la ligne de commande (page Manettes)."
+msgstr "Les options de manette de ce profil pour l'émulateur sont ajoutées à la ligne de commande (page Manettes)."
+
+#: crates/halcyon-app/ui/pages/game.slint:705
+msgid "Variables d'environnement"
+msgstr "Variables d'environnement"
+
+#: crates/halcyon-app/ui/pages/game.slint:706
+msgid "Une par ligne : NOM=valeur."
+msgstr "Une par ligne : NOM=valeur."
+
+#: crates/halcyon-app/ui/pages/game.slint:711
+msgid "Commande avant le lancement"
+msgstr "Commande avant le lancement"
+
+#: crates/halcyon-app/ui/pages/game.slint:711
+msgid "Attendue (60 s max)."
+msgstr "Attendue (60 s max)."
+
+#: crates/halcyon-app/ui/pages/game.slint:712
+msgid "Commande après la session"
+msgstr "Commande après la session"
+
+#: crates/halcyon-app/ui/pages/game.slint:712
+msgid "Exécutée à la fin de la session."
+msgstr "Exécutée à la fin de la session."
+
+#: crates/halcyon-app/ui/pages/game.slint:715
+msgid "Programmes lancés avec le jeu"
+msgstr "Programmes lancés avec le jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:716
+msgid "Démarrés avant le jeu ; « fermer après » les arrête à la fin de la session (uniquement ceux démarrés par Halcyon)."
+msgstr "Démarrés avant le jeu ; « fermer après » les arrête à la fin de la session (uniquement ceux démarrés par Halcyon)."
+
+#: crates/halcyon-app/ui/pages/game.slint:722
+msgid "fermé après"
+msgstr "fermé après"
+
+#: crates/halcyon-app/ui/pages/game.slint:727
+msgid "Programme"
+msgstr "Programme"
+
+#: crates/halcyon-app/ui/pages/game.slint:729
+msgid "Fermer après"
+msgstr "Fermer après"
+
+#: crates/halcyon-app/ui/pages/game.slint:743
+msgid "Enregistrer le profil"
+msgstr "Enregistrer le profil"
+
+#: crates/halcyon-app/ui/pages/game.slint:764
+msgid "Profils de lancement"
+msgstr "Profils de lancement"
+
+#: crates/halcyon-app/ui/pages/game.slint:773
+msgid "Plusieurs façons de lancer ce jeu (arguments, résolution, GPU, scripts…). Choisissez le profil à côté du bouton Jouer. Les fichiers du jeu ne sont jamais modifiés."
+msgstr "Plusieurs façons de lancer ce jeu (arguments, résolution, GPU, scripts…). Choisissez le profil à côté du bouton Jouer. Les fichiers du jeu ne sont jamais modifiés."
+
+#: crates/halcyon-app/ui/pages/game.slint:780
+msgid "Remarques sur ce profil pour ce jeu (réglages limités par le mode de lancement) :"
+msgstr "Remarques sur ce profil pour ce jeu (réglages limités par le mode de lancement) :"
+
+#: crates/halcyon-app/ui/pages/game.slint:785
+msgid "Aucun profil : le jeu se lance avec ses paramètres habituels."
+msgstr "Aucun profil : le jeu se lance avec ses paramètres habituels."
+
+#: crates/halcyon-app/ui/pages/game.slint:811
+msgid "Lancer avec ce profil"
+msgstr "Lancer avec ce profil"
+
+#: crates/halcyon-app/ui/pages/game.slint:830
+msgid "Halcyon conserve des copies versionnées de vos sauvegardes, avant et après chaque session. Une restauration crée toujours d'abord une copie de l'état actuel."
+msgstr "Halcyon conserve des copies versionnées de vos sauvegardes, avant et après chaque session. Une restauration crée toujours d'abord une copie de l'état actuel."
+
+#: crates/halcyon-app/ui/pages/game.slint:844
+msgid "Restaurer la version de l'autre PC"
+msgstr "Restaurer la version de l'autre PC"
+
+#: crates/halcyon-app/ui/pages/game.slint:845
+msgid "Garder la version de ce PC"
+msgstr "Garder la version de ce PC"
+
+#: crates/halcyon-app/ui/pages/game.slint:848
+msgid "Emplacements"
+msgstr "Emplacements"
+
+#: crates/halcyon-app/ui/pages/game.slint:862
+msgid "Introuvable pour l'instant (le jeu n'a peut-être pas encore sauvegardé)"
+msgstr "Introuvable pour l'instant (le jeu n'a peut-être pas encore sauvegardé)"
+
+#: crates/halcyon-app/ui/pages/game.slint:865
+msgid "Retirer (les fichiers ne sont pas supprimés)"
+msgstr "Retirer (les fichiers ne sont pas supprimés)"
+
+#: crates/halcyon-app/ui/pages/game.slint:868
+msgid "Emplacements détectés"
+msgstr "Emplacements détectés"
+
+#: crates/halcyon-app/ui/pages/game.slint:881
+msgid ", correspondance approximative"
+msgstr ", correspondance approximative"
+
+#: crates/halcyon-app/ui/pages/game.slint:889
+msgid "Ajouter un dossier ou fichier de sauvegarde"
+msgstr "Ajouter un dossier ou fichier de sauvegarde"
+
+#: crates/halcyon-app/ui/pages/game.slint:898
+msgid "Avant chaque session"
+msgstr "Avant chaque session"
+
+#: crates/halcyon-app/ui/pages/game.slint:903
+msgid "Après chaque session"
+msgstr "Après chaque session"
+
+#: crates/halcyon-app/ui/pages/game.slint:910
+msgid "Note facultative (ex. avant le boss final)"
+msgstr "Note facultative (ex. avant le boss final)"
+
+#: crates/halcyon-app/ui/pages/game.slint:912
+msgid "Sauvegarder maintenant"
+msgstr "Sauvegarder maintenant"
+
+#: crates/halcyon-app/ui/pages/game.slint:920
+#, placeholders
+msgid "Historique ({})"
+msgstr "Historique ({})"
+
+#: crates/halcyon-app/ui/pages/game.slint:941 crates/halcyon-app/ui/pages/game.slint:1054
+#, placeholders
+msgid "{n} fichier, {}"
+msgid_plural "{n} fichiers, {}"
+msgstr[0] "{n} fichier, {}"
+msgstr[1] "{n} fichiers, {}"
+
+#: crates/halcyon-app/ui/pages/game.slint:947
+msgid "Comparer avec les fichiers actuels"
+msgstr "Comparer avec les fichiers actuels"
+
+#: crates/halcyon-app/ui/pages/game.slint:980
+msgid "Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer."
+msgstr "Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer."
+
+#: crates/halcyon-app/ui/pages/game.slint:982
+msgid "Dossier d'installation introuvable : les mods sont indisponibles pour ce jeu."
+msgstr "Dossier d'installation introuvable : les mods sont indisponibles pour ce jeu."
+
+#: crates/halcyon-app/ui/pages/game.slint:990
+msgid "Méthode d'installation"
+msgstr "Méthode d'installation"
+
+#: crates/halcyon-app/ui/pages/game.slint:995 crates/halcyon-integrations/src/mods.rs:31
+msgid "Copie dans le dossier du jeu"
+msgstr "Copie dans le dossier du jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:995
+msgid "BepInEx (Unity)"
+msgstr "BepInEx (Unity)"
+
+#: crates/halcyon-app/ui/pages/game.slint:995
+msgid "Paquets Unreal (.pak)"
+msgstr "Paquets Unreal (.pak)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1001
+msgid "Dossier Content/Paks"
+msgstr "Dossier Content/Paks"
+
+#: crates/halcyon-app/ui/pages/game.slint:1001
+msgid "Sous-dossier cible (facultatif)"
+msgstr "Sous-dossier cible (facultatif)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1004
+msgid "MonJeu/Content/Paks"
+msgstr "MonJeu/Content/Paks"
+
+#: crates/halcyon-app/ui/pages/game.slint:1004
+msgid "ex. data"
+msgstr "ex. data"
+
+#: crates/halcyon-app/ui/pages/game.slint:1015
+msgid "Profil :"
+msgstr "Profil :"
+
+#: crates/halcyon-app/ui/pages/game.slint:1022
+msgid "Nouveau profil (ex. Vanilla+)"
+msgstr "Nouveau profil (ex. Vanilla+)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1023
+msgid "Créer"
+msgstr "Créer"
+
+#: crates/halcyon-app/ui/pages/game.slint:1027
+msgid "Aucun mod dans la bibliothèque de ce jeu : importez une archive .zip ou un dossier."
+msgstr "Aucun mod dans la bibliothèque de ce jeu : importez une archive .zip ou un dossier."
+
+#: crates/halcyon-app/ui/pages/game.slint:1027
+msgid "Ordre de chargement : en cas de conflit, le mod le plus bas l'emporte."
+msgstr "Ordre de chargement : en cas de conflit, le mod le plus bas l'emporte."
+
+#: crates/halcyon-app/ui/pages/game.slint:1051
+#, placeholders
+msgid "{n} conflit"
+msgid_plural "{n} conflits"
+msgstr[0] "{n} conflit"
+msgstr[1] "{n} conflits"
+
+#: crates/halcyon-app/ui/pages/game.slint:1054
+#, placeholders
+msgid ", Nexus {}"
+msgstr ", Nexus {}"
+
+#: crates/halcyon-app/ui/pages/game.slint:1062
+msgid "Version et identifiant Nexus"
+msgstr "Version et identifiant Nexus"
+
+#: crates/halcyon-app/ui/pages/game.slint:1069
+msgid "Supprimer de la bibliothèque"
+msgstr "Supprimer de la bibliothèque"
+
+#: crates/halcyon-app/ui/pages/game.slint:1076
+msgid "ID Nexus Mods"
+msgstr "ID Nexus Mods"
+
+#: crates/halcyon-app/ui/pages/game.slint:1084
+msgid "Archive .zip ou dossier du mod"
+msgstr "Archive .zip ou dossier du mod"
+
+#: crates/halcyon-app/ui/pages/game.slint:1085
+msgid "Nom (facultatif)"
+msgstr "Nom (facultatif)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1097
+msgid "Appliquer le profil au jeu"
+msgstr "Appliquer le profil au jeu"
+
+#: crates/halcyon-app/ui/pages/game.slint:1098
+msgid "Retirer tous les mods"
+msgstr "Retirer tous les mods"
+
+#: crates/halcyon-app/ui/pages/game.slint:1103
+msgid "Conflits"
+msgstr "Conflits"
+
+#: crates/halcyon-app/ui/pages/game.slint:1105
+msgid "Fichiers de mods présents mais non installés par Halcyon (laissés tels quels)"
+msgstr "Fichiers de mods présents mais non installés par Halcyon (laissés tels quels)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1110
+msgid "Jeu sur Nexus (ex. stardewvalley)"
+msgstr "Jeu sur Nexus (ex. stardewvalley)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1111
+msgid "Vérifier les versions sur Nexus Mods"
+msgstr "Vérifier les versions sur Nexus Mods"
+
+#: crates/halcyon-app/ui/pages/game.slint:1120
+msgid "À propos"
+msgstr "À propos"
+
+#: crates/halcyon-app/ui/pages/game.slint:1122
+msgid "Aucune description disponible pour ce jeu."
+msgstr "Aucune description disponible pour ce jeu."
+
+#: crates/halcyon-app/ui/pages/game.slint:1128
+#, placeholders
+msgid "Genres : {}"
+msgstr "Genres : {}"
+
+#: crates/halcyon-app/ui/pages/game.slint:1134
+msgid "Captures d'écran"
+msgstr "Captures d'écran"
+
+#: crates/halcyon-app/ui/pages/game.slint:1156
+msgid "Actualités"
+msgstr "Actualités"
+
+#: crates/halcyon-app/ui/pages/game.slint:1186
+msgid "Aucune collection pour l'instant."
+msgstr "Aucune collection pour l'instant."
+
+#: crates/halcyon-app/ui/pages/game.slint:1197
+msgid "Nouvelle collection (ex. Coop, À finir)"
+msgstr "Nouvelle collection (ex. Coop, À finir)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1204
+msgid "Créer et ajouter"
+msgstr "Créer et ajouter"
+
+#: crates/halcyon-app/ui/pages/game.slint:1222
+#, placeholders
+msgid "Vos captures ({})"
+msgstr "Vos captures ({})"
+
+#: crates/halcyon-app/ui/pages/game.slint:1244
+msgid "Visuels officiels"
+msgstr "Visuels officiels"
+
+#: crates/halcyon-app/ui/pages/game.slint:1259
+msgid "Les vidéos ne sont pas lues dans Halcyon. Les captures Steam sont lues dans le dossier de votre compte local, sans modification."
+msgstr "Les vidéos ne sont pas lues dans Halcyon. Les captures Steam sont lues dans le dossier de votre compte local, sans modification."
+
+#: crates/halcyon-app/ui/pages/game.slint:1344
+msgid "Masqué"
+msgstr "Masqué"
+
+#: crates/halcyon-app/ui/pages/game.slint:1403
+msgid "Installer via Steam"
+msgstr "Installer via Steam"
+
+#: crates/halcyon-app/ui/pages/game.slint:1409
+msgid "Profil"
+msgstr "Profil"
+
+#: crates/halcyon-app/ui/pages/game.slint:1432
+msgid "Aucun dossier connu"
+msgstr "Aucun dossier connu"
+
+#: crates/halcyon-app/ui/pages/game.slint:1440
+msgid "Plus d'actions"
+msgstr "Plus d'actions"
+
+#: crates/halcyon-app/ui/pages/game.slint:1447
+msgid "Dernière session"
+msgstr "Dernière session"
+
+#: crates/halcyon-app/ui/pages/game.slint:1461
+msgid "Aperçu"
+msgstr "Aperçu"
+
+#: crates/halcyon-app/ui/pages/game.slint:1488 crates/halcyon-app/ui/pages/game.slint:1538
+msgid "Lancement"
+msgstr "Lancement"
+
+#: crates/halcyon-app/ui/pages/game.slint:1488
+msgid "Paramètres de lancement"
+msgstr "Paramètres de lancement"
+
+#: crates/halcyon-app/ui/pages/game.slint:1527
+msgid "Suivi"
+msgstr "Suivi"
+
+#: crates/halcyon-app/ui/pages/game.slint:1531
+msgid "Sessions (Halcyon)"
+msgstr "Sessions (Halcyon)"
+
+#: crates/halcyon-app/ui/pages/game.slint:1532 crates/halcyon-installer/src/main.rs:322
+msgid "Mise à jour"
+msgstr "Mise à jour"
+
+#: crates/halcyon-app/ui/pages/game.slint:1535 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
+#: crates/halcyon-installer/src/main.rs:321
+msgid "Installation"
+msgstr "Installation"
+
+#: crates/halcyon-app/ui/pages/game.slint:1537
+msgid "Plateforme"
+msgstr "Plateforme"
+
+#: crates/halcyon-app/ui/pages/game.slint:1539
+msgid "Taille"
+msgstr "Taille"
+
+#: crates/halcyon-app/ui/pages/game.slint:1541
+msgid "Emplacement inconnu"
+msgstr "Emplacement inconnu"
+
+#: crates/halcyon-app/ui/pages/game.slint:1548
+msgid "Édition"
+msgstr "Édition"
+
+#: crates/halcyon-app/ui/pages/game.slint:1551
+msgid "Sortie"
+msgstr "Sortie"
+
+#: crates/halcyon-app/ui/pages/game.slint:1554
+msgid "Liens"
+msgstr "Liens"
+
+#: crates/halcyon-app/ui/pages/game.slint:1563
+msgid "Créer un raccourci sur le Bureau"
+msgstr "Créer un raccourci sur le Bureau"
+
+#: crates/halcyon-app/ui/pages/game.slint:1569
+msgid "Publier dans Sunshine…"
+msgstr "Publier dans Sunshine…"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:139
+msgid "Hors ligne : les succès seront synchronisés au retour de la connexion"
+msgstr "Hors ligne : les succès seront synchronisés au retour de la connexion"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:146
+msgid "Configurez vos comptes Steam / RetroAchievements dans les paramètres"
+msgstr "Configurez vos comptes Steam / RetroAchievements dans les paramètres"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:152
+msgid "Une synchronisation est déjà en cours"
+msgstr "Une synchronisation est déjà en cours"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:192
+msgid "Rien à synchroniser pour ce jeu"
+msgstr "Rien à synchroniser pour ce jeu"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:196
+#, placeholders
+msgid "Synchronisation de {n} jeu…"
+msgid_plural "Synchronisation de {n} jeux…"
+msgstr[0] "Synchronisation de {n} jeu…"
+msgstr[1] "Synchronisation de {n} jeux…"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:207
+#, placeholders
+msgid "Succès : {v}/{total}"
+msgstr "Succès : {v}/{total}"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:228
+msgid "Synchronisation des succès"
+msgstr "Synchronisation des succès"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:247
+#, placeholders
+msgid "Jeux traités : {total} · erreurs : {errors} — {e}"
+msgstr "Jeux traités : {total} · erreurs : {errors} — {e}"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:248
+#, placeholders
+msgid "Synchronisé à {clock_now} · {n} jeu"
+msgid_plural "Synchronisé à {clock_now} · {n} jeux"
+msgstr[0] "Synchronisé à {clock_now} · {n} jeu"
+msgstr[1] "Synchronisé à {clock_now} · {n} jeux"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:251
+#, placeholders
+msgid "{status} · {n} nouveau succès"
+msgid_plural "{status} · {n} nouveaux succès"
+msgstr[0] "{status} · {n} nouveau succès"
+msgstr[1] "{status} · {n} nouveaux succès"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:333
+#, placeholders
+msgid "{n} succès débloqué"
+msgid_plural "{n} succès débloqués"
+msgstr[0] "{n} succès débloqué"
+msgstr[1] "{n} succès débloqués"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:372
+msgid "Débloqué"
+msgstr "Débloqué"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:389
+#, placeholders
+msgid "{n} point"
+msgid_plural "{n} points"
+msgstr[0] "{n} point"
+msgstr[1] "{n} points"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:408
+msgid "Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici."
+msgstr "Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:409
+msgid "Cette plateforme n'est pas prise en charge par RetroAchievements."
+msgstr "Cette plateforme n'est pas prise en charge par RetroAchievements."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:411
+msgid "Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam."
+msgstr "Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:413
+msgid "Renseignez votre compte RetroAchievements dans les paramètres."
+msgstr "Renseignez votre compte RetroAchievements dans les paramètres."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:414
+msgid "Aucun succès personnalisé pour l'instant."
+msgstr "Aucun succès personnalisé pour l'instant."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:415
+msgid "Aucun succès synchronisé pour ce jeu."
+msgstr "Aucun succès synchronisé pour ce jeu."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:416
+#, placeholders
+msgid "{unlocked} / {n} succès débloqué"
+msgid_plural "{unlocked} / {n} succès débloqués"
+msgstr[0] "{unlocked} / {n} succès débloqué"
+msgstr[1] "{unlocked} / {n} succès débloqués"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:428
+#, placeholders
+msgid "Synchronisé {when}"
+msgstr "Synchronisé {when}"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:429
+#, placeholders
+msgid "Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})"
+msgstr "Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:431
+msgid "ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres."
+msgstr "ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:433
+#, placeholders
+msgid "Dernière tentative {when} : {e}"
+msgstr "Dernière tentative {when} : {e}"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:436
+msgid "Succès locaux, non vérifiés par une plateforme."
+msgstr "Succès locaux, non vérifiés par une plateforme."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:534
+msgid "L'identifiant RetroAchievements est un nombre"
+msgstr "L'identifiant RetroAchievements est un nombre"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:544
+msgid "Identifiant enregistré"
+msgstr "Identifiant enregistré"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:605
+#, placeholders
+msgid "base de données : {e}"
+msgstr "base de données : {e}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:25
+msgid "Méthode choisie pour ce jeu."
+msgstr "Méthode choisie pour ce jeu."
+
+#: crates/halcyon-app/src/ctl_mods.rs:119
+#, placeholders
+msgid "Mods : {name}"
+msgstr "Mods : {name}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:124
+msgid "Aucun mod installé par Halcyon dans ce jeu."
+msgstr "Aucun mod installé par Halcyon dans ce jeu."
+
+#: crates/halcyon-app/src/ctl_mods.rs:126
+#, placeholders
+msgid "Installés le {at} : {n} fichier{v}. Retirer les mods remet le jeu dans son état d'origine."
+msgid_plural "Installés le {at} : {n} fichiers{v}. Retirer les mods remet le jeu dans son état d'origine."
+msgstr[0] "Installés le {at} : {n} fichier{v}. Retirer les mods remet le jeu dans son état d'origine."
+msgstr[1] "Installés le {at} : {n} fichiers{v}. Retirer les mods remet le jeu dans son état d'origine."
+
+#: crates/halcyon-app/src/ctl_mods.rs:137
+#, placeholders
+msgid "{rel} — {join} (gagnant : {v})"
+msgstr "{rel} — {join} (gagnant : {v})"
+
+#: crates/halcyon-app/src/ctl_mods.rs:141
+#, placeholders
+msgid "{n} fichier ignoré par cette méthode d'installation"
+msgid_plural "{n} fichiers ignorés par cette méthode d'installation"
+msgstr[0] "{n} fichier ignoré par cette méthode d'installation"
+msgstr[1] "{n} fichiers ignorés par cette méthode d'installation"
+
+#: crates/halcyon-app/src/ctl_mods.rs:200
+#, placeholders
+msgid "Introuvable : {src}"
+msgstr "Introuvable : {src}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:210
+#, placeholders
+msgid "Mod « {name} » ajouté"
+msgstr "Mod « {name} » ajouté"
+
+#: crates/halcyon-app/src/ctl_mods.rs:211
+#, placeholders
+msgid "Mod « {name} » importé ({n} fichier) — activez-le puis appliquez"
+msgid_plural "Mod « {name} » importé ({n} fichiers) — activez-le puis appliquez"
+msgstr[0] "Mod « {name} » importé ({n} fichier) — activez-le puis appliquez"
+msgstr[1] "Mod « {name} » importé ({n} fichiers) — activez-le puis appliquez"
+
+#: crates/halcyon-app/src/ctl_mods.rs:225
+msgid "Supprimer ce mod de la bibliothèque ?"
+msgstr "Supprimer ce mod de la bibliothèque ?"
+
+#: crates/halcyon-app/src/ctl_mods.rs:226
+msgid "Ses fichiers sont supprimés de la bibliothèque de mods de Halcyon. Le jeu n'est pas modifié."
+msgstr "Ses fichiers sont supprimés de la bibliothèque de mods de Halcyon. Le jeu n'est pas modifié."
+
+#: crates/halcyon-app/src/ctl_mods.rs:230
+msgid "Mod supprimé"
+msgstr "Mod supprimé"
+
+#: crates/halcyon-app/src/ctl_mods.rs:248
+msgid "Identifiant Nexus : nombre attendu (visible dans l'adresse de la page du mod)"
+msgstr "Identifiant Nexus : nombre attendu (visible dans l'adresse de la page du mod)"
+
+#: crates/halcyon-app/src/ctl_mods.rs:261
+msgid "Dossier cible : chemin relatif au dossier du jeu attendu"
+msgstr "Dossier cible : chemin relatif au dossier du jeu attendu"
+
+#: crates/halcyon-app/src/ctl_mods.rs:269
+msgid "Dossier Content/Paks introuvable : indiquez-le (ex. MonJeu/Content/Paks)"
+msgstr "Dossier Content/Paks introuvable : indiquez-le (ex. MonJeu/Content/Paks)"
+
+#: crates/halcyon-app/src/ctl_mods.rs:312
+#, placeholders
+msgid "Profil de mods « {name} » créé (copie du profil actuel)"
+msgstr "Profil de mods « {name} » créé (copie du profil actuel)"
+
+#: crates/halcyon-app/src/ctl_mods.rs:323
+msgid "Gardez au moins un profil de mods"
+msgstr "Gardez au moins un profil de mods"
+
+#: crates/halcyon-app/src/ctl_mods.rs:326
+msgid "Supprimer ce profil de mods ?"
+msgstr "Supprimer ce profil de mods ?"
+
+#: crates/halcyon-app/src/ctl_mods.rs:327
+#, placeholders
+msgid "Le profil « {name} » (ordre et activation) sera supprimé. Les mods restent dans la bibliothèque."
+msgstr "Le profil « {name} » (ordre et activation) sera supprimé. Les mods restent dans la bibliothèque."
+
+#: crates/halcyon-app/src/ctl_mods.rs:341 crates/halcyon-app/src/ctl_mods.rs:372
+msgid "Fermez le jeu avant de modifier ses mods"
+msgstr "Fermez le jeu avant de modifier ses mods"
+
+#: crates/halcyon-app/src/ctl_mods.rs:356
+#, placeholders
+msgid "Mods appliqués à {name}"
+msgstr "Mods appliqués à {name}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:356
+#, placeholders
+msgid "Profil « {name} » · {n} fichier"
+msgid_plural "Profil « {name} » · {n} fichiers"
+msgstr[0] "Profil « {name} » · {n} fichier"
+msgstr[1] "Profil « {name} » · {n} fichiers"
+
+#: crates/halcyon-app/src/ctl_mods.rs:360
+#, placeholders
+msgid "Mods appliqués ({n} fichier)"
+msgid_plural "Mods appliqués ({n} fichiers)"
+msgstr[0] "Mods appliqués ({n} fichier)"
+msgstr[1] "Mods appliqués ({n} fichiers)"
+
+#: crates/halcyon-app/src/ctl_mods.rs:361
+#, placeholders
+msgid "Application impossible : {e}"
+msgstr "Application impossible : {e}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:381
+#, placeholders
+msgid "Mods retirés de {name}"
+msgstr "Mods retirés de {name}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:386
+#, placeholders
+msgid "Mods retirés · fichiers supprimés : {removed} · originaux rétablis : {restored}"
+msgstr "Mods retirés · fichiers supprimés : {removed} · originaux rétablis : {restored}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:389
+#, placeholders
+msgid "{n} fichier modifié depuis l'installation a été laissé en place"
+msgid_plural "{n} fichiers modifiés depuis l'installation ont été laissés en place"
+msgstr[0] "{n} fichier modifié depuis l'installation a été laissé en place"
+msgstr[1] "{n} fichiers modifiés depuis l'installation ont été laissés en place"
+
+#: crates/halcyon-app/src/ctl_mods.rs:392
+#, placeholders
+msgid "Retrait impossible : {e}"
+msgstr "Retrait impossible : {e}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:423
+msgid "Ajoutez votre clé d'API Nexus Mods dans les paramètres (Comptes)"
+msgstr "Ajoutez votre clé d'API Nexus Mods dans les paramètres (Comptes)"
+
+#: crates/halcyon-app/src/ctl_mods.rs:426
+msgid "Mode hors ligne activé"
+msgstr "Mode hors ligne activé"
+
+#: crates/halcyon-app/src/ctl_mods.rs:430
+msgid "Indiquez le nom du jeu sur Nexus Mods (ex. « skyrimspecialedition », visible dans l'adresse)"
+msgstr "Indiquez le nom du jeu sur Nexus Mods (ex. « skyrimspecialedition », visible dans l'adresse)"
+
+#: crates/halcyon-app/src/ctl_mods.rs:460
+msgid "Aucun mod n'a d'identifiant Nexus : renseignez-le dans la ligne du mod"
+msgstr "Aucun mod n'a d'identifiant Nexus : renseignez-le dans la ligne du mod"
+
+#: crates/halcyon-app/src/ctl_mods.rs:462
+#, placeholders
+msgid "Mods vérifiés : {checked} · mises à jour disponibles : {newer}"
+msgstr "Mods vérifiés : {checked} · mises à jour disponibles : {newer}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:127
+#, placeholders
+msgid "Installation de « {name} » demandée à Steam"
+msgstr "Installation de « {name} » demandée à Steam"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:128
+#, placeholders
+msgid "Steam n'a pas pu être appelé : {e}"
+msgstr "Steam n'a pas pu être appelé : {e}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:131
+#, placeholders
+msgid "« {name} » n'est pas installé"
+msgstr "« {name} » n'est pas installé"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:136
+#, placeholders
+msgid "« {name} » est déjà en cours"
+msgstr "« {name} » est déjà en cours"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:159
+#, placeholders
+msgid "Impossible de lancer « {name} » : aucun moyen de lancement configuré"
+msgstr "Impossible de lancer « {name} » : aucun moyen de lancement configuré"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:173
+#, placeholders
+msgid "Préparation de « {name} »…"
+msgstr "Préparation de « {name} »…"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:183
+#, placeholders
+msgid "Lancement annulé : {e}"
+msgstr "Lancement annulé : {e}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:275
+#, placeholders
+msgid "Impossible de lancer « {name} » : {e}"
+msgstr "Impossible de lancer « {name} » : {e}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:276
+#, placeholders
+msgid "Échec du lancement de {name}"
+msgstr "Échec du lancement de {name}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:286
+#, placeholders
+msgid "Profil « {n} »"
+msgstr "Profil « {n} »"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:299
+#, placeholders
+msgid "En jeu : {name}"
+msgstr "En jeu : {name}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:300
+msgid "Session suivie par Halcyon"
+msgstr "Session suivie par Halcyon"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:302
+#, placeholders
+msgid "Lancement de « {name} » (profil « {n} »)"
+msgstr "Lancement de « {name} » (profil « {n} »)"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:303
+#, placeholders
+msgid "Lancement de « {name} »"
+msgstr "Lancement de « {name} »"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:309
+#, placeholders
+msgid " · {n} réglage non appliqué"
+msgid_plural " · {n} réglages non appliqués"
+msgstr[0] " · {n} réglage non appliqué"
+msgstr[1] " · {n} réglages non appliqués"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:406
+#, placeholders
+msgid "Session de {secs}"
+msgstr "Session de {secs}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:406
+msgid "Session terminée (durée non mesurée)"
+msgstr "Session terminée (durée non mesurée)"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:445
+msgid "Profil de manette actif"
+msgstr "Profil de manette actif"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:455
+msgid "émulateur (options transmises avant la ROM)"
+msgstr "émulateur (options transmises avant la ROM)"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:501
+#, placeholders
+msgid "Programme introuvable : {path}"
+msgstr "Programme introuvable : {path}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:531
+msgid "Limite d'images : nombre entre 10 et 1000 attendu"
+msgstr "Limite d'images : nombre entre 10 et 1000 attendu"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:593
+msgid "Supprimer le profil ?"
+msgstr "Supprimer le profil ?"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:594
+#, placeholders
+msgid "Le profil « {name} » sera supprimé. Le jeu et ses fichiers ne sont pas touchés."
+msgstr "Le profil « {name} » sera supprimé. Le jeu et ses fichiers ne sont pas touchés."
+
+#: crates/halcyon-app/src/ctl_profiles.rs:604
+#, placeholders
+msgid "Profil « {name} » supprimé"
+msgstr "Profil « {name} » supprimé"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:616
+#, placeholders
+msgid "application des mods : {e}"
+msgstr "application des mods : {e}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:627
+#, placeholders
+msgid "commande avant le lancement : {e}"
+msgstr "commande avant le lancement : {e}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:650 crates/halcyon-app/src/ctl_profiles.rs:653
+msgid "Résolution : format attendu 1920x1080"
+msgstr "Résolution : format attendu 1920x1080"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:660
+#, placeholders
+msgid "Variable invalide (NOM=valeur attendu) : {line}"
+msgstr "Variable invalide (NOM=valeur attendu) : {line}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:663
+#, placeholders
+msgid "Nom de variable invalide : {k}"
+msgstr "Nom de variable invalide : {k}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:681
+#, placeholders
+msgid "{f} i/s max"
+msgstr "{f} i/s max"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:687
+#, placeholders
+msgid "priorité {v}"
+msgstr "priorité {v}"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:693
+#, placeholders
+msgid "{n} programme associé"
+msgid_plural "{n} programmes associés"
+msgstr[0] "{n} programme associé"
+msgstr[1] "{n} programmes associés"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:699
+#, placeholders
+msgid "{n} variable"
+msgid_plural "{n} variables"
+msgstr[0] "{n} variable"
+msgstr[1] "{n} variables"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:702
+#, placeholders
+msgid "mods « {name} »"
+msgstr "mods « {name} »"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:705
+#, placeholders
+msgid "manette « {name} »"
+msgstr "manette « {name} »"
+
+#: crates/halcyon-app/src/ctl_profiles.rs:710
+msgid "Paramètres du jeu"
+msgstr "Paramètres du jeu"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:133
+msgid "Installés automatiquement par Steam au premier lancement si nécessaire."
+msgstr "Installés automatiquement par Steam au premier lancement si nécessaire."
+
+#: crates/halcyon-app/src/ctl_tracking.rs:134
+msgid "Normalement installés par le client Epic / Heroic."
+msgstr "Normalement installés par le client Epic / Heroic."
+
+#: crates/halcyon-app/src/ctl_tracking.rs:135
+msgid "Si le jeu ne démarre pas, installez ces composants depuis ce dossier."
+msgstr "Si le jeu ne démarre pas, installez ces composants depuis ce dossier."
+
+#: crates/halcyon-app/src/ctl_tracking.rs:170
+msgid "Durée non reconnue : utilisez par exemple 12h30, 45m ou 3"
+msgstr "Durée non reconnue : utilisez par exemple 12h30, 45m ou 3"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:181
+msgid "Temps de jeu corrigé"
+msgstr "Temps de jeu corrigé"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:181
+msgid "Temps calculé rétabli"
+msgstr "Temps calculé rétabli"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:209
+#, placeholders
+msgid "Plateformes : {platform} · suivi local Halcyon : {local} · {n} correction manuelle. Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé entre la plateforme et le suivi local (sans double compte)."
+msgid_plural "Plateformes : {platform} · suivi local Halcyon : {local} · {n} corrections manuelles. Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé entre la plateforme et le suivi local (sans double compte)."
+msgstr[0] "Plateformes : {platform} · suivi local Halcyon : {local} · {n} correction manuelle. Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé entre la plateforme et le suivi local (sans double compte)."
+msgstr[1] "Plateformes : {platform} · suivi local Halcyon : {local} · {n} corrections manuelles. Pour chaque jeu, le temps retenu est la correction manuelle si elle existe, sinon le plus élevé entre la plateforme et le suivi local (sans double compte)."
+
+#: crates/halcyon-app/src/ctl_tracking.rs:377
+#, placeholders
+msgid "{downloaded} sur {total}"
+msgstr "{downloaded} sur {total}"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:382
+#, placeholders
+msgid "Version installée : {v}"
+msgstr "Version installée : {v}"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:413
+#, placeholders
+msgid "Client introuvable : {e}"
+msgstr "Client introuvable : {e}"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:416
+msgid "Ce client ne propose pas de page de téléchargements"
+msgstr "Ce client ne propose pas de page de téléchargements"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:436
+#, placeholders
+msgid "{names} et {n} autre"
+msgid_plural "{names} et {n} autres"
+msgstr[0] "{names} et {n} autre"
+msgstr[1] "{names} et {n} autres"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:438
+#, placeholders
+msgid "{list} mises à jour disponibles"
+msgstr "{list} mises à jour disponibles"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:591
+#, placeholders
+msgid "Règle {v} : valeur manquante ou invalide"
+msgstr "Règle {v} : valeur manquante ou invalide"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:595
+msgid "Ajoutez au moins une règle"
+msgstr "Ajoutez au moins une règle"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:707
+#, placeholders
+msgid "Collection intelligente « {name} » enregistrée"
+msgstr "Collection intelligente « {name} » enregistrée"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:708
+#, placeholders
+msgid "Collection « {name} » enregistrée"
+msgstr "Collection « {name} » enregistrée"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:720
+msgid "Supprimer la collection intelligente ?"
+msgstr "Supprimer la collection intelligente ?"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:721
+#, placeholders
+msgid "« {name} » sera supprimée. Aucun jeu n'est retiré de la bibliothèque."
+msgstr "« {name} » sera supprimée. Aucun jeu n'est retiré de la bibliothèque."
+
+#: crates/halcyon-app/src/ctl_tracking.rs:734
+#, placeholders
+msgid "Collection « {name} » supprimée"
+msgstr "Collection « {name} » supprimée"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:764
+msgid "Ouvrir Steam"
+msgstr "Ouvrir Steam"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:765
+msgid "Ouvrir Heroic"
+msgstr "Ouvrir Heroic"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:766
+msgid "Ouvrir Epic Games"
+msgstr "Ouvrir Epic Games"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:767
+msgid "Client indisponible"
+msgstr "Client indisponible"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:783
+#, placeholders
+msgid "Lecture des sessions impossible : {e}"
+msgstr "Lecture des sessions impossible : {e}"
+
+#: crates/halcyon-app/src/ctl_tracking.rs:795
+#, placeholders
+msgid "Statistiques exportées : {path}"
+msgstr "Statistiques exportées : {path}"
+
+#: crates/halcyon-core/src/profiles.rs:142
+msgid "moteur non reconnu"
+msgstr "moteur non reconnu"
+
+#: crates/halcyon-core/src/profiles.rs:196
+#, placeholders
+msgid "{what} : non applicable automatiquement ({label})."
+msgstr "{what} : non applicable automatiquement ({label})."
+
+#: crates/halcyon-core/src/profiles.rs:220
+#, placeholders
+msgid "Mode « {mode} »"
+msgstr "Mode « {mode} »"
+
+#: crates/halcyon-core/src/profiles.rs:247
+msgid "Arguments non transmis : ce client ne permet pas de passer des options au jeu."
+msgstr "Arguments non transmis : ce client ne permet pas de passer des options au jeu."
+
+#: crates/halcyon-core/src/profiles.rs:257
+msgid "Steam demandera de confirmer les arguments au premier lancement."
+msgstr "Steam demandera de confirmer les arguments au premier lancement."
+
+#: crates/halcyon-core/src/profiles.rs:266
+msgid "Limite d'images : non applicable automatiquement ici ; utilisez le réglage du jeu, du pilote graphique, MangoHud ou RTSS."
+msgstr "Limite d'images : non applicable automatiquement ici ; utilisez le réglage du jeu, du pilote graphique, MangoHud ou RTSS."
+
+#: crates/halcyon-core/src/profiles.rs:273 crates/halcyon-core/src/profiles.rs:290
+msgid "Choix du GPU : uniquement pour les jeux lancés directement par Halcyon."
+msgstr "Choix du GPU : uniquement pour les jeux lancés directement par Halcyon."
+
+#: crates/halcyon-core/src/profiles.rs:277
+msgid "Choix du GPU : autorisation de modifier la préférence graphique Windows requise."
+msgstr "Choix du GPU : autorisation de modifier la préférence graphique Windows requise."
+
+#: crates/halcyon-core/src/profiles.rs:296
+msgid "Variables d'environnement : non transmises au client de la plateforme."
+msgstr "Variables d'environnement : non transmises au client de la plateforme."
+
+#: crates/halcyon-core/src/profiles.rs:303
+msgid "Priorité : uniquement pour les jeux lancés directement par Halcyon."
+msgstr "Priorité : uniquement pour les jeux lancés directement par Halcyon."
+
+#: crates/halcyon-core/src/profiles.rs:310
+msgid "Répertoire de travail : géré par le client de la plateforme."
+msgstr "Répertoire de travail : géré par le client de la plateforme."
+
+#: crates/halcyon-integrations/src/launcher.rs:23
+#, placeholders
+msgid "exécutable introuvable : {p}"
+msgstr "exécutable introuvable : {p}"
+
+#: crates/halcyon-integrations/src/launcher.rs:24
+#, placeholders
+msgid "répertoire de travail introuvable : {p}"
+msgstr "répertoire de travail introuvable : {p}"
+
+#: crates/halcyon-integrations/src/launcher.rs:25
+#, placeholders
+msgid "le jeu n'a pas pu démarrer : {e}"
+msgstr "le jeu n'a pas pu démarrer : {e}"
+
+#: crates/halcyon-integrations/src/launcher.rs:26
+#, placeholders
+msgid "le client de la plateforme n'a pas pu être appelé : {e}"
+msgstr "le client de la plateforme n'a pas pu être appelé : {e}"
+
+#: crates/halcyon-integrations/src/launcher.rs:27
+msgid "aucun moyen de lancement n'est configuré pour ce jeu"
+msgstr "aucun moyen de lancement n'est configuré pour ce jeu"
+
+#: crates/halcyon-integrations/src/launcher.rs:94
+msgid "réglages du profil non applicables : le lancement est délégué au système"
+msgstr "réglages du profil non applicables : le lancement est délégué au système"
+
+#: crates/halcyon-integrations/src/launcher.rs:123
+#, placeholders
+msgid "priorité « {label} » refusée par le système (droits insuffisants pour l'augmenter)"
+msgstr "priorité « {label} » refusée par le système (droits insuffisants pour l'augmenter)"
+
+#: crates/halcyon-integrations/src/launcher.rs:199
+#, placeholders
+msgid "« {v} » est requis pour lancer un jeu Windows ({e})"
+msgstr "« {v} » est requis pour lancer un jeu Windows ({e})"
+
+#: crates/halcyon-integrations/src/launcher.rs:249
+#, placeholders
+msgid "commande impossible à lancer : {e}"
+msgstr "commande impossible à lancer : {e}"
+
+#: crates/halcyon-integrations/src/launcher.rs:254
+#, placeholders
+msgid "la commande s'est terminée avec le code {v}"
+msgstr "la commande s'est terminée avec le code {v}"
+
+#: crates/halcyon-integrations/src/launcher.rs:258
+#, placeholders
+msgid "commande interrompue après {as_secs} s"
+msgstr "commande interrompue après {as_secs} s"
+
+#: crates/halcyon-integrations/src/launcher.rs:269
+#, placeholders
+msgid "programme introuvable : {path}"
+msgstr "programme introuvable : {path}"
+
+#: crates/halcyon-integrations/src/mods.rs:32
+#, placeholders
+msgid "Copie dans {target}"
+msgstr "Copie dans {target}"
+
+#: crates/halcyon-integrations/src/mods.rs:34
+#, placeholders
+msgid "Paquets Unreal ({paks}/~mods)"
+msgstr "Paquets Unreal ({paks}/~mods)"
+
+#: crates/halcyon-integrations/src/mods.rs:88
+msgid "BepInEx est installé dans ce jeu."
+msgstr "BepInEx est installé dans ce jeu."
+
+#: crates/halcyon-integrations/src/mods.rs:96
+msgid "Jeu Unreal Engine : les mods sont des paquets .pak."
+msgstr "Jeu Unreal Engine : les mods sont des paquets .pak."
+
+#: crates/halcyon-integrations/src/mods.rs:103
+msgid "Jeu Unity sans BepInEx : installez BepInEx (en tant que mod) puis choisissez l'adaptateur BepInEx."
+msgstr "Jeu Unity sans BepInEx : installez BepInEx (en tant que mod) puis choisissez l'adaptateur BepInEx."
+
+#: crates/halcyon-integrations/src/mods.rs:106
+msgid "Méthode générique : les fichiers du mod sont copiés dans le dossier du jeu."
+msgstr "Méthode générique : les fichiers du mod sont copiés dans le dossier du jeu."
+
+#: crates/halcyon-integrations/src/mods.rs:225
+msgid "format non pris en charge : utilisez une archive .zip ou un dossier"
+msgstr "format non pris en charge : utilisez une archive .zip ou un dossier"
+
+#: crates/halcyon-integrations/src/mods.rs:253
+msgid "ce mod est actuellement installé dans le jeu : retirez les mods d'abord"
+msgstr "ce mod est actuellement installé dans le jeu : retirez les mods d'abord"
+
+#: crates/halcyon-integrations/src/mods.rs:348
+msgid "dossier du jeu introuvable"
+msgstr "dossier du jeu introuvable"
+
+#: crates/halcyon-integrations/src/mods.rs:352
+#, placeholders
+msgid "{n} fichier de mod a été modifié depuis son installation ; vérifiez-le avant de redéployer"
+msgid_plural "{n} fichiers de mods ont été modifiés depuis leur installation ; vérifiez-les avant de redéployer"
+msgstr[0] "{n} fichier de mod a été modifié depuis son installation ; vérifiez-le avant de redéployer"
+msgstr[1] "{n} fichiers de mods ont été modifiés depuis leur installation ; vérifiez-les avant de redéployer"
+
+#: crates/halcyon-integrations/src/mods.rs:357
+#, placeholders
+msgid "chemin refusé : {target}"
+msgstr "chemin refusé : {target}"
+
+#: crates/halcyon-integrations/src/mods.rs:432
+msgid "réponse inattendue de Nexus Mods"
+msgstr "réponse inattendue de Nexus Mods"

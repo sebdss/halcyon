@@ -58,7 +58,7 @@ fn program_files(rel: &str) -> Option<PathBuf> {
 
 pub fn detect_moonlight(forced: Option<&Path>) -> Option<Tool> {
     if let Some(p) = forced.filter(|p| p.is_file()) {
-        return Some(Tool { command: vec![p.to_string_lossy().into_owned()], via: "chemin indiqué".into() });
+        return Some(Tool { command: vec![p.to_string_lossy().into_owned()], via: tr!("chemin indiqué").into() });
     }
     if let Some(p) = program_files("Moonlight Game Streaming/Moonlight.exe") {
         return Some(Tool { command: vec![p.to_string_lossy().into_owned()], via: "installation".into() });
@@ -109,13 +109,13 @@ fn run(tool: &Tool, args: &[&str]) -> Result<String, String> {
         .args(&tool.command[1..])
         .args(args)
         .output()
-        .map_err(|e| format!("Moonlight n'a pas pu être lancé : {e}"))?;
+        .map_err(|e| tr!("Moonlight n'a pas pu être lancé : {e}", e = e))?;
     let text = String::from_utf8_lossy(&out.stdout).into_owned();
     if out.status.success() {
         Ok(text)
     } else {
         let err = String::from_utf8_lossy(&out.stderr).trim().to_string();
-        Err(if err.is_empty() { format!("Moonlight a échoué (code {})", out.status.code().unwrap_or(-1)) } else { err })
+        Err(if err.is_empty() { tr!("Moonlight a échoué (code {v})", v = out.status.code().unwrap_or(-1)) } else { err })
     }
 }
 
@@ -153,7 +153,7 @@ fn spawn(tool: &Tool, args: &[&str]) -> Result<(), String> {
         .args(args)
         .spawn()
         .map(|_| ())
-        .map_err(|e| format!("Moonlight n'a pas pu être lancé : {e}"))
+        .map_err(|e| tr!("Moonlight n'a pas pu être lancé : {e}", e = e))
 }
 
 /// Machine configurée.
@@ -166,11 +166,11 @@ pub struct Host {
 /// Ajoute (ou met à jour) un jeu dans `apps.json` de Sunshine. Une copie de sauvegarde
 /// du fichier est créée avant toute modification.
 pub fn publish_to_sunshine(apps_file: &Path, name: &str, command: &str, image: Option<&Path>) -> Result<PathBuf, String> {
-    let text = std::fs::read_to_string(apps_file).map_err(|e| format!("lecture de {} : {e}", apps_file.display()))?;
-    let mut v: Value = serde_json::from_str(&text).map_err(|e| format!("apps.json invalide : {e}"))?;
+    let text = std::fs::read_to_string(apps_file).map_err(|e| tr!("lecture de {apps_file} : {e}", apps_file = apps_file.display(), e = e))?;
+    let mut v: Value = serde_json::from_str(&text).map_err(|e| tr!("{file} invalide : {e}", file = "apps.json", e = e))?;
     let backup = apps_file.with_extension("json.halcyon-backup");
-    std::fs::write(&backup, &text).map_err(|e| format!("copie de sauvegarde impossible : {e}"))?;
-    let apps = v.get_mut("apps").and_then(|a| a.as_array_mut()).ok_or("apps.json : liste « apps » absente")?;
+    std::fs::write(&backup, &text).map_err(|e| tr!("copie de sauvegarde impossible : {e}", e = e))?;
+    let apps = v.get_mut("apps").and_then(|a| a.as_array_mut()).ok_or_else(|| tr!("apps.json : liste « apps » absente"))?;
     apps.retain(|a| a.get("name").and_then(|n| n.as_str()) != Some(name));
     let mut entry = json!({ "name": name, "detached": [command], "auto-detach": "true" });
     if let Some(img) = image {
@@ -181,7 +181,7 @@ pub fn publish_to_sunshine(apps_file: &Path, name: &str, command: &str, image: O
     let tmp = apps_file.with_extension("json.tmp");
     std::fs::write(&tmp, out)
         .and_then(|_| std::fs::rename(&tmp, apps_file))
-        .map_err(|e| format!("écriture de apps.json impossible (droits administrateur nécessaires ?) : {e}"))?;
+        .map_err(|e| tr!("écriture de apps.json impossible (droits administrateur nécessaires ?) : {e}", e = e))?;
     Ok(backup)
 }
 

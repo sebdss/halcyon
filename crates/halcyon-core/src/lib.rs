@@ -4,6 +4,9 @@
 //! et testable unitairement. Les intégrations (Steam, Epic…) et la persistance
 //! dépendent de lui, jamais l'inverse.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod achievements;
 pub mod desktop;
 pub mod export;

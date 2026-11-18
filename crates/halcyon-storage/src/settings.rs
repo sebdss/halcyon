@@ -40,6 +40,8 @@ pub struct RomFolder {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    /// Langue de l'interface (« de-DE »…) ; `None` : langue du système (sinon anglais).
+    pub language: Option<String>,
     pub steam_enabled: bool,
     /// Dossier Steam forcé (sinon détection automatique).
     pub steam_path: Option<PathBuf>,
@@ -430,6 +432,7 @@ pub enum LibraryView {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            language: None,
             steam_enabled: true,
             steam_path: None,
             epic_enabled: true,
@@ -743,6 +746,21 @@ mod tests {
             use std::os::unix::fs::PermissionsExt;
             assert_eq!(std::fs::metadata(&path).unwrap().permissions().mode() & 0o777, 0o600);
         }
+    }
+
+    #[test]
+    fn language_choice_persists_and_old_files_default_to_system() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("settings.json");
+        // Fichier d'une version sans langue : langue du système.
+        std::fs::write(&path, r#"{"card_width":180}"#).unwrap();
+        assert_eq!(Settings::load(&path).language, None);
+        let s = Settings { language: Some("de-DE".into()), ..Settings::load(&path) };
+        s.save(&path).unwrap();
+        assert_eq!(Settings::load(&path).language.as_deref(), Some("de-DE"), "choix conservé au redémarrage");
+        let back = Settings { language: None, ..s };
+        back.save(&path).unwrap();
+        assert_eq!(Settings::load(&path).language, None, "retour à « Automatique »");
     }
 
     #[test]

@@ -387,9 +387,9 @@ pub struct Version {
 
 impl Version {
     pub fn parse(v: &Value) -> Result<Self, String> {
-        let id = v.get("id").and_then(|x| x.as_str()).ok_or("fichier de version sans identifiant")?.to_string();
+        let id = v.get("id").and_then(|x| x.as_str()).ok_or(tr!("fichier de version sans identifiant"))?.to_string();
         let libraries: Vec<Library> = match v.get("libraries") {
-            Some(l) => serde_json::from_value(l.clone()).map_err(|e| format!("{id} : bibliothèques illisibles ({e})"))?,
+            Some(l) => serde_json::from_value(l.clone()).map_err(|e| tr!("{id} : bibliothèques illisibles ({e})", id = id, e = e))?,
             None => Vec::new(),
         };
         let downloads = v.get("downloads");

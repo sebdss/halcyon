@@ -50,7 +50,7 @@ impl SecretStore {
     /// Définit (ou retire si `value` est vide) un secret. N'écrit rien si la valeur ne change
     /// pas. Renvoie `true` si le coffre a été modifié.
     pub fn set(&self, name: &str, value: &str) -> std::io::Result<bool> {
-        let path = self.path(name).ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, "nom de secret invalide"))?;
+        let path = self.path(name).ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, tr!("nom de secret invalide")))?;
         let value = value.trim();
         if value.is_empty() {
             return match std::fs::remove_file(&path) {

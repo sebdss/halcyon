@@ -47,15 +47,15 @@ impl GameSource {
     }
 
     /// Libellé affiché dans l'interface.
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Steam => "Steam",
-            Self::Epic => "Epic Games",
-            Self::Standalone => "Standalone",
-            Self::Manual => "Ajout manuel",
-            Self::Emulated => "Émulation",
-            Self::Minecraft => "Minecraft",
-            Self::Gog => "GOG",
+            Self::Steam => "Steam".into(),
+            Self::Epic => "Epic Games".into(),
+            Self::Standalone => tr!("Standalone"),
+            Self::Manual => tr!("Ajout manuel"),
+            Self::Emulated => tr!("Émulation"),
+            Self::Minecraft => "Minecraft".into(),
+            Self::Gog => "GOG".into(),
         }
     }
 
@@ -106,13 +106,13 @@ impl PlayStatus {
         Self::ALL.into_iter().find(|v| v.as_str() == s).unwrap_or_default()
     }
 
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::None => "Aucun statut",
-            Self::Backlog => "À jouer",
-            Self::Playing => "En cours",
-            Self::Completed => "Terminé",
-            Self::Abandoned => "Abandonné",
+            Self::None => tr!("Aucun statut"),
+            Self::Backlog => tr!("À jouer"),
+            Self::Playing => tr!("En cours").into(),
+            Self::Completed => tr!("Terminé"),
+            Self::Abandoned => tr!("Abandonné"),
         }
     }
 }
@@ -150,12 +150,12 @@ impl UpdateState {
         }
     }
 
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::None => "À jour",
-            Self::Available => "Mise à jour disponible",
-            Self::Downloading => "Téléchargement en cours",
-            Self::Paused => "Mise à jour en pause",
+            Self::None => tr!("À jour"),
+            Self::Available => tr!("Mise à jour disponible"),
+            Self::Downloading => tr!("Téléchargement en cours"),
+            Self::Paused => tr!("Mise à jour en pause"),
         }
     }
 
@@ -389,12 +389,12 @@ pub enum PlaytimeOrigin {
 }
 
 impl PlaytimeOrigin {
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::None => "",
-            Self::Platform => "plateforme",
-            Self::Local => "suivi local",
-            Self::Manual => "corrigé",
+            Self::None => String::new(),
+            Self::Platform => tr!("plateforme"),
+            Self::Local => tr!("suivi local"),
+            Self::Manual => tr!("corrigé"),
         }
     }
 }

@@ -40,8 +40,8 @@ impl Trust {
     /// Texte affiché : « Signée (clé AB12…EF) » ou « Non signée ».
     pub fn label(&self) -> String {
         match self {
-            Trust::Unsigned { digest } => format!("Non signée · empreinte {}", &digest[..12.min(digest.len())]),
-            Trust::Signed { key, .. } => format!("Signée par l'auteur · clé {}", fingerprint(key)),
+            Trust::Unsigned { digest } => tr!("Non signée · empreinte {v}", v = &digest[..12.min(digest.len())]),
+            Trust::Signed { key, .. } => tr!("Signée par l'auteur · clé {key}", key = fingerprint(key)),
         }
     }
 }
@@ -74,19 +74,19 @@ pub fn verify(dir: &Path) -> Result<Trust, String> {
     if !sig_path.is_file() {
         return Ok(Trust::Unsigned { digest });
     }
-    let text = std::fs::read_to_string(&sig_path).map_err(|e| format!("{SIGNATURE_FILE} illisible : {e}"))?;
-    let v: serde_json::Value = serde_json::from_str(&text).map_err(|e| format!("{SIGNATURE_FILE} invalide : {e}"))?;
-    let key = v["key"].as_str().ok_or(format!("{SIGNATURE_FILE} : clé absente"))?.trim().to_string();
-    let sig = v["signature"].as_str().ok_or(format!("{SIGNATURE_FILE} : signature absente"))?;
-    halcyon_update::security::verify_signature_b64(&key, digest.as_bytes(), sig).map_err(|_| "signature de l'extension incorrecte : contenu modifié depuis sa publication".to_string())?;
+    let text = std::fs::read_to_string(&sig_path).map_err(|e| tr!("{SIGNATURE_FILE} illisible : {e}", SIGNATURE_FILE = SIGNATURE_FILE, e = e))?;
+    let v: serde_json::Value = serde_json::from_str(&text).map_err(|e| tr!("{file} invalide : {e}", file = SIGNATURE_FILE, e = e))?;
+    let key = v["key"].as_str().ok_or(tr!("{SIGNATURE_FILE} : clé absente", SIGNATURE_FILE = SIGNATURE_FILE))?.trim().to_string();
+    let sig = v["signature"].as_str().ok_or(tr!("{SIGNATURE_FILE} : signature absente", SIGNATURE_FILE = SIGNATURE_FILE))?;
+    halcyon_update::security::verify_signature_b64(&key, digest.as_bytes(), sig).map_err(|_| tr!("signature de l'extension incorrecte : contenu modifié depuis sa publication"))?;
     Ok(Trust::Signed { key, digest })
 }
 
 /// Règle d'épinglage pour remplacer `old` par `new`.
 pub fn check_replacement(old: Option<&Trust>, new: &Trust) -> Result<(), String> {
     match (old.and_then(Trust::key), new.key()) {
-        (Some(a), Some(b)) if a != b => Err(format!("mise à jour refusée : signée par une autre clé ({}) que la version installée ({})", fingerprint(b), fingerprint(a))),
-        (Some(a), None) => Err(format!("mise à jour refusée : la version installée est signée (clé {}), celle-ci ne l'est pas", fingerprint(a))),
+        (Some(a), Some(b)) if a != b => Err(tr!("mise à jour refusée : signée par une autre clé ({b}) que la version installée ({a})", b = fingerprint(b), a = fingerprint(a))),
+        (Some(a), None) => Err(tr!("mise à jour refusée : la version installée est signée (clé {a}), celle-ci ne l'est pas", a = fingerprint(a))),
         _ => Ok(()),
     }
 }
@@ -94,7 +94,7 @@ pub fn check_replacement(old: Option<&Trust>, new: &Trust) -> Result<(), String>
 /// Signe une extension (outil de l'auteur) : écrit `plugin.sig`.
 pub fn sign(dir: &Path, secret_key: &[u8]) -> Result<String, String> {
     let b64 = base64::engine::general_purpose::STANDARD;
-    let sk = ed25519_compact::SecretKey::from_slice(secret_key).map_err(|_| "clé privée invalide".to_string())?;
+    let sk = ed25519_compact::SecretKey::from_slice(secret_key).map_err(|_| tr!("clé privée invalide"))?;
     let digest = content_digest(dir)?;
     let sig = sk.sign(digest.as_bytes(), None);
     let key = b64.encode(sk.public_key().as_ref());

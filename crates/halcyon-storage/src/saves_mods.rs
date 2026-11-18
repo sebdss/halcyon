@@ -124,7 +124,7 @@ impl Database {
     pub fn save_mod_profile(&self, p: &ModProfile) -> Result<i64> {
         let name = p.name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict("le profil de mods doit avoir un nom".into()));
+            return Err(StorageError::Conflict(tr!("le profil de mods doit avoir un nom").into()));
         }
         let entries = serde_json::to_string(&p.entries)?;
         if p.id == 0 {
@@ -166,7 +166,7 @@ pub fn inspect_database(path: &Path) -> Result<i64> {
     let _ = games;
     let ok: String = conn.query_row("PRAGMA integrity_check", [], |r| r.get(0))?;
     if ok != "ok" {
-        return Err(StorageError::Conflict(format!("base endommagée : {ok}")));
+        return Err(StorageError::Conflict(tr!("base endommagée : {ok}", ok = ok)));
     }
     Ok(version)
 }
