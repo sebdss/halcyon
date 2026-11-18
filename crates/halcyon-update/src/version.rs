@@ -59,7 +59,7 @@ impl FromStr for Version {
         let t = text.trim();
         let t = t.strip_prefix('v').or_else(|| t.strip_prefix('V')).unwrap_or(t);
         if t.len() > 128 {
-            return Err(tr!("version trop longue").into());
+            return Err(tr!("version trop longue"));
         }
         let (rest, build) = match t.split_once('+') {
             Some((a, b)) => (a, Some(b)),

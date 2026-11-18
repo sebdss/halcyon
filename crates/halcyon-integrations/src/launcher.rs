@@ -91,7 +91,7 @@ pub fn launch_with(
             }
         }
         Launched::Detached if !extras.is_empty() => {
-            warnings.push(tr!("réglages du profil non applicables : le lancement est délégué au système").into());
+            warnings.push(tr!("réglages du profil non applicables : le lancement est délégué au système"));
         }
         Launched::Detached => {}
     }
@@ -172,9 +172,12 @@ fn spawn_target(target: Option<&LaunchTarget>, opts: &LaunchOptions, extras: &La
                     open_path(path).map_err(LaunchError::Spawn)?;
                     Ok(Launched::Detached)
                 }
+                // Scripts Windows : lancés directement. La bibliothèque standard échappe les
+                // arguments pour cmd.exe (et refuse ceux qu'elle ne peut pas échapper) ; un
+                // `cmd /C` explicite interpréterait les « & », « | » et « % » des arguments.
                 "bat" | "cmd" if cfg!(windows) => {
-                    let mut cmd = Command::new("cmd");
-                    cmd.arg("/C").arg(path).args(&args);
+                    let mut cmd = Command::new(path);
+                    cmd.args(&args);
                     if let Some(wd) = &wd {
                         cmd.current_dir(wd);
                     }

@@ -58,7 +58,7 @@ fn program_files(rel: &str) -> Option<PathBuf> {
 
 pub fn detect_moonlight(forced: Option<&Path>) -> Option<Tool> {
     if let Some(p) = forced.filter(|p| p.is_file()) {
-        return Some(Tool { command: vec![p.to_string_lossy().into_owned()], via: tr!("chemin indiqué").into() });
+        return Some(Tool { command: vec![p.to_string_lossy().into_owned()], via: tr!("chemin indiqué") });
     }
     if let Some(p) = program_files("Moonlight Game Streaming/Moonlight.exe") {
         return Some(Tool { command: vec![p.to_string_lossy().into_owned()], via: "installation".into() });

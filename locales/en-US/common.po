@@ -611,7 +611,7 @@ msgid "Ne pas changer les mods"
 msgstr "Don't change mods"
 
 #: crates/halcyon-app/src/controller.rs:980 crates/halcyon-app/src/controller.rs:998 crates/halcyon-app/src/controller.rs:1208
-#: crates/halcyon-app/src/ctl_achievements.rs:590 crates/halcyon-app/src/ctl_emulators.rs:118
+#: crates/halcyon-app/src/ctl_achievements.rs:589 crates/halcyon-app/src/ctl_emulators.rs:118
 #, placeholders
 msgid "Erreur : {e}"
 msgstr "Error: {e}"
@@ -635,16 +635,16 @@ msgstr "Directory not found: {wd}"
 msgid "Enregistrement impossible : {e}"
 msgstr "Can't save: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1702 crates/halcyon-integrations/src/artwork.rs:31
+#: crates/halcyon-app/src/controller.rs:1703 crates/halcyon-integrations/src/artwork.rs:31
 msgid "accès refusé (clé d'API invalide ou profil privé)"
 msgstr "access denied (invalid API key or private profile)"
 
-#: crates/halcyon-app/src/controller.rs:1924 crates/halcyon-app/src/ctl_emulators.rs:373
+#: crates/halcyon-app/src/controller.rs:1925 crates/halcyon-app/src/ctl_emulators.rs:373
 #, placeholders
 msgid "Dossier introuvable : {path}"
 msgstr "Folder not found: {path}"
 
-#: crates/halcyon-app/src/controller.rs:2017 crates/halcyon-app/src/ctl_minecraft.rs:953
+#: crates/halcyon-app/src/controller.rs:2018 crates/halcyon-app/src/ctl_minecraft.rs:953
 msgid "Enregistré"
 msgstr "Saved"
 
@@ -770,7 +770,7 @@ msgstr "unreadable manifest: {e}"
 msgid "identifiant invalide"
 msgstr "invalid identifier"
 
-#: crates/halcyon-integrations/src/plugin_trust.rs:78 crates/halcyon-integrations/src/plugins.rs:185 crates/halcyon-integrations/src/remote_play.rs:170
+#: crates/halcyon-integrations/src/plugin_trust.rs:78 crates/halcyon-integrations/src/plugins.rs:199 crates/halcyon-integrations/src/remote_play.rs:170
 #, placeholders
 msgid "{file} invalide : {e}"
 msgstr "invalid {file}: {e}"

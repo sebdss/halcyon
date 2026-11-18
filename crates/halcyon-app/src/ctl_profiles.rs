@@ -650,7 +650,7 @@ fn parse_resolution(s: &str) -> Result<Option<(u32, u32)>, String> {
     let (w, h) = s.split_once(['x', '*', '×']).ok_or(tr!("Résolution : format attendu 1920x1080"))?;
     match (w.parse::<u32>(), h.parse::<u32>()) {
         (Ok(w), Ok(h)) if (320..=16_384).contains(&w) && (200..=16_384).contains(&h) => Ok(Some((w, h))),
-        _ => Err(tr!("Résolution : format attendu 1920x1080").into()),
+        _ => Err(tr!("Résolution : format attendu 1920x1080")),
     }
 }
 

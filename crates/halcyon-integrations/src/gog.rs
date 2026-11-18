@@ -75,7 +75,7 @@ impl GameScanner for GogScanner {
         }
         let galaxy = galaxy_games();
         if roots.is_empty() && galaxy.is_none() {
-            return Err(io_err(&tr!("ni Heroic (GOG) ni GOG Galaxy n'ont été trouvés")));
+            return Err(io_err(tr!("ni Heroic (GOG) ni GOG Galaxy n'ont été trouvés")));
         }
         let mut report = ScanReport { complete: true, ..Default::default() };
         let mut seen = std::collections::HashSet::new();

@@ -191,11 +191,11 @@ const IDLE_WAIT_MS: u64 = 1000;
 
 fn power_label(p: PowerInfo) -> String {
     match p {
-        PowerInfo::Wired => tr!("Filaire").into(),
+        PowerInfo::Wired => tr!("Filaire"),
         PowerInfo::Discharging(l) => tr!("Batterie {l} %", l = l),
         PowerInfo::Charging(l) => tr!("En charge ({l} %)", l = l),
-        PowerInfo::Charged => tr!("Batterie pleine").into(),
-        PowerInfo::Unknown => tr!("Alimentation inconnue").into(),
+        PowerInfo::Charged => tr!("Batterie pleine"),
+        PowerInfo::Unknown => tr!("Alimentation inconnue"),
     }
 }
 

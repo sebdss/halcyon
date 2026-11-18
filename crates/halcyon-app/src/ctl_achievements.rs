@@ -269,7 +269,7 @@ impl Controller {
 
     fn set_sync_ui(&self, syncing: bool, status: &str) {
         if syncing {
-            let id = self.task_start("ach", &tr!("Synchronisation des succès"));
+            let id = self.task_start("ach", tr!("Synchronisation des succès"));
             self.task_update(id, None, Some(status));
         }
         if let Some(app) = self.app() {
@@ -417,7 +417,7 @@ impl Controller {
         let d = &a.data;
         let date = match (d.unlocked, d.unlocked_at) {
             (true, Some(t)) => util::format_date(t),
-            (true, None) => tr!("Débloqué").into(),
+            (true, None) => tr!("Débloqué"),
             _ => String::new(),
         };
         let progress = d.progress.filter(|(_, max)| *max > 0.0);
@@ -476,16 +476,15 @@ impl Controller {
                     SyncStatus::Ok => tr!("Synchronisé {when}", when = when),
                     SyncStatus::NoAchievements => tr!("Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})", when = when),
                     SyncStatus::NotRecognized => {
-                        tr!("ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres.").into()
+                        tr!("ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres.")
                     }
                     SyncStatus::NotCached => tr!(
                         "Steam n'a pas encore enregistré les succès de ce jeu sur ce PC : lancez-le une fois. Pour les jeux jamais lancés ici, une clé Steam Web API (Paramètres › Comptes, réglages avancés) les récupère en ligne."
-                    )
-                    .into(),
+                    ),
                     SyncStatus::Error(e) => tr!("Dernière tentative {when} : {e}", when = when, e = e),
                 }
             })
-            .unwrap_or_else(|| if mode == "custom" { tr!("Succès locaux, non vérifiés par une plateforme.").into() } else { String::new() });
+            .unwrap_or_else(|| if mode == "custom" { tr!("Succès locaux, non vérifiés par une plateforme.") } else { String::new() });
         dui.set_achievements(ModelRc::new(VecModel::from(rows)));
         dui.set_ach_summary(summary.into());
         dui.set_ach_status(status.into());
@@ -637,6 +636,16 @@ fn sync_one(c: &Candidate, cfg: &SyncConfig, dl: &Downloader, db: &Arc<Mutex<Dat
                     None => return Ok(vec![]),
                     Some(Ok(None)) => {
                         let _ = lock().set_sync_status(c.id, AchievementProvider::Steam, &SyncStatus::NotCached);
+                        return Ok(vec![]);
+                    }
+                    // Schéma lu mais aucun succès reconnu : jeu sans succès, ou fichier d'un format
+                    // que Halcyon ne sait pas lire. Les succès déjà connus (clé d'API, lecture
+                    // précédente) ne sont jamais effacés sur cette seule base.
+                    Some(Ok(Some(list)))
+                        if list.is_empty()
+                            && lock().load_achievements(c.id).is_ok_and(|l| l.iter().any(|a| a.provider == AchievementProvider::Steam)) =>
+                    {
+                        log::warn!("succès Steam de « {} » : fichier local sans succès reconnu, données existantes conservées", c.name);
                         return Ok(vec![]);
                     }
                     Some(Ok(Some(list))) => Ok(with_rarity(list)),

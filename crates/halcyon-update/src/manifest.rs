@@ -80,7 +80,7 @@ fn is_rfc3339_utc(s: &str) -> bool {
 impl Manifest {
     pub fn parse(bytes: &[u8]) -> Result<Manifest, String> {
         if bytes.len() as u64 > MAX_MANIFEST {
-            return Err(tr!("manifeste trop volumineux").into());
+            return Err(tr!("manifeste trop volumineux"));
         }
         serde_json::from_slice(bytes).map_err(|e| tr!("manifeste illisible : {e}", e = e))
     }
@@ -106,21 +106,21 @@ impl Manifest {
             return Err(tr!("canal incohérent : {version} publiée en « {channel} » (attendu « {expected} »)", version = version, channel = self.channel.as_str(), expected = expected.as_str()));
         }
         if !is_rfc3339_utc(&self.published) {
-            return Err(tr!("date de publication invalide").into());
+            return Err(tr!("date de publication invalide"));
         }
         let min_updater: Version = self.min_updater.parse().map_err(|e: String| tr!("version minimale de l'updater : {e}", e = e))?;
         let security_floor = match &self.security_floor {
             Some(f) => {
                 let f: Version = f.parse().map_err(|e: String| tr!("version minimale de sécurité : {e}", e = e))?;
                 if f > version {
-                    return Err(tr!("version minimale de sécurité supérieure à la version publiée").into());
+                    return Err(tr!("version minimale de sécurité supérieure à la version publiée"));
                 }
                 Some(f)
             }
             None => None,
         };
         if self.packages.is_empty() {
-            return Err(tr!("aucun paquet dans le manifeste").into());
+            return Err(tr!("aucun paquet dans le manifeste"));
         }
         for (i, p) in self.packages.iter().enumerate() {
             if self.packages[..i].iter().any(|q| q.platform == p.platform) {
@@ -140,7 +140,7 @@ impl Manifest {
             }
         }
         if self.notes.len() > MAX_NOTES {
-            return Err(tr!("notes de version trop longues").into());
+            return Err(tr!("notes de version trop longues"));
         }
         Ok(Checked { manifest: self, version, min_updater, security_floor })
     }

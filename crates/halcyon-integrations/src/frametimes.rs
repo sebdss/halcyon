@@ -88,7 +88,7 @@ pub fn parse(text: &str) -> Result<FrameLog, String> {
         }
         return Ok(FrameLog { format, application, frametimes_ms });
     }
-    Err(tr!("format non reconnu : journal MangoHud ou PresentMon (CSV) attendu").into())
+    Err(tr!("format non reconnu : journal MangoHud ou PresentMon (CSV) attendu"))
 }
 
 /// Champs d'une ligne CSV (guillemets doubles gérés, pas de retour chariot dans un champ).
@@ -169,7 +169,7 @@ pub fn latest_log(dir: &Path) -> Option<PathBuf> {
 pub fn analyze_file(path: &Path) -> Result<(FrameLog, Summary), String> {
     let meta = std::fs::metadata(path).map_err(|e| e.to_string())?;
     if meta.len() > 64 * 1024 * 1024 {
-        return Err(tr!("journal trop volumineux (plus de 64 Mo)").into());
+        return Err(tr!("journal trop volumineux (plus de 64 Mo)"));
     }
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
     let log = parse(&text)?;

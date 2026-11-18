@@ -171,7 +171,7 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
                 == Some(have);
             if !ok {
                 let _ = std::fs::remove_file(part);
-                return Err(fail(tr!("reprise refusée par le serveur (plage incohérente) : nouvel essai depuis le début").into()));
+                return Err(fail(tr!("reprise refusée par le serveur (plage incohérente) : nouvel essai depuis le début")));
             }
             true
         }
@@ -182,7 +182,7 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
         }
         416 => {
             let _ = std::fs::remove_file(part);
-            return Err(fail(tr!("reprise refusée par le serveur : nouvel essai depuis le début").into()));
+            return Err(fail(tr!("reprise refusée par le serveur : nouvel essai depuis le début")));
         }
         s => return Err(fail(tr!("téléchargement : réponse HTTP {s}", s = s))),
     };
@@ -215,7 +215,7 @@ fn fetch_into(net: &Net, url: &str, part: &Path, total: u64, cancel: &AtomicBool
         if done + n as u64 > total {
             drop(file);
             let _ = std::fs::remove_file(part);
-            return Err(fail(tr!("le serveur envoie plus de données que la taille signée : refusé").into()));
+            return Err(fail(tr!("le serveur envoie plus de données que la taille signée : refusé")));
         }
         file.write_all(&buf[..n]).map_err(|e| fail(tr!("écriture : {e}", e = e)))?;
         done += n as u64;

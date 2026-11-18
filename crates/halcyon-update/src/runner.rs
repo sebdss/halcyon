@@ -196,7 +196,7 @@ pub fn recover(root: &Path, wait_pid: Option<u32>, target: &Target, relaunch: bo
     let _lock = Lock::acquire(&layout)?;
     if let Some(pid) = wait_pid {
         if !recovery::wait_pid(pid, Duration::from_secs(90)) {
-            return Err(tr!("Halcyon ne s'est pas fermé").into());
+            return Err(tr!("Halcyon ne s'est pas fermé"));
         }
     }
     let state = if install::interrupted(&layout) {
@@ -306,7 +306,7 @@ pub fn updater_from_package(layout: &Layout, package: &Path, target: &Target) ->
                 .map_err(|e| tr!("extraction de l'updater : {e}", e = e))?;
             let p = dir.join("squashfs-root/usr/bin/halcyon-updater");
             if !status.success() || !p.is_file() {
-                return Err(tr!("updater absent de l'AppImage").into());
+                return Err(tr!("updater absent de l'AppImage"));
             }
             Ok(p)
         }

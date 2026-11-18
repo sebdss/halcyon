@@ -69,11 +69,11 @@ fn short(url: &str) -> &str {
 
 pub(crate) fn net_error(e: &ureq::Error) -> String {
     match e {
-        ureq::Error::Timeout(_) => tr!("délai dépassé : serveur injoignable ou connexion trop lente").into(),
-        ureq::Error::HostNotFound => tr!("serveur introuvable : vérifiez la connexion à Internet").into(),
-        ureq::Error::ConnectionFailed => tr!("connexion impossible : vérifiez la connexion à Internet").into(),
-        ureq::Error::RequireHttpsOnly(_) => tr!("adresse non sécurisée refusée (HTTPS obligatoire)").into(),
-        ureq::Error::TooManyRedirects => tr!("trop de redirections").into(),
+        ureq::Error::Timeout(_) => tr!("délai dépassé : serveur injoignable ou connexion trop lente"),
+        ureq::Error::HostNotFound => tr!("serveur introuvable : vérifiez la connexion à Internet"),
+        ureq::Error::ConnectionFailed => tr!("connexion impossible : vérifiez la connexion à Internet"),
+        ureq::Error::RequireHttpsOnly(_) => tr!("adresse non sécurisée refusée (HTTPS obligatoire)"),
+        ureq::Error::TooManyRedirects => tr!("trop de redirections"),
         other => tr!("erreur réseau : {other}", other = other),
     }
 }
@@ -188,7 +188,7 @@ pub fn fetch_releases(net: &Net, repo: &str, cache: &Path) -> Result<Vec<Release
                 .unwrap_or_default();
             return Err(tr!("GitHub limite temporairement les requêtes{wait}", wait = wait));
         }
-        403 | 429 => return Err(tr!("GitHub refuse temporairement la requête : réessayez plus tard").into()),
+        403 | 429 => return Err(tr!("GitHub refuse temporairement la requête : réessayez plus tard")),
         404 => return Err(tr!("dépôt « {repo} » introuvable sur GitHub", repo = repo)),
         s if s >= 500 => return Err(tr!("GitHub indisponible (HTTP {s}) : réessayez plus tard", s = s)),
         s => return Err(tr!("réponse inattendue de GitHub (HTTP {s})", s = s)),

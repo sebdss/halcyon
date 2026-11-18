@@ -610,57 +610,61 @@ msgid_plural "Archive du {date} créée sur « {machine} » (Halcyon {version}) 
 msgstr[0] "Archivo del {date} creado en «{machine}» (Halcyon {version}): {n} juego, {sections}. Tus datos actuales se exportarán primero a la carpeta de exportaciones y después se sustituirán; Halcyon se reiniciará. Los archivos de los juegos, las partidas guardadas y los mods instalados no se modifican."
 msgstr[1] "Archivo del {date} creado en «{machine}» (Halcyon {version}): {n} juegos, {sections}. Tus datos actuales se exportarán primero a la carpeta de exportaciones y después se sustituirán; Halcyon se reiniciará. Los archivos de los juegos, las partidas guardadas y los mods instalados no se modifican."
 
-#: crates/halcyon-app/src/ctl_backup.rs:126
+#: crates/halcyon-app/src/ctl_backup.rs:130
+msgid "Une archive contient aussi des commandes exécutées au lancement des jeux (scripts des profils, émulateurs, extensions) : ne restaurez qu'une archive créée par vous ou par une personne de confiance."
+msgstr "Un archivo también contiene comandos que se ejecutan al iniciar los juegos (scripts de perfiles, emuladores, extensiones): restaure solo un archivo creado por usted o por una persona de confianza."
+
+#: crates/halcyon-app/src/ctl_backup.rs:132
 msgid "Restaurer cette configuration ?"
 msgstr "¿Restaurar esta configuración?"
 
-#: crates/halcyon-app/src/ctl_backup.rs:126
+#: crates/halcyon-app/src/ctl_backup.rs:132
 msgid "Restaurer et redémarrer"
 msgstr "Restaurar y reiniciar"
 
-#: crates/halcyon-app/src/ctl_backup.rs:130
+#: crates/halcyon-app/src/ctl_backup.rs:136
 msgid "Restauration : préparation…"
 msgstr "Restauración: preparando…"
 
-#: crates/halcyon-app/src/ctl_backup.rs:139
+#: crates/halcyon-app/src/ctl_backup.rs:145
 #, placeholders
 msgid "base de l'archive : {e}"
 msgstr "base del archivo: {e}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:141
+#: crates/halcyon-app/src/ctl_backup.rs:147
 msgid "base créée par une version plus récente"
 msgstr "base creada con una versión más reciente"
 
-#: crates/halcyon-app/src/ctl_backup.rs:155
+#: crates/halcyon-app/src/ctl_backup.rs:161
 #, placeholders
 msgid "export de sécurité impossible, restauration annulée : {e}"
 msgstr "no se pudo hacer la exportación de seguridad, restauración cancelada: {e}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:163 crates/halcyon-app/src/ctl_backup.rs:164
+#: crates/halcyon-app/src/ctl_backup.rs:169 crates/halcyon-app/src/ctl_backup.rs:170
 #, placeholders
 msgid "Restauration annulée : {e}"
 msgstr "Restauración cancelada: {e}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:177 crates/halcyon-app/src/ctl_saves.rs:443
+#: crates/halcyon-app/src/ctl_backup.rs:183 crates/halcyon-app/src/ctl_saves.rs:443
 #, placeholders
 msgid "Restauration impossible : {e}"
 msgstr "No se pudo restaurar: {e}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:185
+#: crates/halcyon-app/src/ctl_backup.rs:191
 #, placeholders
 msgid "Restauration interrompue : {e}. Vos données d'origine sont dans {previous} et {safety}"
 msgstr "Restauración interrumpida: {e}. Tus datos originales están en {previous} y {safety}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:201
+#: crates/halcyon-app/src/ctl_backup.rs:207
 #, placeholders
 msgid "Redémarrez Halcyon manuellement ({e})"
 msgstr "Reinicia Halcyon manualmente ({e})"
 
-#: crates/halcyon-app/src/ctl_backup.rs:251
+#: crates/halcyon-app/src/ctl_backup.rs:257
 msgid "Connexion rétablie"
 msgstr "Conexión restablecida"
 
-#: crates/halcyon-app/src/ctl_backup.rs:251
+#: crates/halcyon-app/src/ctl_backup.rs:257
 msgid "Synchronisation des succès, visuels et métadonnées"
 msgstr "Sincronizando logros, imágenes y metadatos"
 
@@ -1226,80 +1230,85 @@ msgstr "{source}: plataforma no válida ({e})"
 msgid "{source} : l'émulateur intégré « {id} » ne peut pas être remplacé"
 msgstr "{source}: el emulador integrado «{id}» no se puede sustituir"
 
-#: crates/halcyon-integrations/src/emulators.rs:175
+#: crates/halcyon-integrations/src/emulators.rs:174
+#, placeholders
+msgid "{source} : l'émulateur « {id} » lance « {program} », un interpréteur de commandes : refusé"
+msgstr "{source}: el emulador «{id}» ejecuta «{program}», un intérprete de comandos: rechazado"
+
+#: crates/halcyon-integrations/src/emulators.rs:185
 #, placeholders
 msgid "{source} : émulateur invalide ({e})"
 msgstr "{source}: emulador no válido ({e})"
 
-#: crates/halcyon-integrations/src/emulators.rs:238
+#: crates/halcyon-integrations/src/emulators.rs:270
 msgid "manuel"
 msgstr "manual"
 
-#: crates/halcyon-integrations/src/emulators.rs:246
+#: crates/halcyon-integrations/src/emulators.rs:278
 msgid "dossier"
 msgstr "carpeta"
 
-#: crates/halcyon-integrations/src/emulators.rs:309
+#: crates/halcyon-integrations/src/emulators.rs:341
 #, placeholders
 msgid "{name} ne prend pas en charge cette plateforme"
 msgstr "{name} no es compatible con esta plataforma"
 
-#: crates/halcyon-integrations/src/emulators.rs:311
+#: crates/halcyon-integrations/src/emulators.rs:343
 #, placeholders
 msgid "ROM introuvable : {rom}"
 msgstr "ROM no encontrada: {rom}"
 
-#: crates/halcyon-integrations/src/emulators.rs:331
+#: crates/halcyon-integrations/src/emulators.rs:363
 #, placeholders
 msgid "cœur introuvable : {value} — installez-le depuis RetroArch (Menu principal › Charger un cœur › Télécharger un cœur)"
 msgstr "núcleo no encontrado: {value}; instálalo desde RetroArch (Menú principal › Cargar núcleo › Descargar núcleo)"
 
-#: crates/halcyon-integrations/src/emulators.rs:366
+#: crates/halcyon-integrations/src/emulators.rs:398
 msgid "indiquez le nom de l'émulateur"
 msgstr "indica el nombre del emulador"
 
-#: crates/halcyon-integrations/src/emulators.rs:369
+#: crates/halcyon-integrations/src/emulators.rs:401
 #, placeholders
 msgid "exécutable introuvable : {executable}"
 msgstr "ejecutable no encontrado: {executable}"
 
-#: crates/halcyon-integrations/src/emulators.rs:372
+#: crates/halcyon-integrations/src/emulators.rs:404
 msgid "choisissez au moins une plateforme"
 msgstr "elige al menos una plataforma"
 
-#: crates/halcyon-integrations/src/emulators.rs:375
+#: crates/halcyon-integrations/src/emulators.rs:407
 #, placeholders
 msgid "plateforme inconnue : {p}"
 msgstr "plataforma desconocida: {p}"
 
-#: crates/halcyon-integrations/src/emulators.rs:378
+#: crates/halcyon-integrations/src/emulators.rs:410
 #, placeholders
 msgid "les arguments doivent contenir {rom} (ou {rom_dir}, {rom_name}) pour transmettre le jeu"
 msgstr "los argumentos deben contener {rom} (o {rom_dir}, {rom_name}) para transmitir el juego"
 
-#: crates/halcyon-integrations/src/emulators.rs:388
+#: crates/halcyon-integrations/src/emulators.rs:420
 #, placeholders
 msgid "« {id} » est un émulateur intégré : il ne peut pas être modifié ici"
 msgstr "«{id}» es un emulador integrado: no se puede modificar aquí"
 
-#: crates/halcyon-integrations/src/emulators.rs:416
+#: crates/halcyon-integrations/src/emulators.rs:448
 #, placeholders
 msgid "définition invalide : {err}"
 msgstr "definición no válida: {err}"
 
-#: crates/halcyon-integrations/src/emulators.rs:449
+#: crates/halcyon-integrations/src/emulators.rs:481
 msgid "seuls les émulateurs ajoutés dans Halcyon peuvent être supprimés"
 msgstr "solo se pueden eliminar los emuladores añadidos en Halcyon"
 
-#: crates/halcyon-integrations/src/emulators.rs:459
+#: crates/halcyon-integrations/src/emulators.rs:491
 msgid "indiquez le nom de la plateforme"
 msgstr "indica el nombre de la plataforma"
 
-#: crates/halcyon-integrations/src/emulators.rs:467
+#: crates/halcyon-integrations/src/emulators.rs:499
 msgid "indiquez au moins une extension de fichier (ex. iso, chd)"
 msgstr "indica al menos una extensión de archivo (p. ej., iso, chd)"
 
-#: crates/halcyon-integrations/src/emulators.rs:473
+#: crates/halcyon-integrations/src/emulators.rs:505
 #, placeholders
 msgid "plateforme invalide : {err}"
 msgstr "plataforma no válida: {err}"
@@ -1363,64 +1372,69 @@ msgstr[1] "{n} enlaces en las fichas"
 msgid "Ajoute : {join}"
 msgstr "Añade: {join}"
 
-#: crates/halcyon-integrations/src/plugins.rs:124
+#: crates/halcyon-integrations/src/plugins.rs:136
+#, placeholders
+msgid "Pour jouer, lance ces programmes s'ils sont installés sur ce PC : {join}"
+msgstr "Para jugar, ejecuta estos programas si están instalados en este PC: {join}"
+
+#: crates/halcyon-integrations/src/plugins.rs:138
 msgid "Aucun code n'est exécuté : l'extension ne contient que des données."
 msgstr "No se ejecuta ningún código: la extensión solo contiene datos."
 
-#: crates/halcyon-integrations/src/plugins.rs:133
+#: crates/halcyon-integrations/src/plugins.rs:147
 msgid "identifiant manquant ou invalide (lettres, chiffres, - et _)"
 msgstr "identificador ausente o no válido (letras, cifras, - y _)"
 
-#: crates/halcyon-integrations/src/plugins.rs:136
+#: crates/halcyon-integrations/src/plugins.rs:150
 msgid "nom manquant"
 msgstr "falta el nombre"
 
-#: crates/halcyon-integrations/src/plugins.rs:139
+#: crates/halcyon-integrations/src/plugins.rs:153
 msgid "version manquante"
 msgstr "falta la versión"
 
-#: crates/halcyon-integrations/src/plugins.rs:142
+#: crates/halcyon-integrations/src/plugins.rs:156
 #, placeholders
 msgid "nécessite Halcyon {min_halcyon} ou plus récent"
 msgstr "requiere Halcyon {min_halcyon} o posterior"
 
-#: crates/halcyon-integrations/src/plugins.rs:146
+#: crates/halcyon-integrations/src/plugins.rs:160
 #, placeholders
 msgid "source « {name} » ignorée : domaine non déclaré dans les permissions (HTTPS requis)"
 msgstr "fuente «{name}» ignorada: dominio no declarado en los permisos (se requiere HTTPS)"
 
-#: crates/halcyon-integrations/src/plugins.rs:151
+#: crates/halcyon-integrations/src/plugins.rs:165
 #, placeholders
 msgid "lien « {label} » ignoré : HTTPS requis"
 msgstr "enlace «{label}» ignorado: se requiere HTTPS"
 
-#: crates/halcyon-integrations/src/plugins.rs:155
+#: crates/halcyon-integrations/src/plugins.rs:169
 msgid "dossiers de jeux ignorés : permission « folders » absente"
 msgstr "carpetas de juegos ignoradas: falta el permiso «folders»"
 
-#: crates/halcyon-integrations/src/plugins.rs:184
+#: crates/halcyon-integrations/src/plugins.rs:198
 #, placeholders
 msgid "{MANIFEST} illisible : {e}"
 msgstr "{MANIFEST} ilegible: {e}"
 
-#: crates/halcyon-integrations/src/plugins.rs:229
+#: crates/halcyon-integrations/src/plugins.rs:243
 msgid "choisissez un dossier, un fichier plugin.json ou une archive .zip / .halcyonplugin"
 msgstr "elige una carpeta, un archivo plugin.json o un archivo .zip / .halcyonplugin"
 
-#: crates/halcyon-integrations/src/plugins.rs:247
+#: crates/halcyon-integrations/src/plugins.rs:266
 #, placeholders
 msgid "fichier exécutable refusé dans l'extension : {f}"
 msgstr "archivo ejecutable rechazado en la extensión: {f}"
 
-#: crates/halcyon-integrations/src/plugins.rs:276
+#: crates/halcyon-integrations/src/plugins.rs:295
 msgid "adresse de mise à jour non sécurisée (HTTPS requis)"
 msgstr "dirección de actualización no segura (se requiere HTTPS)"
 
-#: crates/halcyon-integrations/src/plugins.rs:279
+#: crates/halcyon-integrations/src/plugins.rs:298
 msgid "réponse sans numéro de version"
 msgstr "respuesta sin número de versión"
 
-#: crates/halcyon-integrations/src/plugins.rs:309
+#: crates/halcyon-integrations/src/plugins.rs:328
 msgid "domaine non autorisé"
 msgstr "dominio no autorizado"
 

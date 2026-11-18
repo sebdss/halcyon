@@ -77,7 +77,12 @@ pub fn global_rarity(dl: &Downloader, appid: u64) -> Result<HashMap<String, f32>
 pub fn parse_rarity(v: &Value) -> HashMap<String, f32> {
     v.pointer("/achievementpercentages/achievements")
         .and_then(Value::as_array)
-        .map(|list| list.iter().filter_map(|a| Some((a.get("name")?.as_str()?.to_string(), as_f32(a.get("percent")?)?))).collect())
+        .map(|list| {
+            list.iter()
+                // Pourcentage hors bornes ou non numérique (« NaN ») : ignoré.
+                .filter_map(|a| Some((a.get("name")?.as_str()?.to_string(), as_f32(a.get("percent")?).filter(|p| p.is_finite())?.clamp(0.0, 100.0))))
+                .collect()
+        })
         .unwrap_or_default()
 }
 

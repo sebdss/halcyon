@@ -58,7 +58,7 @@ impl SaveJob {
                 self.remember(db, &m);
                 return Ok(None);
             }
-            Created::Empty => return Err(tr!("aucun fichier de sauvegarde trouvé dans les emplacements").into()),
+            Created::Empty => return Err(tr!("aucun fichier de sauvegarde trouvé dans les emplacements")),
         };
         self.remember(db, &meta);
         for m in &self.mirrors {
@@ -206,7 +206,7 @@ impl Controller {
                 let p = env.resolve(t, g.install_dir.as_deref());
                 SaveLocRow {
                     token: t.as_str().into(),
-                    path: p.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Introuvable sur ce PC").into()).into(),
+                    path: p.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Introuvable sur ce PC")).into(),
                     exists: p.as_ref().is_some_and(|p| p.exists()),
                 }
             })
@@ -568,7 +568,7 @@ impl Controller {
                         id: *id as i32,
                         title: name.as_str().into(),
                         count: *n as i32,
-                        last: last.map(date_time).unwrap_or_else(|| tr!("Jamais").into()).into(),
+                        last: last.map(date_time).unwrap_or_else(|| tr!("Jamais")).into(),
                         size: util::format_size(*size).into(),
                         other_machine: *other,
                         card: lib.get(*id).map(|g| crate::models::card_for(g, &c.images, now_unix())).unwrap_or_default(),

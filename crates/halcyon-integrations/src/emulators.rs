@@ -168,10 +168,20 @@ impl Registry {
                 Ok(d) if builtin.emulator(&d.id).is_some() => {
                     errors.push(tr!("{source} : l'émulateur intégré « {id} » ne peut pas être remplacé", source = source, id = d.id))
                 }
-                Ok(d) => {
-                    self.emulators.retain(|x| x.id != d.id);
-                    self.emulators.push(d);
-                }
+                Ok(d) => match interpreter(&d) {
+                    // Un shell ou un interpréteur exécuterait n'importe quelle commande passée
+                    // dans les arguments : une extension ne contient que des données.
+                    Some(program) => errors.push(tr!(
+                        "{source} : l'émulateur « {id} » lance « {program} », un interpréteur de commandes : refusé",
+                        source = source,
+                        id = d.id,
+                        program = program
+                    )),
+                    None => {
+                        self.emulators.retain(|x| x.id != d.id);
+                        self.emulators.push(d);
+                    }
+                },
                 Err(e) => errors.push(tr!("{source} : émulateur invalide ({e})", source = source, e = e)),
             }
         }
@@ -190,6 +200,28 @@ impl Registry {
     pub fn emulators_for(&self, platform: &str) -> Vec<&EmulatorDef> {
         self.emulators.iter().filter(|e| e.platforms.contains_key(platform)).collect()
     }
+}
+
+/// Programmes qui exécutent du code fourni en argument (shells, interpréteurs, couches de
+/// compatibilité, élévation de droits) : refusés dans les émulateurs d'une extension.
+const INTERPRETERS: &[&str] = &[
+    "sh", "bash", "dash", "zsh", "fish", "ksh", "csh", "tcsh", "busybox", "env", "xargs", "nohup", "setsid", "cmd", "powershell", "pwsh",
+    "wscript", "cscript", "mshta", "rundll32", "regsvr32", "msiexec", "conhost", "explorer", "start", "open", "xdg-open", "gio", "python",
+    "python2", "python3", "py", "pythonw", "perl", "ruby", "node", "nodejs", "deno", "bun", "php", "lua", "luajit", "tclsh", "wish",
+    "osascript", "java", "javaw", "wine", "wine64", "proton", "umu-run", "flatpak-spawn", "sudo", "doas", "pkexec", "su", "runas",
+    "curl", "wget", "nc", "ncat", "socat", "ssh",
+];
+
+/// Premier programme d'une définition qui est un interpréteur de commandes, s'il y en a un.
+pub fn interpreter(d: &EmulatorDef) -> Option<String> {
+    let all = d.executables.windows.iter().chain(&d.executables.linux).chain(&d.executables.macos);
+    all.into_iter().find_map(|exe| {
+        let name = exe.rsplit(['/', '\\']).next().unwrap_or(exe).trim().to_ascii_lowercase();
+        let stem = name.trim_end_matches('.').strip_suffix(".exe").or_else(|| name.strip_suffix(".com")).unwrap_or(&name);
+        // « python3.12 », « lua5.4 » : la version ne change rien.
+        let base = stem.trim_end_matches(|c: char| c.is_ascii_digit() || c == '.');
+        (INTERPRETERS.contains(&stem) || INTERPRETERS.contains(&base)).then(|| exe.clone())
+    })
 }
 
 fn parse_one_or_many<T: for<'de> Deserialize<'de>>(text: &str) -> Result<Vec<T>, serde_json::Error> {
@@ -363,13 +395,13 @@ pub fn custom_id(name: &str) -> String {
 /// Vérifie la saisie ; renvoie le message à afficher en cas de problème.
 pub fn validate_custom(e: &CustomEmulator, reg: &Registry) -> Result<(), String> {
     if e.name.trim().is_empty() {
-        return Err(tr!("indiquez le nom de l'émulateur").into());
+        return Err(tr!("indiquez le nom de l'émulateur"));
     }
     if !e.executable.is_file() {
         return Err(tr!("exécutable introuvable : {executable}", executable = e.executable.display()));
     }
     if e.platforms.is_empty() {
-        return Err(tr!("choisissez au moins une plateforme").into());
+        return Err(tr!("choisissez au moins une plateforme"));
     }
     if let Some(p) = e.platforms.iter().find(|p| reg.platform(p).is_none()) {
         return Err(tr!("plateforme inconnue : {p}", p = p));
@@ -446,7 +478,7 @@ pub fn read_custom(data_dir: &Path, id: &str) -> Option<CustomEmulator> {
 /// d'une extension).
 pub fn delete_custom(data_dir: &Path, id: &str) -> Result<(), String> {
     if !id.starts_with(CUSTOM_PREFIX) {
-        return Err(tr!("seuls les émulateurs ajoutés dans Halcyon peuvent être supprimés").into());
+        return Err(tr!("seuls les émulateurs ajoutés dans Halcyon peuvent être supprimés"));
     }
     let path = data_dir.join("emulators").join(format!("{id}.json"));
     std::fs::remove_file(&path).map_err(|err| format!("{} : {err}", path.display()))
@@ -456,7 +488,7 @@ pub fn delete_custom(data_dir: &Path, id: &str) -> Result<(), String> {
 pub fn save_custom_platform(data_dir: &Path, name: &str, extensions: &str) -> Result<String, String> {
     let name = name.trim();
     if name.is_empty() {
-        return Err(tr!("indiquez le nom de la plateforme").into());
+        return Err(tr!("indiquez le nom de la plateforme"));
     }
     let exts: Vec<String> = extensions
         .split([',', ' ', ';'])
@@ -464,7 +496,7 @@ pub fn save_custom_platform(data_dir: &Path, name: &str, extensions: &str) -> Re
         .filter(|x| !x.is_empty() && x.chars().all(|c| c.is_ascii_alphanumeric()))
         .collect();
     if exts.is_empty() {
-        return Err(tr!("indiquez au moins une extension de fichier (ex. iso, chd)").into());
+        return Err(tr!("indiquez au moins une extension de fichier (ex. iso, chd)"));
     }
     let id = custom_id(name);
     let dir = data_dir.join("platforms");
@@ -595,6 +627,17 @@ mod tests {
         // Un identifiant intégré ne peut pas être remplacé.
         let clash = vec![serde_json::json!({ "id": "snes", "name": "X", "short": "X", "extensions": [] })];
         assert!(!reg.extend("exemple", &[], &clash).is_empty());
+        // Un shell ou un interpréteur déguisé en émulateur est refusé.
+        for exe in ["sh", "/bin/bash", "CMD.EXE", "powershell.exe", "python3.12", "java", "wine"] {
+            let shell = vec![serde_json::json!({
+                "id": "faux", "name": "Faux", "executables": { "windows": [exe], "linux": [exe] },
+                "platforms": { "vectrex": { "args": ["-c", "{rom}"] } }
+            })];
+            assert_eq!(reg.extend("exemple", &shell, &[]).len(), 1, "{exe}");
+            assert!(reg.emulator("faux").is_none(), "{exe}");
+        }
+        // Le jeu de définitions intégrées n'en contient aucun.
+        assert!(Registry::builtin().emulators.iter().all(|d| interpreter(d).is_none()));
     }
 
     #[test]

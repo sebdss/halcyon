@@ -13,6 +13,23 @@
 - Un jeu Steam jamais lancé sur ce PC indique « pas encore enregistré par Steam » au lieu d'une
   erreur.
 
+### Audit de sécurité et corrections
+
+- **Extensions** : un émulateur fourni par une extension ne peut plus lancer un shell ou un
+  interpréteur (`sh`, `cmd`, `powershell`, `python`, `java`, `wine`…) ; le résumé d'activation
+  nomme les programmes lancés ; plus de types de fichiers exécutables refusés (`.jar`, `.lnk`,
+  `.AppImage`, `.desktop`…).
+- **Scripts Windows** (`.bat`, `.cmd`) lancés directement : leurs arguments ne sont plus
+  interprétés par `cmd /C` (`&`, `|`, `%`).
+- **Restauration d'une archive** : la confirmation rappelle qu'elle contient des commandes
+  exécutées au lancement des jeux.
+- **Succès Steam** : un fichier local sans succès reconnu n'efface plus les succès déjà connus ;
+  rareté hors bornes ignorée.
+- **Visuels** : un visuel introuvable n'est plus recherché à chaque démarrage (nouvel essai après
+  7 jours) ; requêtes vers libretro-thumbnails espacées.
+- **Traductions** : trois messages des profils d'interface, restés en français, sont traduits.
+- **Qualité** : avertissements de Clippy corrigés sur tout l'espace de travail.
+
 ## 1.0.0-alpha.4 — « Berge », refonte de l'interface
 
 Nouvelle direction artistique, appliquée à toute l'application, au mode console et à

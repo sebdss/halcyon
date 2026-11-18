@@ -371,7 +371,7 @@ impl Controller {
                 Ok(Ok(Outcome::Available(found))) => {
                     let v = found.checked.version.to_string();
                     h.state = State::Available;
-                    h.detail = if found.security { tr!("Mise à jour de sécurité recommandée").into() } else { String::new() };
+                    h.detail = if found.security { tr!("Mise à jour de sécurité recommandée") } else { String::new() };
                     if blocked.as_deref() == Some(v.as_str()) {
                         h.detail = tr!("La dernière tentative d'installation de {v} a échoué : installation manuelle uniquement", v = v);
                     }
@@ -388,7 +388,7 @@ impl Controller {
                 Ok(Err(Some(unverified))) => {
                     h.state = State::Available;
                     h.found = None;
-                    h.detail = tr!("Compilation sans clé de signature : téléchargez cette version depuis sa page GitHub").into();
+                    h.detail = tr!("Compilation sans clé de signature : téléchargez cette version depuis sa page GitHub");
                     message = tr!("Version {v} publiée", v = unverified.0);
                     h.unverified = Some(unverified);
                 }
@@ -480,7 +480,7 @@ impl Controller {
                 }
                 Err(DownloadError::Cancelled) => {
                     h.state = State::Available;
-                    h.detail = tr!("Téléchargement annulé : il reprendra où il s'est arrêté").into();
+                    h.detail = tr!("Téléchargement annulé : il reprendra où il s'est arrêté");
                 }
                 Err(DownloadError::Failed(e)) => {
                     h.state = State::Failed;
@@ -493,11 +493,11 @@ impl Controller {
         match result {
             Ok(()) => {
                 halcyon_storage::audit::event("update.verified", &tr!("{version} : signature, SHA-256 et paquet vérifiés", version = version));
-                self.task_finish(task, true, &tr!("Téléchargée et vérifiée"), action);
+                self.task_finish(task, true, tr!("Téléchargée et vérifiée"), action);
                 let auto = self.settings.borrow().update_auto;
                 self.toast(if auto { tr!("Halcyon {version} est prêt : il sera installé au prochain démarrage", version = version) } else { tr!("Halcyon {version} est prêt à être installé", version = version) }, false);
             }
-            Err(DownloadError::Cancelled) => self.task_finish(task, false, &tr!("Annulé"), action),
+            Err(DownloadError::Cancelled) => self.task_finish(task, false, tr!("Annulé"), action),
             Err(DownloadError::Failed(e)) => {
                 if e.contains("SHA-256") {
                     halcyon_storage::audit::event("update.rejected", &e);

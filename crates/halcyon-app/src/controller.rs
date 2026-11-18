@@ -735,7 +735,7 @@ impl Controller {
         if g.source == GameSource::Emulated {
             detail.launch_mode = match self.emulator_for(&g) {
                 Some((def, _)) => tr!("Émulateur : {name}", name = def.name),
-                None => tr!("Aucun émulateur détecté pour cette plateforme").into(),
+                None => tr!("Aucun émulateur détecté pour cette plateforme"),
             }
             .into();
         }
@@ -1255,7 +1255,7 @@ impl Controller {
             ui.set_scanning(true);
             ui.set_scan_status(tr!("Préparation…").into());
         }
-        self.task_start("scan", &tr!("Analyse des sources"));
+        self.task_start("scan", tr!("Analyse des sources"));
         let mut settings = self.settings.borrow().clone();
         for f in self.plugin_game_folders() {
             if !settings.scan_folders.contains(&f) {
@@ -1617,7 +1617,9 @@ impl Controller {
                                 }
                                 log::info!("boutique Steam : « {name} » → {appid}");
                                 got.insert(id, found);
-                                if !found.iter().any(|f| *f) {
+                                // Visuel absent de la boutique (souvent le logo) : nouvel essai
+                                // après le délai habituel, pas à chaque démarrage.
+                                if want.iter().zip(&found).any(|(w, f)| *w && !f) {
                                     failures.insert(key, now_unix());
                                 }
                             }
@@ -1635,17 +1637,16 @@ impl Controller {
                 if network_errors < 3 {
                     'libretro: for (id, system, titles, want, stem, key) in libretro_jobs {
                         use halcyon_integrations::libretro::{candidates, Thumb};
-                        let mut found = false;
+                        // Dépôts GitHub publics : rythme modéré.
+                        std::thread::sleep(std::time::Duration::from_millis(200));
+                        let mut missing = false;
                         for (i, (kind, thumb, suffix)) in [(ArtworkKind::Cover, Thumb::Boxart, "cover"), (ArtworkKind::Banner, Thumb::Snap, "banner")].into_iter().enumerate() {
                             if !want[i] {
                                 continue;
                             }
                             match save(id, kind, &candidates(&system, thumb, &titles), &named(&stem, suffix)) {
-                                Ok(true) => {
-                                    found = true;
-                                    ok += 1;
-                                }
-                                Ok(false) => {}
+                                Ok(true) => ok += 1,
+                                Ok(false) => missing = true,
                                 Err(e) => {
                                     log::warn!("libretro-thumbnails interrompu : {e}");
                                     network_errors = 3;
@@ -1653,7 +1654,7 @@ impl Controller {
                                 }
                             }
                         }
-                        if !found {
+                        if missing {
                             failures.insert(key, now_unix());
                         }
                     }

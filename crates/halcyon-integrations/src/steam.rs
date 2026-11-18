@@ -79,7 +79,7 @@ impl GameScanner for SteamScanner {
     }
 
     fn scan(&self, ctx: &ScanContext) -> halcyon_core::Result<ScanReport> {
-        let root = self.root().ok_or_else(|| io_err(&tr!("Steam n'a pas été trouvé sur cet ordinateur")))?;
+        let root = self.root().ok_or_else(|| io_err(tr!("Steam n'a pas été trouvé sur cet ordinateur")))?;
         ctx.progress(&tr!("Steam : lecture des bibliothèques…"));
         let mut report = ScanReport { complete: true, ..Default::default() };
 

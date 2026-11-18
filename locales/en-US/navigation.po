@@ -373,81 +373,81 @@ msgstr "Online artwork and details"
 msgid "Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}"
 msgstr "Artwork to fetch: {sgdb_jobs} · details: {plugin_jobs}"
 
-#: crates/halcyon-app/src/controller.rs:1704
+#: crates/halcyon-app/src/controller.rs:1705
 msgid "SteamGridDB a refusé la clé d'API : vérifiez-la dans Paramètres › Comptes"
 msgstr "SteamGridDB rejected the API key: check it in Settings › Accounts"
 
-#: crates/halcyon-app/src/controller.rs:1763
+#: crates/halcyon-app/src/controller.rs:1764
 #, placeholders
 msgid "{n} visuel récupéré · réseau indisponible, reprise plus tard"
 msgid_plural "{n} visuels récupérés · réseau indisponible, reprise plus tard"
 msgstr[0] "{n} image fetched · network unavailable, will resume later"
 msgstr[1] "{n} images fetched · network unavailable, will resume later"
 
-#: crates/halcyon-app/src/controller.rs:1765
+#: crates/halcyon-app/src/controller.rs:1766
 #, placeholders
 msgid "{n} visuel récupéré"
 msgid_plural "{n} visuels récupérés"
 msgstr[0] "{n} image fetched"
 msgstr[1] "{n} images fetched"
 
-#: crates/halcyon-app/src/controller.rs:1816
+#: crates/halcyon-app/src/controller.rs:1817
 #, placeholders
 msgid "Paramètres non enregistrés : {e}"
 msgstr "Settings not saved: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1838
+#: crates/halcyon-app/src/controller.rs:1839
 msgid "Epic Games (launcher Epic, Heroic ou Legendary)"
 msgstr "Epic Games (Epic launcher, Heroic or Legendary)"
 
-#: crates/halcyon-app/src/controller.rs:1839
+#: crates/halcyon-app/src/controller.rs:1840
 msgid "GOG (Heroic ou GOG Galaxy)"
 msgstr "GOG (Heroic or GOG Galaxy)"
 
-#: crates/halcyon-app/src/controller.rs:1869
+#: crates/halcyon-app/src/controller.rs:1870
 #, placeholders
 msgid "{thumbs} sur le disque · {u64} en mémoire"
 msgstr "{thumbs} on disk · {u64} in memory"
 
-#: crates/halcyon-app/src/controller.rs:1895
+#: crates/halcyon-app/src/controller.rs:1896
 #, placeholders
 msgid "Dossier introuvable : {p}"
 msgstr "Folder not found: {p}"
 
-#: crates/halcyon-app/src/controller.rs:1913
+#: crates/halcyon-app/src/controller.rs:1914
 msgid "Source trouvée — lancez une analyse pour importer les jeux"
 msgstr "Source found — run a scan to import the games"
 
-#: crates/halcyon-app/src/controller.rs:1913
+#: crates/halcyon-app/src/controller.rs:1914
 msgid "Source toujours introuvable à cet emplacement"
 msgstr "Source still not found at this location"
 
-#: crates/halcyon-app/src/controller.rs:1932
+#: crates/halcyon-app/src/controller.rs:1933
 msgid "Ce dossier est déjà surveillé"
 msgstr "This folder is already being watched"
 
-#: crates/halcyon-app/src/controller.rs:1997
+#: crates/halcyon-app/src/controller.rs:1998
 msgid "Le SteamID64 est un nombre (17 chiffres)"
 msgstr "The SteamID64 is a number (17 digits)"
 
-#: crates/halcyon-app/src/controller.rs:2033
+#: crates/halcyon-app/src/controller.rs:2034
 #, placeholders
 msgid "{removed} libérés"
 msgstr "{removed} freed"
 
-#: crates/halcyon-app/src/controller.rs:2099
+#: crates/halcyon-app/src/controller.rs:2100
 msgid "Hors ligne : actualités indisponibles."
 msgstr "Offline: news unavailable."
 
-#: crates/halcyon-app/src/controller.rs:2102
+#: crates/halcyon-app/src/controller.rs:2103
 msgid "Chargement des actualités…"
 msgstr "Loading news…"
 
-#: crates/halcyon-app/src/controller.rs:2111
+#: crates/halcyon-app/src/controller.rs:2112
 msgid "Aucune actualité publiée."
 msgstr "No news published."
 
-#: crates/halcyon-app/src/controller.rs:2115
+#: crates/halcyon-app/src/controller.rs:2116
 msgid "Actualités indisponibles pour le moment."
 msgstr "News unavailable for now."
 
@@ -777,6 +777,20 @@ msgstr "Restore"
 #: crates/halcyon-app/src/ctl_themes.rs:577
 msgid "Apparence d'origine rétablie"
 msgstr "Original appearance restored"
+
+#: crates/halcyon-app/src/ctl_themes.rs:591
+#, placeholders
+msgid "Profil d'interface « {name} » enregistré"
+msgstr "Interface profile “{name}” saved"
+
+#: crates/halcyon-app/src/ctl_themes.rs:593
+msgid "Nom vide, ou 20 profils déjà enregistrés"
+msgstr "Empty name, or 20 profiles already saved"
+
+#: crates/halcyon-app/src/ctl_themes.rs:604
+#, placeholders
+msgid "Profil « {name} » appliqué"
+msgstr "Profile “{name}” applied"
 
 #: crates/halcyon-app/src/desktop.rs:12
 #, placeholders

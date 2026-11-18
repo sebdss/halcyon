@@ -345,7 +345,7 @@ impl Controller {
             .collect();
         let home = app.global::<HomeUi>();
         let total: u64 = days.iter().sum();
-        home.set_week_total(if total > 0 { util::format_playtime(total) } else { tr!("0 min").into() }.into());
+        home.set_week_total(if total > 0 { util::format_playtime(total) } else { tr!("0 min") }.into());
         home.set_week_bars(ModelRc::new(VecModel::from(bars)));
     }
 

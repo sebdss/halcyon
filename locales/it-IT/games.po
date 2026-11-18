@@ -880,24 +880,24 @@ msgstr "ROM non riconosciuta da RetroAchievements: indica l'ID del gioco nella s
 msgid "Steam n'a pas encore enregistré les succès de ce jeu sur ce PC : lancez-le une fois. Pour les jeux jamais lancés ici, une clé Steam Web API (Paramètres › Comptes, réglages avancés) les récupère en ligne."
 msgstr "Steam non ha ancora salvato gli obiettivi di questo gioco su questo PC: avvialo una volta. Per i giochi mai avviati qui, una chiave Steam Web API (Impostazioni › Account, impostazioni avanzate) li recupera online."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:485
+#: crates/halcyon-app/src/ctl_achievements.rs:484
 #, placeholders
 msgid "Dernière tentative {when} : {e}"
 msgstr "Ultimo tentativo {when}: {e}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:488
+#: crates/halcyon-app/src/ctl_achievements.rs:487
 msgid "Succès locaux, non vérifiés par une plateforme."
 msgstr "Obiettivi locali, non verificati da una piattaforma."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:586
+#: crates/halcyon-app/src/ctl_achievements.rs:585
 msgid "L'identifiant RetroAchievements est un nombre"
 msgstr "L'ID RetroAchievements è un numero"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:596
+#: crates/halcyon-app/src/ctl_achievements.rs:595
 msgid "Identifiant enregistré"
 msgstr "ID salvato"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:690
+#: crates/halcyon-app/src/ctl_achievements.rs:699
 #, placeholders
 msgid "base de données : {e}"
 msgstr "database: {e}"
@@ -1442,27 +1442,27 @@ msgstr "impostazioni del profilo non applicabili: l'avvio è delegato al sistema
 msgid "priorité « {label} » refusée par le système (droits insuffisants pour l'augmenter)"
 msgstr "priorità «{label}» rifiutata dal sistema (diritti insufficienti per aumentarla)"
 
-#: crates/halcyon-integrations/src/launcher.rs:199
+#: crates/halcyon-integrations/src/launcher.rs:202
 #, placeholders
 msgid "« {v} » est requis pour lancer un jeu Windows ({e})"
 msgstr "«{v}» è necessario per avviare un gioco Windows ({e})"
 
-#: crates/halcyon-integrations/src/launcher.rs:249
+#: crates/halcyon-integrations/src/launcher.rs:252
 #, placeholders
 msgid "commande impossible à lancer : {e}"
 msgstr "impossibile avviare il comando: {e}"
 
-#: crates/halcyon-integrations/src/launcher.rs:254
+#: crates/halcyon-integrations/src/launcher.rs:257
 #, placeholders
 msgid "la commande s'est terminée avec le code {v}"
 msgstr "il comando è terminato con codice {v}"
 
-#: crates/halcyon-integrations/src/launcher.rs:258
+#: crates/halcyon-integrations/src/launcher.rs:261
 #, placeholders
 msgid "commande interrompue après {as_secs} s"
 msgstr "comando interrotto dopo {as_secs} s"
 
-#: crates/halcyon-integrations/src/launcher.rs:269
+#: crates/halcyon-integrations/src/launcher.rs:272
 #, placeholders
 msgid "programme introuvable : {path}"
 msgstr "programma non trovato: {path}"

@@ -538,32 +538,32 @@ msgstr "{path}: Datei zu groß"
 msgid "erreur Steam"
 msgstr "Steam-Fehler"
 
-#: crates/halcyon-integrations/src/steam_web.rs:239
+#: crates/halcyon-integrations/src/steam_web.rs:244
 msgctxt "tag"
 msgid "multijoueur"
 msgstr "Mehrspieler"
 
-#: crates/halcyon-integrations/src/steam_web.rs:241
+#: crates/halcyon-integrations/src/steam_web.rs:246
 msgctxt "tag"
 msgid "coop"
 msgstr "Koop"
 
-#: crates/halcyon-integrations/src/steam_web.rs:242
+#: crates/halcyon-integrations/src/steam_web.rs:247
 msgctxt "tag"
 msgid "écran partagé"
 msgstr "geteilter Bildschirm"
 
-#: crates/halcyon-integrations/src/steam_web.rs:243
+#: crates/halcyon-integrations/src/steam_web.rs:248
 msgctxt "tag"
 msgid "solo"
 msgstr "Einzelspieler"
 
-#: crates/halcyon-integrations/src/steam_web.rs:244
+#: crates/halcyon-integrations/src/steam_web.rs:249
 msgctxt "tag"
 msgid "manette"
 msgstr "Controller"
 
-#: crates/halcyon-integrations/src/steam_web.rs:245
+#: crates/halcyon-integrations/src/steam_web.rs:250
 msgctxt "tag"
 msgid "manette partielle"
 msgstr "teilweise Controller-Unterstützung"

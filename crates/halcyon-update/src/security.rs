@@ -57,7 +57,7 @@ pub fn hex(bytes: &[u8]) -> String {
 /// Vérifie une signature Ed25519 (base64) de `message` par l'une des clés `keys`.
 pub fn verify_signature(keys: &[PublicKey], message: &[u8], signature_b64: &str) -> Result<(), String> {
     if keys.is_empty() {
-        return Err(tr!("cette compilation de Halcyon n'intègre aucune clé de signature : installation automatique impossible").into());
+        return Err(tr!("cette compilation de Halcyon n'intègre aucune clé de signature : installation automatique impossible"));
     }
     let b64 = base64::engine::general_purpose::STANDARD;
     let sig = b64.decode(signature_b64.trim()).map_err(|_| tr!("signature illisible").to_string())?;
@@ -65,7 +65,7 @@ pub fn verify_signature(keys: &[PublicKey], message: &[u8], signature_b64: &str)
     if keys.iter().any(|k| k.verify(message, &sig).is_ok()) {
         Ok(())
     } else {
-        Err(tr!("signature incorrecte : cette version n'a pas été publiée par l'auteur de Halcyon").into())
+        Err(tr!("signature incorrecte : cette version n'a pas été publiée par l'auteur de Halcyon"))
     }
 }
 
@@ -73,7 +73,7 @@ pub fn verify_signature(keys: &[PublicKey], message: &[u8], signature_b64: &str)
 pub fn verify_signature_b64(pubkey_b64: &str, message: &[u8], signature_b64: &str) -> Result<(), String> {
     let keys = parse_keys(pubkey_b64);
     if keys.is_empty() {
-        return Err(tr!("clé publique de signature invalide").into());
+        return Err(tr!("clé publique de signature invalide"));
     }
     verify_signature(&keys, message, signature_b64)
 }
@@ -151,7 +151,7 @@ pub fn check_zip(path: &Path) -> Result<Vec<String>, String> {
     let file = std::fs::File::open(path).map_err(|e| tr!("paquet : {e}", e = e))?;
     let mut zip = zip::ZipArchive::new(file).map_err(|e| tr!("archive ZIP invalide : {e}", e = e))?;
     if zip.len() > MAX_ENTRIES {
-        return Err(tr!("archive ZIP : trop de fichiers").into());
+        return Err(tr!("archive ZIP : trop de fichiers"));
     }
     let mut files = Vec::new();
     let mut total = 0u64;
@@ -167,7 +167,7 @@ pub fn check_zip(path: &Path) -> Result<Vec<String>, String> {
         }
         total = total.saturating_add(e.size());
         if total > MAX_UNPACKED {
-            return Err(tr!("archive ZIP : taille décompressée excessive").into());
+            return Err(tr!("archive ZIP : taille décompressée excessive"));
         }
         if e.size() > 1024 * 1024 && e.size() / e.compressed_size().max(1) > 200 {
             return Err(tr!("archive ZIP : taux de compression anormal pour « {name} »", name = name));
@@ -201,24 +201,24 @@ pub fn check_appimage(path: &Path) -> Result<(), String> {
     let mut head = [0u8; 64];
     f.read_exact(&mut head).map_err(|_| tr!("AppImage : fichier trop court"))?;
     if &head[0..4] != b"\x7fELF" || head[4] != 2 || head[5] != 1 {
-        return Err(tr!("AppImage : pas un exécutable ELF 64 bits").into());
+        return Err(tr!("AppImage : pas un exécutable ELF 64 bits"));
     }
     if &head[8..11] != b"AI\x02" {
-        return Err(tr!("AppImage : signature AppImage type 2 absente").into());
+        return Err(tr!("AppImage : signature AppImage type 2 absente"));
     }
     if u16le(&head, 18) != 0x3e {
-        return Err(tr!("AppImage : architecture différente de x86-64").into());
+        return Err(tr!("AppImage : architecture différente de x86-64"));
     }
     // L'image SquashFS commence juste après l'exécutable (fin de la table des sections).
     let end = u64le(&head, 0x28).saturating_add(u16le(&head, 0x3a) * u16le(&head, 0x3c));
     if end == 0 || end + 4 > len {
-        return Err(tr!("AppImage : image du système de fichiers absente").into());
+        return Err(tr!("AppImage : image du système de fichiers absente"));
     }
     use std::io::{Seek, SeekFrom};
     let mut magic = [0u8; 4];
     f.seek(SeekFrom::Start(end)).and_then(|_| f.read_exact(&mut magic)).map_err(|e| tr!("AppImage : {e}", e = e))?;
     if &magic != b"hsqs" {
-        return Err(tr!("AppImage : image SquashFS introuvable").into());
+        return Err(tr!("AppImage : image SquashFS introuvable"));
     }
     Ok(())
 }

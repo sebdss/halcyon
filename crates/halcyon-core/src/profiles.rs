@@ -244,7 +244,7 @@ impl LaunchProfile {
         if !args.is_empty() || self.replace_args {
             match kind {
                 LaunchKind::PlatformClient => {
-                    notes.push(tr!("Arguments non transmis : ce client ne permet pas de passer des options au jeu.").into());
+                    notes.push(tr!("Arguments non transmis : ce client ne permet pas de passer des options au jeu."));
                 }
                 _ => {
                     let mut all = if self.replace_args { Vec::new() } else { split_args(base_args) };
@@ -254,7 +254,7 @@ impl LaunchProfile {
             }
         }
         if kind == LaunchKind::Steam && plan.args.as_ref().is_some_and(|a| !a.is_empty()) {
-            notes.push(tr!("Steam demandera de confirmer les arguments au premier lancement.").into());
+            notes.push(tr!("Steam demandera de confirmer les arguments au premier lancement."));
         }
 
         let direct = kind == LaunchKind::Direct;
@@ -270,11 +270,11 @@ impl LaunchProfile {
             GpuPreference::Default => {}
             pref if host.windows => {
                 if !direct {
-                    notes.push(tr!("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.").into());
+                    notes.push(tr!("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon."));
                 } else if self.allow_gpu_registry {
                     plan.gpu_registry = Some(pref);
                 } else {
-                    notes.push(tr!("Choix du GPU : autorisation de modifier la préférence graphique Windows requise.").into());
+                    notes.push(tr!("Choix du GPU : autorisation de modifier la préférence graphique Windows requise."));
                 }
             }
             GpuPreference::HighPerformance if direct => {
@@ -287,27 +287,27 @@ impl LaunchProfile {
                 }
             }
             GpuPreference::PowerSaving if direct => env.push(("DRI_PRIME".into(), "0".into())),
-            _ => notes.push(tr!("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.").into()),
+            _ => notes.push(tr!("Choix du GPU : uniquement pour les jeux lancés directement par Halcyon.")),
         }
         if !env.is_empty() {
             if direct {
                 plan.env = env;
             } else {
-                notes.push(tr!("Variables d'environnement : non transmises au client de la plateforme.").into());
+                notes.push(tr!("Variables d'environnement : non transmises au client de la plateforme."));
             }
         }
         if self.priority != ProcessPriority::Normal {
             if direct {
                 plan.priority = Some(self.priority);
             } else {
-                notes.push(tr!("Priorité : uniquement pour les jeux lancés directement par Halcyon.").into());
+                notes.push(tr!("Priorité : uniquement pour les jeux lancés directement par Halcyon."));
             }
         }
         if let Some(wd) = &self.working_dir {
             if direct {
                 plan.working_dir = Some(wd.clone());
             } else {
-                notes.push(tr!("Répertoire de travail : géré par le client de la plateforme.").into());
+                notes.push(tr!("Répertoire de travail : géré par le client de la plateforme."));
             }
         }
         plan.notes = notes;
