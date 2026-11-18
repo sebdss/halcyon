@@ -215,6 +215,13 @@ kbd.key {
 .nav__end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .nav__gh { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); text-decoration: none; padding: 8px 4px; transition: color var(--fast); }
 .nav__gh:hover { color: var(--text); }
+.nav__lang {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 28px; padding: 0 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--muted); text-decoration: none;
+  border: 1px solid var(--border); border-radius: var(--r); transition: color var(--fast), border-color var(--fast);
+}
+.nav__lang:hover { color: var(--text); border-color: var(--muted); }
+.sheet__end { display: inline-flex; gap: 20px; }
 .nav__cta { --h: 36px; }
 .nav__toggle {
   display: none; width: 44px; height: 44px; margin-right: -10px;
@@ -252,7 +259,7 @@ kbd.key {
 .sheet__meta a { color: var(--muted); text-decoration: none; }
 
 @media (max-width: 960px) {
-  .nav__links, .nav__gh { display: none; }
+  .nav__links, .nav__gh, .nav__lang { display: none; }
   .nav__toggle { display: inline-flex; }
 }
 @media (min-width: 961px) { .sheet { display: none; } }

@@ -8,10 +8,14 @@
   <meta name="theme-color" content="#0f1115">
   <meta name="color-scheme" content="dark">
   <link rel="canonical" href="https://sebdss.github.io/halcyon/">
+  <link rel="alternate" hreflang="fr" href="https://sebdss.github.io/halcyon/">
+  <link rel="alternate" hreflang="en" href="https://sebdss.github.io/halcyon/en/">
+  <link rel="alternate" hreflang="x-default" href="https://sebdss.github.io/halcyon/en/">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Halcyon">
   <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale:alternate" content="en_US">
   <meta property="og:title" content="Halcyon — tous vos jeux, un seul geste pour jouer">
   <meta property="og:description" content="Launcher libre pour Windows et Linux : Steam, Epic Games, GOG, jeux standalone et émulateurs réunis dans une seule bibliothèque.">
   <meta property="og:url" content="https://sebdss.github.io/halcyon/">
@@ -96,6 +100,7 @@
       <span class="nav__perch" aria-hidden="true"></span>
     </nav>
     <div class="nav__end">
+      <a class="nav__lang" href="en/" hreflang="en" lang="en" title="English version"><span class="sr-only">English version: </span>EN</a>
       <a class="nav__gh" href="https://github.com/sebdss/halcyon" rel="noopener">GitHub</a>
       <a class="btn btn--warm nav__cta" href="#telechargement">
         <svg class="icon icon--sm" aria-hidden="true"><use href="#i-download"/></svg>
@@ -123,7 +128,7 @@
     </a>
     <div class="sheet__meta">
       <span>Windows · Linux · Licence MIT</span>
-      <a href="https://github.com/sebdss/halcyon" rel="noopener">GitHub</a>
+      <span class="sheet__end"><a href="en/" hreflang="en" lang="en">English</a><a href="https://github.com/sebdss/halcyon" rel="noopener">GitHub</a></span>
     </div>
   </div>
 </div>
@@ -480,7 +485,7 @@
   </section>
 
   <!-- L'interface -->
-  <section class="section gallery" id="interface" aria-labelledby="gallery-title">
+  <section class="section gallery" id="interface" data-nav-parent="fonctionnalites" aria-labelledby="gallery-title">
     <div class="wrap">
       <div class="rubric reveal">
         <div class="rubric__rule"></div>
@@ -535,7 +540,7 @@
   </section>
 
   <!-- Plateformes -->
-  <section class="section" id="plateformes" aria-labelledby="platforms-title">
+  <section class="section" id="plateformes" data-nav-parent="telechargement" aria-labelledby="platforms-title">
     <div class="wrap">
       <div class="rubric reveal">
         <div class="rubric__rule"></div>
@@ -674,6 +679,7 @@
       <ul>
         <li><a href="mentions-legales.html">Mentions légales</a></li>
         <li><a href="confidentialite.html">Confidentialité</a></li>
+        <li><a href="en/" hreflang="en" lang="en">English</a></li>
       </ul>
     </div>
   </div>

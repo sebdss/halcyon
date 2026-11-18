@@ -6,6 +6,29 @@
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const cfg = window.HALCYON_SITE || {};
 
+  /* ---------- Langue de la page : <html lang="fr"> ou <html lang="en"> ---------- */
+  const lang = (document.documentElement.lang || "fr").slice(0, 2) === "en" ? "en" : "fr";
+  const STR = {
+    fr: {
+      openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu",
+      shareText: "Halcyon, launcher de jeux pour Windows et Linux", copied: "Lien copié", sendLink: "Envoyer le lien",
+      size: (mo) => (mo >= 100 ? Math.round(mo) : mo.toFixed(1)).toString().replace(".", ",") + " Mo",
+      locale: "fr-FR", prerelease: "Préversion", published: (d) => "Publiée le " + d, notes: "Notes de version",
+      yourSystem: "Votre système", downloadFor: (os) => "Télécharger pour " + os,
+      unavailableTitle: "Versions publiées sur GitHub", unavailableText: "La dernière version n'a pas pu être récupérée depuis cette page."
+    },
+    en: {
+      openMenu: "Open menu", closeMenu: "Close menu",
+      shareText: "Halcyon, a game launcher for Windows and Linux", copied: "Link copied", sendLink: "Send the link",
+      size: (mo) => (mo >= 100 ? Math.round(mo) : mo.toFixed(1)) + " MB",
+      locale: "en-US", prerelease: "Pre-release", published: (d) => "Released " + d, notes: "Release notes",
+      yourSystem: "Your system", downloadFor: (os) => "Download for " + os,
+      unavailableTitle: "Releases on GitHub", unavailableText: "The latest release couldn't be loaded from this page."
+    }
+  }[lang];
+  // Textes de config.js : chaîne simple, ou { fr: "…", en: "…" }.
+  const L = (v) => (v && typeof v === "object" ? v[lang] || v.fr : v);
+
   /* ---------- Navigation : état au défilement, section active, perche ---------- */
   const nav = $("#nav");
   const perch = $(".nav__perch");
@@ -18,8 +41,9 @@
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
 
-  // Sections sans entrée dans la barre : rattachées à l'entrée la plus proche.
-  const parentOf = { interface: "fonctionnalites", plateformes: "telechargement" };
+  // Sections sans entrée dans la barre : rattachées à l'entrée indiquée par data-nav-parent.
+  const parentOf = {};
+  $$("main > section[data-nav-parent]").forEach((s) => (parentOf[s.id] = s.dataset.navParent));
   const navLists = [$(".nav__links"), $(".sheet__links")].filter(Boolean);
 
   function placePerch() {
@@ -68,7 +92,7 @@
       });
     });
     toggle.setAttribute("aria-expanded", "true");
-    toggle.setAttribute("aria-label", "Fermer le menu");
+    toggle.setAttribute("aria-label", STR.closeMenu);
     document.body.style.overflow = "hidden";
   }
   function closeMenu(restore = true) {
@@ -76,7 +100,7 @@
     sheet.classList.remove("is-open");
     nav.classList.remove("is-open");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Ouvrir le menu");
+    toggle.setAttribute("aria-label", STR.openMenu);
     document.body.style.overflow = "";
     const done = () => { if (!sheet.classList.contains("is-open")) sheet.hidden = true; };
     reduced.matches ? done() : setTimeout(done, 200);
@@ -208,10 +232,10 @@
     share.addEventListener("click", async () => {
       const url = location.href.split("#")[0];
       try {
-        if (navigator.share) { await navigator.share({ title: "Halcyon", text: "Halcyon, launcher de jeux pour Windows et Linux", url }); return; }
+        if (navigator.share) { await navigator.share({ title: "Halcyon", text: STR.shareText, url }); return; }
         await navigator.clipboard.writeText(url);
-        share.textContent = "Lien copié";
-        setTimeout(() => (share.textContent = "Envoyer le lien"), 2400);
+        share.textContent = STR.copied;
+        setTimeout(() => (share.textContent = STR.sendLink), 2400);
       } catch (_) { /* partage annulé */ }
     });
   }
@@ -230,14 +254,28 @@
   };
   const userOS = detectOS();
 
-  const fmtSize = (b) => {
-    if (!b) return "";
-    const mo = b / 1e6;
-    return (mo >= 100 ? Math.round(mo) : mo.toFixed(1)).toString().replace(".", ",") + " Mo";
-  };
-  const fmtDate = (s) => new Date(s).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const fmtSize = (b) => (b ? STR.size(b / 1e6) : "");
+  const fmtDate = (s) => new Date(s).toLocaleDateString(STR.locale, { day: "numeric", month: "long", year: "numeric" });
   const icon = (id, cls = "icon") => `<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // Comparaison de versions « 1.0.0-alpha.5 » : numéros, puis préversion (sans préversion = plus récent).
+  function versionAtLeast(v, min) {
+    const parse = (x) => {
+      const [core, pre] = String(x).replace(/^v/, "").split("-");
+      return { n: core.split(".").map(Number), pre: pre ? pre.split(".").map((p) => (isNaN(p) ? p : Number(p))) : null };
+    };
+    const a = parse(v), b = parse(min);
+    for (let i = 0; i < 3; i++) if ((a.n[i] || 0) !== (b.n[i] || 0)) return (a.n[i] || 0) > (b.n[i] || 0);
+    if (!a.pre || !b.pre) return !a.pre || !!b.pre === !!a.pre;
+    for (let i = 0; i < Math.max(a.pre.length, b.pre.length); i++) {
+      const x = a.pre[i], y = b.pre[i];
+      if (x === undefined) return false;
+      if (y === undefined) return true;
+      if (x !== y) return typeof x === typeof y ? x > y : typeof x === "number";
+    }
+    return true;
+  }
 
   function pick(release, os) {
     const out = [];
@@ -254,10 +292,13 @@
     releaseBox.dataset.state = "ready";
     $("[data-release-version]", releaseBox).textContent = "Halcyon " + name;
     $("[data-release-meta]", releaseBox).innerHTML =
-      (pre ? '<span class="tag tag--warm">Préversion</span> ' : "") +
-      "Publiée le " + esc(fmtDate(release.published_at)) +
-      ` · <a class="link" href="${esc(release.html_url)}" rel="noopener">Notes de version</a>`;
+      (pre ? `<span class="tag tag--warm">${STR.prerelease}</span> ` : "") +
+      esc(STR.published(fmtDate(release.published_at))) +
+      ` · <a class="link" href="${esc(release.html_url)}" rel="noopener">${STR.notes}</a>`;
     $("[data-prerelease-note]").hidden = !pre;
+    // Note « interface en anglais à partir de… » : masquée dès que la version publiée l'inclut.
+    const langNote = $("[data-lang-note]");
+    if (langNote && cfg.translatedFrom) langNote.hidden = versionAtLeast(name, cfg.translatedFrom);
 
     const foot = $("[data-footer-version]");
     if (foot) { foot.textContent = "Halcyon " + name + " · "; foot.hidden = false; }
@@ -273,15 +314,15 @@
       const [main, ...rest] = files;
       const isUser = userOS === os;
       col.classList.toggle("is-detected", isUser);
-      $("[data-os-hint]", col).textContent = isUser ? "Votre système" : "";
+      $("[data-os-hint]", col).textContent = isUser ? STR.yourSystem : "";
       const label = os === "windows" ? "Windows" : "Linux";
       $("[data-os-primary]", col).innerHTML =
         `<a class="btn ${isUser ? "btn--warm" : "btn--line"} btn--big" href="${esc(main.asset.browser_download_url)}" download>` +
-        `${icon("download")} Télécharger pour ${label}</a>` +
-        `<span class="os__file">${esc(main.label)} · <code>${esc(main.asset.name)}</code> · ${esc(fmtSize(main.asset.size))}</span>`;
+        `${icon("download")} ${esc(STR.downloadFor(label))}</a>` +
+        `<span class="os__file">${esc(L(main.label))} · <code>${esc(main.asset.name)}</code> · ${esc(fmtSize(main.asset.size))}</span>`;
       $("[data-os-files]", col).innerHTML = rest.map((f) =>
         `<li><a href="${esc(f.asset.browser_download_url)}" download>` +
-        `<b>${esc(f.label)}</b><small>${esc(f.note)}</small>` +
+        `<b>${esc(L(f.label))}</b><small>${esc(L(f.note))}</small>` +
         `<span class="size">${esc(fmtSize(f.asset.size))}</span>${icon("download")}</a></li>`).join("");
       const footLink = $(`[data-dl-link="${os}"]`);
       if (footLink) footLink.href = main.asset.browser_download_url;
@@ -290,8 +331,8 @@
 
   function unavailable() {
     releaseBox.dataset.state = "error";
-    $("[data-release-version]", releaseBox).textContent = "Versions publiées sur GitHub";
-    $("[data-release-meta]", releaseBox).textContent = "La dernière version n'a pas pu être récupérée depuis cette page.";
+    $("[data-release-version]", releaseBox).textContent = STR.unavailableTitle;
+    $("[data-release-meta]", releaseBox).textContent = STR.unavailableText;
   }
 
   const KEY = "halcyon-release:" + cfg.repo;
