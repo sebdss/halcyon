@@ -193,7 +193,11 @@ fn runtime_catalogs_load_and_switch() {
     for lang in LANGUAGES {
         let mut text = String::new();
         for (i, dom) in domains().iter().enumerate() {
-            let body = std::fs::read_to_string(locales().join(lang).join(format!("{dom}.po"))).unwrap();
+            // Sous Windows, Git peut extraire les .po en CRLF : on normalise avant de
+            // découper sur la ligne vide qui sépare l'en-tête des entrées.
+            let body = std::fs::read_to_string(locales().join(lang).join(format!("{dom}.po")))
+                .unwrap()
+                .replace("\r\n", "\n");
             // en-tête du premier fichier seulement
             let body = if i == 0 { body.as_str() } else { body.split_once("\n\n").map(|x| x.1).unwrap_or("") };
             text.push_str(body);
