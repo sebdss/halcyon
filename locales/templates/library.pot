@@ -419,16 +419,16 @@ msgstr ""
 msgid "trop de requêtes, réessai plus tard"
 msgstr ""
 
-#: crates/halcyon-integrations/src/artwork.rs:86
+#: crates/halcyon-integrations/src/artwork.rs:108
 msgid "aucune URL"
 msgstr ""
 
-#: crates/halcyon-integrations/src/artwork.rs:110
+#: crates/halcyon-integrations/src/artwork.rs:132
 #, placeholders
 msgid "type de contenu inattendu « {other} »"
 msgstr ""
 
-#: crates/halcyon-integrations/src/artwork.rs:114
+#: crates/halcyon-integrations/src/artwork.rs:136
 msgid "image vide"
 msgstr ""
 

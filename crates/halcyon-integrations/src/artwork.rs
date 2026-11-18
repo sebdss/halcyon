@@ -80,6 +80,28 @@ impl Downloader {
         std::fs::rename(&tmp, dest).map_err(|e| FetchError::Network(tr!("écriture : {e}", e = e)))
     }
 
+    /// Télécharge `url` vers `dest` seulement s'il a changé depuis `etag` (en-tête
+    /// `If-None-Match`). `Ok(None)` : inchangé ; `Ok(Some(etag))` : fichier écrit.
+    pub fn fetch_if_changed(&self, url: &str, dest: &Path, etag: Option<&str>, max: u64) -> Result<Option<String>, FetchError> {
+        let mut req = self.agent.get(url);
+        if let Some(e) = etag.filter(|e| !e.is_empty()) {
+            req = req.header("If-None-Match", e);
+        }
+        let mut resp = req.call().map_err(classify)?;
+        if resp.status().as_u16() == 304 {
+            return Ok(None);
+        }
+        let new_etag = resp.headers().get("etag").and_then(|v| v.to_str().ok()).unwrap_or_default().to_string();
+        let bytes = resp.body_mut().with_config().limit(max).read_to_vec().map_err(classify)?;
+        if let Some(d) = dest.parent() {
+            std::fs::create_dir_all(d).map_err(|e| FetchError::Network(tr!("écriture : {e}", e = e)))?;
+        }
+        let tmp = dest.with_extension("part");
+        std::fs::write(&tmp, &bytes).map_err(|e| FetchError::Network(tr!("écriture : {e}", e = e)))?;
+        std::fs::rename(&tmp, dest).map_err(|e| FetchError::Network(tr!("écriture : {e}", e = e)))?;
+        Ok(Some(new_etag))
+    }
+
     /// Essaie chaque URL dans l'ordre ; enregistre la première image valide sous
     /// `dest_stem` + extension déduite du type MIME.
     pub fn fetch_first(&self, urls: &[String], dest_stem: &Path) -> Result<PathBuf, FetchError> {

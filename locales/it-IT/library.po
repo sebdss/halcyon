@@ -420,16 +420,16 @@ msgstr "Multigiocatore"
 msgid "trop de requêtes, réessai plus tard"
 msgstr "troppe richieste, nuovo tentativo più tardi"
 
-#: crates/halcyon-integrations/src/artwork.rs:86
+#: crates/halcyon-integrations/src/artwork.rs:108
 msgid "aucune URL"
 msgstr "nessun URL"
 
-#: crates/halcyon-integrations/src/artwork.rs:110
+#: crates/halcyon-integrations/src/artwork.rs:132
 #, placeholders
 msgid "type de contenu inattendu « {other} »"
 msgstr "tipo di contenuto inatteso «{other}»"
 
-#: crates/halcyon-integrations/src/artwork.rs:114
+#: crates/halcyon-integrations/src/artwork.rs:136
 msgid "image vide"
 msgstr "immagine vuota"
 

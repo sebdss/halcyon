@@ -377,9 +377,12 @@ notification système peut signaler les nouvelles mises à jour (option de la pa
 
 Onglet **Sauvegardes** d'une fiche, et page **Sauvegardes** pour la vue d'ensemble.
 
-1. **Emplacements** : Halcyon propose les dossiers détectés (Documents/My Games, AppData,
-   LocalLow, Steam Cloud local, préfixes Proton, dossier du jeu, Unreal `Saved/SaveGames`, ROM
-   et RetroArch). Associez-les, ou ajoutez un dossier ou un fichier.
+1. **Emplacements** : Halcyon propose d'abord les dossiers exacts de la **base Ludusavi**
+   (communautaire, plus de 20 000 jeux, aussi dans les préfixes Proton sous Linux), puis ceux
+   qu'il devine (Documents/My Games, AppData, LocalLow, Steam Cloud local, préfixes Proton,
+   dossier du jeu, Unreal `Saved/SaveGames`, ROM et RetroArch). Associez-les, ou ajoutez un
+   dossier ou un fichier. La base (~18 Mo) est téléchargée au plus une fois par semaine, et
+   seulement si elle a changé ; un dossier partagé par plusieurs jeux n'est jamais proposé.
 2. **Copies** : manuelles (*Sauvegarder maintenant*) ou automatiques **avant** et **après**
    chaque session. Une copie identique à la précédente n'est pas dupliquée. Les copies
    manuelles ne sont jamais purgées. Le nombre de copies automatiques conservées est réglable.
@@ -619,6 +622,10 @@ les jaquettes et les extensions.
 
 - Tout fonctionne hors ligne ; les fonctions en ligne (visuels, métadonnées, succès, mises à
   jour) sont marquées **EN LIGNE** et désactivables.
+- Services publics contactés, sans compte : boutique et API publique de Steam (visuels,
+  recherche par nom, rareté des succès), libretro-thumbnails et la base Ludusavi (dépôts
+  GitHub), GitHub (mises à jour de Halcyon). Avec une clé facultative : Steam Web API,
+  RetroAchievements, SteamGridDB, Nexus Mods, CurseForge.
 - Les clés d'API restent sur votre ordinateur, dans `settings.json`.
 - `HALCYON_DEBUG=1` active des journaux détaillés ; `HALCYON_DATA_DIR` change le dossier de données.
 - Base de données illisible : elle est mise de côté (`library.corrupt-…`) et reconstruite à la

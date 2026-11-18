@@ -108,6 +108,8 @@ pub struct Controller {
     /// Emplacements de sauvegarde fournis par les extensions (nom compact du jeu → motifs).
     pub(crate) plugin_saves: RefCell<HashMap<String, Vec<String>>>,
     pub(crate) save_candidates: RefCell<Vec<halcyon_integrations::saves::Candidate>>,
+    /// Base Ludusavi des emplacements de sauvegarde (chargée en arrière-plan).
+    pub(crate) ludusavi: RefCell<Option<Arc<halcyon_integrations::ludusavi::Index>>>,
     pub(crate) save_remote: RefCell<Option<String>>,
     pub(crate) mod_profile_cache: RefCell<Option<halcyon_storage::ModProfile>>,
     /// Extensions activées et valides.
@@ -193,6 +195,7 @@ impl Controller {
             no_save: Cell::new(false),
             plugin_saves: RefCell::new(HashMap::new()),
             save_candidates: RefCell::new(Vec::new()),
+            ludusavi: RefCell::new(None),
             save_remote: RefCell::new(None),
             mod_profile_cache: RefCell::new(None),
             plugins: RefCell::new(Vec::new()),
@@ -266,6 +269,7 @@ impl Controller {
         self.ensure_update_polling();
         self.start_connectivity_monitor();
         self.sync_pending_saves();
+        self.start_ludusavi();
         self.refresh_remote();
         self.ensure_tray();
         self.register_global_hotkey();

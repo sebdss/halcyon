@@ -645,7 +645,7 @@ msgstr "safety export failed, restore canceled: {e}"
 msgid "Restauration annulée : {e}"
 msgstr "Restore canceled: {e}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:183 crates/halcyon-app/src/ctl_saves.rs:443
+#: crates/halcyon-app/src/ctl_backup.rs:183 crates/halcyon-app/src/ctl_saves.rs:515
 #, placeholders
 msgid "Restauration impossible : {e}"
 msgstr "Restore failed: {e}"
@@ -972,233 +972,233 @@ msgstr "“{name}” published to Sunshine"
 msgid "« {name} » publié dans Sunshine (copie : {backup})"
 msgstr "“{name}” published to Sunshine (copy: {backup})"
 
-#: crates/halcyon-app/src/ctl_saves.rs:49
+#: crates/halcyon-app/src/ctl_saves.rs:50
 #, placeholders
 msgid "dépôt de sauvegardes inaccessible : {root}"
 msgstr "save repository not accessible: {root}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:61 crates/halcyon-app/src/ctl_saves.rs:425
+#: crates/halcyon-app/src/ctl_saves.rs:62 crates/halcyon-app/src/ctl_saves.rs:497
 msgid "aucun fichier de sauvegarde trouvé dans les emplacements"
 msgstr "no save files found in the locations"
 
-#: crates/halcyon-app/src/ctl_saves.rs:79
+#: crates/halcyon-app/src/ctl_saves.rs:80
 #, placeholders
 msgid "Sauvegarde de {name}"
 msgstr "Backing up {name}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:80
+#: crates/halcyon-app/src/ctl_saves.rs:81
 #, placeholders
 msgid "{reason_label} · {n} fichier · {total_size}"
 msgid_plural "{reason_label} · {n} fichiers · {total_size}"
 msgstr[0] "{reason_label} · {n} file · {total_size}"
 msgstr[1] "{reason_label} · {n} files · {total_size}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:209
+#: crates/halcyon-app/src/ctl_saves.rs:281
 msgid "Introuvable sur ce PC"
 msgstr "Not found on this PC"
 
-#: crates/halcyon-app/src/ctl_saves.rs:230
+#: crates/halcyon-app/src/ctl_saves.rs:302
 #, placeholders
 msgid "Dépôt choisi inaccessible : sauvegarde locale ({root}), copiée à son retour"
 msgstr "Chosen repository unreachable: local save ({root}), copied when it's back"
 
-#: crates/halcyon-app/src/ctl_saves.rs:232
+#: crates/halcyon-app/src/ctl_saves.rs:304
 #, placeholders
 msgid "Dépôt : {root}"
 msgstr "Repository: {root}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:238
+#: crates/halcyon-app/src/ctl_saves.rs:310
 msgid "Aucun emplacement associé : associez un emplacement détecté ou ajoutez un dossier."
 msgstr "No location linked: link a detected location or add a folder."
 
-#: crates/halcyon-app/src/ctl_saves.rs:293
+#: crates/halcyon-app/src/ctl_saves.rs:365
 #, placeholders
 msgid "{n} fichier, {local_size} en local"
 msgid_plural "{n} fichiers, {local_size} en local"
 msgstr[0] "{n} file, {local_size} locally"
 msgstr[1] "{n} files, {local_size} locally"
 
-#: crates/halcyon-app/src/ctl_saves.rs:295
+#: crates/halcyon-app/src/ctl_saves.rs:367
 #, placeholders
 msgid "Lecture impossible : {e}"
 msgstr "Can't read: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:296
+#: crates/halcyon-app/src/ctl_saves.rs:368
 #, placeholders
 msgid "Aucune sauvegarde pour l'instant · {local}"
 msgstr "No saves yet · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:297
+#: crates/halcyon-app/src/ctl_saves.rs:369
 #, placeholders
 msgid "À jour : identique à la dernière sauvegarde · {local}"
 msgstr "Up to date: same as the latest save · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:298
+#: crates/halcyon-app/src/ctl_saves.rs:370
 #, placeholders
 msgid "Identique à la sauvegarde restaurée · {local}"
 msgstr "Same as the restored save · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:299
+#: crates/halcyon-app/src/ctl_saves.rs:371
 #, placeholders
 msgid "Modifié depuis la dernière sauvegarde · {local}"
 msgstr "Changed since the latest save · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:302
+#: crates/halcyon-app/src/ctl_saves.rs:374
 #, placeholders
 msgid "Version plus récente sauvegardée sur « {machine} » le {created_at} : restaurez-la pour continuer sur ce PC."
 msgstr "A newer version was saved on “{machine}” on {created_at}: restore it to continue on this PC."
 
-#: crates/halcyon-app/src/ctl_saves.rs:306
+#: crates/halcyon-app/src/ctl_saves.rs:378
 #, placeholders
 msgid "Conflit : « {machine} » a sauvegardé une autre progression le {date}, et les fichiers de ce PC ont aussi changé. Choisissez la version à garder (l'autre reste disponible dans l'historique)."
 msgstr "Conflict: “{machine}” saved different progress on {date}, and this PC's files have also changed. Choose which version to keep (the other remains available in the history)."
 
-#: crates/halcyon-app/src/ctl_saves.rs:334
+#: crates/halcyon-app/src/ctl_saves.rs:406
 #, placeholders
 msgid "Emplacement introuvable : {p}"
 msgstr "Location not found: {p}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:342
+#: crates/halcyon-app/src/ctl_saves.rs:414
 #, placeholders
 msgid "Emplacement de sauvegarde ajouté pour {name}"
 msgstr "Save location added for {name}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:373
+#: crates/halcyon-app/src/ctl_saves.rs:445
 msgid "Associez d'abord un emplacement de sauvegarde"
 msgstr "Link a save location first"
 
-#: crates/halcyon-app/src/ctl_saves.rs:384
+#: crates/halcyon-app/src/ctl_saves.rs:456
 #, placeholders
 msgid "Sauvegarde créée · {n} fichier"
 msgid_plural "Sauvegarde créée · {n} fichiers"
 msgstr[0] "Save created · {n} file"
 msgstr[1] "Save created · {n} files"
 
-#: crates/halcyon-app/src/ctl_saves.rs:385
+#: crates/halcyon-app/src/ctl_saves.rs:457
 msgid "Rien n'a changé depuis la dernière sauvegarde"
 msgstr "Nothing changed since the latest save"
 
-#: crates/halcyon-app/src/ctl_saves.rs:386 crates/halcyon-app/src/ctl_saves.rs:464
+#: crates/halcyon-app/src/ctl_saves.rs:458 crates/halcyon-app/src/ctl_saves.rs:536
 #, placeholders
 msgid "Sauvegarde impossible : {e}"
 msgstr "Backup failed: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:398
+#: crates/halcyon-app/src/ctl_saves.rs:470
 msgid "Sauvegarde introuvable dans le dépôt"
 msgstr "Save not found in the repository"
 
-#: crates/halcyon-app/src/ctl_saves.rs:401
+#: crates/halcyon-app/src/ctl_saves.rs:473
 msgid "Fermez le jeu avant de restaurer une sauvegarde"
 msgstr "Close the game before restoring a save"
 
-#: crates/halcyon-app/src/ctl_saves.rs:406
+#: crates/halcyon-app/src/ctl_saves.rs:478
 msgid "Un emplacement de cette sauvegarde n'existe pas sur ce PC"
 msgstr "A location of this save doesn't exist on this PC"
 
-#: crates/halcyon-app/src/ctl_saves.rs:408
+#: crates/halcyon-app/src/ctl_saves.rs:480
 #, placeholders
 msgid "Les fichiers actuels de « {name} » seront remplacés par la sauvegarde du {date} ({machine}, {reason}). Une sauvegarde de l'état actuel est créée juste avant : vous pourrez revenir en arrière."
 msgstr "The current files of “{name}” will be replaced by the save from {date} ({machine}, {reason}). A save of the current state is made just before: you'll be able to go back."
 
-#: crates/halcyon-app/src/ctl_saves.rs:416
+#: crates/halcyon-app/src/ctl_saves.rs:488
 msgid "Restaurer cette sauvegarde ?"
 msgstr "Restore this save?"
 
-#: crates/halcyon-app/src/ctl_saves.rs:423 crates/halcyon-integrations/src/saves.rs:314
+#: crates/halcyon-app/src/ctl_saves.rs:495 crates/halcyon-integrations/src/saves.rs:320
 msgid "Avant restauration"
 msgstr "Before restore"
 
-#: crates/halcyon-app/src/ctl_saves.rs:426
+#: crates/halcyon-app/src/ctl_saves.rs:498
 #, placeholders
 msgid "sauvegarde de sécurité impossible, restauration annulée : {e}"
 msgstr "safety save failed, restore canceled: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:435
+#: crates/halcyon-app/src/ctl_saves.rs:507
 #, placeholders
 msgid "Sauvegarde restaurée pour {name}"
 msgstr "Save restored for {name}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:442
+#: crates/halcyon-app/src/ctl_saves.rs:514
 #, placeholders
 msgid "Sauvegarde restaurée ({n} fichier)"
 msgid_plural "Sauvegarde restaurée ({n} fichiers)"
 msgstr[0] "Save restored ({n} file)"
 msgstr[1] "Save restored ({n} files)"
 
-#: crates/halcyon-app/src/ctl_saves.rs:460
+#: crates/halcyon-app/src/ctl_saves.rs:532
 #, placeholders
 msgid "Version de {machine} conservée"
 msgstr "Version from {machine} kept"
 
-#: crates/halcyon-app/src/ctl_saves.rs:463
+#: crates/halcyon-app/src/ctl_saves.rs:535
 msgid "Version de ce PC enregistrée comme référence"
 msgstr "This PC's version saved as the reference"
 
-#: crates/halcyon-app/src/ctl_saves.rs:494
+#: crates/halcyon-app/src/ctl_saves.rs:566
 #, placeholders
 msgid "Sauvegarde du {created_at} → fichiers actuels · modifiés : {modified} · ajoutés : {added} · supprimés : {removed} · identiques : {unchanged}"
 msgstr "Save from {created_at} → current files · changed: {modified} · added: {added} · deleted: {removed} · identical: {unchanged}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:499
+#: crates/halcyon-app/src/ctl_saves.rs:571
 #, placeholders
 msgid "Comparaison impossible : {e}"
 msgstr "Comparison failed: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:511
+#: crates/halcyon-app/src/ctl_saves.rs:583
 msgid "Supprimer cette sauvegarde ?"
 msgstr "Delete this save?"
 
-#: crates/halcyon-app/src/ctl_saves.rs:512
+#: crates/halcyon-app/src/ctl_saves.rs:584
 #, placeholders
 msgid "La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés."
 msgstr "The save from {created_at} ({v}) will be permanently deleted from the repository. The game's current files aren't touched."
 
-#: crates/halcyon-app/src/ctl_saves.rs:516
+#: crates/halcyon-app/src/ctl_saves.rs:588
 msgid "Sauvegarde supprimée"
 msgstr "Save deleted"
 
-#: crates/halcyon-app/src/ctl_saves.rs:563
+#: crates/halcyon-app/src/ctl_saves.rs:635
 #, placeholders
 msgid "Jeux suivis : {rows} · sauvegardes : {count} · {total}"
 msgstr "Tracked games: {rows} · saves: {count} · {total}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:625
+#: crates/halcyon-app/src/ctl_saves.rs:697
 #, placeholders
 msgid "Sauvegardes détectées pour {n} jeu"
 msgid_plural "Sauvegardes détectées pour {n} jeux"
 msgstr[0] "Saves detected for {n} game"
 msgstr[1] "Saves detected for {n} games"
 
-#: crates/halcyon-app/src/ctl_saves.rs:626
+#: crates/halcyon-app/src/ctl_saves.rs:698
 #, placeholders
 msgid "{n} emplacement associé automatiquement"
 msgid_plural "{n} emplacements associés automatiquement"
 msgstr[0] "{n} location linked automatically"
 msgstr[1] "{n} locations linked automatically"
 
-#: crates/halcyon-app/src/ctl_saves.rs:631
+#: crates/halcyon-app/src/ctl_saves.rs:703
 msgid "Aucun nouvel emplacement certain trouvé (vous pouvez en associer à la main dans chaque fiche)"
 msgstr "No new certain location found (you can link some by hand on each game page)"
 
-#: crates/halcyon-app/src/ctl_saves.rs:633
+#: crates/halcyon-app/src/ctl_saves.rs:705
 #, placeholders
 msgid "Emplacements associés : {associated} · jeux : {games_done}"
 msgstr "Locations linked: {associated} · games: {games_done}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:647
+#: crates/halcyon-app/src/ctl_saves.rs:719
 #, placeholders
 msgid "Dossier inaccessible : {r}"
 msgstr "Folder not accessible: {r}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:659
+#: crates/halcyon-app/src/ctl_saves.rs:731
 msgid "Dossier inaccessible"
 msgstr "Folder not accessible"
 
-#: crates/halcyon-app/src/ctl_saves.rs:690
+#: crates/halcyon-app/src/ctl_saves.rs:762
 msgid "Nombre entre 0 (illimité) et 1000 attendu"
 msgstr "A number between 0 (unlimited) and 1000 is expected"
 
-#: crates/halcyon-app/src/ctl_saves.rs:734
+#: crates/halcyon-app/src/ctl_saves.rs:806
 #, placeholders
 msgid "{n} sauvegarde synchronisée vers les dépôts"
 msgid_plural "{n} sauvegardes synchronisées vers les dépôts"
@@ -1471,53 +1471,57 @@ msgstr "apps.json: “apps” list missing"
 msgid "écriture de apps.json impossible (droits administrateur nécessaires ?) : {e}"
 msgstr "can't write apps.json (administrator rights needed?): {e}"
 
-#: crates/halcyon-integrations/src/saves.rs:195
+#: crates/halcyon-integrations/src/saves.rs:176
+msgid "Base Ludusavi"
+msgstr "Ludusavi database"
+
+#: crates/halcyon-integrations/src/saves.rs:201
 msgid "Steam Cloud (copie locale, synchronisée par Steam)"
 msgstr "Steam Cloud (local copy, synced by Steam)"
 
-#: crates/halcyon-integrations/src/saves.rs:241
+#: crates/halcyon-integrations/src/saves.rs:247
 #, placeholders
 msgid "Dossier du jeu/{file_name}"
 msgstr "Game folder/{file_name}"
 
-#: crates/halcyon-integrations/src/saves.rs:263
+#: crates/halcyon-integrations/src/saves.rs:269
 #, placeholders
 msgid "Sauvegarde d'émulateur ({ext})"
 msgstr "Emulator save ({ext})"
 
-#: crates/halcyon-integrations/src/saves.rs:272
+#: crates/halcyon-integrations/src/saves.rs:278
 msgid "Définition d'extension"
 msgstr "Extension definition"
 
-#: crates/halcyon-integrations/src/saves.rs:312
+#: crates/halcyon-integrations/src/saves.rs:318
 msgid "Avant la session"
 msgstr "Before the session"
 
-#: crates/halcyon-integrations/src/saves.rs:313
+#: crates/halcyon-integrations/src/saves.rs:319
 msgid "Après la session"
 msgstr "After the session"
 
-#: crates/halcyon-integrations/src/saves.rs:315
+#: crates/halcyon-integrations/src/saves.rs:321
 msgid "Importée"
 msgstr "Imported"
 
-#: crates/halcyon-integrations/src/saves.rs:316
+#: crates/halcyon-integrations/src/saves.rs:322
 msgid "Manuelle"
 msgstr "Manual"
 
-#: crates/halcyon-integrations/src/saves.rs:359
+#: crates/halcyon-integrations/src/saves.rs:365
 msgid "plus de 4 Go de données : emplacement trop volumineux pour une sauvegarde"
 msgstr "more than 4 GB of data: location too large for a save"
 
-#: crates/halcyon-integrations/src/saves.rs:552
+#: crates/halcyon-integrations/src/saves.rs:558
 msgid "copie corrompue"
 msgstr "corrupted copy"
 
-#: crates/halcyon-integrations/src/saves.rs:566
+#: crates/halcyon-integrations/src/saves.rs:572
 msgid "emplacements incohérents avec l'instantané"
 msgstr "locations inconsistent with the snapshot"
 
-#: crates/halcyon-integrations/src/saves.rs:580
+#: crates/halcyon-integrations/src/saves.rs:586
 #, placeholders
 msgid "archive corrompue : {rel}"
 msgstr "corrupted archive: {rel}"

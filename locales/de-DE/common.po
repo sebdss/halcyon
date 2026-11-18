@@ -250,7 +250,7 @@ msgstr "Bearbeiten"
 #: crates/halcyon-app/ui/pages/smart.slint:139 crates/halcyon-app/src/ctl_emulators.rs:289 crates/halcyon-app/src/ctl_minecraft.rs:420
 #: crates/halcyon-app/src/ctl_minecraft.rs:625 crates/halcyon-app/src/ctl_minecraft.rs:818 crates/halcyon-app/src/ctl_mods.rs:227
 #: crates/halcyon-app/src/ctl_mods.rs:328 crates/halcyon-app/src/ctl_pads.rs:242 crates/halcyon-app/src/ctl_profiles.rs:604
-#: crates/halcyon-app/src/ctl_saves.rs:513 crates/halcyon-app/src/ctl_tracking.rs:723
+#: crates/halcyon-app/src/ctl_saves.rs:585 crates/halcyon-app/src/ctl_tracking.rs:723
 msgid "Supprimer"
 msgstr "Löschen"
 
@@ -365,7 +365,7 @@ msgstr "Spielstände"
 msgid "Ouvrir"
 msgstr "Öffnen"
 
-#: crates/halcyon-app/ui/pages/game.slint:948 crates/halcyon-app/src/ctl_saves.rs:416
+#: crates/halcyon-app/ui/pages/game.slint:948 crates/halcyon-app/src/ctl_saves.rs:488
 msgid "Restaurer"
 msgstr "Wiederherstellen"
 
@@ -397,7 +397,7 @@ msgstr "Aus Favoriten entfernen"
 msgid "Ouvrir le dossier du jeu"
 msgstr "Spielordner öffnen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1447 crates/halcyon-app/src/ctl_saves.rs:571 crates/halcyon-app/src/ctl_update.rs:269
+#: crates/halcyon-app/ui/pages/game.slint:1447 crates/halcyon-app/src/ctl_saves.rs:643 crates/halcyon-app/src/ctl_update.rs:269
 #: crates/halcyon-app/src/models.rs:202
 msgid "Jamais"
 msgstr "Nie"
@@ -610,41 +610,41 @@ msgstr "Kein Profil"
 msgid "Ne pas changer les mods"
 msgstr "Mods nicht ändern"
 
-#: crates/halcyon-app/src/controller.rs:997 crates/halcyon-app/src/controller.rs:1015 crates/halcyon-app/src/controller.rs:1225
+#: crates/halcyon-app/src/controller.rs:1001 crates/halcyon-app/src/controller.rs:1019 crates/halcyon-app/src/controller.rs:1229
 #: crates/halcyon-app/src/ctl_achievements.rs:591 crates/halcyon-app/src/ctl_emulators.rs:118
 #, placeholders
 msgid "Erreur : {e}"
 msgstr "Fehler: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1047 crates/halcyon-app/src/controller.rs:1056 crates/halcyon-app/src/ctl_home.rs:557
+#: crates/halcyon-app/src/controller.rs:1051 crates/halcyon-app/src/controller.rs:1060 crates/halcyon-app/src/ctl_home.rs:557
 #: crates/halcyon-app/src/ctl_home.rs:566
 #, placeholders
 msgid "Ouverture impossible : {e}"
 msgstr "Öffnen nicht möglich: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1091 crates/halcyon-app/src/controller.rs:1200 crates/halcyon-app/src/ctl_profiles.rs:549
+#: crates/halcyon-app/src/controller.rs:1095 crates/halcyon-app/src/controller.rs:1204 crates/halcyon-app/src/ctl_profiles.rs:549
 #, placeholders
 msgid "Répertoire introuvable : {wd}"
 msgstr "Verzeichnis nicht gefunden: {wd}"
 
-#: crates/halcyon-app/src/controller.rs:1102 crates/halcyon-app/src/controller.rs:1133 crates/halcyon-app/src/controller.rs:1158
+#: crates/halcyon-app/src/controller.rs:1106 crates/halcyon-app/src/controller.rs:1137 crates/halcyon-app/src/controller.rs:1162
 #: crates/halcyon-app/src/ctl_mods.rs:158 crates/halcyon-app/src/ctl_mods.rs:252 crates/halcyon-app/src/ctl_mods.rs:281
-#: crates/halcyon-app/src/ctl_profiles.rs:594 crates/halcyon-app/src/ctl_saves.rs:326 crates/halcyon-app/src/ctl_tracking.rs:144
+#: crates/halcyon-app/src/ctl_profiles.rs:594 crates/halcyon-app/src/ctl_saves.rs:398 crates/halcyon-app/src/ctl_tracking.rs:144
 #: crates/halcyon-app/src/ctl_tracking.rs:155 crates/halcyon-app/src/ctl_tracking.rs:174
 #, placeholders
 msgid "Enregistrement impossible : {e}"
 msgstr "Speichern nicht möglich: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1735 crates/halcyon-integrations/src/artwork.rs:31
+#: crates/halcyon-app/src/controller.rs:1739 crates/halcyon-integrations/src/artwork.rs:31
 msgid "accès refusé (clé d'API invalide ou profil privé)"
 msgstr "Zugriff verweigert (ungültiger API-Schlüssel oder privates Profil)"
 
-#: crates/halcyon-app/src/controller.rs:1970 crates/halcyon-app/src/ctl_emulators.rs:373
+#: crates/halcyon-app/src/controller.rs:1974 crates/halcyon-app/src/ctl_emulators.rs:373
 #, placeholders
 msgid "Dossier introuvable : {path}"
 msgstr "Ordner nicht gefunden: {path}"
 
-#: crates/halcyon-app/src/controller.rs:2063 crates/halcyon-app/src/ctl_minecraft.rs:953
+#: crates/halcyon-app/src/controller.rs:2067 crates/halcyon-app/src/ctl_minecraft.rs:953
 msgid "Enregistré"
 msgstr "Gespeichert"
 
@@ -717,7 +717,7 @@ msgstr "Big Picture"
 msgid "Installation impossible : {e}"
 msgstr "Installation fehlgeschlagen: {e}"
 
-#: crates/halcyon-app/src/ctl_plugins.rs:266 crates/halcyon-app/src/ctl_profiles.rs:607 crates/halcyon-app/src/ctl_saves.rs:517
+#: crates/halcyon-app/src/ctl_plugins.rs:266 crates/halcyon-app/src/ctl_profiles.rs:607 crates/halcyon-app/src/ctl_saves.rs:589
 #: crates/halcyon-app/src/ctl_tracking.rs:726
 #, placeholders
 msgid "Suppression impossible : {e}"
@@ -766,7 +766,7 @@ msgstr "Nie gestartet"
 msgid "manifeste illisible : {e}"
 msgstr "Manifest nicht lesbar: {e}"
 
-#: crates/halcyon-integrations/src/mods.rs:256 crates/halcyon-integrations/src/saves.rs:521
+#: crates/halcyon-integrations/src/mods.rs:256 crates/halcyon-integrations/src/saves.rs:527
 msgid "identifiant invalide"
 msgstr "ungültige Kennung"
 

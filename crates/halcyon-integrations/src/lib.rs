@@ -20,6 +20,7 @@ pub mod gpu;
 pub mod launcher;
 pub mod launchers;
 pub mod libretro;
+pub mod ludusavi;
 pub mod mods;
 pub mod news;
 pub mod plugin_trust;

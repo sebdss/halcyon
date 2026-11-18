@@ -12,6 +12,7 @@ use halcyon_integrations::saves::{
     self, content_hash, diff, scan_locations, Candidate, Created, GameInfo, Location, SaveEnv, SaveStore, SnapshotMeta,
     SyncState,
 };
+use halcyon_integrations::artwork::Downloader;
 use halcyon_integrations::steam;
 use halcyon_storage::{now_unix, ActivityKind, Database, SaveConfig};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
@@ -151,7 +152,78 @@ impl Controller {
             source_key: g.source_key.clone(),
             rom: (g.source == GameSource::Emulated).then(|| g.executable.clone()).flatten(),
             extra: self.plugin_save_patterns(g),
+            known: self.ludusavi_locations(g),
         }
+    }
+
+    /// Emplacements de la base Ludusavi pour ce jeu (résolus sur ce PC, Proton compris).
+    fn ludusavi_locations(&self, g: &Game) -> Vec<PathBuf> {
+        use halcyon_integrations::ludusavi::{Places, Query};
+        let Some(idx) = self.ludusavi.borrow().clone() else { return Vec::new() };
+        let root = steam::SteamScanner::new(self.settings.borrow().steam_path.clone()).root();
+        let account = self.local_steam_id().and_then(|id| id.checked_sub(STEAMID64_BASE));
+        let mut places = Places::current(root, account);
+        if g.source == GameSource::Steam {
+            places = places.with_proton(&g.source_key, g.install_dir.as_deref());
+        }
+        let q = Query { name: g.name.clone(), source: Some(g.source), source_key: g.source_key.clone(), install_dir: g.install_dir.clone() };
+        idx.locations(&q, &places)
+    }
+
+    /// Charge la base Ludusavi (copie locale), puis la met à jour au plus une fois par semaine.
+    pub(crate) fn start_ludusavi(&self) {
+        use halcyon_integrations::ludusavi::{self, Index};
+        let dir = self.paths.cache_dir.join("ludusavi");
+        let file = dir.join("manifest.yaml");
+        let meta = dir.join("manifest.json");
+        let online = self.net_allowed();
+        std::thread::Builder::new()
+            .name("halcyon-ludusavi".into())
+            .spawn(move || {
+                let load = |updated: bool| match std::fs::read_to_string(&file).map_err(|e| e.to_string()).and_then(|t| Index::from_manifest(&t)) {
+                    Ok(idx) => {
+                        log::info!("base Ludusavi {} : {} jeux avec sauvegardes connues", if updated { "mise à jour" } else { "chargée" }, idx.len());
+                        let idx = Arc::new(idx);
+                        post(move |c| *c.ludusavi.borrow_mut() = Some(idx));
+                        true
+                    }
+                    Err(e) => {
+                        log::warn!("base Ludusavi illisible : {e}");
+                        false
+                    }
+                };
+                let had = file.is_file() && load(false);
+                let info: serde_json::Value = std::fs::read_to_string(&meta).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+                let checked = info.get("checked").and_then(|v| v.as_i64()).unwrap_or(0);
+                if !online || (had && now_unix() - checked < ludusavi::REFRESH_SECS) {
+                    return;
+                }
+                let etag = info.get("etag").and_then(|v| v.as_str()).filter(|_| had);
+                let tmp = dir.join("manifest.new.yaml");
+                match Downloader::new().fetch_if_changed(ludusavi::MANIFEST_URL, &tmp, etag, ludusavi::MAX_MANIFEST) {
+                    Ok(changed) => {
+                        let mut new_etag = etag.map(str::to_string);
+                        if let Some(e) = changed {
+                            // La nouvelle copie ne remplace l'ancienne que si elle se lit.
+                            let ok = std::fs::read_to_string(&tmp).map_err(|e| e.to_string()).and_then(|t| Index::from_manifest(&t).map(|_| ()));
+                            match ok {
+                                Ok(()) => {
+                                    let _ = std::fs::rename(&tmp, &file);
+                                    new_etag = Some(e);
+                                    load(true);
+                                }
+                                Err(e) => {
+                                    let _ = std::fs::remove_file(&tmp);
+                                    log::warn!("nouvelle base Ludusavi refusée : {e}");
+                                }
+                            }
+                        }
+                        let _ = std::fs::write(&meta, serde_json::json!({ "checked": now_unix(), "etag": new_etag }).to_string());
+                    }
+                    Err(e) => log::warn!("base Ludusavi non téléchargée : {e}"),
+                }
+            })
+            .ok();
     }
 
     /// Emplacements fournis par les extensions (voir `ctl_plugins`).

@@ -13,6 +13,16 @@
   des collections intelligentes étendue.
 - Un visuel dont l'adresse ne répond plus est cherché ailleurs (boutique Steam, SteamGridDB).
 
+### Sauvegardes reconnues par la base Ludusavi
+
+- Emplacements **exacts** de plus de 20 000 jeux (base communautaire Ludusavi, licence MIT),
+  proposés en premier et associés automatiquement quand ils existent ; règles Windows des
+  jeux Steam cherchées dans leur préfixe Proton sous Linux.
+- Base téléchargée au plus une fois par semaine, seulement si elle a changé ; une copie qui
+  ne se lit pas entièrement est refusée et l'ancienne garde la main.
+- Jamais de dossier trop large : ni racine (dossier du jeu, Documents, AppData), ni dossier
+  partagé par plusieurs jeux (une restauration écraserait leurs sauvegardes).
+
 ## Non publié — Succès et visuels sans clé
 
 - **Succès Steam sans clé d'API** : lus dans les fichiers que le client Steam enregistre sur ce

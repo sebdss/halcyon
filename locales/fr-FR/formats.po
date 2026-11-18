@@ -166,7 +166,8 @@ msgstr "{value} To"
 msgid "{v} Mo"
 msgstr "{v} Mo"
 
-#: crates/halcyon-integrations/src/artwork.rs:79 crates/halcyon-integrations/src/artwork.rs:80 crates/halcyon-integrations/src/artwork.rs:118
+#: crates/halcyon-integrations/src/artwork.rs:79 crates/halcyon-integrations/src/artwork.rs:80 crates/halcyon-integrations/src/artwork.rs:97
+#: crates/halcyon-integrations/src/artwork.rs:100 crates/halcyon-integrations/src/artwork.rs:101 crates/halcyon-integrations/src/artwork.rs:140
 #: crates/halcyon-update/src/download.rs:220
 #, placeholders
 msgid "écriture : {e}"
