@@ -24,7 +24,7 @@ export component AchievementsPage inherits Rectangle {
             HorizontalLayout {
                 spacing: 28px;
                 Text {
-                    text: round(AchUi.percent * 1000) / 10 + " %";
+                    text: @tr("{} %", round(AchUi.percent * 1000) / 10);
                     color: AchUi.percent >= 1 ? Theme.warm : Theme.text;
                     font-family: Theme.display;
                     font-size: Theme.t-display + 12px;

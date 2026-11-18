@@ -516,6 +516,12 @@ def lint():
                         continue
                     if re.search(r"(==|!=)\s*$", before) or re.match(r"\s*(==|!=)", line[m.end():]):
                         continue
+                    if re.fullmatch(r"\s*%\s*", t) and "+" in before[-40:] and not allowed(allow, rel, t):
+                        problems.append(f"{rel}:{n}: « {t} » collé à un nombre (utiliser @tr(\"{{}} %\", x))")
+                        continue
+                    if re.fullmatch(r"[0-9]+ %", t) and not allowed(allow, rel, t):
+                        problems.append(f"{rel}:{n}: « {t} » (utiliser @tr(\"{{}} %\", x))")
+                        continue
                     if not re.search(r"[A-Za-zÀ-ÿ]", t) or (re.fullmatch(r"[a-z0-9_\-.:]+", t) and (re.search(r"[0-9_\-.:]", t) or t in SLINT_CODES)):
                         continue
                     if re.search(r"(font-family|default-font-family|display|font|key)\s*:\s*$", before):
@@ -536,6 +542,10 @@ def lint():
             for a, b, t in strings:
                 if text[a] != '"':
                     continue  # chaînes brutes ou d'octets : SQL, données
+                if re.search(r"\} %(?![A-Za-z])", t) and not any(x <= a < y for x, y in spans) and not allowed(allow, rel, t):
+                    line_no = next(i for i, st in enumerate(starts) if st > a)
+                    problems.append(f"{rel}:{line_no}: « {t} » : pourcentage écrit à la française hors traduction (tr!(\"{{v}} %\"))")
+                    continue
                 if len(t) < 3 or not FR_WORDS.search(t) or allowed(allow, rel, t):
                     continue
                 if any(x <= a < y for x, y in spans):

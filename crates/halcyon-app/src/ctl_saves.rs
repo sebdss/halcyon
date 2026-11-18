@@ -410,7 +410,7 @@ impl Controller {
             name = g.name,
             date = date_time(snap.created_at),
             machine = snap.machine,
-            reason = snap.reason_label().to_lowercase()
+            reason = halcyon_i18n::lower_first(&snap.reason_label())
         );
         let db = self.db.clone();
         self.confirm(&tr!("Restaurer cette sauvegarde ?"), &text, &tr!("Restaurer"), move |c| {
@@ -509,7 +509,7 @@ impl Controller {
         let sid = snap_id.to_string();
         self.confirm(
             &tr!("Supprimer cette sauvegarde ?"),
-            &tr!("La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés.", created_at = date_time(snap.created_at), v = snap.reason_label().to_lowercase()),
+            &tr!("La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés.", created_at = date_time(snap.created_at), v = halcyon_i18n::lower_first(&snap.reason_label())),
             &tr!("Supprimer"),
             move |c| {
                 match job.primary.delete(&job.key, &sid) {

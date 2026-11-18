@@ -684,7 +684,7 @@ fn profile_row(p: &LaunchProfile, mod_profiles: &[halcyon_storage::ModProfile], 
         parts.push(p.gpu.label().to_string());
     }
     if p.priority != ProcessPriority::Normal {
-        parts.push(tr!("priorité {v}", v = p.priority.label().to_lowercase()));
+        parts.push(tr!("priorité {v}", v = halcyon_i18n::lower_first(&p.priority.label())));
     }
     if !p.args.is_empty() {
         parts.push(format!("« {} »", p.args));

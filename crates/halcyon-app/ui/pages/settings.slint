@@ -751,7 +751,7 @@ export component SettingsPage inherits Rectangle {
                             }
                             Text {
                                 width: 48px;
-                                text: round(SettingsUi.sound-volumes[i] * 100) + " %";
+                                text: @tr("{} %", round(SettingsUi.sound-volumes[i] * 100));
                                 color: Theme.text-muted;
                                 font-size: Theme.t-small;
                                 vertical-alignment: center;

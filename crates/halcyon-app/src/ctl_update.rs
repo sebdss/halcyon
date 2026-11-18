@@ -292,7 +292,7 @@ impl Controller {
         ui.set_at_restart(staged && (s.update_auto || layout.as_ref().is_some_and(client::install_at_restart)));
         let p = h.progress.unwrap_or_default();
         ui.set_progress(if h.cancel.is_some() && p.total > 0 { p.ratio() } else { -1.0 });
-        ui.set_progress_text(if p.total > 0 { format!("{} %", (p.ratio() * 100.0).floor() as u32).into() } else { "".into() });
+        ui.set_progress_text(if p.total > 0 { tr!("{v} %", v = (p.ratio() * 100.0).floor() as u32).into() } else { "".into() });
         ui.set_speed(if p.speed > 0 { download::format_speed(p.speed).into() } else { "".into() });
         ui.set_eta(p.eta.map(|e| tr!("{eta} restantes", eta = download::format_eta(e))).unwrap_or_default().into());
         ui.set_size_text(if p.total > 0 { tr!("{done} sur {total}", done = download::format_bytes(p.done), total = download::format_bytes(p.total)).into() } else { "".into() });

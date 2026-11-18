@@ -872,11 +872,6 @@ msgstr ""
 msgid "Halcyon {}. Made with Slint. Police Archivo (SIL OFL)."
 msgstr ""
 
-#: crates/halcyon-app/src/ctl_perf.rs:58 crates/halcyon-app/src/ctl_perf.rs:164
-#, placeholders
-msgid "{v} %"
-msgstr ""
-
 #: crates/halcyon-app/src/ctl_perf.rs:129
 #, placeholders
 msgid "Mémoire d'échange : {swap_used_mb} / {swap_total_mb}"

@@ -339,7 +339,7 @@ impl Controller {
             }
         } else if notify {
             for u in &unlocks {
-                let rarity = u.achievement.data.rarity.map(|r| format!("{} ({r:.1} %)", rarity_label(r)));
+                let rarity = u.achievement.data.rarity.map(|r| format!("{} ({})", rarity_label(r), tr!("{v} %", v = halcyon_i18n::decimal(r as f64, 1))));
                 crate::notify::achievement(
                     &u.achievement.data.name,
                     &u.achievement.data.description,
@@ -383,7 +383,7 @@ impl Controller {
             icon: icon.unwrap_or_default(),
             unlocked: d.unlocked,
             date: date.into(),
-            rarity: d.rarity.map(|r| format!("{} · {r:.1} %", rarity_label(r))).unwrap_or_default().into(),
+            rarity: d.rarity.map(|r| format!("{} · {}", rarity_label(r), tr!("{v} %", v = halcyon_i18n::decimal(r as f64, 1)))).unwrap_or_default().into(),
             rarity_pct: d.rarity.unwrap_or(100.0),
             has_rarity: d.rarity.is_some(),
             points: d.points.map(|p| trn!(p, "{n} point", "{n} points")).unwrap_or_default().into(),
@@ -423,7 +423,7 @@ impl Controller {
         let status = provider
             .and_then(|p| self.db().sync_status(g.id, p).ok().flatten())
             .map(|(t, s)| {
-                let when = util::format_relative(t, now_unix()).to_lowercase();
+                let when = util::format_relative_inline(t, now_unix());
                 match s {
                     SyncStatus::Ok => tr!("Synchronisé {when}", when = when),
                     SyncStatus::NoAchievements => tr!("Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})", when = when),

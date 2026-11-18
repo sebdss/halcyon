@@ -1384,7 +1384,7 @@ export component ValueSlider inherits Rectangle {
     min-width: 160px;
     accessible-role: slider;
     accessible-label: root.label;
-    accessible-value: round(root.value * 100) + " %";
+    accessible-value: @tr("{} %", round(root.value * 100));
     forward-focus: fs;
     property <length> track-w: root.width - 14px;
     Rectangle {

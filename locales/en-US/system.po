@@ -873,11 +873,6 @@ msgstr "{} — including security.log: API keys set or removed (never their valu
 msgid "Halcyon {}. Made with Slint. Police Archivo (SIL OFL)."
 msgstr "Halcyon {}. Made with Slint. Archivo font (SIL OFL)."
 
-#: crates/halcyon-app/src/ctl_perf.rs:58 crates/halcyon-app/src/ctl_perf.rs:164
-#, placeholders
-msgid "{v} %"
-msgstr "{v}%"
-
 #: crates/halcyon-app/src/ctl_perf.rs:129
 #, placeholders
 msgid "Mémoire d'échange : {swap_used_mb} / {swap_total_mb}"

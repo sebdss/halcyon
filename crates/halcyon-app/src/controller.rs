@@ -711,7 +711,7 @@ impl Controller {
             meta.push(tr!("{effective_playtime} de jeu", effective_playtime = util::format_playtime(g.effective_playtime())));
         }
         if let Some(t) = g.last_played {
-            meta.push(tr!("Joué : {t}", t = util::format_relative(t, now).to_lowercase()));
+            meta.push(tr!("Joué : {t}", t = util::format_relative_inline(t, now)));
         }
         if let Some(p) = self.progress.borrow().get(&g.id) {
             meta.push(trn!(p.total, "{unlocked}/{n} succès", "{unlocked}/{n} succès", unlocked = halcyon_i18n::number(p.unlocked as u64)));

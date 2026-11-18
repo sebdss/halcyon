@@ -82,6 +82,15 @@ msgstr "Jogar"
 msgid "Non installé"
 msgstr "Não instalado"
 
+#: crates/halcyon-app/ui/components.slint:1387 crates/halcyon-app/ui/pages/achievements.slint:27 crates/halcyon-app/ui/pages/appearance.slint:132
+#: crates/halcyon-app/ui/pages/appearance.slint:132 crates/halcyon-app/ui/pages/appearance.slint:132 crates/halcyon-app/ui/pages/appearance.slint:132
+#: crates/halcyon-app/ui/pages/appearance.slint:207 crates/halcyon-app/ui/pages/appearance.slint:212 crates/halcyon-app/ui/pages/downloads.slint:36
+#: crates/halcyon-app/ui/pages/game.slint:377 crates/halcyon-app/ui/pages/game.slint:1448 crates/halcyon-app/ui/pages/game.slint:1464
+#: crates/halcyon-app/ui/pages/performance.slint:99 crates/halcyon-app/ui/pages/performance.slint:105 crates/halcyon-app/ui/pages/settings.slint:754
+#, placeholders
+msgid "{} %"
+msgstr "{}%"
+
 #: crates/halcyon-app/ui/pages/achievements.slint:49 crates/halcyon-app/ui/pages/game.slint:414
 msgid "Synchronisation…"
 msgstr "A sincronizar…"
@@ -643,6 +652,12 @@ msgstr "Guardado"
 #, placeholders
 msgid "réseau : {e}"
 msgstr "rede: {e}"
+
+#: crates/halcyon-app/src/ctl_achievements.rs:342 crates/halcyon-app/src/ctl_achievements.rs:386 crates/halcyon-app/src/ctl_perf.rs:58
+#: crates/halcyon-app/src/ctl_perf.rs:164 crates/halcyon-app/src/ctl_update.rs:295
+#, placeholders
+msgid "{v} %"
+msgstr "{v}%"
 
 #: crates/halcyon-app/src/ctl_backup.rs:96 crates/halcyon-app/src/ctl_backup.rs:97 crates/halcyon-app/src/ctl_backup.rs:98
 #: crates/halcyon-app/src/ctl_themes.rs:566 crates/halcyon-app/src/ctl_tracking.rs:796
