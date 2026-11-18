@@ -153,7 +153,7 @@ impl Controller {
     pub(crate) fn install_plugin(self: &Rc<Self>, path: &str) {
         let src = PathBuf::from(path.trim());
         if !src.exists() {
-            self.plugins_status(&tr!("Chemin introuvable"));
+            self.plugins_status(tr!("Chemin introuvable"));
             return;
         }
         let staging = self.plugin_staging();
@@ -223,7 +223,7 @@ impl Controller {
         }
         let Some(p) = plugins::list(&self.plugins_dir(), VERSION).into_iter().find(|p| p.id() == id) else { return };
         let Some(m) = p.manifest.clone().filter(|_| p.usable()) else {
-            self.plugins_status(&tr!("Extension inutilisable : corrigez les erreurs indiquées"));
+            self.plugins_status(tr!("Extension inutilisable : corrigez les erreurs indiquées"));
             self.refresh_plugins_ui();
             return;
         };
@@ -270,15 +270,15 @@ impl Controller {
 
     pub(crate) fn check_plugin_updates(&self) {
         if !self.net_allowed() {
-            self.plugins_status(&tr!("Hors ligne : vérification impossible"));
+            self.plugins_status(tr!("Hors ligne : vérification impossible"));
             return;
         }
         let list: Vec<Manifest> = plugins::list(&self.plugins_dir(), VERSION).into_iter().filter_map(|p| p.manifest).collect();
         if !list.iter().any(|m| !m.update_url.is_empty()) {
-            self.plugins_status(&tr!("Aucune extension n'indique d'adresse de mise à jour"));
+            self.plugins_status(tr!("Aucune extension n'indique d'adresse de mise à jour"));
             return;
         }
-        self.plugins_status(&tr!("Vérification…"));
+        self.plugins_status(tr!("Vérification…"));
         std::thread::Builder::new()
             .name("halcyon-plugin-updates".into())
             .spawn(move || {

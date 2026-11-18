@@ -60,7 +60,7 @@ pub fn export(data_dir: &Path, db_copy: &Path, dest: &Path, opts: &ExportOptions
             }
         }
         extra.push(("settings.json".into(), serde_json::to_vec_pretty(&v).map_err(io::Error::other)?));
-        sections.push(tr!("paramètres").into());
+        sections.push(tr!("paramètres"));
     }
     for dir in DIRS {
         let base = data_dir.join(dir);

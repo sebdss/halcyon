@@ -33,7 +33,7 @@ component TaskLine inherits Rectangle {
                 Text { text: root.title; color: Theme.text; font-size: Theme.t-small; font-weight: 650; overflow: elide; }
                 Text { text: root.detail; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
             }
-            if root.state == 0 && root.progress >= 0: Text { text: round(root.progress * 100) + " %"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
+            if root.state == 0 && root.progress >= 0: Text { text: @tr("{} %", round(root.progress * 100)); color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
             Text { text: root.time; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
             if root.cancellable: SecondaryButton { h: 32px; text: @tr("Annuler"); clicked => { root.cancel(); } }
         }

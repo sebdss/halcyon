@@ -764,7 +764,7 @@ impl Controller {
         let mut problems = 0;
         let db_result = self.db().integrity_check();
         match db_result {
-            Ok(None) => lines.push(tr!("Base de données : intègre").into()),
+            Ok(None) => lines.push(tr!("Base de données : intègre")),
             Ok(Some(e)) => {
                 problems += 1;
                 lines.push(tr!("Base de données : problèmes détectés ({e}). Exportez la configuration puis restaurez-la pour reconstruire la base.", e = e));
@@ -775,16 +775,16 @@ impl Controller {
             }
         }
         match std::fs::read_to_string(self.paths.settings_path()).map(|t| serde_json::from_str::<serde_json::Value>(&t)) {
-            Ok(Ok(_)) => lines.push(tr!("Paramètres : lisibles").into()),
+            Ok(Ok(_)) => lines.push(tr!("Paramètres : lisibles")),
             Ok(Err(e)) => {
                 problems += 1;
                 lines.push(tr!("Paramètres : fichier invalide ({e})", e = e));
             }
-            Err(_) => lines.push(tr!("Paramètres : valeurs par défaut (aucun fichier)").into()),
+            Err(_) => lines.push(tr!("Paramètres : valeurs par défaut (aucun fichier)")),
         }
         let probe = self.paths.data_dir.join(".integrity-test");
         match std::fs::write(&probe, b"ok").and_then(|_| std::fs::remove_file(&probe)) {
-            Ok(()) => lines.push(tr!("Dossier des données : accessible en écriture").into()),
+            Ok(()) => lines.push(tr!("Dossier des données : accessible en écriture")),
             Err(e) => {
                 problems += 1;
                 lines.push(tr!("Dossier des données : écriture impossible ({e})", e = e));
@@ -799,7 +799,7 @@ impl Controller {
         if missing_dirs > 0 {
             lines.push(trn!(missing_dirs, "{n} jeu marqué installé dont le dossier a disparu : relancez une analyse des sources", "{n} jeux marqués installés dont le dossier a disparu : relancez une analyse des sources"));
         } else {
-            lines.push(tr!("Dossiers des jeux installés : présents").into());
+            lines.push(tr!("Dossiers des jeux installés : présents"));
         }
         if missing_art > 0 {
             lines.push(trn!(missing_art, "{n} jaquette manquante : elle sera retéléchargée si les visuels en ligne sont activés", "{n} jaquettes manquantes : elles seront retéléchargées si les visuels en ligne sont activés"));

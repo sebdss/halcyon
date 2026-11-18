@@ -22,7 +22,7 @@ pub fn safe_file_name(name: &str) -> String {
         .collect();
     let s = s.split_whitespace().collect::<Vec<_>>().join(" ");
     let s = s.trim_matches('.').to_string();
-    if s.is_empty() { tr!("Jeu").into() } else { s.chars().take(80).collect() }
+    if s.is_empty() { tr!("Jeu") } else { s.chars().take(80).collect() }
 }
 
 /// Entrée de démarrage automatique (`~/.config/autostart/halcyon.desktop`).

@@ -156,6 +156,15 @@ pub fn format_date(unix: i64) -> String {
     trc!("date", "{day} {month} {year}", day = d, month = month_short(m), year = y)
 }
 
+/// `format_relative` repris au milieu d'une phrase (« Joué : il y a 4 jours ») : mot relatif
+/// en minuscule, date complète inchangée (« Oct 8, 2026 », « 8. Okt. 2026 » gardent leur
+/// majuscule). Voir `halcyon_i18n::lower_first`.
+pub fn format_relative_inline(ts: i64, now: i64) -> String {
+    let s = format_relative(ts, now);
+    let has_year = s.split(|c: char| !c.is_ascii_digit()).any(|w| w.len() == 4);
+    if has_year { s } else { halcyon_i18n::lower_first(&s) }
+}
+
 /// Date relative : « Aujourd'hui », « Hier », « Il y a 5 jours », sinon date complète.
 pub fn format_relative(unix: i64, now: i64) -> String {
     let days = now.div_euclid(86_400) - unix.div_euclid(86_400);
@@ -267,6 +276,14 @@ fn pre_key(p: &str) -> Vec<(u8, u64, String)> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn relative_inline_lowercases_words_but_not_dates() {
+        let now = 1_763_000_000;
+        assert_eq!(format_relative_inline(now, now), format_relative(now, now).to_lowercase());
+        let old = now - 400 * 86_400;
+        assert_eq!(format_relative_inline(old, now), format_relative(old, now), "date complète inchangée");
+    }
+
     use super::*;
 
     #[test]

@@ -120,6 +120,33 @@ code, kbd { font-family: var(--mono); font-size: .86em; }
 .link:hover { color: var(--accent-hover); }
 .num { font-family: var(--display); font-weight: 800; font-variant-numeric: tabular-nums; }
 
+/* ---------- Le film : bande sombre comme le mode console, lecture au clic seulement ---------- */
+.film { background: var(--console); border-block: 1px solid var(--border); padding-block: clamp(48px, 6vw, 88px); }
+.film__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 40px; flex-wrap: wrap; margin-bottom: clamp(20px, 2.4vw, 32px); }
+.film__title { font-size: clamp(26px, 1.8vw + 14px, 40px); margin-top: 10px; }
+.film__meta { font-size: 14px; color: var(--dim); max-width: 46ch; }
+.film__player { aspect-ratio: 16 / 9; background: #000; }
+.film__player video { display: block; width: 100%; height: 100%; background: #000; }
+/* Le bouton se pose dans le coin bas gauche : il ne cache jamais le titre de l'image d'attente,
+   quelle que soit sa longueur selon la langue. */
+.film__play {
+  position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: flex-start;
+  padding: clamp(12px, 2.2vw, 28px); border: 0; cursor: pointer; color: inherit; font: inherit;
+  background: linear-gradient(to top, rgba(14, 16, 20, .7), rgba(14, 16, 20, 0) 45%);
+  -webkit-tap-highlight-color: transparent;
+}
+.film__play[hidden] { display: none; }
+.film__play .btn { box-shadow: 0 8px 28px rgba(0, 0, 0, .45); pointer-events: none; }
+.film__play:hover .btn { background: var(--warm-hover); }
+.film__play:active .btn { background: var(--warm-press); transform: translateY(1px); }
+.film__play:focus-visible { outline: none; }
+.film__play:focus-visible .btn { outline: 2px solid var(--accent); outline-offset: 3px; }
+.film__time { font-family: var(--font); font-weight: 600; font-size: 13px; opacity: .72; font-variant-numeric: tabular-nums; }
+.film[data-state="playing"] .film__play { display: none; }
+@media (max-width: 720px) {
+  .film__play .btn { --h: 40px; padding: 0 16px 0 14px; font-size: 13px; gap: 8px; }
+}
+
 /* ---------- Boutons (PlayButton / PrimaryButton / SecondaryButton du launcher) ---------- */
 .btn {
   --h: 40px;
@@ -215,6 +242,13 @@ kbd.key {
 .nav__end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .nav__gh { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); text-decoration: none; padding: 8px 4px; transition: color var(--fast); }
 .nav__gh:hover { color: var(--text); }
+.nav__lang {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 28px; padding: 0 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--muted); text-decoration: none;
+  border: 1px solid var(--border); border-radius: var(--r); transition: color var(--fast), border-color var(--fast);
+}
+.nav__lang:hover { color: var(--text); border-color: var(--muted); }
+.sheet__end { display: inline-flex; gap: 20px; }
 .nav__cta { --h: 36px; }
 .nav__toggle {
   display: none; width: 44px; height: 44px; margin-right: -10px;
@@ -252,7 +286,7 @@ kbd.key {
 .sheet__meta a { color: var(--muted); text-decoration: none; }
 
 @media (max-width: 960px) {
-  .nav__links, .nav__gh { display: none; }
+  .nav__links, .nav__gh, .nav__lang { display: none; }
   .nav__toggle { display: inline-flex; }
 }
 @media (min-width: 961px) { .sheet { display: none; } }

@@ -515,36 +515,55 @@ msgstr "appid em falta"
 msgid "nom absent"
 msgstr "nome em falta"
 
+#: crates/halcyon-integrations/src/steam_stats.rs:84
+msgid "fichier Steam illisible (imbrication trop profonde)"
+msgstr "ficheiro Steam ilegível (encadeamento demasiado profundo)"
+
+#: crates/halcyon-integrations/src/steam_stats.rs:90 crates/halcyon-integrations/src/steam_stats.rs:111 crates/halcyon-integrations/src/steam_stats.rs:112
+#: crates/halcyon-integrations/src/steam_stats.rs:119
+msgid "fichier Steam incomplet"
+msgstr "ficheiro Steam incompleto"
+
+#: crates/halcyon-integrations/src/steam_stats.rs:104
+#, placeholders
+msgid "fichier Steam d'un format inconnu (type {kind})"
+msgstr "ficheiro Steam num formato desconhecido (tipo {kind})"
+
+#: crates/halcyon-integrations/src/steam_stats.rs:263
+#, placeholders
+msgid "{path} : fichier trop volumineux"
+msgstr "{path}: ficheiro demasiado grande"
+
 #: crates/halcyon-integrations/src/steam_web.rs:60
 msgid "erreur Steam"
 msgstr "erro do Steam"
 
-#: crates/halcyon-integrations/src/steam_web.rs:206
+#: crates/halcyon-integrations/src/steam_web.rs:244
 msgctxt "tag"
 msgid "multijoueur"
 msgstr "multijogador"
 
-#: crates/halcyon-integrations/src/steam_web.rs:208
+#: crates/halcyon-integrations/src/steam_web.rs:246
 msgctxt "tag"
 msgid "coop"
 msgstr "cooperativo"
 
-#: crates/halcyon-integrations/src/steam_web.rs:209
+#: crates/halcyon-integrations/src/steam_web.rs:247
 msgctxt "tag"
 msgid "écran partagé"
 msgstr "ecrã dividido"
 
-#: crates/halcyon-integrations/src/steam_web.rs:210
+#: crates/halcyon-integrations/src/steam_web.rs:248
 msgctxt "tag"
 msgid "solo"
 msgstr "um jogador"
 
-#: crates/halcyon-integrations/src/steam_web.rs:211
+#: crates/halcyon-integrations/src/steam_web.rs:249
 msgctxt "tag"
 msgid "manette"
 msgstr "comando"
 
-#: crates/halcyon-integrations/src/steam_web.rs:212
+#: crates/halcyon-integrations/src/steam_web.rs:250
 msgctxt "tag"
 msgid "manette partielle"
 msgstr "suporte parcial de comando"

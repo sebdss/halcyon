@@ -33,8 +33,8 @@ msgid "points RetroAchievements"
 msgstr "pontos RetroAchievements"
 
 #: crates/halcyon-app/ui/pages/achievements.slint:71
-msgid "Steam : ajoutez votre clé Web API pour synchroniser vos succès Steam. "
-msgstr "Steam: adicione a sua chave de Web API para sincronizar as conquistas do Steam. "
+msgid "Steam : aucun compte Steam trouvé sur ce PC ; ouvrez Steam une fois connecté. "
+msgstr "Steam: nenhuma conta Steam encontrada neste PC; abra o Steam uma vez com a sessão iniciada. "
 
 #: crates/halcyon-app/ui/pages/achievements.slint:72
 msgid "RetroAchievements : renseignez votre nom d'utilisateur et votre clé Web API pour les jeux émulés. "

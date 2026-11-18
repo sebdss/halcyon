@@ -195,7 +195,10 @@ rendu logiciel) : 51 Mo à l'accueil (40 jeux), démarrage en 92 ms (53 jeux). A
 | Jeux Epic installés | ✅ hors ligne | manifestes `*.item` |
 | Jaquettes / descriptions Epic | ✅ hors ligne (URL) + en ligne (images) | `catcache.bin` du launcher Epic |
 | Lancer un jeu Epic | ⚠️ partiel | URI `com.epicgames.launcher://…?action=launch&silent=true` : le launcher Epic gère l'authentification, en mode silencieux |
-| Succès Steam | ✅ en ligne + clé API | `GetSchemaForGame` + `GetPlayerAchievements` + rareté globale ; profil public requis |
+| Succès Steam (sans clé) | ✅ hors ligne | `appcache/stats/UserGameStatsSchema_<appid>.bin` (définitions, noms localisés, icônes) + `UserGameStats_<compte>_<appid>.bin` (bits débloqués, dates), KeyValues binaires ; compte = SteamID64 − 76561197960265728, détecté dans `loginusers.vdf` ; rareté par `GetGlobalAchievementPercentagesForApp` (sans clé, en ligne) |
+| Succès Steam (clé facultative) | ✅ en ligne + clé API | `GetSchemaForGame` + `GetPlayerAchievements` ; jeux jamais lancés sur ce PC ; repli sur la lecture locale en cas d'erreur ; profil public requis |
+| Visuels des jeux autonomes | ✅ en ligne, sans clé | `store.steampowered.com/api/storesearch` (nom identique exigé, type `app`) puis CDN Steam ; SteamGridDB (clé facultative) pour le reste |
+| Visuels des jeux émulés | ✅ en ligne, sans clé | `raw.githubusercontent.com/libretro-thumbnails/<système>/master/Named_{Boxarts,Snaps}/<titre>.png` ; système déclaré par `libretro` dans `platforms.json`, caractères `&*/:`<>?\|"` remplacés par `_` |
 | Succès Epic | ❌ pas d'API publique | Affiché comme « non disponible », jamais inventé |
 | RetroAchievements (cartouches) | ✅ en ligne (clé Web API) | Empreinte MD5 normalisée (en-têtes NES/SNES/PCE/Lynx/7800, ordre d'octets N64) comparée à `API_GetGameList` |
 | RetroAchievements (disques, `.zip`) | ⚠️ manuel | Empreintes de disque non implémentées : identifiant saisi dans la fiche |

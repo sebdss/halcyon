@@ -50,7 +50,7 @@ impl Controller {
         if emu > 0 {
             parts.push(trn!(emu, "options pour {n} émulateur", "options pour {n} émulateurs"));
         }
-        if parts.is_empty() { tr!("Disposition standard").into() } else { parts.join(" · ") }
+        if parts.is_empty() { tr!("Disposition standard") } else { parts.join(" · ") }
     }
 
     pub(crate) fn refresh_pads_ui(&self) {

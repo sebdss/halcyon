@@ -28,9 +28,9 @@ impl std::fmt::Display for FetchError {
 fn classify(e: ureq::Error) -> FetchError {
     match e {
         ureq::Error::StatusCode(401) | ureq::Error::StatusCode(403) => {
-            FetchError::Unavailable(tr!("accès refusé (clé d'API invalide ou profil privé)").into())
+            FetchError::Unavailable(tr!("accès refusé (clé d'API invalide ou profil privé)"))
         }
-        ureq::Error::StatusCode(429) => FetchError::Network(tr!("trop de requêtes, réessai plus tard").into()),
+        ureq::Error::StatusCode(429) => FetchError::Network(tr!("trop de requêtes, réessai plus tard")),
         ureq::Error::StatusCode(code) => FetchError::Unavailable(format!("HTTP {code}")),
         other => FetchError::Network(other.to_string()),
     }
@@ -83,7 +83,7 @@ impl Downloader {
     /// Essaie chaque URL dans l'ordre ; enregistre la première image valide sous
     /// `dest_stem` + extension déduite du type MIME.
     pub fn fetch_first(&self, urls: &[String], dest_stem: &Path) -> Result<PathBuf, FetchError> {
-        let mut last_err = FetchError::Unavailable(tr!("aucune URL").into());
+        let mut last_err = FetchError::Unavailable(tr!("aucune URL"));
         for url in urls {
             match self.fetch(url, dest_stem) {
                 Ok(p) => return Ok(p),
@@ -111,7 +111,7 @@ impl Downloader {
         };
         let bytes = resp.body_mut().with_config().limit(MAX_BYTES).read_to_vec().map_err(classify)?;
         if bytes.len() < 64 {
-            return Err(unavailable(tr!("image vide").into()));
+            return Err(unavailable(tr!("image vide")));
         }
         let dest = dest_stem.with_extension(ext);
         let tmp = dest_stem.with_extension("part");

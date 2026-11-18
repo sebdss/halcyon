@@ -25,8 +25,9 @@ bibliothèques et assets, eux, sont partagés (téléchargés une seule fois).
 Big Picture, collections) dès qu'une installation Halcyon ou le launcher officiel est présent.
 Filtre de source : « Minecraft ». **Jouer** depuis la bibliothèque lance l'installation
 sélectionnée dans l'onglet Minecraft (ou ouvre l'onglet s'il n'y en a aucune). Favoris, statut,
-notes, collections et jaquettes personnalisées fonctionnent comme pour les autres jeux ; avec une
-clé SteamGridDB, les visuels sont récupérés automatiquement.
+notes, collections et jaquettes personnalisées fonctionnent comme pour les autres jeux ; Minecraft
+n'étant pas vendu sur Steam, ses visuels en ligne viennent de SteamGridDB (clé facultative,
+**Paramètres › Comptes et succès › Réglages avancés**).
 
 Temps de jeu : mesuré en mode direct. En mode launcher officiel, Halcyon note le lancement mais
 ne connaît pas la durée (c'est le launcher qui lance Java).

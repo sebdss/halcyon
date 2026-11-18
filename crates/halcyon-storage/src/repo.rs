@@ -389,7 +389,7 @@ impl Database {
             return Err(StorageError::Conflict(tr!("cet exécutable est déjà dans la bibliothèque (« {name} »)", name = name)));
         }
         let name = if input.name.trim().is_empty() {
-            input.executable.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Jeu").into())
+            input.executable.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Jeu"))
         } else {
             input.name.trim().to_string()
         };
@@ -494,7 +494,7 @@ impl Database {
     pub fn remove_manual_game(&self, id: GameId) -> Result<()> {
         let n = self.conn.execute("DELETE FROM games WHERE id = ?1 AND source = 'manual'", [id])?;
         if n == 0 {
-            return Err(StorageError::Conflict(tr!("seuls les jeux ajoutés manuellement peuvent être supprimés").into()));
+            return Err(StorageError::Conflict(tr!("seuls les jeux ajoutés manuellement peuvent être supprimés")));
         }
         Ok(())
     }
@@ -583,7 +583,7 @@ impl Database {
     pub fn create_collection(&self, name: &str) -> Result<i64> {
         let name = name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict(tr!("le nom de la collection est vide").into()));
+            return Err(StorageError::Conflict(tr!("le nom de la collection est vide")));
         }
         self.conn.execute("INSERT OR IGNORE INTO collections (name) VALUES (?1)", [name])?;
         Ok(self.conn.query_row("SELECT id FROM collections WHERE name = ?1", [name], |r| r.get(0))?)

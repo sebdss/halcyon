@@ -45,7 +45,7 @@ pub fn apply(exe: &Path, pref: GpuPreference) -> Result<GpuGuard, String> {
 
 #[cfg(not(windows))]
 pub fn apply(_exe: &Path, _pref: GpuPreference) -> Result<GpuGuard, String> {
-    Err(tr!("préférence graphique du système : Windows uniquement").into())
+    Err(tr!("préférence graphique du système : Windows uniquement"))
 }
 
 impl GpuGuard {

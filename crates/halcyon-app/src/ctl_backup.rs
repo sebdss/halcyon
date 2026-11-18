@@ -71,7 +71,7 @@ impl Controller {
         let manifest = self.manifest();
         let dest = dir.join(format!("halcyon-config-{}.zip", stamp(now_unix())));
         self.set_backup_status(&tr!("Export en cours…"));
-        let task = self.task_start("export", &tr!("Export de la configuration"));
+        let task = self.task_start("export", tr!("Export de la configuration"));
         self.task_update(task, Some(-1.0), None);
         std::thread::spawn(move || {
             let r = (|| -> Result<u64, String> {
@@ -123,6 +123,12 @@ impl Controller {
             version = manifest.app_version,
             sections = manifest.sections.join(", ")
         );
+        // Une archive contient des commandes que Halcyon exécutera (scripts avant et après une
+        // session, émulateurs, extensions) : la confirmation le dit.
+        let text = format!(
+            "{text}\n\n{}",
+            tr!("Une archive contient aussi des commandes exécutées au lancement des jeux (scripts des profils, émulateurs, extensions) : ne restaurez qu'une archive créée par vous ou par une personne de confiance.")
+        );
         self.confirm(&tr!("Restaurer cette configuration ?"), &text, &tr!("Restaurer et redémarrer"), move |c| c.run_import(src));
     }
 
@@ -138,7 +144,7 @@ impl Controller {
                 config_archive::extract(&src, &staging).map_err(|e| e.to_string())?;
                 let version = saves_mods::inspect_database(&staging.join("library.db")).map_err(|e| tr!("base de l'archive : {e}", e = e))?;
                 if version > saves_mods::schema_version() {
-                    return Err(tr!("base créée par une version plus récente").into());
+                    return Err(tr!("base créée par une version plus récente"));
                 }
                 // Filet de sécurité : export complet de l'état actuel.
                 std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;

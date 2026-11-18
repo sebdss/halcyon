@@ -11,7 +11,8 @@ Un exemple complet se trouve dans [`examples/plugins/liens-et-theme`](../example
 
 | Règle | Conséquence |
 |---|---|
-| **Aucun code** | Halcyon n'exécute jamais le contenu d'une extension. Une archive contenant un fichier exécutable ou un script (`.exe`, `.dll`, `.so`, `.dylib`, `.bat`, `.cmd`, `.ps1`, `.sh`, `.msi`, `.scr`, `.com`, `.vbs`, `.js`, `.py`) est **refusée** à l'installation. |
+| **Aucun code** | Halcyon n'exécute jamais le contenu d'une extension. Une archive contenant un fichier exécutable ou un script (`.exe`, `.dll`, `.so`, `.dylib`, `.bat`, `.cmd`, `.ps1`, `.sh`, `.msi`, `.scr`, `.com`, `.vbs`, `.js`, `.py`, `.jar`, `.lnk`, `.AppImage`, `.desktop`…) est **refusée** à l'installation. |
+| **Émulateurs sans interpréteur** | Un émulateur désigne un programme déjà installé, nommé dans le résumé d'activation. Un shell, un interpréteur ou une couche de compatibilité (`sh`, `cmd`, `powershell`, `python`, `java`, `wine`…) est refusé : ses arguments pourraient exécuter n'importe quelle commande. |
 | **Installée désactivée** | Après installation, l'extension reste inactive. L'activer affiche un résumé de ses autorisations et de ses apports, à confirmer. |
 | **Réseau limité** | Une source de métadonnées ne peut interroger que les domaines déclarés par `network:<domaine>`, en HTTPS uniquement. Une URL hors de ces domaines est ignorée. Les requêtes respectent le mode hors ligne. |
 | **Dossiers explicites** | Les dossiers de jeux ne sont analysés qu'avec la permission `folders`. |

@@ -109,7 +109,7 @@ pub struct Client<'a> {
 impl Client<'_> {
     fn cf(&self) -> Result<[(&'static str, &str); 1]> {
         if self.curseforge_key.trim().is_empty() {
-            return Err(Error::Invalid(tr!("CurseForge demande une clé d'API (Minecraft › Paramètres)").into()));
+            return Err(Error::Invalid(tr!("CurseForge demande une clé d'API (Minecraft › Paramètres)")));
         }
         Ok([("x-api-key", self.curseforge_key.trim())])
     }
@@ -220,11 +220,11 @@ impl Client<'_> {
     pub fn version(&self, source: Source, project: &str, version_id: &str) -> Result<ProjectVersion> {
         match source {
             Source::Modrinth => parse_modrinth_version(&self.http.get_json(&format!("{MODRINTH}/version/{}", http::encode(version_id)), &[])?)
-                .ok_or_else(|| Error::Invalid(tr!("version Modrinth illisible").into())),
+                .ok_or_else(|| Error::Invalid(tr!("version Modrinth illisible"))),
             Source::CurseForge => {
                 let headers = self.cf()?;
                 let v = self.http.get_json(&format!("{CURSEFORGE}/mods/{}/files/{}", http::encode(project), http::encode(version_id)), &headers)?;
-                v.get("data").and_then(|f| parse_cf_file(f, project)).ok_or_else(|| Error::Invalid(tr!("fichier CurseForge illisible").into()))
+                v.get("data").and_then(|f| parse_cf_file(f, project)).ok_or_else(|| Error::Invalid(tr!("fichier CurseForge illisible")))
             }
         }
     }

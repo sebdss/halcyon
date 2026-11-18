@@ -35,7 +35,7 @@ fn short_duration(secs: u64) -> String {
     } else if secs >= 60 {
         tr!("{v} min", v = secs / 60)
     } else if secs > 0 {
-        tr!("< 1 min").into()
+        tr!("< 1 min")
     } else {
         String::new()
     }
@@ -592,7 +592,7 @@ impl Controller {
             }
         }
         if rules.is_empty() {
-            return Err(tr!("Ajoutez au moins une règle").into());
+            return Err(tr!("Ajoutez au moins une règle"));
         }
         Ok(RuleSet { match_all: edit.match_all, rules })
     }

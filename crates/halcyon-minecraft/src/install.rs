@@ -174,7 +174,7 @@ pub fn manifest(http: &Http, layout: &Layout, online: bool) -> Result<Manifest> 
             Err(e) => read_json(&cache).map_err(|_| e)?,
         }
     } else {
-        read_json(&cache).map_err(|_| Error::Network(tr!("hors ligne et liste des versions jamais téléchargée").into()))?
+        read_json(&cache).map_err(|_| Error::Network(tr!("hors ligne et liste des versions jamais téléchargée")))?
     };
     serde_json::from_value(value).map_err(|e| Error::Invalid(tr!("liste des versions illisible : {e}", e = e)))
 }
@@ -219,7 +219,7 @@ pub fn resolve(http: &Http, layout: &Layout, id: &str, manifest: Option<&Manifes
             None => break,
         }
     }
-    let mut merged = chain.pop().ok_or_else(|| Error::Invalid(tr!("version vide").into()))?;
+    let mut merged = chain.pop().ok_or_else(|| Error::Invalid(tr!("version vide")))?;
     while let Some(child) = chain.pop() {
         merged = Version::merge(child, merged);
     }
@@ -286,7 +286,7 @@ pub fn install(http: &Http, layout: &Layout, id: &str, manifest: Option<&Manifes
     sink(Event::Step(tr!("Lecture de la version {id}", id = id)));
     let v = resolve(http, layout, id, manifest)?;
     let env = Env::current();
-    sink(Event::Step(tr!("Préparation de la liste des fichiers").into()));
+    sink(Event::Step(tr!("Préparation de la liste des fichiers")));
     let jobs = jobs(http, layout, &v, &env)?;
     sink(Event::Step(tr!("Téléchargement des fichiers ({jobs})", jobs = jobs.len())));
     fetch_all(http, jobs, check_hash, cancel, sink)?;

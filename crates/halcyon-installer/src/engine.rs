@@ -508,7 +508,7 @@ pub fn run(
     for f in &todo {
         if cancel.load(Ordering::SeqCst) {
             let _ = std::fs::remove_dir_all(&staging);
-            return Err(tr!("installation annulée : rien n'a été modifié").into());
+            return Err(tr!("installation annulée : rien n'a été modifié"));
         }
         on(Event::File(f.path.clone()));
         let dest = rel_path(&staging, &f.path)?;
@@ -640,8 +640,10 @@ pub fn run(
     let _ = std::fs::write(&pointer, serde_json::json!({ "dir": dir }).to_string());
     let _ = std::fs::remove_dir_all(&backup);
     let _ = std::fs::remove_dir_all(&staging);
-    let _ = std::fs::remove_file(dir.join(JOURNAL));
-    on(Event::Component(tr!("Installation enregistrée").into(), true, tr!("version {version}", version = m.version)));
+    // Sans journal, l'installation est considérée comme terminée : s'il restait, la prochaine
+    // ouverture proposerait une réparation inutile.
+    remove_file_retry(&dir.join(JOURNAL));
+    on(Event::Component(tr!("Installation enregistrée"), true, tr!("version {version}", version = m.version)));
     Ok(report)
 }
 
@@ -734,7 +736,7 @@ pub fn repair_integration(record: &Record, env: &Env, on: &mut dyn FnMut(Event))
     on(Event::Step(3));
     let rec = Record { integration, ..record.clone() };
     std::fs::write(dir.join(RECORD), serde_json::to_vec_pretty(&rec).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
-    on(Event::Component(tr!("Installation enregistrée").into(), true, tr!("version {version}", version = rec.version)));
+    on(Event::Component(tr!("Installation enregistrée"), true, tr!("version {version}", version = rec.version)));
     report.written = 0;
     Ok(report)
 }
@@ -755,7 +757,7 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
     let mut report = Report::default();
     on(Event::Step(0));
     if running_from(dir) {
-        return Err(tr!("Halcyon est ouvert : quittez-le (icône de la zone de notification › Quitter), puis relancez la désinstallation. Rien n'a été retiré.").into());
+        return Err(tr!("Halcyon est ouvert : quittez-le (icône de la zone de notification › Quitter), puis relancez la désinstallation. Rien n'a été retiré."));
     }
     // Raccourcis et entrées du système.
     for p in &record.integration {
@@ -789,7 +791,7 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
         }
         platform::linux::refresh_caches(env);
     }
-    on(Event::Component(tr!("Raccourcis et entrées du système").into(), true, String::new()));
+    on(Event::Component(tr!("Raccourcis et entrées du système"), true, String::new()));
     // Fichiers du programme.
     on(Event::Step(1));
     let total: u64 = record.files.iter().map(|f| f.size).sum();
@@ -828,7 +830,7 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
                 std::fs::remove_dir_all(c).map_err(|e| format!("{} : {e}", c.display()))?;
             }
         }
-        on(Event::Component(tr!("Cache"), true, tr!("supprimé").into()));
+        on(Event::Component(tr!("Cache"), true, tr!("supprimé")));
     }
     if opts.remove_data {
         for d in &env.user_data {
@@ -843,11 +845,24 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
             let _ = std::fs::remove_file(dir.join("portable.txt"));
             let _ = std::fs::remove_dir(dir);
         }
-        on(Event::Component(tr!("Données personnelles"), true, tr!("supprimées").into()));
+        on(Event::Component(tr!("Données personnelles"), true, tr!("supprimées")));
     } else {
-        on(Event::Component(tr!("Données personnelles"), true, tr!("conservées").into()));
+        on(Event::Component(tr!("Données personnelles"), true, tr!("conservées")));
     }
     Ok(report)
+}
+
+/// Supprime un fichier en réessayant brièvement : sous Windows, un antivirus ou l'indexation
+/// peut garder quelques instants un fichier qui vient d'être écrit (partage refusé).
+fn remove_file_retry(path: &Path) {
+    for attempt in 0..20 {
+        match std::fs::remove_file(path) {
+            Ok(()) => return,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return,
+            Err(e) if attempt == 19 => log::warn!("{} non supprimé : {e}", path.display()),
+            Err(_) => std::thread::sleep(std::time::Duration::from_millis(50 * (attempt + 1))),
+        }
+    }
 }
 
 fn remove_empty_parents(file: &Path, stop: &Path) {

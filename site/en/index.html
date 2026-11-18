@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-tlTtfpdsMQSdcfX3DLM1fgx/y++BLw+48vFj+5cTJa0='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://api.github.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Halcyon — all your games, one move to play</title>
+  <meta name="description" content="Halcyon is a free, open-source launcher for Windows and Linux: your Steam, Epic Games, GOG, standalone and emulated games in a single library, with achievements, saves, mods and a console mode. Native, lightweight, works offline.">
+  <meta name="theme-color" content="#0f1115">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://sebdss.github.io/halcyon/en/">
+  <link rel="alternate" hreflang="fr" href="https://sebdss.github.io/halcyon/">
+  <link rel="alternate" hreflang="en" href="https://sebdss.github.io/halcyon/en/">
+  <link rel="alternate" hreflang="x-default" href="https://sebdss.github.io/halcyon/en/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="fr_FR">
+  <meta property="og:title" content="Halcyon — all your games, one move to play">
+  <meta property="og:description" content="A free launcher for Windows and Linux: Steam, Epic Games, GOG, standalone games and emulators together in a single library.">
+  <meta property="og:url" content="https://sebdss.github.io/halcyon/en/">
+  <meta property="og:image" content="https://sebdss.github.io/halcyon/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Halcyon logo next to the launcher's home screen">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="../assets/img/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="../assets/img/logo-256.png" sizes="256x256" type="image/png">
+  <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+
+  <link rel="preload" href="../assets/fonts/ArchivoExpanded-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/Archivo-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Halcyon",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Windows, Linux",
+    "description": "Universal video game launcher for Windows and Linux: Steam, Epic Games, GOG, standalone games and emulators in a single library.",
+    "inLanguage": "en",
+    "license": "https://opensource.org/licenses/MIT",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "codeRepository": "https://github.com/sebdss/halcyon"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": "Halcyon — presentation film",
+    "description": "Halcyon in 57 seconds: unified library, views, game page, console mode, tools and emulators, with real captures of the launcher.",
+    "thumbnailUrl": "https://sebdss.github.io/halcyon/assets/video/halcyon-film-en-poster.webp",
+    "contentUrl": "https://sebdss.github.io/halcyon/assets/video/halcyon-film-en-1080.mp4",
+    "uploadDate": "2026-11-18",
+    "duration": "PT57S",
+    "inLanguage": "en",
+    "width": 1920,
+    "height": 1080
+  }
+  </script>
+  <script>document.documentElement.classList.replace("no-js", "js");</script>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+<symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></symbol>
+<symbol id="i-library" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="3.5" y="3.5" width="7" height="7" rx="0.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="0.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="0.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="0.8"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M7.5 4h9v5.5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5v1.5A3 3 0 0 0 7.6 10.5M16.5 6h3v1.5a3 3 0 0 1-3.1 3"/><path d="M12 14v3.5M8.5 20.5h7M9.5 20.5l.6-3h3.8l.6 3"/></symbol>
+<symbol id="i-tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="2.5" y="4.5" width="19" height="12.5" rx="1"/><path d="M8 20.5h8M12 17v3.5"/></symbol>
+<symbol id="i-cube" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 2.8l8 4.4v9.6l-8 4.4-8-4.4V7.2z"/><path d="M4 7.2l8 4.4 8-4.4M12 11.6V21.2"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M5.5 4h10l3 3v12.5a.5.5 0 0 1-.5.5H5.5a.5.5 0 0 1-.5-.5V4.5a.5.5 0 0 1 .5-.5z"/><path d="M8 4v4.5h7V4M8 20v-6h8v6"/></symbol>
+<symbol id="i-puzzle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M10 4.5a2 2 0 1 1 4 0V6h4v4h-1.5a2 2 0 1 0 0 4H18v4h-4v-1.5a2 2 0 1 0-4 0V18H6v-4h1.5a2 2 0 1 0 0-4H6V6h4z"/></symbol>
+<symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M4.5 17a8 8 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3" fill="currentColor"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 4l8.5 4.5L12 13 3.5 8.5z"/><path d="M3.5 12.5L12 17l8.5-4.5M3.5 16.5L12 21l8.5-4.5"/></symbol>
+<symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="3.5" y="4.5" width="17" height="11.5" rx="0.8"/><path d="M9 20h6M12 16v4"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M13 3.5 5.5 13.5H12l-1 7 7.5-10H12z"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M7 18.5a4 4 0 0 1-.6-8 5.5 5.5 0 0 1 10.6-1.2A4.5 4.5 0 0 1 17.5 18.5z"/></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M14 4.5h5.5V10M19.5 4.5L11 13"/><path d="M17 14v4.5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H10"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 3.5l7 2.5v5.5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+<symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.8 1.8-1.7 0-1.2-1-1.6-1-2.6 0-.9.7-1.5 1.6-1.5H17a3.5 3.5 0 0 0 3.5-3.5c0-4.3-3.8-7.7-8.5-7.7z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/></symbol>
+<symbol id="i-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M15 5l-7 7 7 7"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M9 5l7 7-7 7"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r=".9" fill="currentColor"/><circle cx="4.5" cy="12" r=".9" fill="currentColor"/><circle cx="4.5" cy="17.5" r=".9" fill="currentColor"/></symbol>
+<symbol id="i-carousel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="7" y="5" width="10" height="14" rx="1"/><path d="M3.5 7.5v9M20.5 7.5v9"/></symbol>
+<symbol id="i-immersive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="3.5" y="4.5" width="17" height="15" rx="1"/><path d="M3.5 14l5-4 4 3 3-2 5 4"/><path d="M7 19.5h10"/></symbol>
+<symbol id="i-compact" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="4" y="4" width="4" height="5" rx="1"/><rect x="10" y="4" width="4" height="5" rx="1"/><rect x="16" y="4" width="4" height="5" rx="1"/><rect x="4" y="11" width="4" height="5" rx="1"/><rect x="10" y="11" width="4" height="5" rx="1"/><rect x="16" y="11" width="4" height="5" rx="1"/><path d="M4 19.5h16"/></symbol>
+<symbol id="i-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><rect x="3" y="6.5" width="18" height="11" rx="1"/><path d="M7 10h.01M10.5 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></symbol>
+<symbol id="i-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M7 7.5h10a4.5 4.5 0 0 1 4.4 5.4l-.8 4.1a2.3 2.3 0 0 1-4 1L15 16h-6l-1.6 2a2.3 2.3 0 0 1-4-1l-.8-4.1A4.5 4.5 0 0 1 7 7.5z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="17.5" cy="13" r=".6" fill="currentColor"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.2v15.6L20.5 12z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+</svg>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="nav at-top" id="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="#home" aria-label="Halcyon, back to the top of the page">
+      <img src="../assets/img/logo-64.png" width="28" height="28" alt="">
+      <span>Halcyon</span>
+    </a>
+    <nav class="nav__links" aria-label="Main navigation">
+      <a href="#home" data-spy="home">Home</a>
+      <a href="#about" data-spy="about">About</a>
+      <a href="#features" data-spy="features">Features</a>
+      <a href="#download" data-spy="download">Download</a>
+      <span class="nav__perch" aria-hidden="true"></span>
+    </nav>
+    <div class="nav__end">
+      <a class="nav__lang" href="../" hreflang="fr" lang="fr" title="Version française"><span class="sr-only">Version française : </span>FR</a>
+      <a class="nav__gh" href="https://github.com/sebdss/halcyon" rel="noopener">GitHub</a>
+      <a class="btn btn--warm nav__cta" href="#download">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-download"/></svg>
+        <span class="nav__cta-long">Download Halcyon</span><span class="nav__cta-short">Download</span>
+      </a>
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
+        <svg class="icon i-menu" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="icon i-close" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="sheet" id="menu" aria-label="Menu" role="dialog" aria-modal="true" hidden>
+  <nav class="sheet__links" aria-label="Main navigation">
+    <a href="#home" data-spy="home">Home <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+    <a href="#about" data-spy="about">About <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+    <a href="#features" data-spy="features">Features <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+    <a href="#interface" data-spy="interface">The interface <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+    <a href="#download" data-spy="download">Download <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+  </nav>
+  <div class="sheet__foot">
+    <a class="btn btn--warm btn--big" href="#download">
+      <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg> Download Halcyon
+    </a>
+    <div class="sheet__meta">
+      <span>Windows · Linux · MIT license</span>
+      <span class="sheet__end"><a href="../" hreflang="fr" lang="fr">Français</a><a href="https://github.com/sebdss/halcyon" rel="noopener">GitHub</a></span>
+    </div>
+  </div>
+</div>
+
+<main id="content">
+
+  <!-- Home -->
+  <section class="hero" id="home" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+      <div class="hero__text">
+        <div class="hero__brand" data-hero-brand>
+          <img src="../assets/img/logo-128.png" width="44" height="44" alt="">
+          <div>
+            <span class="hero__brand-name">Halcyon</span>
+            <span class="hero__brand-meta">Game launcher for Windows and Linux</span>
+          </div>
+        </div>
+        <div class="hero__perch" aria-hidden="true"></div>
+        <h1 id="hero-title"><span>All your games.</span> <span>One move to play.</span></h1>
+        <p class="lead hero__lead">Steam, Epic Games, GOG, your standalone games and your emulators together in a single library. Native, lightweight, works offline.</p>
+        <div class="hero__actions">
+          <a class="btn btn--warm btn--big" href="#download">
+            <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+            Download Halcyon
+          </a>
+          <a class="btn btn--line btn--big" href="#film" data-film-start><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg> Watch the film <span class="film__time" aria-hidden="true">0:57</span></a>
+        </div>
+        <ul class="hero__facts" aria-label="At a glance">
+          <li>Windows and Linux</li>
+          <li>Free, MIT license</li>
+          <li>No account, works offline</li>
+        </ul>
+      </div>
+      <figure class="hero__media">
+        <div class="shot">
+          <picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/accueil-m.webp" width="800" height="947"><img src="../assets/img/screens/en/accueil-1440.webp"
+               srcset="../assets/img/screens/en/accueil-1440.webp 1440w, ../assets/img/screens/en/accueil-2880.webp 2880w"
+               sizes="(max-width: 720px) 640px, (max-width: 1080px) 100vw, 62vw"
+               width="2880" height="1800" fetchpriority="high"
+               alt="Halcyon's home screen: navigation column, a “Resume” block for Counter-Strike 2 with the orange Play button, then recently launched games: Elden Ring, Cyberpunk 2077, Baldur's Gate 3, Marvel Rivals, Helldivers 2."></picture>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Le film : version anglaise, lue au clic seulement -->
+  <section class="film" id="film" data-nav-parent="home" data-film aria-labelledby="film-title">
+    <div class="wrap">
+      <div class="film__head reveal">
+        <div>
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg> The film</p>
+          <h2 class="film__title" id="film-title">Halcyon in 57 seconds.</h2>
+        </div>
+        <p class="film__meta">No voice-over: music and sound. Every screen comes from the real launcher.</p>
+      </div>
+      <div class="film__player shot reveal">
+        <video controls preload="none" playsinline poster="../assets/video/halcyon-film-en-poster.webp" width="1920" height="1080" aria-describedby="film-desc">
+          <source media="(max-width: 720px)" src="../assets/video/halcyon-film-en-720.mp4" type="video/mp4">
+          <source src="../assets/video/halcyon-film-en-1080.mp4" type="video/mp4">
+          <p>Your browser can't play this video: <a class="link" href="../assets/video/halcyon-film-en-1080.mp4">download the film (MP4)</a>.</p>
+        </video>
+        <button class="film__play" type="button" data-film-play hidden aria-label="Play the presentation film: 57 seconds, with sound">
+          <span class="btn btn--warm btn--big"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span data-film-label>Play the film</span><span class="film__time" aria-hidden="true">0:57</span></span>
+        </button>
+      </div>
+      <p class="sr-only" id="film-desc">Presentation film with no voice-over, 57 seconds. It shows Halcyon's home screen, the library that brings together Steam, Epic Games, GOG, Heroic, Legendary, your folders and emulators, its views (grid, list, carousel, immersive), a game page, console mode, the tools (updates, What to play?, statistics, appearance), the recognized emulators, then the Play button. On-screen text: “Perfectly still above the water, then one clean move.”, “All your games. One single library.”, “Native. Light. Offline.”, “One move to play.”</p>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="rubric reveal">
+        <div class="rubric__rule"></div>
+        <div class="rubric__head">
+          <p class="rubric__label"><span class="num">01</span> About</p>
+          <p class="rubric__note">Halcyon, the kingfisher: perfectly still above the water, then one clean move.</p>
+        </div>
+      </div>
+      <div class="about__grid">
+        <h2 class="about__statement reveal" id="about-title">A launcher, not a store.</h2>
+        <div class="about__body reveal">
+          <p class="lead" style="max-width:none">Halcyon sells nothing and doesn't replace your accounts. It reads the games your platforms have already installed, the ones you keep in your own folders and your ROMs, and brings them together in <strong>one single library</strong>.</p>
+          <p>Games launch through their platform when it requires it; Halcyon keeps everything else in one place: playtime, achievements, saves, mods and launch profiles. Written in <strong>Rust</strong> with a <strong>Slint</strong> interface, it runs natively, with no embedded browser. Online features (artwork, metadata, achievements, updates) are clearly marked and can be turned off.</p>
+        </div>
+      </div>
+
+      <ul class="pillars">
+        <li class="pillar reveal">
+          <svg class="icon" aria-hidden="true"><use href="#i-library"/></svg>
+          <h3>One unified library</h3>
+          <p>A game that disappears from a source is marked “not installed”, never deleted: favorites, playtime and settings stay.</p>
+        </li>
+        <li class="pillar reveal">
+          <svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>
+          <h3>All your platforms</h3>
+          <p>Steam, Epic Games through its launcher, Heroic or Legendary, GOG through Heroic or GOG Galaxy, game folders, manual additions and emulators.</p>
+        </li>
+        <li class="pillar reveal">
+          <svg class="icon" aria-hidden="true"><use href="#i-gamepad"/></svg>
+          <h3>Built for playing</h3>
+          <p>Controller support across the whole desktop app, a console mode for the TV, universal search with <kbd class="key">Ctrl</kbd> <kbd class="key">K</kbd>.</p>
+        </li>
+        <li class="pillar reveal">
+          <svg class="icon" aria-hidden="true"><use href="#i-bolt"/></svg>
+          <h3>Smooth</h3>
+          <p>Hardware-accelerated native rendering, selection kept from one view to the next, adjustable motion: full, reduced or none.</p>
+        </li>
+        <li class="pillar reveal">
+          <svg class="icon" aria-hidden="true"><use href="#i-gauge"/></svg>
+          <h3>Light and fast</h3>
+          <p>Performance mode turns off effects and background tasks while you play, by hand or on its own.</p>
+        </li>
+        <li class="pillar reveal">
+          <svg class="icon" aria-hidden="true"><use href="#i-palette"/></svg>
+          <h3>Its own identity</h3>
+          <p>Two colors, each with one job: blue shows where you are, orange is the move to play.</p>
+        </li>
+      </ul>
+
+      <div class="instruments" aria-label="Performance measurements">
+        <div class="instrument reveal" style="--fill: 22%">
+          <p class="instrument__value">87<small>ms</small></p>
+          <p class="instrument__label">Interface ready</p>
+          <p class="instrument__note">from launch to display, with a full database</p>
+        </div>
+        <div class="instrument reveal" style="--fill: 34%">
+          <p class="instrument__value">69<small>MB</small></p>
+          <p class="instrument__label">Memory on the home screen</p>
+          <p class="instrument__note">104 MB after scrolling through the whole grid</p>
+        </div>
+        <div class="instrument reveal" style="--fill: 4%">
+          <p class="instrument__value">0.1<small>%</small></p>
+          <p class="instrument__label">CPU when idle</p>
+          <p class="instrument__note">idle wake-ups halved since 0.3</p>
+        </div>
+      </div>
+      <p class="caption instruments__source">Approximate values, measured on 0.4.0 with a 5,000-game library, on Linux, with software rendering. Method and comparisons: <a class="link" href="https://github.com/sebdss/halcyon/blob/main/docs/PERFORMANCES.md" rel="noopener">PERFORMANCES.md</a> (in French).</p>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="rubric reveal">
+        <div class="rubric__rule"></div>
+        <div class="rubric__head">
+          <p class="rubric__label"><span class="num">02</span> Features</p>
+        </div>
+      </div>
+      <div class="features__head">
+        <h2 class="section__title reveal" id="features-title">Everything around your games, in one place.</h2>
+        <p class="lead reveal">Halcyon does more than launch: it organizes, tracks, backs up and measures, without ever touching your games.</p>
+      </div>
+
+      <!-- Library -->
+      <article class="feature feature--library" aria-labelledby="f-library">
+        <div class="feature__text reveal">
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-library"/></svg> Library</p>
+          <h3 class="feature__title" id="f-library">Five views, one selection.</h3>
+          <p>Your keyboard or controller selection is kept from one view to the next. The index filters by source, collection and genre; <strong>smart collections</strong> fill themselves according to your rules.</p>
+          <ul class="views" aria-label="Library views">
+            <li class="tag"><svg class="icon" aria-hidden="true"><use href="#i-library"/></svg>Grid</li>
+            <li class="tag"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg>List</li>
+            <li class="tag"><svg class="icon" aria-hidden="true"><use href="#i-carousel"/></svg>Carousel</li>
+            <li class="tag"><svg class="icon" aria-hidden="true"><use href="#i-immersive"/></svg>Immersive</li>
+            <li class="tag"><svg class="icon" aria-hidden="true"><use href="#i-compact"/></svg>Compact</li>
+          </ul>
+          <p>Search forgives typos and understands acronyms and filters:</p>
+          <div class="search-demo" aria-label="Search filter examples">
+            <code class="tag tag--code">dev:</code>
+            <code class="tag tag--code">genre:</code>
+            <code class="tag tag--code">playtime:&gt;10h</code>
+            <code class="tag tag--code">achievements:missing</code>
+            <code class="tag tag--code">update:yes</code>
+          </div>
+        </div>
+        <figure class="feature__media reveal">
+          <div class="shot">
+            <picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/bibliotheque-m.webp" width="800" height="700"><img src="../assets/img/screens/en/bibliotheque-1440.webp"
+                 srcset="../assets/img/screens/en/bibliotheque-1440.webp 1440w, ../assets/img/screens/en/bibliotheque-2880.webp 2880w"
+                 sizes="(max-width: 720px) 620px, (max-width: 1080px) 100vw, 66vw"
+                 width="2880" height="1800" loading="lazy" decoding="async"
+                 alt="Halcyon's library as a grid: index of sources and collections on the left, toolbar, covers with title, source and playtime."></picture>
+          </div>
+        </figure>
+      </article>
+
+      <dl class="sources reveal" aria-label="Supported sources" style="max-width:860px">
+        <div><dt class="k">Steam</dt><dd>All libraries, local playtime, owned games that aren't installed</dd></div>
+        <div><dt class="k">Epic Games</dt><dd>Epic launcher on Windows, Heroic and Legendary on Windows and Linux</dd></div>
+        <div><dt class="k">GOG</dt><dd>Games installed by Heroic or by GOG Galaxy (Windows)</dd></div>
+        <div><dt class="k">Your folders</dt><dd>Native Windows and Linux executables, manual additions (.exe, .lnk, .sh, AppImage…)</dd></div>
+        <div><dt class="k">Emulation</dt><dd>ROMs sorted by platform, multi-disc games</dd></div>
+      </dl>
+
+      <!-- Game page and achievements -->
+      <article class="feature feature--detail" aria-labelledby="f-detail">
+        <figure class="feature__media reveal">
+          <div class="shot">
+            <picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/fiche-m.webp" width="800" height="620"><img src="../assets/img/screens/en/fiche-1440.webp"
+                 srcset="../assets/img/screens/en/fiche-1440.webp 1440w, ../assets/img/screens/en/fiche-2880.webp 2880w"
+                 sizes="(max-width: 720px) 620px, (max-width: 1080px) 100vw, 58vw"
+                 width="2880" height="1800" loading="lazy" decoding="async"
+                 alt="Cyberpunk 2077's game page in Halcyon: illustrated banner, cover overlapping its edge, orange Play button, playtime figures and tabs."></picture>
+          </div>
+        </figure>
+        <div class="feature__text reveal">
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg> Game page and achievements</p>
+          <h3 class="feature__title" id="f-detail">Every game, with its real numbers.</h3>
+          <p>Playtime with its origin (platform, measured or corrected), last session, achievements, screenshots, saves, mods and launch settings. Your changes are never overwritten by a sync.</p>
+          <ul class="ach">
+            <li><b>Steam</b><span class="tag">Web API key</span><span>Unlocks and rarity of every achievement</span></li>
+            <li><b>RetroAchievements</b><span class="tag">Username and key</span><span>ROMs recognized by hash, softcore and Hardcore modes, points</span></li>
+            <li><b>Standalone games</b><span class="tag">Custom</span><span>Achievements you create, marked “unverified”</span></li>
+            <li><b>Epic Games</b><span class="tag">Unavailable</span><span>No public API: nothing is shown, nothing is estimated</span></li>
+          </ul>
+        </div>
+      </article>
+    </div>
+
+    <!-- Console mode -->
+    <div class="console" aria-labelledby="f-console">
+      <div class="wrap">
+        <div class="console__head">
+          <div class="reveal">
+            <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-tv"/></svg> Console mode</p>
+            <h3 class="feature__title" id="f-console">From desk to couch.</h3>
+          </div>
+          <p class="reveal">Designed for the TV and a controller: the selected game fills the screen, with a row of covers, a full-screen game page, an options menu for each game and a control center. Open it with the Console button or the <kbd class="key">F11</kbd> key, then drive it entirely with a controller (XInput on Windows, evdev on Linux) or the keyboard.</p>
+        </div>
+        <figure class="console__shot reveal">
+          <div class="shot">
+            <picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/console-m.webp" width="800" height="720"><img src="../assets/img/screens/en/console-1440.webp"
+                 srcset="../assets/img/screens/en/console-1440.webp 1440w, ../assets/img/screens/en/console-2880.webp 2880w"
+                 sizes="(max-width: 1320px) 100vw, 1240px"
+                 width="2880" height="1800" loading="lazy" decoding="async"
+                 alt="Halcyon's console mode: Play, Library and Search tabs, a row of covers at the top, the selected game full screen with its title, the orange Play button, its playtime and status, then the controller buttons."></picture>
+          </div>
+        </figure>
+        <ul class="console__keys reveal" aria-label="Controller buttons">
+          <li><kbd class="key">A</kbd> Select</li>
+          <li><kbd class="key">B</kbd> Back</li>
+          <li><kbd class="key">X</kbd> Favorite</li>
+          <li><kbd class="key">Select</kbd> Game options</li>
+          <li><kbd class="key">Start</kbd> Control center</li>
+          <li><kbd class="key">LB</kbd><kbd class="key">RB</kbd> Section</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <!-- Emulation and Minecraft -->
+      <div class="duo">
+        <article class="reveal" aria-labelledby="f-emu">
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-gamepad"/></svg> Emulation</p>
+          <h3 class="feature__title" id="f-emu">Your ROMs, organized like your PC games.</h3>
+          <p class="muted" style="margin-top:16px;max-width:56ch">Detection in folders, the PATH and Flatpak, a default emulator and one per game, argument profiles. Definitions are JSON files: adding one takes no code.</p>
+          <ul class="emus" aria-label="Recognized emulators">
+            <li>RetroArch <span>Multi-system</span></li>
+            <li>RPCS3 <span>PlayStation 3</span></li>
+            <li>PCSX2 <span>PlayStation 2</span></li>
+            <li>DuckStation <span>PlayStation</span></li>
+            <li>PPSSPP <span>PSP</span></li>
+            <li>Dolphin <span>GameCube, Wii</span></li>
+            <li>Cemu <span>Wii U</span></li>
+            <li>Ryujinx <span>Switch</span></li>
+            <li>melonDS <span>Nintendo DS</span></li>
+            <li>mGBA <span>Game Boy Advance</span></li>
+          </ul>
+        </article>
+        <article class="mc reveal" aria-labelledby="f-mc">
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-cube"/></svg> Minecraft: Java Edition</p>
+          <h3 class="feature__title" id="f-mc">A space of its own.</h3>
+          <p class="muted" style="margin-top:16px">Official versions with the right Java, loaders, Modrinth mods and modpacks (CurseForge with a key). Only compatible mods are offered, and their dependencies come along. The game opens through the official launcher, which signs in to your Microsoft account.</p>
+          <ul class="loaders" aria-label="Supported loaders">
+            <li class="tag">Fabric</li><li class="tag">Quilt</li><li class="tag">Forge</li><li class="tag">NeoForge</li><li class="tag">Modrinth</li>
+          </ul>
+          <dl class="facts">
+            <div><dt>Installations</dt><dd>Each in its own folder: mods, worlds and settings never mix</dd></div>
+            <div><dt>Modpacks</dt><dd>Modrinth, .mrpack import or CurseForge zip</dd></div>
+            <div><dt>Settings</dt><dd>Memory, Java, JVM arguments, resolution</dd></div>
+          </dl>
+        </article>
+      </div>
+
+      <!-- Tools -->
+      <div class="tools" aria-labelledby="f-tools">
+        <div class="reveal">
+          <p class="feature__kicker"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg> Tools</p>
+          <h3 class="feature__title" id="f-tools" style="max-width:22ch">What works behind the scenes.</h3>
+        </div>
+        <div class="tools__body reveal">
+          <div class="tools__index" role="tablist" aria-label="Halcyon's tools" aria-orientation="vertical">
+            <button class="tools__tab" role="tab" id="t-saves" aria-controls="p-saves" aria-selected="true"><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg>Saves</button>
+            <button class="tools__tab" role="tab" id="t-mods" aria-controls="p-mods" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-puzzle"/></svg>Mods</button>
+            <button class="tools__tab" role="tab" id="t-profiles" aria-controls="p-profiles" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>Launch profiles</button>
+            <button class="tools__tab" role="tab" id="t-perf" aria-controls="p-perf" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-gauge"/></svg>Performance</button>
+            <button class="tools__tab" role="tab" id="t-updates" aria-controls="p-updates" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>Updates</button>
+            <button class="tools__tab" role="tab" id="t-remote" aria-controls="p-remote" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-monitor"/></svg>Remote play</button>
+            <button class="tools__tab" role="tab" id="t-ext" aria-controls="p-ext" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>Extensions</button>
+          </div>
+
+          <div>
+            <div class="tools__panel" role="tabpanel" id="p-saves" aria-labelledby="t-saves" tabindex="0">
+              <h3>Your progress, kept safe.</h3>
+              <p>Halcyon finds save locations, keeps versioned copies before and after every session, and can share them between several PCs.</p>
+              <dl class="facts">
+                <div><dt>Copies</dt><dd>Manual or automatic, deduplicated</dd></div>
+                <div><dt>Restore</dt><dd>Atomic, with a safety copy made first</dd></div>
+                <div><dt>Several PCs</dt><dd>Shared repository (NAS, another drive), conflicts detected</dd></div>
+                <div><dt>Compare</dt><dd>Between two copies of the same game</dd></div>
+              </dl>
+            </div>
+            <div class="tools__panel" role="tabpanel" id="p-mods" aria-labelledby="t-mods" tabindex="0" hidden>
+              <h3>Mods you can take back out.</h3>
+              <p>Before deploying a mod, Halcyon copies the original files. Removing a mod puts the game back exactly as it was.</p>
+              <dl class="facts">
+                <div><dt>Adapters</dt><dd>Generic, BepInEx, Unreal paks</dd></div>
+                <div><dt>Management</dt><dd>Import, load order, conflicts, profiles</dd></div>
+                <div><dt>Removal</dt><dd>Complete, original files restored</dd></div>
+                <div><dt>Nexus Mods</dt><dd>Versions tracked with your personal key</dd></div>
+              </dl>
+            </div>
+            <div class="tools__panel" role="tabpanel" id="p-profiles" aria-labelledby="t-profiles" tabindex="0" hidden>
+              <h3>Every game, launched your way.</h3>
+              <p>A profile gathers everything around launching a game, and also applies when it's launched remotely.</p>
+              <dl class="facts">
+                <div><dt>Launch</dt><dd>Arguments, environment variables, resolution, display</dd></div>
+                <div><dt>Frame rate cap</dt><dd>Unity, Unreal, Source and Godot games</dd></div>
+                <div><dt>System</dt><dd>Preferred graphics card, process priority</dd></div>
+                <div><dt>Around the game</dt><dd>Scripts before and after, companion programs, mod and controller profiles</dd></div>
+              </dl>
+            </div>
+            <div class="tools__panel" role="tabpanel" id="p-perf" aria-labelledby="t-perf" tabindex="0" hidden>
+              <h3>Measuring without touching anything.</h3>
+              <p>CPU, memory, graphics cards and storage live, measured only while the page is open. Halcyon closes no programs and changes no system settings.</p>
+              <dl class="facts">
+                <div><dt>Per session</dt><dd>One reading every 10 seconds, summary kept, can be turned off</dd></div>
+                <div><dt>Frame rate</dt><dd>Average, 1% low and 0.1% low read from MangoHud or PresentMon logs, with no injection into games</dd></div>
+                <div><dt>Apps</dt><dd>The most demanding ones, grouped, Halcyon included</dd></div>
+                <div><dt>Recommendation</dt><dd>A single, reversible action offered: Performance mode</dd></div>
+              </dl>
+            </div>
+            <div class="tools__panel" role="tabpanel" id="p-updates" aria-labelledby="t-updates" tabindex="0" hidden>
+              <h3>Always up to date, without thinking about it.</h3>
+              <p>The new version is downloaded and verified in the background, then installed at the next start. If it doesn't start correctly, the previous one comes back on its own.</p>
+              <dl class="facts">
+                <div><dt>Channels</dt><dd>Stable or Beta, never changed without you</dd></div>
+                <div><dt>Verification</dt><dd>Ed25519-signed manifest and SHA-256 hashes</dd></div>
+                <div><dt>Downloads</dt><dd>Queue, pause, resume after a dropped connection, bandwidth limit</dd></div>
+                <div><dt>Your games</dt><dd>Steam, Epic and GOG keep updating them through their client; Halcyon shows what's pending</dd></div>
+              </dl>
+            </div>
+            <div class="tools__panel" role="tabpanel" id="p-remote" aria-labelledby="t-remote" tabindex="0" hidden>
+              <h3>Playing from another room.</h3>
+              <p>Halcyon drives Sunshine on the gaming PC and Moonlight on the device that displays, without reimplementing any streaming protocol.</p>
+              <dl class="facts">
+                <div><dt>Detection</dt><dd>Installation, PATH or Flatpak</dd></div>
+                <div><dt>Machines</dt><dd>Adding, reachability, pairing with a PIN code</dd></div>
+                <div><dt>Streaming</dt><dd>Published games, starting and stopping the session</dd></div>
+                <div><dt>Publishing</dt><dd>Adding a game to Sunshine after confirmation, with a safety copy</dd></div>
+              </dl>
+            </div>
+            <div class="tools__panel" role="tabpanel" id="p-ext" aria-labelledby="t-ext" tabindex="0" hidden>
+              <h3>Extensions that are only data.</h3>
+              <p>An extension adds content, never code: executable files are refused.</p>
+              <dl class="facts">
+                <div><dt>Content</dt><dd>Emulators, platforms, save locations, themes, folders, metadata, links</dd></div>
+                <div><dt>Installation</dt><dd>Disabled, enabled after reading its permissions</dd></div>
+                <div><dt>Integrity</dt><dd>Content hash and author signature</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The interface -->
+  <section class="section gallery" id="interface" data-nav-parent="features" aria-labelledby="gallery-title">
+    <div class="wrap">
+      <div class="rubric reveal">
+        <div class="rubric__rule"></div>
+        <div class="rubric__head">
+          <p class="rubric__label"><span class="num">03</span> The interface</p>
+        </div>
+      </div>
+      <div class="gallery__head">
+        <h2 class="section__title reveal" id="gallery-title">Calm, matte, always legible.</h2>
+        <div class="gallery__ctrl reveal">
+          <span class="gallery__count" aria-live="polite"><span data-g-index>1</span> / <span data-g-total>6</span></span>
+          <button class="icon-btn" type="button" data-g-prev aria-label="Previous screen"><svg class="icon" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
+          <button class="icon-btn" type="button" data-g-next aria-label="Next screen"><svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+        </div>
+      </div>
+      <div class="gallery__tabs reveal" role="tablist" aria-label="Halcyon's screens">
+        <button class="gallery__tab" role="tab" type="button" id="g-tab-immersive" aria-controls="g-immersive" aria-selected="true">Immersive library</button>
+        <button class="gallery__tab" role="tab" type="button" id="g-tab-list" aria-controls="g-list" aria-selected="false" tabindex="-1">Library as a list</button>
+        <button class="gallery__tab" role="tab" type="button" id="g-tab-what-to-play" aria-controls="g-what-to-play" aria-selected="false" tabindex="-1">What to play?</button>
+        <button class="gallery__tab" role="tab" type="button" id="g-tab-statistics" aria-controls="g-statistics" aria-selected="false" tabindex="-1">Statistics</button>
+        <button class="gallery__tab" role="tab" type="button" id="g-tab-updates" aria-controls="g-updates" aria-selected="false" tabindex="-1">Game updates</button>
+        <button class="gallery__tab" role="tab" type="button" id="g-tab-appearance" aria-controls="g-appearance" aria-selected="false" tabindex="-1">Appearance</button>
+      </div>
+      <div class="gallery__track" data-g-track tabindex="-1">
+        <figure class="gallery__item" id="g-immersive" role="tabpanel" aria-labelledby="g-tab-immersive">
+          <div class="shot"><picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/immersive-m.webp" width="800" height="600"><img src="../assets/img/screens/en/immersive-1440.webp" srcset="../assets/img/screens/en/immersive-1440.webp 1440w, ../assets/img/screens/en/immersive-2880.webp 2880w" sizes="(max-width: 1320px) 100vw, 1240px" width="2880" height="1800" loading="lazy" decoding="async" alt="Library in immersive view: large artwork of the selected game, title, playtime, orange Play button and a row of covers."></picture></div>
+          <figcaption><span class="num">01</span><b>Immersive library</b><span>The selected game fills the width, its row of covers below, keyboard shortcuts in the footer.</span></figcaption>
+        </figure>
+        <figure class="gallery__item" id="g-list" role="tabpanel" aria-labelledby="g-tab-list">
+          <div class="shot"><picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/liste-m.webp" width="800" height="600"><img src="../assets/img/screens/en/liste-1440.webp" srcset="../assets/img/screens/en/liste-1440.webp 1440w, ../assets/img/screens/en/liste-2880.webp 2880w" sizes="(max-width: 1320px) 100vw, 1240px" width="2880" height="1800" loading="lazy" decoding="async" alt="Library as a list: table of games with thumbnail, source, playtime and last launch date; the selected row carries the blue perch."></picture></div>
+          <figcaption><span class="num">02</span><b>Library as a list</b><span>A table to sort and compare: playtime, last launch, favorite and Play on every row.</span></figcaption>
+        </figure>
+        <figure class="gallery__item" id="g-what-to-play" role="tabpanel" aria-labelledby="g-tab-what-to-play">
+          <div class="shot"><picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/que-jouer-m.webp" width="800" height="600"><img src="../assets/img/screens/en/que-jouer-1440.webp" srcset="../assets/img/screens/en/que-jouer-1440.webp 1440w, ../assets/img/screens/en/que-jouer-2880.webp 2880w" sizes="(max-width: 1320px) 100vw, 1240px" width="2880" height="1800" loading="lazy" decoding="async" alt="What to play? tab: choice of available time, games to pick up again and games to discover."></picture></div>
+          <figcaption><span class="num">03</span><b>What to play?</b><span>Suggestions computed on your PC for the time you have, each with its reason.</span></figcaption>
+        </figure>
+        <figure class="gallery__item" id="g-statistics" role="tabpanel" aria-labelledby="g-tab-statistics">
+          <div class="shot"><picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/statistiques-m.webp" width="800" height="600"><img src="../assets/img/screens/en/statistiques-1440.webp" srcset="../assets/img/screens/en/statistiques-1440.webp 1440w, ../assets/img/screens/en/statistiques-2880.webp 2880w" sizes="(max-width: 1320px) 100vw, 1240px" width="2880" height="1800" loading="lazy" decoding="async" alt="Statistics tab: 4,214 h of total playtime, counters, most played games and breakdown by source."></picture></div>
+          <figcaption><span class="num">04</span><b>Statistics</b><span>Total playtime as the headline figure, most played games and the breakdown by source, exportable as CSV or JSON.</span></figcaption>
+        </figure>
+        <figure class="gallery__item" id="g-updates" role="tabpanel" aria-labelledby="g-tab-updates">
+          <div class="shot"><picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/mises-a-jour-m.webp" width="800" height="600"><img src="../assets/img/screens/en/mises-a-jour-1440.webp" srcset="../assets/img/screens/en/mises-a-jour-1440.webp 1440w, ../assets/img/screens/en/mises-a-jour-2880.webp 2880w" sizes="(max-width: 1320px) 100vw, 1240px" width="2880" height="1800" loading="lazy" decoding="async" alt="Updates tab: three games pending, Cyberpunk 2077 downloading with its progress bar."></picture></div>
+          <figcaption><span class="num">05</span><b>Game updates</b><span>Updates pending on Steam, Epic and GOG, with the real progress of the current download.</span></figcaption>
+        </figure>
+        <figure class="gallery__item" id="g-appearance" role="tabpanel" aria-labelledby="g-tab-appearance">
+          <div class="shot"><picture><source media="(max-width: 720px)" srcset="../assets/img/screens/en/apparence-m.webp" width="800" height="600"><img src="../assets/img/screens/en/apparence-1440.webp" srcset="../assets/img/screens/en/apparence-1440.webp 1440w, ../assets/img/screens/en/apparence-2880.webp 2880w" sizes="(max-width: 1320px) 100vw, 1240px" width="2880" height="1800" loading="lazy" decoding="async" alt="Appearance tab: thumbnails of the Halcyon, Alcyon, Nocturne, Midnight, Ember and Forest themes, then color, density, motion and text size settings."></picture></div>
+          <figcaption><span class="num">06</span><b>Appearance</b><span>Themes as interface thumbnails, accent color, density, motion and text size.</span></figcaption>
+        </figure>
+      </div>
+      <p class="caption gallery__disclaimer">All screenshots on this page: a development build of Halcyon 1.0 with its English interface, on Linux, with a sample Steam library. Game covers and artwork belong to their publishers; Halcyon isn't affiliated with any of them.</p>
+    </div>
+  </section>
+
+  <!-- Platforms -->
+  <section class="section" id="platforms" data-nav-parent="download" aria-labelledby="platforms-title">
+    <div class="wrap">
+      <div class="rubric reveal">
+        <div class="rubric__rule"></div>
+        <div class="rubric__head">
+          <p class="rubric__label"><span class="num">04</span> Platforms</p>
+        </div>
+      </div>
+      <div class="platforms__grid">
+        <div class="reveal">
+          <h2 class="section__title" id="platforms-title">Windows and Linux, on equal footing.</h2>
+          <p class="muted section__intro" style="max-width:40ch">One codebase, the same Halcyon on both sides. Only the installation formats and each system's own tools differ.</p>
+        </div>
+        <table class="compare reveal">
+          <caption class="sr-only">Halcyon on Windows and on Linux</caption>
+          <thead>
+            <tr><th scope="col">What differs</th><th scope="col">Windows</th><th scope="col">Linux</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Formats</th><td data-os="Windows">Installer, portable version</td><td data-os="Linux">AppImage, .deb package, installer, archive</td></tr>
+            <tr><th scope="row">Detected sources</th><td data-os="Windows">Steam, Epic launcher, Heroic, Legendary, GOG Galaxy</td><td data-os="Linux">Steam and Heroic, native or Flatpak, Legendary</td></tr>
+            <tr><th scope="row">Controllers</th><td data-os="Windows">XInput</td><td data-os="Linux">evdev</td></tr>
+            <tr><th scope="row">Frame rate</th><td data-os="Windows">PresentMon logs</td><td data-os="Linux">MangoHud logs</td></tr>
+            <tr><th scope="row">API keys</th><td data-os="Windows">Vault encrypted by Windows (DPAPI)</td><td data-os="Linux">Vault restricted to your account</td></tr>
+            <tr><th scope="row">Requirements</th><td data-os="Windows">64-bit (x86_64)</td><td data-os="Linux">64-bit (x86_64), X11 or Wayland<small>glibc 2.35 or newer</small></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section class="section download" id="download" aria-labelledby="download-title">
+    <div class="wrap">
+      <div class="rubric reveal">
+        <div class="rubric__rule"></div>
+        <div class="rubric__head">
+          <p class="rubric__label"><span class="num">05</span> Download</p>
+        </div>
+      </div>
+      <div class="download__head">
+        <div class="reveal">
+          <h2 class="section__title" id="download-title">Download Halcyon.</h2>
+          <p class="muted section__intro" style="max-width:52ch">Free and open source, under the MIT license. Files are published on GitHub with their hashes and signature.</p>
+        </div>
+        <div class="release reveal" data-release data-state="loading" aria-live="polite">
+          <p class="release__version" data-release-version>Looking for the latest release…</p>
+          <p class="release__meta" data-release-meta></p>
+        </div>
+      </div>
+
+      <div class="download__mobile notice reveal">
+        <div>
+          <p>Halcyon installs on a Windows or Linux computer. Open this page on your PC, or send yourself the link.</p>
+          <p style="margin-top:12px"><button class="btn btn--line" type="button" data-share>Send the link</button></p>
+        </div>
+      </div>
+
+      <div class="download__grid">
+        <div class="os reveal" data-os="windows">
+          <div class="os__head"><h3 class="os__name">Windows</h3><span class="os__hint" data-os-hint></span></div>
+          <div class="os__primary" data-os-primary>
+            <a class="btn btn--line btn--big" href="https://github.com/sebdss/halcyon/releases" rel="noopener">
+              <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg> See releases on GitHub
+            </a>
+          </div>
+          <ul class="files" data-os-files></ul>
+        </div>
+        <div class="os reveal" data-os="linux">
+          <div class="os__head"><h3 class="os__name">Linux</h3><span class="os__hint" data-os-hint></span></div>
+          <div class="os__primary" data-os-primary>
+            <a class="btn btn--line btn--big" href="https://github.com/sebdss/halcyon/releases" rel="noopener">
+              <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg> See releases on GitHub
+            </a>
+          </div>
+          <ul class="files" data-os-files></ul>
+        </div>
+      </div>
+
+      <div class="download__foot">
+        <div class="reveal" style="display:grid;gap:20px">
+          <div class="notice notice--warm" data-lang-note>
+            <div><p><strong style="color:var(--text);font-weight:600">Languages.</strong> Releases up to 1.0.0-alpha.4 have a French-only interface. English, German, Spanish, Italian and Portuguese, as shown on this page, come with the next pre-release; the language then follows your system and can be changed in System › Settings › Language.</p></div>
+          </div>
+          <div class="notice notice--warm" data-prerelease-note hidden>
+            <div><p><strong style="color:var(--text);font-weight:600">Pre-release.</strong> Halcyon 1.0 is still being tested: report anything that doesn't work on <a class="link" href="https://github.com/sebdss/halcyon/issues" rel="noopener">GitHub</a>. Data from a 0.5 installation is kept as is.</p></div>
+          </div>
+          <div class="notice">
+            <div>
+              <p>On Windows, the program isn't signed with a publisher certificate: SmartScreen may show “Unknown publisher”.</p>
+              <p>Installed with the installer or as an AppImage, Halcyon then updates itself and verifies every update before installing it.</p>
+            </div>
+          </div>
+        </div>
+        <div class="download__links reveal">
+          <a class="tlink" href="https://github.com/sebdss/halcyon/releases" rel="noopener">All releases <svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+          <a class="tlink" data-checksums href="https://github.com/sebdss/halcyon/releases" rel="noopener" hidden>SHA-256 hashes <svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+          <a class="tlink" href="https://github.com/sebdss/halcyon" rel="noopener">Source code <svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a class="brand" href="#home"><img src="../assets/img/logo-64.png" width="28" height="28" alt=""><span>Halcyon</span></a>
+        <p>The launcher that brings your Steam, Epic Games, GOG, standalone and emulated games together in a single library, for Windows and Linux.</p>
+      </div>
+      <nav aria-label="Footer">
+        <h2>Navigation</h2>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#interface">The interface</a></li>
+          <li><a href="#platforms">Platforms</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h2>Download</h2>
+        <ul>
+          <li><a href="#download" data-dl-link="windows">Windows</a></li>
+          <li><a href="#download" data-dl-link="linux">Linux</a></li>
+          <li><a href="https://github.com/sebdss/halcyon/releases" rel="noopener">All releases</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Project</h2>
+        <ul>
+          <li><a href="https://github.com/sebdss/halcyon" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/sebdss/halcyon/blob/main/docs/GUIDE.md" rel="noopener">User guide (in French)</a></li>
+          <li><a href="https://github.com/sebdss/halcyon/issues" rel="noopener">Report a problem</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p><span data-footer-version hidden></span>Code under the MIT license · Archivo typeface (SIL OFL)</p>
+      <ul>
+        <li><a href="legal-notice.html">Legal notice</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="../" hreflang="fr" lang="fr">Français</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/site.js" defer></script>
+</body>
+</html>

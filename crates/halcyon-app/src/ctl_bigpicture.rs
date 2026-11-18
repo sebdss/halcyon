@@ -152,11 +152,11 @@ impl Controller {
         }
 
         let mut filters: Vec<(String, Vec<GameId>)> = vec![
-            (tr!("Installés").into(), ids(&visible.iter().copied().filter(|g| g.installed).collect::<Vec<_>>())),
-            (tr!("Tous").into(), ids(&visible)),
-            (tr!("Favoris").into(), ids(&visible.iter().copied().filter(|g| g.favorite).collect::<Vec<_>>())),
-            (tr!("Récents").into(), ids(&recent)),
-            (tr!("Émulation").into(), ids(&visible.iter().copied().filter(|g| g.source == GameSource::Emulated).collect::<Vec<_>>())),
+            (tr!("Installés"), ids(&visible.iter().copied().filter(|g| g.installed).collect::<Vec<_>>())),
+            (tr!("Tous"), ids(&visible)),
+            (tr!("Favoris"), ids(&visible.iter().copied().filter(|g| g.favorite).collect::<Vec<_>>())),
+            (tr!("Récents"), ids(&recent)),
+            (tr!("Émulation"), ids(&visible.iter().copied().filter(|g| g.source == GameSource::Emulated).collect::<Vec<_>>())),
         ];
         drop(lib);
         for c in self.collections.borrow().iter() {
@@ -236,9 +236,9 @@ impl Controller {
             ui.set_focused_ach_ratio(p.map(|p| p.percent() / 100.0).unwrap_or(-1.0));
             ui.set_focused_state(
                 if g.installed {
-                    g.size_bytes.map(|b| tr!("Installé · {b}", b = halcyon_core::util::format_size(b))).unwrap_or_else(|| tr!("Installé").into())
+                    g.size_bytes.map(|b| tr!("Installé · {b}", b = halcyon_core::util::format_size(b))).unwrap_or_else(|| tr!("Installé"))
                 } else {
-                    tr!("Non installé").into()
+                    tr!("Non installé")
                 }
                 .into(),
             );
@@ -342,20 +342,20 @@ impl Controller {
             kv(
                 &tr!("Téléchargements"),
                 if t.is_paused() {
-                    tr!("En pause").into()
+                    tr!("En pause")
                 } else if t.active() > 0 {
                     tr!("{active} en cours", active = t.active())
                 } else {
-                    tr!("Aucun").into()
+                    tr!("Aucun")
                 },
             ),
             kv(&tr!("Son"), if muted { tr!("Coupé") } else { tr!("Activé") }),
             kv(&tr!("Mouvement"), match a.motion() { 0 => tr!("Complet"), 1 => tr!("Réduit"), _ => tr!("Aucun") }),
             kv(&tr!("Taille du texte"), tr!("{percent} %", percent = halcyon_i18n::number((a.text_scale * 100.0).round() as u64))),
             kv(&tr!("Thème"), theme),
-            kv(&tr!("Analyser les sources"), if self.scanning.get() { tr!("En cours…").into() } else { String::new() }),
-            kv(&tr!("Synchroniser les succès"), if self.ach_syncing.get() { tr!("En cours…").into() } else { String::new() }),
-            kv(&tr!("Paramètres complets"), tr!("Sur le bureau").into()),
+            kv(&tr!("Analyser les sources"), if self.scanning.get() { tr!("En cours…") } else { String::new() }),
+            kv(&tr!("Synchroniser les succès"), if self.ach_syncing.get() { tr!("En cours…") } else { String::new() }),
+            kv(&tr!("Paramètres complets"), tr!("Sur le bureau")),
             kv(&tr!("Quitter le mode console"), String::new()),
         ]
     }
@@ -878,6 +878,7 @@ pub fn prefetch_clock() {
     });
 }
 
+#[cfg_attr(not(unix), allow(dead_code))]
 fn parse_offset(s: &str) -> Option<i64> {
     if s.len() != 5 {
         return None;

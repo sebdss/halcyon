@@ -105,7 +105,7 @@ impl Parser<'_> {
         loop {
             self.skip_ws();
             match self.s.get(self.i) {
-                None if nested => return Err(VdfError(tr!("accolade fermante manquante").into())),
+                None if nested => return Err(VdfError(tr!("accolade fermante manquante"))),
                 None => return Ok(pairs),
                 Some(b'}') if nested => {
                     self.i += 1;
@@ -148,7 +148,7 @@ impl Parser<'_> {
                     c => out.push(c),
                 }
             }
-            Err(VdfError(tr!("chaîne non terminée").into()))
+            Err(VdfError(tr!("chaîne non terminée")))
         } else {
             let start = self.i;
             while let Some(&c) = self.s.get(self.i) {

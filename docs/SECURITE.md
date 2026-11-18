@@ -84,3 +84,28 @@ autre.
 - Signature : protège à partir de la première version signée installée ; la clé privée est
   un point unique à protéger.
 - Les extensions ne sont pas encore signées par leurs auteurs (prévu).
+
+## 6. Audit du 18 novembre 2026 (après la 1.0.0-alpha.4)
+
+Revue du code ajouté depuis (traductions, succès et visuels sans clé) et des points
+sensibles de l'ensemble : lancement de processus, archives, extensions, restauration,
+téléchargements, site.
+
+| Constat | Correction |
+|---|---|
+| Un émulateur fourni par une extension pouvait désigner un shell (`sh`, `cmd`, `powershell`…) avec des arguments choisis par l'extension : exécution de commandes malgré « aucun code » | Shells, interpréteurs, couches de compatibilité et outils d'élévation refusés (`emulators::interpreter`) ; programmes lancés nommés dans le résumé d'activation |
+| Liste des fichiers exécutables refusés dans une extension incomplète | Ajout de `.jar`, `.lnk`, `.AppImage`, `.desktop`, `.hta`, `.wsf`, `.reg`… |
+| Scripts Windows lancés par `cmd /C` : `&`, `|`, `%` des arguments interprétés | Lancement direct, arguments échappés par la bibliothèque standard |
+| Restaurer une archive partagée importe des commandes (scripts des profils, émulateurs, extensions) | Avertissement explicite dans la confirmation |
+| Lecture locale des succès Steam : un format non reconnu aurait effacé les succès connus | Liste vide ignorée quand des succès existent déjà |
+| Visuels absents recherchés à chaque démarrage | Nouvel essai après 7 jours ; requêtes libretro espacées |
+| Site : pas de politique de sécurité du contenu ; adresses de l'API GitHub insérées telles quelles | CSP sur toutes les pages (script en ligne autorisé par empreinte) ; HTTPS exigé |
+
+Vérifié sans changement : extraction des archives (chemins confinés), modpacks (noms de
+fichiers filtrés, HTTPS, empreintes), raccourcis Windows (valeurs passées par variables
+d'environnement), ouverture de liens (`https://` seulement), substitution des traductions
+(un seul passage, pas de réinterprétation), aucun secret dans les branches.
+
+Reste à faire : le format local des succès Steam est validé sur des fichiers de test, pas
+encore sur de vrais fichiers ; Steam Web API n'accepte la clé que dans l'URL (jamais
+journalisée par Halcyon).

@@ -267,14 +267,14 @@ impl Controller {
             .iter()
             .map(|p| PerfSessionRow {
                 id: p.game_id as i32,
-                game: lib.get(p.game_id).map(|g| g.name.clone()).unwrap_or_else(|| tr!("Jeu retiré").into()).into(),
+                game: lib.get(p.game_id).map(|g| g.name.clone()).unwrap_or_else(|| tr!("Jeu retiré")).into(),
                 date: halcyon_core::util::format_date(p.started_at).into(),
                 duration: halcyon_core::util::format_playtime(p.duration_secs).into(),
                 cpu: tr!("{cpu_avg} % (max {cpu_max} %)", cpu_avg = format!("{:.0}", p.cpu_avg), cpu_max = format!("{:.0}", p.cpu_max)).into(),
                 ram: tr!("{ram_avg_mb} (max {ram_max_mb})", ram_avg_mb = fmt_mb(p.ram_avg_mb), ram_max_mb = fmt_mb(p.ram_max_mb)).into(),
                 gpu: match (p.gpu_avg, p.gpu_max) {
                     (Some(a), Some(m)) => tr!("{a} % (max {m} %)", a = format!("{:.0}", a), m = format!("{:.0}", m)),
-                    _ => tr!("non mesurée").into(),
+                    _ => tr!("non mesurée"),
                 }
                 .into(),
                 vram: p.vram_max_mb.map(fmt_mb).unwrap_or_default().into(),

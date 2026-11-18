@@ -24,7 +24,7 @@ export component AchievementsPage inherits Rectangle {
             HorizontalLayout {
                 spacing: 28px;
                 Text {
-                    text: round(AchUi.percent * 1000) / 10 + " %";
+                    text: @tr("{} %", round(AchUi.percent * 1000) / 10);
                     color: AchUi.percent >= 1 ? Theme.warm : Theme.text;
                     font-family: Theme.display;
                     font-size: Theme.t-display + 12px;
@@ -68,7 +68,7 @@ export component AchievementsPage inherits Rectangle {
                 Notice {
                     horizontal-stretch: 1;
                     warning: true;
-                    text: (!AchUi.steam-ready ? @tr("Steam : ajoutez votre clé Web API pour synchroniser vos succès Steam. ") : "")
+                    text: (!AchUi.steam-ready ? @tr("Steam : aucun compte Steam trouvé sur ce PC ; ouvrez Steam une fois connecté. ") : "")
                         + (!AchUi.ra-ready ? @tr("RetroAchievements : renseignez votre nom d'utilisateur et votre clé Web API pour les jeux émulés. ") : "")
                         + @tr("Epic Games ne fournit pas d'API publique de succès : ils ne sont pas affichés.");
                 }

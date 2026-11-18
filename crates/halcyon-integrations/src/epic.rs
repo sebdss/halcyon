@@ -145,7 +145,7 @@ impl GameScanner for EpicScanner {
         let dir = self.manifests_dir();
         let legendary = legendary_configs();
         if dir.is_none() && legendary.is_empty() {
-            return Err(io_err(&tr!("ni le launcher Epic Games, ni Heroic, ni Legendary n'ont été trouvés")));
+            return Err(io_err(tr!("ni le launcher Epic Games, ni Heroic, ni Legendary n'ont été trouvés")));
         }
         let mut report = ScanReport { complete: true, ..Default::default() };
         for cfg in &legendary {

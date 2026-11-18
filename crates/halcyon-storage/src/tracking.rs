@@ -69,7 +69,7 @@ impl Database {
         let name: String = self.conn.query_row("SELECT name FROM games WHERE id = ?1", [id], |r| r.get(0))?;
         let detail = match secs {
             Some(s) => tr!("Temps corrigé : {v}", v = util::format_playtime(s)),
-            None => tr!("Retour au temps calculé").into(),
+            None => tr!("Retour au temps calculé"),
         };
         self.log_activity(ActivityKind::Status, Some(id), &tr_later!("Temps de jeu de {name} modifié", name = name), &detail)
     }
@@ -173,7 +173,7 @@ impl Database {
     pub fn save_launch_profile(&self, p: &LaunchProfile) -> Result<i64> {
         let name = p.name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict(tr!("le profil doit avoir un nom").into()));
+            return Err(StorageError::Conflict(tr!("le profil doit avoir un nom")));
         }
         let data = serde_json::to_string(p)?;
         let id = if p.id == 0 {
@@ -223,10 +223,10 @@ impl Database {
     pub fn save_smart_collection(&self, id: i64, name: &str, rules: &RuleSet) -> Result<i64> {
         let name = name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict(tr!("le nom de la collection est vide").into()));
+            return Err(StorageError::Conflict(tr!("le nom de la collection est vide")));
         }
         if rules.rules.is_empty() {
-            return Err(StorageError::Conflict(tr!("ajoutez au moins une règle").into()));
+            return Err(StorageError::Conflict(tr!("ajoutez au moins une règle")));
         }
         let clash: Option<i64> = self
             .conn
