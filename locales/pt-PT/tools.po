@@ -136,7 +136,7 @@ msgstr "Em pausa: as transferências em curso aguardam sem perder nada e são re
 msgid "En cours et en attente"
 msgstr "Em curso e em espera"
 
-#: crates/halcyon-app/ui/pages/downloads.slint:95 crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:733
+#: crates/halcyon-app/ui/pages/downloads.slint:95 crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:735
 #, placeholders
 msgid "{n} élément"
 msgid_plural "{n} éléments"

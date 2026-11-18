@@ -40,6 +40,8 @@ slint = { version = "1.18", default-features = false, features = ["std", "compat
 slint-build = "1.18"
 tempfile = "3"
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+# Reçus gzip des jeux itch.io (déjà présent via zip, même moteur).
+flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
 sha2 = "0.11"
 
 [profile.release]

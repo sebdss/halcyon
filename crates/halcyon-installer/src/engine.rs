@@ -694,7 +694,7 @@ fn cleanup_legacy(env: &Env, dir: &Path, report: &mut Report, on: &mut dyn FnMut
                 let root = winreg::RegKey::predef(if all { winreg::enums::HKEY_LOCAL_MACHINE } else { winreg::enums::HKEY_CURRENT_USER });
                 let _ = root.delete_subkey_all(platform::windows::INNO_KEY);
             }
-            on(Event::Component(tr!("Ancien installateur retiré").into(), true, String::new()));
+            on(Event::Component(tr!("Ancien installateur retiré"), true, String::new()));
         }
     }
     let _ = (dir, report, &on);

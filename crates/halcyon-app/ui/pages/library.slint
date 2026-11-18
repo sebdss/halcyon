@@ -366,6 +366,11 @@ component FilterIndex inherits Rectangle {
                 active: LibraryUi.source == i;
                 clicked => { LibraryUi.source = i; LibraryUi.query-changed(); }
             }
+            for label[i] in LibraryUi.extra-sources: IndexItem {
+                text: label;
+                active: LibraryUi.source == 7 + i;
+                clicked => { LibraryUi.source = 7 + i; LibraryUi.query-changed(); }
+            }
             Rectangle { height: 22px; }
             Overline { text: @tr("Afficher"); height: 26px; x: 12px; vertical-alignment: top; }
             IndexCheck {

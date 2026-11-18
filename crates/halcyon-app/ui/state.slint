@@ -75,7 +75,10 @@ export global LibraryUi {
     in property <int> result-count;
     in property <int> total;
     in-out property <string> search;
-    /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres (standalone + manuels)
+    /// Autres launchers présents dans la bibliothèque (index 7 et suivants de `source`).
+    in property <[string]> extra-sources;
+    /// 0 = toutes, 1 = Steam, 2 = Epic, 3 = émulation, 4 = autres, 5 = Minecraft, 6 = GOG,
+    /// 7 et suivants : `extra-sources`.
     in-out property <int> source;
     in property <[string]> collection-labels: [@tr("Toutes les collections")];
     in-out property <int> collection;
@@ -354,6 +357,9 @@ export global SmartUi {
     in property <[int]> kind-params;
     in property <[string]> status-labels;
     in property <[string]> source-labels;
+    /// Identifiants des sources, dans l'ordre de `source-labels`.
+    in property <[string]> source-keys;
+    pure callback source-index(string) -> int;
     in property <int> preview-count;
     in property <string> error;
     callback edit(int);
@@ -600,6 +606,8 @@ export global SettingsUi {
     in property <SourceInfo> steam;
     in property <SourceInfo> epic;
     in property <SourceInfo> gog;
+    /// Autres launchers (Ubisoft, EA, Xbox, Battle.net, Riot, Amazon, itch.io), 1.1.
+    in property <[SourceInfo]> launchers;
     in property <[string]> folders;
     in property <bool> online-artwork;
     in property <bool> scan-on-startup;

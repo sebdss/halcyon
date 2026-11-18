@@ -319,6 +319,15 @@ impl Controller {
         let db = self.db.clone();
         let probe = self.probe_for(&game);
         let name = game.name.clone();
+        // Battle.net, Riot, Xbox : le programme lancé est le client (ou l'Explorateur), qui peut
+        // rester ouvert après le jeu. La session est suivie par le dossier du jeu, pas par lui.
+        let launched = match launched {
+            Launched::Process(child) if matches!(game.source, GameSource::BattleNet | GameSource::Riot | GameSource::Xbox) => {
+                log::info!("« {name} » confié à son client (pid {})", child.id());
+                Launched::Detached
+            }
+            other => other,
+        };
         match launched {
             Launched::Process(mut child) => {
                 log::info!("lancement de « {name} » (pid {})", child.id());

@@ -1991,6 +1991,7 @@ dependencies = [
  "base64",
  "dirs",
  "ed25519-compact",
+ "flate2",
  "halcyon-core",
  "halcyon-i18n",
  "halcyon-storage",

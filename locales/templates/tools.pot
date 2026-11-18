@@ -135,7 +135,7 @@ msgstr ""
 msgid "En cours et en attente"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/downloads.slint:95 crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:733
+#: crates/halcyon-app/ui/pages/downloads.slint:95 crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:735
 #, placeholders
 msgid "{n} élément"
 msgid_plural "{n} éléments"

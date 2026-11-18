@@ -46,127 +46,127 @@ msgstr "All games"
 msgid "Sources"
 msgstr "Sources"
 
-#: crates/halcyon-app/ui/pages/library.slint:370
+#: crates/halcyon-app/ui/pages/library.slint:375
 msgid "Afficher"
 msgstr "Show"
 
-#: crates/halcyon-app/ui/pages/library.slint:372
+#: crates/halcyon-app/ui/pages/library.slint:377
 msgid "Installés seulement"
 msgstr "Installed only"
 
-#: crates/halcyon-app/ui/pages/library.slint:377
+#: crates/halcyon-app/ui/pages/library.slint:382
 msgid "Favoris seulement"
 msgstr "Favorites only"
 
-#: crates/halcyon-app/ui/pages/library.slint:382
+#: crates/halcyon-app/ui/pages/library.slint:387
 msgid "Jeux masqués"
 msgstr "Hidden games"
 
-#: crates/halcyon-app/ui/pages/library.slint:396 crates/halcyon-app/ui/pages/library.slint:630 crates/halcyon-app/ui/pages/smart.slint:94
+#: crates/halcyon-app/ui/pages/library.slint:401 crates/halcyon-app/ui/pages/library.slint:635 crates/halcyon-app/ui/pages/smart.slint:94
 msgid "Collections intelligentes"
 msgstr "Smart collections"
 
-#: crates/halcyon-app/ui/pages/library.slint:399 crates/halcyon-core/src/rules.rs:66
+#: crates/halcyon-app/ui/pages/library.slint:404 crates/halcyon-core/src/rules.rs:66
 msgid "Genre"
 msgstr "Genre"
 
-#: crates/halcyon-app/ui/pages/library.slint:528
+#: crates/halcyon-app/ui/pages/library.slint:533
 msgid "Rechercher dans la bibliothèque  (Ctrl+F)"
 msgstr "Search the library  (Ctrl+F)"
 
-#: crates/halcyon-app/ui/pages/library.slint:538
+#: crates/halcyon-app/ui/pages/library.slint:543
 msgid "Syntaxe de recherche"
 msgstr "Search syntax"
 
-#: crates/halcyon-app/ui/pages/library.slint:556 crates/halcyon-core/src/rules.rs:73
+#: crates/halcyon-app/ui/pages/library.slint:561 crates/halcyon-core/src/rules.rs:73
 msgid "Recherche avancée"
 msgstr "Advanced search"
 
-#: crates/halcyon-app/ui/pages/library.slint:557
+#: crates/halcyon-app/ui/pages/library.slint:562
 msgid "Les fautes de frappe et les sigles sont tolérés (« witchr », « gta »). Combinez des filtres :"
 msgstr "Typos and acronyms are tolerated (“witchr”, “gta”). Combine filters:"
 
-#: crates/halcyon-app/ui/pages/library.slint:559
+#: crates/halcyon-app/ui/pages/library.slint:564
 msgid "dev:valve   éditeur:\"bandai namco\"   genre:rpg"
 msgstr "dev:valve   publisher:\"bandai namco\"   genre:rpg"
 
-#: crates/halcyon-app/ui/pages/library.slint:560
+#: crates/halcyon-app/ui/pages/library.slint:565
 msgid "plateforme:snes   source:steam   tag:multijoueur"
 msgstr "platform:snes   source:steam   tag:coop"
 
-#: crates/halcyon-app/ui/pages/library.slint:561
+#: crates/halcyon-app/ui/pages/library.slint:566
 msgid "installé:non   favori:oui   maj:oui"
 msgstr "installed:no   favorite:yes   update:yes"
 
-#: crates/halcyon-app/ui/pages/library.slint:562
+#: crates/halcyon-app/ui/pages/library.slint:567
 msgid "statut:terminé   statut:\"en cours\"   statut:abandonné"
 msgstr "status:finished   status:playing   status:dropped"
 
-#: crates/halcyon-app/ui/pages/library.slint:563
+#: crates/halcyon-app/ui/pages/library.slint:568
 msgid "temps:>10h   temps:<30m   temps:0"
 msgstr "time:>10h   time:<30m   time:0"
 
-#: crates/halcyon-app/ui/pages/library.slint:564
+#: crates/halcyon-app/ui/pages/library.slint:569
 msgid "succès:complet   succès:manquants   succès:>80"
 msgstr "achievements:complete   achievements:missing   achievements:>80"
 
-#: crates/halcyon-app/ui/pages/library.slint:565
+#: crates/halcyon-app/ui/pages/library.slint:570
 msgid "-filtre:valeur  exclut (ex. -installé:oui)"
 msgstr "-filter:value  excludes (e.g. -installed:yes)"
 
-#: crates/halcyon-app/ui/pages/library.slint:567
+#: crates/halcyon-app/ui/pages/library.slint:572
 msgid "Flèches : sélection. Entrée : fiche. Espace : jouer. Menu : actions."
 msgstr "Arrows: select. Enter: game page. Space: play. Menu: actions."
 
-#: crates/halcyon-app/ui/pages/library.slint:573
+#: crates/halcyon-app/ui/pages/library.slint:578
 msgid "Trier par"
 msgstr "Sort by"
 
-#: crates/halcyon-app/ui/pages/library.slint:593
+#: crates/halcyon-app/ui/pages/library.slint:598
 msgid "Ému."
 msgstr "Emu."
 
-#: crates/halcyon-app/ui/pages/library.slint:615
+#: crates/halcyon-app/ui/pages/library.slint:620
 msgid "Masqués"
 msgstr "Hidden"
 
-#: crates/halcyon-app/ui/pages/library.slint:662
+#: crates/halcyon-app/ui/pages/library.slint:667
 msgid "Votre bibliothèque est vide"
 msgstr "Your library is empty"
 
-#: crates/halcyon-app/ui/pages/library.slint:662
+#: crates/halcyon-app/ui/pages/library.slint:667
 msgid "Aucun jeu ne correspond"
 msgstr "No matching games"
 
-#: crates/halcyon-app/ui/pages/library.slint:670
+#: crates/halcyon-app/ui/pages/library.slint:675
 msgid "Lancez une analyse ou ajoutez un dossier de jeux dans les paramètres."
 msgstr "Run a scan or add a game folder in the settings."
 
-#: crates/halcyon-app/ui/pages/library.slint:671
+#: crates/halcyon-app/ui/pages/library.slint:676
 msgid "Essayez un autre terme ou retirez des filtres. Champs de recherche : dev:, éditeur:, genre:, plateforme:, tag:, statut:, installé:, temps:, succès:, maj:"
 msgstr "Try another term or remove filters. Search fields: dev:, publisher:, genre:, platform:, tag:, status:, installed:, time:, achievements:, update:"
 
-#: crates/halcyon-app/ui/pages/library.slint:722
+#: crates/halcyon-app/ui/pages/library.slint:727
 msgid "Titre"
 msgstr "Title"
 
-#: crates/halcyon-app/ui/pages/library.slint:782
+#: crates/halcyon-app/ui/pages/library.slint:787
 msgid "Parcourir"
 msgstr "Browse"
 
-#: crates/halcyon-app/ui/pages/library.slint:783
+#: crates/halcyon-app/ui/pages/library.slint:788
 msgid "Entrée"
 msgstr "Enter"
 
-#: crates/halcyon-app/ui/pages/library.slint:784
+#: crates/halcyon-app/ui/pages/library.slint:789
 msgid "Espace"
 msgstr "Space"
 
-#: crates/halcyon-app/ui/pages/library.slint:785
+#: crates/halcyon-app/ui/pages/library.slint:790
 msgid "Menu"
 msgstr "Menu"
 
-#: crates/halcyon-app/ui/pages/library.slint:785
+#: crates/halcyon-app/ui/pages/library.slint:790
 msgid "Actions"
 msgstr "Actions"
 
@@ -229,23 +229,23 @@ msgid_plural "{n} jeux correspondent"
 msgstr[0] "{n} game matches"
 msgstr[1] "{n} games match"
 
-#: crates/halcyon-core/src/model.rs:54
+#: crates/halcyon-core/src/model.rs:93
 msgid "Standalone"
 msgstr "Standalone"
 
-#: crates/halcyon-core/src/model.rs:157
+#: crates/halcyon-core/src/model.rs:214
 msgid "Téléchargement en cours"
 msgstr "Downloading"
 
-#: crates/halcyon-core/src/model.rs:158
+#: crates/halcyon-core/src/model.rs:215
 msgid "Mise à jour en pause"
 msgstr "Update paused"
 
-#: crates/halcyon-core/src/model.rs:395
+#: crates/halcyon-core/src/model.rs:454
 msgid "plateforme"
 msgstr "platform"
 
-#: crates/halcyon-core/src/model.rs:397
+#: crates/halcyon-core/src/model.rs:456
 msgid "corrigé"
 msgstr "corrected"
 
@@ -519,17 +519,17 @@ msgstr "name missing"
 msgid "fichier Steam illisible (imbrication trop profonde)"
 msgstr "unreadable Steam file (nesting too deep)"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:90 crates/halcyon-integrations/src/steam_stats.rs:111 crates/halcyon-integrations/src/steam_stats.rs:112
-#: crates/halcyon-integrations/src/steam_stats.rs:119
+#: crates/halcyon-integrations/src/steam_stats.rs:90 crates/halcyon-integrations/src/steam_stats.rs:113 crates/halcyon-integrations/src/steam_stats.rs:114
+#: crates/halcyon-integrations/src/steam_stats.rs:122 crates/halcyon-integrations/src/steam_stats.rs:125 crates/halcyon-integrations/src/steam_stats.rs:132
 msgid "fichier Steam incomplet"
 msgstr "incomplete Steam file"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:104
+#: crates/halcyon-integrations/src/steam_stats.rs:106
 #, placeholders
 msgid "fichier Steam d'un format inconnu (type {kind})"
 msgstr "Steam file in an unknown format (type {kind})"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:263
+#: crates/halcyon-integrations/src/steam_stats.rs:278
 #, placeholders
 msgid "{path} : fichier trop volumineux"
 msgstr "{path}: file too large"

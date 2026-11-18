@@ -97,7 +97,7 @@ pub fn create_game_shortcut(name: &str, id: i64, icon: Option<&Path>) -> Result<
             .creation_flags(CREATE_NO_WINDOW)
             .status()
             .map_err(|e| tr!("PowerShell indisponible : {e}", e = e))?;
-        if status.success() && dest.is_file() { Ok(dest) } else { Err(tr!("création du raccourci refusée par le système").into()) }
+        if status.success() && dest.is_file() { Ok(dest) } else { Err(tr!("création du raccourci refusée par le système")) }
     }
     #[cfg(not(windows))]
     {

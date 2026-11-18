@@ -50,6 +50,9 @@ pub struct Settings {
     pub gog_enabled: bool,
     /// Dossier de configuration Heroic forcé (sinon détection automatique).
     pub gog_heroic_path: Option<PathBuf>,
+    /// Autres launchers désactivés (Ubisoft, EA, Xbox, Battle.net, Riot, Amazon, itch.io) par
+    /// identifiant de source ; tous lus par défaut (1.1).
+    pub disabled_launchers: Vec<String>,
     /// Dossier des manifestes Epic forcé (sinon détection automatique).
     pub epic_manifests_path: Option<PathBuf>,
     /// Dossiers parcourus à la recherche de jeux standalone.
@@ -438,6 +441,7 @@ impl Default for Settings {
             epic_enabled: true,
             gog_enabled: true,
             gog_heroic_path: None,
+            disabled_launchers: Vec::new(),
             epic_manifests_path: None,
             scan_folders: Vec::new(),
             online_artwork: true,

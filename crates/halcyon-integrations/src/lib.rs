@@ -18,6 +18,7 @@ pub mod epic;
 pub mod gog;
 pub mod gpu;
 pub mod launcher;
+pub mod launchers;
 pub mod libretro;
 pub mod mods;
 pub mod news;

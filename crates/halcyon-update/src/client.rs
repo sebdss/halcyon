@@ -144,6 +144,7 @@ pub fn install_at_restart(layout: &Layout) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[cfg(unix)]
     use super::*;
 
     #[cfg(unix)]

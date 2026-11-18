@@ -23,11 +23,43 @@ pub enum GameSource {
     Minecraft,
     /// GOG : jeux installés par Heroic ou GOG Galaxy (1.0.0).
     Gog,
+    /// Ubisoft Connect (Windows), lancé par `uplay://`.
+    Ubisoft,
+    /// EA app (Windows), lancée par `origin2://`.
+    Ea,
+    /// Xbox / Game Pass PC (Windows) : paquets du Microsoft Store contenant un jeu.
+    Xbox,
+    /// Battle.net (Windows), lancé par le client.
+    BattleNet,
+    /// Riot (Windows), lancé par le Riot Client.
+    Riot,
+    /// Amazon Games (Windows), lancé par `amazon-games://`.
+    Amazon,
+    /// itch.io : jeux installés par l'application itch (Windows, Linux).
+    Itch,
 }
 
 impl GameSource {
     /// Ordre stable (indices utilisés par les filtres de l'interface) : nouvelles sources à la fin.
-    pub const ALL: [GameSource; 7] = [Self::Steam, Self::Epic, Self::Standalone, Self::Manual, Self::Emulated, Self::Minecraft, Self::Gog];
+    pub const ALL: [GameSource; 14] = [
+        Self::Steam,
+        Self::Epic,
+        Self::Standalone,
+        Self::Manual,
+        Self::Emulated,
+        Self::Minecraft,
+        Self::Gog,
+        Self::Ubisoft,
+        Self::Ea,
+        Self::Xbox,
+        Self::BattleNet,
+        Self::Riot,
+        Self::Amazon,
+        Self::Itch,
+    ];
+
+    /// Launchers lus sans compte ni configuration (1.1) : un réglage chacun.
+    pub const LAUNCHERS: [GameSource; 7] = [Self::Ubisoft, Self::Ea, Self::Xbox, Self::BattleNet, Self::Riot, Self::Amazon, Self::Itch];
 
     /// Identifiant stable stocké en base.
     pub fn as_str(self) -> &'static str {
@@ -39,6 +71,13 @@ impl GameSource {
             Self::Emulated => "emulated",
             Self::Minecraft => "minecraft",
             Self::Gog => "gog",
+            Self::Ubisoft => "ubisoft",
+            Self::Ea => "ea",
+            Self::Xbox => "xbox",
+            Self::BattleNet => "battlenet",
+            Self::Riot => "riot",
+            Self::Amazon => "amazon",
+            Self::Itch => "itch",
         }
     }
 
@@ -56,6 +95,24 @@ impl GameSource {
             Self::Emulated => tr!("Émulation"),
             Self::Minecraft => "Minecraft".into(),
             Self::Gog => "GOG".into(),
+            Self::Ubisoft => "Ubisoft Connect".into(),
+            Self::Ea => "EA app".into(),
+            Self::Xbox => "Xbox".into(),
+            Self::BattleNet => "Battle.net".into(),
+            Self::Riot => "Riot".into(),
+            Self::Amazon => "Amazon Games".into(),
+            Self::Itch => "itch.io".into(),
+        }
+    }
+
+    /// Libellé court (filtres en ligne).
+    pub fn short_label(self) -> String {
+        match self {
+            Self::Ubisoft => "Ubisoft".into(),
+            Self::Ea => "EA".into(),
+            Self::BattleNet => "Battle.net".into(),
+            Self::Amazon => "Amazon".into(),
+            other => other.label(),
         }
     }
 
@@ -63,7 +120,7 @@ impl GameSource {
     /// GOG : vrai pour Heroic (URI) ; un jeu GOG Galaxy sans URI se lance par son exécutable
     /// (jeux sans DRM), voir [`Game::launch_target`].
     pub fn uses_platform_client(self) -> bool {
-        matches!(self, Self::Steam | Self::Epic | Self::Gog)
+        matches!(self, Self::Steam | Self::Epic | Self::Gog | Self::Ubisoft | Self::Ea | Self::Xbox | Self::BattleNet | Self::Riot | Self::Amazon)
     }
 }
 
@@ -327,7 +384,9 @@ impl Game {
             return None;
         }
         // Un exécutable défini par l'utilisateur prime sur l'URI de plateforme.
-        let direct = self.source == GameSource::Gog && self.launch_uri.is_none();
+        // Sans URI : GOG Galaxy (jeu sans DRM), Battle.net, Riot et Xbox (programme du client
+        // avec ses arguments, ex. `Battle.net.exe --exec="launch Pro"`).
+        let direct = matches!(self.source, GameSource::Gog | GameSource::BattleNet | GameSource::Riot | GameSource::Xbox) && self.launch_uri.is_none();
         if self.overrides & overrides::LAUNCH != 0 || !self.source.uses_platform_client() || direct {
             if let Some(path) = &self.executable {
                 return Some(LaunchTarget::Executable {

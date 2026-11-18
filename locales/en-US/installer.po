@@ -16,7 +16,7 @@ msgstr ""
 #: crates/halcyon-app/ui/app.slint:198 crates/halcyon-app/ui/app.slint:224 crates/halcyon-app/ui/pages/appearance.slint:195
 #: crates/halcyon-app/ui/pages/appearance.slint:294 crates/halcyon-app/ui/pages/emulators.slint:65 crates/halcyon-app/ui/pages/emulators.slint:152
 #: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:89 crates/halcyon-app/ui/pages/saves.slint:14
-#: crates/halcyon-app/ui/pages/settings.slint:145 crates/halcyon-app/ui/pages/settings.slint:187 crates/halcyon-app/ui/pages/settings.slint:533
+#: crates/halcyon-app/ui/pages/settings.slint:145 crates/halcyon-app/ui/pages/settings.slint:187 crates/halcyon-app/ui/pages/settings.slint:562
 #: crates/halcyon-installer/ui/setup.slint:426
 msgid "Parcourir…"
 msgstr "Browse…"
@@ -33,7 +33,7 @@ msgstr "Cancel"
 msgid "Retour"
 msgstr "Back"
 
-#: crates/halcyon-app/ui/pages/downloads.slint:95 crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:733
+#: crates/halcyon-app/ui/pages/downloads.slint:95 crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:735
 #, placeholders
 msgid "{n} élément"
 msgid_plural "{n} éléments"
@@ -46,7 +46,7 @@ msgid "Fermer"
 msgstr "Close"
 
 #: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1529 crates/halcyon-app/ui/pages/home.slint:345
-#: crates/halcyon-core/src/model.rs:114 crates/halcyon-installer/src/main.rs:743
+#: crates/halcyon-core/src/model.rs:171 crates/halcyon-installer/src/main.rs:743
 msgid "Terminé"
 msgstr "Done"
 
@@ -63,13 +63,13 @@ msgstr "Update"
 msgid "Installation"
 msgstr "Installation"
 
-#: crates/halcyon-app/ui/pages/home.slint:166 crates/halcyon-app/ui/pages/library.slint:680 crates/halcyon-app/ui/pages/settings.slint:454
+#: crates/halcyon-app/ui/pages/home.slint:166 crates/halcyon-app/ui/pages/library.slint:685 crates/halcyon-app/ui/pages/settings.slint:454
 #: crates/halcyon-installer/ui/setup.slint:471
 msgid "Analyse en cours…"
 msgstr "Checking…"
 
 #: crates/halcyon-app/ui/pages/minecraft.slint:104 crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-app/ui/pages/minecraft.slint:445
-#: crates/halcyon-app/ui/pages/settings.slint:972 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
+#: crates/halcyon-app/ui/pages/settings.slint:1001 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
 #: crates/halcyon-installer/src/main.rs:339
 msgid "Installer"
 msgstr "Install"
@@ -87,7 +87,7 @@ msgstr "Repair"
 msgid "Désinstaller"
 msgstr "Uninstall"
 
-#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:854
+#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:883
 #: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_palette.rs:20
 #: crates/halcyon-installer/src/engine.rs:333 crates/halcyon-installer/src/engine.rs:335 crates/halcyon-storage/src/activity.rs:40
 msgid "Système"
@@ -103,7 +103,7 @@ msgstr "Setup"
 msgid "Langue"
 msgstr "Language"
 
-#: crates/halcyon-app/ui/pages/settings.slint:860 crates/halcyon-installer/ui/setup.slint:446
+#: crates/halcyon-app/ui/pages/settings.slint:889 crates/halcyon-installer/ui/setup.slint:446
 msgid "Démarrer avec la session"
 msgstr "Start with the session"
 
@@ -587,11 +587,11 @@ msgstr "installation canceled: nothing was changed"
 msgid "{path} : empreinte incorrecte après écriture (disque défaillant ?)"
 msgstr "{path}: wrong hash after writing (failing disk?)"
 
-#: crates/halcyon-installer/src/engine.rs:539 crates/halcyon-installer/src/engine.rs:713 crates/halcyon-installer/src/engine.rs:722
+#: crates/halcyon-installer/src/engine.rs:539 crates/halcyon-installer/src/engine.rs:715 crates/halcyon-installer/src/engine.rs:724
 msgid "Intégrité des fichiers"
 msgstr "File integrity"
 
-#: crates/halcyon-installer/src/engine.rs:539 crates/halcyon-installer/src/engine.rs:722
+#: crates/halcyon-installer/src/engine.rs:539 crates/halcyon-installer/src/engine.rs:724
 #, placeholders
 msgid "{n} vérifié"
 msgid_plural "{n} vérifiés"
@@ -618,7 +618,7 @@ msgstr "{e} (the previous installation was restored)"
 msgid "programme de désinstallation non copié : {e}"
 msgstr "uninstaller not copied: {e}"
 
-#: crates/halcyon-installer/src/engine.rs:607 crates/halcyon-installer/src/engine.rs:822
+#: crates/halcyon-installer/src/engine.rs:607 crates/halcyon-installer/src/engine.rs:824
 msgid "Fichiers de Halcyon"
 msgstr "Halcyon files"
 
@@ -627,7 +627,7 @@ msgstr "Halcyon files"
 msgid "Écrits : {written} · remplacés : {replaced}"
 msgstr "Written: {written} · replaced: {replaced}"
 
-#: crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:618 crates/halcyon-installer/src/engine.rs:733
+#: crates/halcyon-installer/src/engine.rs:613 crates/halcyon-installer/src/engine.rs:618 crates/halcyon-installer/src/engine.rs:735
 msgid "Raccourcis et menu"
 msgstr "Shortcuts and menu"
 
@@ -636,86 +636,86 @@ msgstr "Shortcuts and menu"
 msgid "intégration au système incomplète : {e}"
 msgstr "incomplete system integration: {e}"
 
-#: crates/halcyon-installer/src/engine.rs:644 crates/halcyon-installer/src/engine.rs:737
+#: crates/halcyon-installer/src/engine.rs:646 crates/halcyon-installer/src/engine.rs:739
 msgid "Installation enregistrée"
 msgstr "Installation registered"
 
-#: crates/halcyon-installer/src/engine.rs:644 crates/halcyon-installer/src/engine.rs:737
+#: crates/halcyon-installer/src/engine.rs:646 crates/halcyon-installer/src/engine.rs:739
 #, placeholders
 msgid "version {version}"
 msgstr "version {version}"
 
-#: crates/halcyon-installer/src/engine.rs:695
+#: crates/halcyon-installer/src/engine.rs:697
 msgid "Ancien installateur retiré"
 msgstr "Old installer removed"
 
-#: crates/halcyon-installer/src/engine.rs:713
+#: crates/halcyon-installer/src/engine.rs:715
 #, placeholders
 msgid "{n} fichier manquant ou endommagé"
 msgid_plural "{n} fichiers manquants ou endommagés"
 msgstr[0] "{n} file missing or damaged"
 msgstr[1] "{n} files missing or damaged"
 
-#: crates/halcyon-installer/src/engine.rs:714
+#: crates/halcyon-installer/src/engine.rs:716
 #, placeholders
 msgid "{n} fichier manquant ou endommagé ({files}). Ce programme de maintenance ne contient pas les fichiers de Halcyon : lancez le programme d'installation de la version {version} pour le rétablir."
 msgid_plural "{n} fichiers manquants ou endommagés ({files}). Ce programme de maintenance ne contient pas les fichiers de Halcyon : lancez le programme d'installation de la version {version} pour les rétablir."
 msgstr[0] "{n} file missing or damaged ({files}). This maintenance program doesn't contain Halcyon's files: run the installer for version {version} to restore it."
 msgstr[1] "{n} files missing or damaged ({files}). This maintenance program doesn't contain Halcyon's files: run the installer for version {version} to restore them."
 
-#: crates/halcyon-installer/src/engine.rs:758
+#: crates/halcyon-installer/src/engine.rs:760
 msgid "Halcyon est ouvert : quittez-le (icône de la zone de notification › Quitter), puis relancez la désinstallation. Rien n'a été retiré."
 msgstr "Halcyon is open: quit it (system tray icon › Quit), then run the uninstallation again. Nothing was removed."
 
-#: crates/halcyon-installer/src/engine.rs:767
+#: crates/halcyon-installer/src/engine.rs:769
 #, placeholders
 msgid "{p} conservé (modifié depuis l'installation)"
 msgstr "{p} kept (modified since installation)"
 
-#: crates/halcyon-installer/src/engine.rs:788
+#: crates/halcyon-installer/src/engine.rs:790
 msgid "Raccourcis de jeux"
 msgstr "Game shortcuts"
 
-#: crates/halcyon-installer/src/engine.rs:788
+#: crates/halcyon-installer/src/engine.rs:790
 #, placeholders
 msgid "{n} retiré"
 msgid_plural "{n} retirés"
 msgstr[0] "{n} removed"
 msgstr[1] "{n} removed"
 
-#: crates/halcyon-installer/src/engine.rs:792
+#: crates/halcyon-installer/src/engine.rs:794
 msgid "Raccourcis et entrées du système"
 msgstr "System shortcuts and entries"
 
-#: crates/halcyon-installer/src/engine.rs:820
+#: crates/halcyon-installer/src/engine.rs:822
 #, placeholders
 msgid "{dir} conservé : il contient des fichiers qui ne viennent pas de l'installation"
 msgstr "{dir} kept: it contains files that don't come from the installation"
 
-#: crates/halcyon-installer/src/engine.rs:822
+#: crates/halcyon-installer/src/engine.rs:824
 #, placeholders
 msgid "{n} supprimé"
 msgid_plural "{n} supprimés"
 msgstr[0] "{n} deleted"
 msgstr[1] "{n} deleted"
 
-#: crates/halcyon-installer/src/engine.rs:831
+#: crates/halcyon-installer/src/engine.rs:833
 msgid "Cache"
 msgstr "Cache"
 
-#: crates/halcyon-installer/src/engine.rs:831
+#: crates/halcyon-installer/src/engine.rs:833
 msgid "supprimé"
 msgstr "deleted"
 
-#: crates/halcyon-installer/src/engine.rs:846 crates/halcyon-installer/src/engine.rs:848
+#: crates/halcyon-installer/src/engine.rs:848 crates/halcyon-installer/src/engine.rs:850
 msgid "Données personnelles"
 msgstr "Personal data"
 
-#: crates/halcyon-installer/src/engine.rs:846
+#: crates/halcyon-installer/src/engine.rs:848
 msgid "supprimées"
 msgstr "deleted"
 
-#: crates/halcyon-installer/src/engine.rs:848
+#: crates/halcyon-installer/src/engine.rs:850
 msgid "conservées"
 msgstr "kept"
 

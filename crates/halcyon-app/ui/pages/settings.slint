@@ -475,6 +475,35 @@ export component SettingsPage inherits Rectangle {
                     key: "gog";
                     path-label: @tr("Dossier de configuration Heroic (détection automatique si vide)");
                 }
+                if SettingsUi.launchers.length > 0: Panel {
+                    VerticalLayout {
+                        padding: 22px;
+                        spacing: 14px;
+                        Text {
+                            text: @tr("Autres launchers");
+                            color: Theme.text;
+                            font-size: Theme.t-body;
+                            font-weight: 600;
+                        }
+                        Text {
+                            text: @tr("Jeux installés lus sans compte ni configuration. Chaque jeu se lance par son launcher, qui garde la connexion, les mises à jour et la protection anticopie. Temps de jeu mesuré par Halcyon.");
+                            color: Theme.text-dim;
+                            font-size: Theme.t-caption;
+                            wrap: word-wrap;
+                        }
+                        for l in SettingsUi.launchers: SettingRow {
+                            title: l.name;
+                            description: !l.enabled ? @tr("Désactivé") : l.found
+                                ? @tr("Trouvé, {n} jeu installé" | "Trouvé, {n} jeux installés" % l.count)
+                                : @tr("Introuvable sur cet ordinateur");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: l.enabled;
+                                toggled(v) => { SettingsUi.set-source-enabled(l.key, v); }
+                            }
+                        }
+                    }
+                }
             }
 
             if SettingsUi.shown[1]: VerticalLayout {

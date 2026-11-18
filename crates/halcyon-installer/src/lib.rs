@@ -294,11 +294,14 @@ mod tests {
         let checks = system_checks(&p, &opts(&env), &Found::Nothing, Mode::Install);
         assert!(checks.iter().any(|c| c.label == "Espace disque"));
         assert!(checks.iter().filter(|c| c.label == "Système").all(|c| c.level == Level::Ok));
-        let mut o = opts(&env);
-        o.dir = PathBuf::from("/proc/halcyon-test");
-        let checks = system_checks(&p, &o, &Found::Nothing, Mode::Install);
+        // Dossier non inscriptible : seul Linux en fournit un sûr (/proc).
         #[cfg(target_os = "linux")]
-        assert!(checks.iter().any(|c| c.label == "Permissions" && c.level == Level::Error));
+        {
+            let mut o = opts(&env);
+            o.dir = PathBuf::from("/proc/halcyon-test");
+            let checks = system_checks(&p, &o, &Found::Nothing, Mode::Install);
+            assert!(checks.iter().any(|c| c.label == "Permissions" && c.level == Level::Error));
+        }
     }
 
     #[test]

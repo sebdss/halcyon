@@ -1,5 +1,18 @@
 # Journal des modifications
 
+## Non publié — Sept launchers de plus
+
+- **Ubisoft Connect, EA app, Xbox / Game Pass PC, Battle.net, Riot, Amazon Games** (Windows)
+  et **itch.io** (Windows et Linux) : jeux installés lus sans compte ni configuration, lancés
+  par leur launcher (connexion, mises à jour et protection anticopie restent les siennes).
+  Temps de jeu mesuré par Halcyon (sauf EA app, qui ne dit pas où le jeu est installé).
+- Visuels cherchés par nom dans la boutique Steam (puis SteamGridDB) ; jaquette itch.io reprise
+  du reçu de l'application itch.
+- **Paramètres › Plateformes › Autres launchers** : un interrupteur par launcher, avec son état.
+- Bibliothèque : un filtre par launcher, affiché seulement s'il a des jeux ; règle « source »
+  des collections intelligentes étendue.
+- Un visuel dont l'adresse ne répond plus est cherché ailleurs (boutique Steam, SteamGridDB).
+
 ## Non publié — Succès et visuels sans clé
 
 - **Succès Steam sans clé d'API** : lus dans les fichiers que le client Steam enregistre sur ce

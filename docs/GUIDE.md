@@ -228,6 +228,27 @@ contient `gog_store`). Filtre « GOG » dans la bibliothèque. Les succès GOG n
 disponibles (pas d'API publique sans connexion au compte) : utilisez les succès
 personnalisés.
 
+## 6 bis++. Autres launchers (1.1)
+
+**Paramètres › Plateformes › Autres launchers** : Halcyon lit les jeux **installés** de ces
+launchers, sans compte à connecter ni clé. Chaque jeu se lance par son launcher, qui garde la
+connexion, les mises à jour et la protection anticopie.
+
+| Launcher | Système | Lancement | Temps de jeu |
+|---|---|---|---|
+| Ubisoft Connect | Windows | `uplay://` | mesuré par Halcyon |
+| EA app | Windows | `origin2://` | non mesuré (l'EA app ne dit pas où le jeu est installé) |
+| Xbox / Game Pass PC | Windows | comme le menu Démarrer | mesuré par Halcyon |
+| Battle.net | Windows | client Battle.net | mesuré par Halcyon |
+| Riot (League of Legends, VALORANT, Legends of Runeterra, 2XKO) | Windows | Riot Client | mesuré par Halcyon |
+| Amazon Games | Windows | `amazon-games://` | mesuré par Halcyon |
+| itch.io | Windows, Linux | exécutable du jeu | mesuré par Halcyon |
+
+Un interrupteur par launcher. Dans la bibliothèque, un filtre apparaît pour chaque launcher qui
+a des jeux. Les visuels sont cherchés par nom dans la boutique Steam (puis SteamGridDB si vous
+avez une clé). Les succès de ces plateformes ne sont pas publics : utilisez les succès
+personnalisés.
+
 ## 6 quater. Téléchargements (1.0.0)
 
 Menu **Téléchargements** : tout ce que Halcyon télécharge lui-même (versions et Java de

@@ -85,6 +85,8 @@ pub struct Controller {
     pub(crate) detected: RefCell<HashMap<String, Detected>>,
     pub(crate) collections: RefCell<Vec<Collection>>,
     pub(crate) genres: RefCell<Vec<String>>,
+    /// Sources supplémentaires de l'index de la bibliothèque (autres launchers présents).
+    pub(crate) extra_sources: RefCell<Vec<GameSource>>,
     pub(crate) progress: RefCell<HashMap<GameId, Progress>>,
     pub(crate) ach_syncing: Cell<bool>,
     pub(crate) poll_generation: Arc<AtomicU64>,
@@ -170,6 +172,7 @@ impl Controller {
             detected: RefCell::new(HashMap::new()),
             collections: RefCell::new(Vec::new()),
             genres: RefCell::new(Vec::new()),
+            extra_sources: RefCell::new(Vec::new()),
             progress: RefCell::new(HashMap::new()),
             ach_syncing: Cell::new(false),
             poll_generation: Arc::new(AtomicU64::new(0)),
@@ -440,6 +443,7 @@ impl Controller {
         smart.on_edit(with!(|c, id| c.smart_edit_existing(id as i64)));
         smart.on_create(with!(|c| c.smart_create()));
         smart.on_set_rule(with!(|c, i, k, p, n| c.smart_set_rule(i.max(0) as usize, k.max(0) as usize, &p, n)));
+        smart.on_source_index(|key| GameSource::ALL.iter().position(|s| s.as_str() == key.as_str()).unwrap_or(0) as i32);
         smart.on_add_rule(with!(|c| c.smart_add_rule()));
         smart.on_remove_rule(with!(|c, i| c.smart_remove_rule(i.max(0) as usize)));
         smart.on_set_match_all(with!(|c, v| c.smart_set_match_all(v)));
@@ -628,6 +632,7 @@ impl Controller {
                 4 => SourceFilter::Only(GameSource::Standalone),
                 5 => SourceFilter::Only(GameSource::Minecraft),
                 6 => SourceFilter::Only(GameSource::Gog),
+                n if n > 6 => self.extra_sources.borrow().get(n as usize - 7).map(|s| SourceFilter::Only(*s)).unwrap_or(SourceFilter::All),
                 _ => SourceFilter::All,
             },
             installed_only: lui.get_installed_only(),
@@ -688,6 +693,18 @@ impl Controller {
         *self.genres.borrow_mut() = genres;
         lui.set_genre_labels(ModelRc::new(VecModel::from(glabels)));
         lui.set_genre(new_index as i32);
+
+        // Autres launchers : affichés dans l'index seulement s'ils ont des jeux.
+        let extra: Vec<GameSource> = {
+            let lib = self.lib.borrow();
+            GameSource::LAUNCHERS.into_iter().filter(|s| lib.games.iter().any(|g| g.source == *s)).collect()
+        };
+        let selected = (lui.get_source() as usize).checked_sub(7).and_then(|i| self.extra_sources.borrow().get(i).copied());
+        lui.set_extra_sources(ModelRc::new(VecModel::from(extra.iter().map(|s| SharedString::from(s.label())).collect::<Vec<_>>())));
+        if lui.get_source() > 6 {
+            lui.set_source(selected.and_then(|s| extra.iter().position(|e| *e == s)).map(|i| i as i32 + 7).unwrap_or(0));
+        }
+        *self.extra_sources.borrow_mut() = extra;
 
         let counts = self.smart_counts();
         let cols = self.collections.borrow();
@@ -1244,6 +1261,10 @@ impl Controller {
         found.insert(GameSource::Epic, (epic.is_some(), epic.map(|p| p.display().to_string()).unwrap_or_default()));
         let gog = halcyon_integrations::gog::GogScanner::new(s.gog_heroic_path.clone()).location();
         found.insert(GameSource::Gog, (gog.is_some(), gog.map(|p| p.display().to_string()).unwrap_or_default()));
+        for l in GameSource::LAUNCHERS {
+            let at = halcyon_integrations::launchers::LauncherScanner::location(l);
+            found.insert(l, (at.is_some(), at.unwrap_or_default()));
+        }
     }
 
     pub(crate) fn start_scan(&self) {
@@ -1291,6 +1312,12 @@ impl Controller {
                 }
                 if settings.gog_enabled {
                     scanners.push(Box::new(halcyon_integrations::gog::GogScanner::new(settings.gog_heroic_path.clone())));
+                }
+                for l in GameSource::LAUNCHERS {
+                    use halcyon_integrations::launchers::LauncherScanner;
+                    if LauncherScanner::supported(l) && !settings.disabled_launchers.iter().any(|d| d == l.as_str()) {
+                        scanners.push(Box::new(LauncherScanner::new(l)));
+                    }
                 }
                 // Toujours exécutés : retirer un dossier rend ses jeux « non installés ».
                 scanners.push(Box::new(standalone::StandaloneScanner::new(settings.scan_folders.clone())));
@@ -1467,10 +1494,16 @@ impl Controller {
                         }
                     }
                 }
-                let need = |local: &Option<PathBuf>, url: &Option<String>| local.as_ref().is_none_or(|p| !p.is_file()) && url.is_none();
-                if s.online_artwork && matches!(g.source, GameSource::Standalone | GameSource::Manual) && store_jobs.len() < STORE_PER_RUN {
+                // Visuel à chercher : absent du disque, sans adresse connue ou adresse en échec.
+                let need = |local: &Option<PathBuf>, url: &Option<String>, suffix: &str| {
+                    local.as_ref().is_none_or(|p| !p.is_file()) && (url.is_none() || failures.contains_key(&format!("{stem}-{suffix}")))
+                };
+                // Jeux sans visuels fournis par leur plateforme : autonomes, ajoutés à la main et
+                // autres launchers (Ubisoft, EA, Xbox…), cherchés par leur nom.
+                let by_name = matches!(g.source, GameSource::Standalone | GameSource::Manual) || GameSource::LAUNCHERS.contains(&g.source);
+                if s.online_artwork && by_name && store_jobs.len() < STORE_PER_RUN {
                     let a = &g.artwork;
-                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url), need(&a.logo, &a.logo_url)];
+                    let want = [need(&a.cover, &a.cover_url, "cover"), need(&a.banner, &a.banner_url, "banner"), need(&a.logo, &a.logo_url, "logo")];
                     let key = format!("steamstore-{stem}");
                     if want.iter().any(|w| *w) && !failures.contains_key(&key) {
                         store_jobs.push((g.id, g.name.clone(), want, dir.join(&stem), key));
@@ -1479,7 +1512,7 @@ impl Controller {
                 if s.online_artwork && g.source == GameSource::Emulated && libretro_jobs.len() < LIBRETRO_PER_RUN {
                     let system = g.platform.as_deref().and_then(|p| self.registry.borrow().platform(p).and_then(|d| d.libretro.clone()));
                     let a = &g.artwork;
-                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url)];
+                    let want = [need(&a.cover, &a.cover_url, "cover"), need(&a.banner, &a.banner_url, "banner")];
                     let key = format!("libretro-{stem}");
                     if let (Some(system), true, false) = (system, want.iter().any(|w| *w), failures.contains_key(&key)) {
                         let titles = halcyon_integrations::libretro::titles(g.executable.as_deref(), &g.name);
@@ -1488,12 +1521,11 @@ impl Controller {
                 }
                 if s.online_artwork
                     && !sgdb_key.is_empty()
-                    && matches!(g.source, GameSource::Standalone | GameSource::Manual | GameSource::Minecraft)
+                    && (by_name || g.source == GameSource::Minecraft)
                     && sgdb_jobs.len() < SGDB_PER_RUN
                 {
                     let a = &g.artwork;
-                    let need = |local: &Option<PathBuf>, url: &Option<String>| local.as_ref().is_none_or(|p| !p.is_file()) && url.is_none();
-                    let want = [need(&a.cover, &a.cover_url), need(&a.banner, &a.banner_url), need(&a.logo, &a.logo_url)];
+                    let want = [need(&a.cover, &a.cover_url, "cover"), need(&a.banner, &a.banner_url, "banner"), need(&a.logo, &a.logo_url, "logo")];
                     let key = format!("sgdb-{stem}");
                     if want.iter().any(|w| *w) && !failures.contains_key(&key) {
                         sgdb_jobs.push((g.id, g.name.clone(), want, dir.join(&stem), key));
@@ -1826,6 +1858,7 @@ impl Controller {
         let info = |source: GameSource, name: &str, enabled: bool, over: &Option<PathBuf>| {
             let (ok, path) = found.get(&source).cloned().unwrap_or_default();
             SourceInfo {
+                key: source.as_str().into(),
                 name: name.into(),
                 enabled,
                 found: ok,
@@ -1838,6 +1871,12 @@ impl Controller {
         sui.set_steam(info(GameSource::Steam, "Steam", s.steam_enabled, &s.steam_path));
         sui.set_epic(info(GameSource::Epic, &tr!("Epic Games (launcher Epic, Heroic ou Legendary)"), s.epic_enabled, &s.epic_manifests_path));
         sui.set_gog(info(GameSource::Gog, &tr!("GOG (Heroic ou GOG Galaxy)"), s.gog_enabled, &s.gog_heroic_path));
+        let launchers: Vec<SourceInfo> = GameSource::LAUNCHERS
+            .into_iter()
+            .filter(|l| halcyon_integrations::launchers::LauncherScanner::supported(*l))
+            .map(|l| info(l, &l.label(), !s.disabled_launchers.iter().any(|d| d == l.as_str()), &None))
+            .collect();
+        sui.set_launchers(ModelRc::new(VecModel::from(launchers)));
         let folders: Vec<SharedString> = s.scan_folders.iter().map(|p| p.display().to_string().into()).collect();
         sui.set_folders(ModelRc::new(VecModel::from(folders)));
         sui.set_online_artwork(s.online_artwork);
@@ -1882,6 +1921,12 @@ impl Controller {
                 "steam" => s.steam_enabled = enabled,
                 "epic" => s.epic_enabled = enabled,
                 "gog" => s.gog_enabled = enabled,
+                k if GameSource::LAUNCHERS.iter().any(|l| l.as_str() == k) => {
+                    s.disabled_launchers.retain(|d| d != k);
+                    if !enabled {
+                        s.disabled_launchers.push(k.to_string());
+                    }
+                }
                 _ => return,
             }
         }
