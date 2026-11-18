@@ -56,11 +56,11 @@ impl GameScanner for StandaloneScanner {
                 report.complete = false;
                 break;
             }
-            ctx.progress(&format!("Dossiers : {}", root.display()));
+            ctx.progress(&tr!("Dossiers : {root}", root = root.display()));
             let entries = match std::fs::read_dir(root) {
                 Ok(e) => e,
                 Err(e) => {
-                    report.warnings.push(format!("dossier inaccessible {} : {e}", root.display()));
+                    report.warnings.push(tr!("dossier inaccessible {root} : {e}", root = root.display(), e = e));
                     continue;
                 }
             };

@@ -55,7 +55,7 @@ fn spawn(name: &str, f: impl FnOnce(Arc<AtomicBool>) + Send + 'static) -> Option
 }
 
 fn pct(v: f32) -> SharedString {
-    format!("{v:.0} %").into()
+    tr!("{v} %", v = halcyon_i18n::number(v.round().max(0.0) as u64)).into()
 }
 
 impl Controller {
@@ -118,7 +118,7 @@ impl Controller {
             }
             r
         };
-        ui.set_cpu_name(if snap.cpu_name.is_empty() { "Processeur".into() } else { snap.cpu_name.as_str().into() });
+        ui.set_cpu_name(if snap.cpu_name.is_empty() { tr!("Processeur").into() } else { snap.cpu_name.as_str().into() });
         ui.set_cpu(snap.cpu / 100.0);
         ui.set_cpu_text(if snap.warming_up { "…".into() } else { pct(snap.cpu) });
         ui.set_cores(ModelRc::new(VecModel::from(snap.cores.iter().map(|c| c / 100.0).collect::<Vec<f32>>())));
@@ -126,17 +126,17 @@ impl Controller {
         ui.set_gpu_curve(ModelRc::new(VecModel::from(gpu_curve)));
         ui.set_ram(snap.ram_percent() / 100.0);
         ui.set_ram_text(format!("{} / {}", fmt_mb(snap.ram_used_mb), fmt_mb(snap.ram_total_mb)).into());
-        ui.set_swap_text(if snap.swap_total_mb > 0 { format!("Mémoire d'échange : {} / {}", fmt_mb(snap.swap_used_mb), fmt_mb(snap.swap_total_mb)) } else { String::new() }.into());
+        ui.set_swap_text(if snap.swap_total_mb > 0 { tr!("Mémoire d'échange : {swap_used_mb} / {swap_total_mb}", swap_used_mb = fmt_mb(snap.swap_used_mb), swap_total_mb = fmt_mb(snap.swap_total_mb)) } else { String::new() }.into());
         let gpus: Vec<PerfGpuRow> = snap
             .gpus
             .iter()
             .map(|g| PerfGpuRow {
                 name: g.name.as_str().into(),
                 usage: g.usage.map(|u| u / 100.0).unwrap_or(-1.0),
-                usage_text: g.usage.map(pct).unwrap_or_else(|| "non fourni par le pilote".into()),
+                usage_text: g.usage.map(pct).unwrap_or_else(|| tr!("non fourni par le pilote").into()),
                 vram: match (g.vram_used_mb, g.vram_total_mb) {
-                    (Some(u), Some(t)) if t > 0 => format!("Mémoire vidéo {} / {}", fmt_mb(u), fmt_mb(t)),
-                    (Some(u), _) => format!("Mémoire vidéo {}", fmt_mb(u)),
+                    (Some(u), Some(t)) if t > 0 => tr!("Mémoire vidéo {u} / {t}", u = fmt_mb(u), t = fmt_mb(t)),
+                    (Some(u), _) => tr!("Mémoire vidéo {u}", u = fmt_mb(u)),
                     _ => String::new(),
                 }
                 .into(),
@@ -149,7 +149,7 @@ impl Controller {
                 .iter()
                 .map(|d| {
                     let used = if d.total_mb > 0 { 1.0 - d.free_mb as f32 / d.total_mb as f32 } else { 0.0 };
-                    PerfDiskRow { mount: d.mount.as_str().into(), free: format!("{} libres sur {}", fmt_mb(d.free_mb), fmt_mb(d.total_mb)).into(), used, warn: used > 0.9 }
+                    PerfDiskRow { mount: d.mount.as_str().into(), free: tr!("{free_mb} libres sur {total_mb}", free_mb = fmt_mb(d.free_mb), total_mb = fmt_mb(d.total_mb)).into(), used, warn: used > 0.9 }
                 })
                 .collect();
             ui.set_disks(ModelRc::new(VecModel::from(disks)));
@@ -160,14 +160,14 @@ impl Controller {
             .take(8)
             .map(|a| PerfAppRow {
                 name: a.name.as_str().into(),
-                count: if a.processes > 1 { format!("{} processus", a.processes) } else { String::new() }.into(),
-                cpu: format!("{:.1} %", a.cpu).replace('.', ",").into(),
+                count: if a.processes > 1 { trn!(a.processes, "{n} processus", "{n} processus") } else { String::new() }.into(),
+                cpu: tr!("{v} %", v = halcyon_i18n::decimal(a.cpu as f64, 1)).into(),
                 ram: fmt_mb(a.ram_mb).into(),
             })
             .collect();
         ui.set_apps(ModelRc::new(VecModel::from(apps)));
         if let Some(own) = &snap.own {
-            ui.set_own_text(format!("Halcyon lui-même : {} de mémoire, {:.1} % du processeur", fmt_mb(own.ram_mb), own.cpu).replace('.', ",").into());
+            ui.set_own_text(tr!("Halcyon lui-même : {ram_mb} de mémoire, {cpu} % du processeur", ram_mb = fmt_mb(own.ram_mb), cpu = halcyon_i18n::decimal(own.cpu as f64, 1)).into());
         }
         // Recommandations : seulement quand la moyenne est significative.
         if stable {
@@ -267,14 +267,14 @@ impl Controller {
             .iter()
             .map(|p| PerfSessionRow {
                 id: p.game_id as i32,
-                game: lib.get(p.game_id).map(|g| g.name.clone()).unwrap_or_else(|| "Jeu retiré".into()).into(),
+                game: lib.get(p.game_id).map(|g| g.name.clone()).unwrap_or_else(|| tr!("Jeu retiré").into()).into(),
                 date: halcyon_core::util::format_date(p.started_at).into(),
                 duration: halcyon_core::util::format_playtime(p.duration_secs).into(),
-                cpu: format!("{:.0} % (max {:.0} %)", p.cpu_avg, p.cpu_max).into(),
-                ram: format!("{} (max {})", fmt_mb(p.ram_avg_mb), fmt_mb(p.ram_max_mb)).into(),
+                cpu: tr!("{cpu_avg} % (max {cpu_max} %)", cpu_avg = format!("{:.0}", p.cpu_avg), cpu_max = format!("{:.0}", p.cpu_max)).into(),
+                ram: tr!("{ram_avg_mb} (max {ram_max_mb})", ram_avg_mb = fmt_mb(p.ram_avg_mb), ram_max_mb = fmt_mb(p.ram_max_mb)).into(),
                 gpu: match (p.gpu_avg, p.gpu_max) {
-                    (Some(a), Some(m)) => format!("{a:.0} % (max {m:.0} %)"),
-                    _ => "non mesurée".into(),
+                    (Some(a), Some(m)) => tr!("{a} % (max {m} %)", a = format!("{:.0}", a), m = format!("{:.0}", m)),
+                    _ => tr!("non mesurée").into(),
                 }
                 .into(),
                 vram: p.vram_max_mb.map(fmt_mb).unwrap_or_default().into(),
@@ -301,12 +301,12 @@ impl Controller {
             match dir.as_deref().and_then(frametimes::latest_log) {
                 Some(p) => p,
                 None => {
-                    self.perf_frame_error("Aucun journal CSV dans le dossier choisi.");
+                    self.perf_frame_error(&tr!("Aucun journal CSV dans le dossier choisi."));
                     return;
                 }
             }
         } else {
-            let Some(p) = rfd::FileDialog::new().set_title("Journal de temps d'image (MangoHud, PresentMon)").add_filter("CSV", &["csv"]).pick_file() else { return };
+            let Some(p) = rfd::FileDialog::new().set_title(tr!("Journal de temps d'image (MangoHud, PresentMon)")).add_filter("CSV", &["csv"]).pick_file() else { return };
             if let Some(dir) = p.parent() {
                 self.settings.borrow_mut().frametime_dir = Some(dir.to_path_buf());
                 self.save_settings();
@@ -339,14 +339,14 @@ impl Controller {
                 let worst = bars.iter().cloned().fold(1.0, f64::max);
                 let ratio: Vec<f32> = bars.iter().map(|b| (b / worst) as f32).collect();
                 let title = if application.is_empty() { format!("{file} · {}", format.label()) } else { format!("{application} · {}", format.label()) };
-                let num = |v: f64| format!("{v:.1}").replace('.', ",");
+                let num = |v: f64| halcyon_i18n::decimal(v, 1);
                 ui.set_frame_title(title.into());
                 ui.set_frame_avg(num(s.avg_fps).into());
                 ui.set_frame_low1(num(s.low1_fps).into());
                 ui.set_frame_low01(num(s.low01_fps).into());
                 ui.set_frame_p99(format!("{} ms", num(s.p99_ms)).into());
                 ui.set_frame_max(format!("{} ms", num(s.max_ms)).into());
-                ui.set_frame_info(format!("{} images sur {} · {} saccade{} (image > 2 × la médiane de {} ms)", s.frames, halcyon_core::util::format_playtime(s.duration_secs as u64), s.stutters, if s.stutters > 1 { "s" } else { "" }, num(s.median_ms)).into());
+                ui.set_frame_info(trn!(s.stutters, "{frames} images sur {duration} · {n} saccade (image > 2 × la médiane de {median_ms} ms)", "{frames} images sur {duration} · {n} saccades (image > 2 × la médiane de {median_ms} ms)", frames = halcyon_i18n::number(s.frames as u64), duration = halcyon_core::util::format_playtime(s.duration_secs as u64), median_ms = num(s.median_ms)).into());
                 ui.set_frame_bars(ModelRc::new(VecModel::from(ratio)));
                 ui.set_frame_worst(format!("{} ms", num(worst)).into());
                 ui.set_frame_error(SharedString::new());

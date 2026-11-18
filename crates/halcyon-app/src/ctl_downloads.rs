@@ -15,9 +15,9 @@ pub const KINDS: &[&str] = &["minecraft", "update"];
 
 pub(crate) fn fmt_speed(bps: u64) -> String {
     if bps >= 1024 * 1024 {
-        format!("{:.1} Mio/s", bps as f64 / (1024.0 * 1024.0)).replace('.', ",")
+        tr!("{v} Mio/s", v = halcyon_i18n::decimal(bps as f64 / (1024.0 * 1024.0), 1))
     } else {
-        format!("{} Kio/s", bps / 1024)
+        tr!("{v} Kio/s", v = halcyon_i18n::number(bps / 1024))
     }
 }
 
@@ -42,7 +42,7 @@ impl Controller {
             let now = (Instant::now(), transfer::global().received());
             let ui = app.global::<DownloadsUi>();
             let t = transfer::global();
-            ui.set_speed(if t.is_paused() { "En pause".into() } else if t.active() == 0 { "—".into() } else { fmt_speed(transfer::speed(prev, now)).into() });
+            ui.set_speed(if t.is_paused() { tr!("En pause").into() } else if t.active() == 0 { "—".into() } else { fmt_speed(transfer::speed(prev, now)).into() });
             ui.set_received(halcyon_core::util::format_size(now.1).into());
             ui.set_running(t.active() as i32);
             prev = now;
@@ -86,7 +86,7 @@ impl Controller {
 
     pub(crate) fn set_downloads_paused(&self, on: bool) {
         transfer::global().set_paused(on);
-        self.toast(if on { "Téléchargements en pause" } else { "Téléchargements repris" }, false);
+        self.toast(if on { tr!("Téléchargements en pause") } else { tr!("Téléchargements repris") }, false);
         self.downloads_refresh();
     }
 

@@ -109,7 +109,7 @@ pub struct Client<'a> {
 impl Client<'_> {
     fn cf(&self) -> Result<[(&'static str, &str); 1]> {
         if self.curseforge_key.trim().is_empty() {
-            return Err(Error::Invalid("CurseForge demande une clé d'API (Minecraft › Paramètres)".into()));
+            return Err(Error::Invalid(tr!("CurseForge demande une clé d'API (Minecraft › Paramètres)").into()));
         }
         Ok([("x-api-key", self.curseforge_key.trim())])
     }
@@ -220,11 +220,11 @@ impl Client<'_> {
     pub fn version(&self, source: Source, project: &str, version_id: &str) -> Result<ProjectVersion> {
         match source {
             Source::Modrinth => parse_modrinth_version(&self.http.get_json(&format!("{MODRINTH}/version/{}", http::encode(version_id)), &[])?)
-                .ok_or_else(|| Error::Invalid("version Modrinth illisible".into())),
+                .ok_or_else(|| Error::Invalid(tr!("version Modrinth illisible").into())),
             Source::CurseForge => {
                 let headers = self.cf()?;
                 let v = self.http.get_json(&format!("{CURSEFORGE}/mods/{}/files/{}", http::encode(project), http::encode(version_id)), &headers)?;
-                v.get("data").and_then(|f| parse_cf_file(f, project)).ok_or_else(|| Error::Invalid("fichier CurseForge illisible".into()))
+                v.get("data").and_then(|f| parse_cf_file(f, project)).ok_or_else(|| Error::Invalid(tr!("fichier CurseForge illisible").into()))
             }
         }
     }
@@ -244,21 +244,18 @@ impl Client<'_> {
         while let Some((v, as_dep)) = queue.pop() {
             if let Some(conflict) = v.dependencies.iter().filter(|d| d.kind == "incompatible").find(|d| seen.contains(&d.project_id)) {
                 let name = profile.mods.iter().find(|m| m.project_id == conflict.project_id).map(|m| m.name.clone()).unwrap_or_else(|| conflict.project_id.clone());
-                return Err(Error::Invalid(format!("{} est incompatible avec {name}, déjà installé", v.name)));
+                return Err(Error::Invalid(tr!("{name} est incompatible avec {name2}, déjà installé", name = v.name, name2 = name)));
             }
             if profile.mods.iter().any(|m| m.project_id == v.project_id && m.version_id == v.id) {
                 continue;
             }
             let Some(url) = v.file.url.clone() else {
-                return Err(Error::Invalid(format!(
-                    "l'auteur de {} n'autorise pas le téléchargement hors de CurseForge : téléchargez-le depuis sa page puis déposez-le dans le dossier mods",
-                    v.name
-                )));
+                return Err(Error::Invalid(tr!("l'auteur de {name} n'autorise pas le téléchargement hors de CurseForge : téléchargez-le depuis sa page puis déposez-le dans le dossier mods", name = v.name)));
             };
             if !safe_name(&v.file.filename) {
-                return Err(Error::Invalid(format!("nom de fichier refusé : {}", v.file.filename)));
+                return Err(Error::Invalid(tr!("nom de fichier refusé : {filename}", filename = v.file.filename)));
             }
-            sink(Event::Step(format!("Téléchargement de {}", v.name)));
+            sink(Event::Step(tr!("Téléchargement de {name}", name = v.name)));
             let dir = profile.mods_dir(layout);
             http::Http::download(self.http, &url, &dir.join(&v.file.filename), v.file.sha1.as_deref(), cancel, &mut |_| {})?;
             // Ancienne version du même projet retirée (mise à jour).
@@ -305,13 +302,7 @@ impl Client<'_> {
                         queue.push((dv, true));
                     }
                     None => {
-                        return Err(Error::Invalid(format!(
-                            "{} demande une dépendance sans version compatible avec Minecraft {} / {} ({})",
-                            v.name,
-                            profile.mc,
-                            profile.loader.name(),
-                            d.project_id
-                        )))
+                        return Err(Error::Invalid(tr!("{name} demande une dépendance sans version compatible avec Minecraft {mc} / {name2} ({project_id})", name = v.name, mc = profile.mc, name2 = profile.loader.name(), project_id = d.project_id)))
                     }
                 }
             }
@@ -452,7 +443,7 @@ pub fn scan(layout: &Layout, profile: &Profile) -> Vec<ModFile> {
 /// Active ou désactive un mod (renommage `.disabled`, réversible).
 pub fn set_enabled(layout: &Layout, profile: &Profile, file: &str, enabled: bool) -> std::io::Result<()> {
     if !safe_name(file) {
-        return Err(std::io::Error::other("nom refusé"));
+        return Err(std::io::Error::other(tr!("nom refusé")));
     }
     let dir = profile.mods_dir(layout);
     let (on, off) = (dir.join(file), dir.join(format!("{file}.disabled")));
@@ -466,7 +457,7 @@ pub fn set_enabled(layout: &Layout, profile: &Profile, file: &str, enabled: bool
 /// Supprime un mod (fichier et fiche).
 pub fn remove(layout: &Layout, profile: &mut Profile, file: &str) -> std::io::Result<()> {
     if !safe_name(file) {
-        return Err(std::io::Error::other("nom refusé"));
+        return Err(std::io::Error::other(tr!("nom refusé")));
     }
     let dir = profile.mods_dir(layout);
     for p in [dir.join(file), dir.join(format!("{file}.disabled"))] {
@@ -518,10 +509,10 @@ pub fn modrinth_updates(http: &Http, layout: &Layout, profile: &Profile) -> Resu
 /// Taille lisible.
 pub fn human(bytes: u64) -> String {
     match bytes {
-        b if b >= 1 << 30 => format!("{:.1} Go", b as f64 / (1u64 << 30) as f64),
-        b if b >= 1 << 20 => format!("{:.1} Mo", b as f64 / (1u64 << 20) as f64),
-        b if b >= 1 << 10 => format!("{} Ko", b >> 10),
-        b => format!("{b} o"),
+        b if b >= 1 << 30 => tr!("{v} Go", v = halcyon_i18n::decimal(b as f64 / (1u64 << 30) as f64, 1)),
+        b if b >= 1 << 20 => tr!("{v} Mo", v = halcyon_i18n::decimal(b as f64 / (1u64 << 20) as f64, 1)),
+        b if b >= 1 << 10 => tr!("{v} Ko", v = halcyon_i18n::number(b >> 10)),
+        b => tr!("{v} o", v = b),
     }
 }
 
@@ -589,6 +580,6 @@ mod tests {
         assert!(scan(&l, &p).is_empty());
         assert!(p.mods_dir(&l).join("notes.txt").is_file());
         assert!(!safe_name("../a.jar") && safe_name("a b.jar"));
-        assert_eq!(human(1536 * 1024), "1.5 Mo");
+        assert_eq!(human(1536 * 1024), "1,5 Mo", "format de la langue de référence (aucun catalogue chargé)");
     }
 }

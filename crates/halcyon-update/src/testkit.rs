@@ -183,7 +183,7 @@ pub fn manifest_for(version: &str, platform: Platform, payload: &[u8]) -> Manife
             size: payload.len() as u64,
             sha256: security::sha256_bytes(payload),
         }],
-        notes: format!("Notes de la version {v}"),
+        notes: tr!("Notes de la version {v}", v = v),
     }
 }
 

@@ -1,0 +1,55 @@
+# Exceptions voulues du lint (« i18n.py lint ») : textes qui ne sont pas de l'interface.
+# Format : « texte », « chemin:texte » ou « chemin:* » (fichier entier).
+
+# Noms propres, marques et produits (jamais traduits).
+Halcyon
+Halcyon 
+Steam
+Epic
+Epic Games
+GOG
+Minecraft
+MC
+Modrinth
+CurseForge
+Fabric
+Quilt
+Forge
+NeoForge
+RetroAchievements
+Consolas
+# Abréviations de taille de jaquette (S, M, L) : universelles.
+crates/halcyon-app/ui/pages/library.slint:S
+crates/halcyon-app/ui/pages/library.slint:M
+crates/halcyon-app/ui/pages/library.slint:L
+# Variable de commande des émulateurs (syntaxe, non traduite).
+{rom}
+# Chemins d'icônes et d'images.
+crates/halcyon-app/ui/theme.slint:*
+
+# Documentation interne des sons (jamais affichée : `Cue::description`).
+crates/halcyon-audio/src/catalog.rs:*
+# Bibliothèque de traduction : messages d'erreur des catalogues (développeurs).
+crates/halcyon-i18n/src/build.rs:*
+crates/halcyon-i18n/src/lib.rs:*
+crates/halcyon-i18n/src/plural.rs:*
+crates/halcyon-i18n/src/po.rs:*
+# Programme de mise à jour en ligne de commande (sans interface ; journal technique).
+crates/halcyon-update/src/bin/halcyon-updater.rs:*
+# Syntaxe de recherche : mots-clés reconnus dans toutes les langues.
+crates/halcyon-core/src/search.rs:*
+crates/halcyon-app/src/ctl_system.rs:contrôle
+# Protocole entre instances (non affiché).
+crates/halcyon-app/src/instance.rs:refusé
+# Nom de fichier de secours et préfixe de raccourci (données, pas interface).
+crates/halcyon-app/src/controller.rs:jeu
+crates/halcyon-installer/src/engine.rs:halcyon-jeu-
+crates/halcyon-app/src/ctl_tracking.rs:halcyon-temps-de-jeu.csv
+# Noms des couleurs d'accent : non affichés (seules les teintes le sont).
+crates/halcyon-app/src/ctl_themes.rs:Martin-pêcheur
+# Préfixe de numéro de version (« v1.2 ») et nom de commande en exemple.
+crates/halcyon-app/ui/pages/game.slint:v
+crates/halcyon-app/ui/pages/plugins.slint:v
+crates/halcyon-app/ui/pages/settings.slint:wine
+# Nom de PC par défaut enregistré dans les dépôts de sauvegardes (identifiant partagé entre PC).
+crates/halcyon-integrations/src/saves.rs:ce-pc

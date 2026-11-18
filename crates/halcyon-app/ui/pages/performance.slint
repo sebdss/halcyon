@@ -59,21 +59,21 @@ export component PerformancePage inherits Rectangle {
             alignment: start;
 
             PageHeader {
-                title: "Performances";
-                subtitle: "Processeur, mémoire, carte graphique et stockage de ce PC, mesurés pendant que cette page est ouverte. Halcyon ne ferme aucun programme et ne modifie aucun réglage du système.";
+                title: @tr("Performances");
+                subtitle: @tr("Processeur, mémoire, carte graphique et stockage de ce PC, mesurés pendant que cette page est ouverte. Halcyon ne ferme aucun programme et ne modifie aucun réglage du système.");
                 HorizontalLayout {
                     y: 10px;
                     height: 20px;
                     spacing: 8px;
                     Rectangle { y: 6px; width: 8px; height: 8px; background: PerfUi.sampling ? Theme.success : Theme.text-dim; }
-                    Text { text: PerfUi.sampling ? "Mesure en direct" : "En pause"; color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
+                    Text { text: PerfUi.sampling ? @tr("Mesure en direct") : @tr("En pause"); color: Theme.text-muted; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
                 }
             }
 
             HorizontalLayout {
                 spacing: Theme.s6;
                 MeasureCard {
-                    title: "Processeur";
+                    title: @tr("Processeur");
                     value: PerfUi.cpu-text;
                     caption: PerfUi.cpu-name;
                     Curve { values: PerfUi.cpu-curve; }
@@ -95,15 +95,15 @@ export component PerformancePage inherits Rectangle {
                     }
                 }
                 MeasureCard {
-                    title: "Mémoire";
+                    title: @tr("Mémoire");
                     value: Math.round(PerfUi.ram * 100) + " %";
-                    MeterRow { label: "Utilisée"; value: PerfUi.ram-text; ratio: PerfUi.ram; bar-color: PerfUi.ram > 0.85 ? Theme.warm : Theme.accent; }
+                    MeterRow { label: @tr("Utilisée"); value: PerfUi.ram-text; ratio: PerfUi.ram; bar-color: PerfUi.ram > 0.85 ? Theme.warm : Theme.accent; }
                     if PerfUi.swap-text != "": Text { text: PerfUi.swap-text; color: Theme.text-dim; font-size: Theme.t-caption; }
                 }
                 MeasureCard {
-                    title: "Carte graphique";
-                    value: PerfUi.gpus.length == 0 ? "—" : PerfUi.gpus[0].usage < 0 ? "n/d" : Math.round(PerfUi.gpus[0].usage * 100) + " %";
-                    caption: PerfUi.gpus.length == 0 ? "Aucune carte graphique mesurable" : PerfUi.gpus[0].name;
+                    title: @tr("Carte graphique");
+                    value: PerfUi.gpus.length == 0 ? "—" : PerfUi.gpus[0].usage < 0 ? @tr("n/d") : Math.round(PerfUi.gpus[0].usage * 100) + " %";
+                    caption: PerfUi.gpus.length == 0 ? @tr("Aucune carte graphique mesurable") : PerfUi.gpus[0].name;
                     if PerfUi.gpu-curve.length > 0: Curve { values: PerfUi.gpu-curve; tint: Theme.success; }
                     for g in PerfUi.gpus: VerticalLayout {
                         spacing: 4px;
@@ -113,9 +113,9 @@ export component PerformancePage inherits Rectangle {
                 }
             }
 
-            SectionTitle { text: "Recommandations"; }
-            if !PerfUi.recos-ready: Text { text: "Analyse en cours (quelques secondes de mesures sont nécessaires)…"; color: Theme.text-dim; font-size: Theme.t-small; }
-            if PerfUi.recos-ready && PerfUi.recos.length == 0: Notice { text: "Rien à signaler : mémoire, processeur et stockage laissent de la marge pour jouer."; }
+            SectionTitle { text: @tr("Recommandations"); }
+            if !PerfUi.recos-ready: Text { text: @tr("Analyse en cours (quelques secondes de mesures sont nécessaires)…"); color: Theme.text-dim; font-size: Theme.t-small; }
+            if PerfUi.recos-ready && PerfUi.recos.length == 0: Notice { text: @tr("Rien à signaler : mémoire, processeur et stockage laissent de la marge pour jouer."); }
             for r in PerfUi.recos: Rectangle {
                 height: row.preferred-height;
                 Rectangle { x: 0; width: 2px; background: r.warning ? Theme.warm : Theme.accent; }
@@ -131,7 +131,7 @@ export component PerformancePage inherits Rectangle {
                         Text { text: r.title; color: Theme.text; font-size: Theme.t-body; font-weight: 650; wrap: word-wrap; }
                         Text { text: r.detail; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
                     }
-                    if r.action == "perf-mode": PrimaryButton { y: 2px; h: 34px; text: "Activer"; icon: Icons.bolt; has-icon: true; clicked => { PerfUi.reco-action(r.action); } }
+                    if r.action == "perf-mode": PrimaryButton { y: 2px; h: 34px; text: @tr("Activer"); icon: Icons.bolt; has-icon: true; clicked => { PerfUi.reco-action(r.action); } }
                 }
             }
 
@@ -145,11 +145,11 @@ export component PerformancePage inherits Rectangle {
                     apps := VerticalLayout {
                         padding: 18px;
                         spacing: 8px;
-                        Overline { text: "Applications les plus gourmandes"; }
+                        Overline { text: @tr("Applications les plus gourmandes"); }
                         HorizontalLayout {
-                            Text { text: "Application"; color: Theme.text-dim; font-size: Theme.t-overline; horizontal-stretch: 1; }
-                            Text { text: "Processeur"; color: Theme.text-dim; font-size: Theme.t-overline; width: 90px; horizontal-alignment: right; }
-                            Text { text: "Mémoire"; color: Theme.text-dim; font-size: Theme.t-overline; width: 90px; horizontal-alignment: right; }
+                            Text { text: @tr("Application"); color: Theme.text-dim; font-size: Theme.t-overline; horizontal-stretch: 1; }
+                            Text { text: @tr("Processeur"); color: Theme.text-dim; font-size: Theme.t-overline; width: 90px; horizontal-alignment: right; }
+                            Text { text: @tr("Mémoire"); color: Theme.text-dim; font-size: Theme.t-overline; width: 90px; horizontal-alignment: right; }
                         }
                         for a in PerfUi.apps: HorizontalLayout {
                             height: 26px;
@@ -173,8 +173,8 @@ export component PerformancePage inherits Rectangle {
                         padding: 18px;
                         spacing: 12px;
                         alignment: start;
-                        Overline { text: "Stockage"; }
-                        if PerfUi.disks.length == 0: Text { text: "Lecture des disques…"; color: Theme.text-dim; font-size: Theme.t-small; }
+                        Overline { text: @tr("Stockage"); }
+                        if PerfUi.disks.length == 0: Text { text: @tr("Lecture des disques…"); color: Theme.text-dim; font-size: Theme.t-small; }
                         for d in PerfUi.disks: MeterRow { label: d.mount; value: d.free; ratio: d.used; bar-color: d.warn ? Theme.warm : Theme.accent; }
                     }
                 }
@@ -182,17 +182,17 @@ export component PerformancePage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                SectionTitle { text: "Historique des parties"; vertical-alignment: center; horizontal-stretch: 1; }
-                Text { text: "Mesurer pendant les parties"; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
+                SectionTitle { text: @tr("Historique des parties"); vertical-alignment: center; horizontal-stretch: 1; }
+                Text { text: @tr("Mesurer pendant les parties"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; }
                 Toggle { y: 4px; checked: PerfUi.history-enabled; toggled(on) => { PerfUi.set-history(on); } }
             }
             Text {
-                text: "Un relevé toutes les 10 secondes pendant chaque partie lancée depuis Halcyon (processeur, mémoire, carte graphique du système entier) ; seul le résumé est conservé, 50 parties par jeu au plus.";
+                text: @tr("Un relevé toutes les 10 secondes pendant chaque partie lancée depuis Halcyon (processeur, mémoire, carte graphique du système entier) ; seul le résumé est conservé, 50 parties par jeu au plus.");
                 color: Theme.text-dim;
                 font-size: Theme.t-caption;
                 wrap: word-wrap;
             }
-            if PerfUi.sessions.length == 0: Text { text: PerfUi.history-enabled ? "Aucune partie mesurée pour l'instant." : "Mesure désactivée."; color: Theme.text-dim; font-size: Theme.t-small; }
+            if PerfUi.sessions.length == 0: Text { text: PerfUi.history-enabled ? @tr("Aucune partie mesurée pour l'instant.") : @tr("Mesure désactivée."); color: Theme.text-dim; font-size: Theme.t-small; }
             for s in PerfUi.sessions: Rectangle {
                 height: 54px;
                 border-radius: Theme.radius;
@@ -212,19 +212,19 @@ export component PerformancePage inherits Rectangle {
                     VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 1;
-                        Text { text: "Processeur"; color: Theme.text-dim; font-size: Theme.t-overline; }
+                        Text { text: @tr("Processeur"); color: Theme.text-dim; font-size: Theme.t-overline; }
                         Text { text: s.cpu; color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
                     }
                     VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 1;
-                        Text { text: "Mémoire"; color: Theme.text-dim; font-size: Theme.t-overline; }
+                        Text { text: @tr("Mémoire"); color: Theme.text-dim; font-size: Theme.t-overline; }
                         Text { text: s.ram; color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
                     }
                     VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 1;
-                        Text { text: "Carte graphique"; color: Theme.text-dim; font-size: Theme.t-overline; }
+                        Text { text: @tr("Carte graphique"); color: Theme.text-dim; font-size: Theme.t-overline; }
                         Text { text: s.gpu + (s.vram != "" ? ", " + s.vram : ""); color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
                     }
                 }
@@ -232,12 +232,12 @@ export component PerformancePage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 8px;
-                SectionTitle { text: "Images par seconde et temps d'image"; vertical-alignment: center; horizontal-stretch: 1; }
-                SecondaryButton { h: 36px; text: "Dernier journal"; icon: Icons.refresh; has-icon: true; clicked => { PerfUi.open-latest-log(); } }
-                SecondaryButton { h: 36px; text: "Ouvrir un journal…"; icon: Icons.folder; has-icon: true; clicked => { PerfUi.open-frame-log(); } }
+                SectionTitle { text: @tr("Images par seconde et temps d'image"); vertical-alignment: center; horizontal-stretch: 1; }
+                SecondaryButton { h: 36px; text: @tr("Dernier journal"); icon: Icons.refresh; has-icon: true; clicked => { PerfUi.open-latest-log(); } }
+                SecondaryButton { h: 36px; text: @tr("Ouvrir un journal…"); icon: Icons.folder; has-icon: true; clicked => { PerfUi.open-frame-log(); } }
             }
             Notice {
-                text: "Halcyon n'injecte rien dans les jeux (anti-triche, stabilité). Les images sont mesurées par MangoHud sous Linux (option output_folder, puis Maj+F2 pendant la partie) ou PresentMon sous Windows (export CSV), dont Halcyon lit le journal. Sans journal, aucune valeur n'est affichée.";
+                text: @tr("Halcyon n'injecte rien dans les jeux (anti-triche, stabilité). Les images sont mesurées par MangoHud sous Linux (option output_folder, puis Maj+F2 pendant la partie) ou PresentMon sous Windows (export CSV), dont Halcyon lit le journal. Sans journal, aucune valeur n'est affichée.");
             }
             if PerfUi.frame-error != "": Notice { text: PerfUi.frame-error; warning: true; }
             if PerfUi.frame-ready: Rectangle {
@@ -249,15 +249,15 @@ export component PerformancePage inherits Rectangle {
                     Text { text: PerfUi.frame-title; color: Theme.text; font-size: Theme.t-body; font-weight: 700; overflow: elide; }
                     HorizontalLayout {
                         spacing: 28px;
-                        BigStat { value: PerfUi.frame-avg; label: "i/s en moyenne"; }
-                        BigStat { value: PerfUi.frame-low1; label: "1 % low (i/s)"; }
-                        BigStat { value: PerfUi.frame-low01; label: "0,1 % low (i/s)"; }
-                        BigStat { value: PerfUi.frame-p99; label: "99ᵉ centile"; }
-                        BigStat { value: PerfUi.frame-max; label: "pire image"; }
+                        BigStat { value: PerfUi.frame-avg; label: @tr("i/s en moyenne"); }
+                        BigStat { value: PerfUi.frame-low1; label: @tr("1 % low (i/s)"); }
+                        BigStat { value: PerfUi.frame-low01; label: @tr("0,1 % low (i/s)"); }
+                        BigStat { value: PerfUi.frame-p99; label: @tr("99ᵉ centile"); }
+                        BigStat { value: PerfUi.frame-max; label: @tr("pire image"); }
                     }
                     VerticalLayout {
                         spacing: 4px;
-                        Text { text: "Temps d'image (pire valeur par tranche, échelle jusqu'à " + PerfUi.frame-worst + ")"; color: Theme.text-dim; font-size: Theme.t-overline; }
+                        Text { text: @tr("Temps d'image (pire valeur par tranche, échelle jusqu'à {})", PerfUi.frame-worst); color: Theme.text-dim; font-size: Theme.t-overline; }
                         Rectangle {
                             height: 90px;
                             HorizontalLayout {

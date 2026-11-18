@@ -1,0 +1,238 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Halcyon-Native-Name: Français\n"
+"X-Halcyon-Thousands-Separator: U+00A0\n"
+"X-Halcyon-Decimal-Separator: ,\n"
+"X-Halcyon-Domain: formats\n"
+
+#: crates/halcyon-app/src/ctl_home.rs:99 crates/halcyon-app/src/ctl_home.rs:101 crates/halcyon-installer/src/engine.rs:432
+#: crates/halcyon-integrations/src/sysmon.rs:367 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
+#, placeholders
+msgid "{v} Go"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_tracking.rs:38 crates/halcyon-core/src/util.rs:107
+msgid "< 1 min"
+msgstr ""
+
+#: crates/halcyon-core/src/stats.rs:36
+#, placeholders
+msgctxt "date"
+msgid "{day} {month}"
+msgstr ""
+
+#: crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:219
+#, placeholders
+msgctxt "date"
+msgid "{month} {year}"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:107
+msgid "Jamais joué"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:110
+#, placeholders
+msgid "{minutes} min"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:114
+#, placeholders
+msgid "{hours} h {minutes}"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:116
+#, placeholders
+msgid "{hours} h"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:138
+msgctxt "month"
+msgid "janv."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:139
+msgctxt "month"
+msgid "févr."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:140
+msgctxt "month"
+msgid "mars"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:141
+msgctxt "month"
+msgid "avr."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:142
+msgctxt "month"
+msgid "mai"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:143
+msgctxt "month"
+msgid "juin"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:144
+msgctxt "month"
+msgid "juil."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:145
+msgctxt "month"
+msgid "août"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:146
+msgctxt "month"
+msgid "sept."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:147
+msgctxt "month"
+msgid "oct."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:148
+msgctxt "month"
+msgid "nov."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:149
+msgctxt "month"
+msgid "déc."
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:156
+#, placeholders
+msgctxt "date"
+msgid "{day} {month} {year}"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:164
+msgid "Aujourd'hui"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:165
+msgid "Hier"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:166
+#, placeholders
+msgid "Il y a {n} jour"
+msgid_plural "Il y a {n} jours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-core/src/util.rs:181
+#, placeholders
+msgid "{value} o"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:182
+#, placeholders
+msgid "{value} Ko"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:183
+#, placeholders
+msgid "{value} Mo"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:184
+#, placeholders
+msgid "{value} Go"
+msgstr ""
+
+#: crates/halcyon-core/src/util.rs:185
+#, placeholders
+msgid "{value} To"
+msgstr ""
+
+#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:369 crates/halcyon-minecraft/src/mods.rs:513
+#: crates/halcyon-update/src/download.rs:247
+#, placeholders
+msgid "{v} Mo"
+msgstr ""
+
+#: crates/halcyon-integrations/src/artwork.rs:79 crates/halcyon-integrations/src/artwork.rs:80 crates/halcyon-integrations/src/artwork.rs:118
+#: crates/halcyon-update/src/download.rs:220
+#, placeholders
+msgid "écriture : {e}"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:514 crates/halcyon-update/src/download.rs:249
+#, placeholders
+msgid "{v} Ko"
+msgstr ""
+
+#: crates/halcyon-minecraft/src/mods.rs:515 crates/halcyon-update/src/download.rs:251
+#, placeholders
+msgid "{v} o"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:42
+msgid "téléchargement annulé"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:118
+#, placeholders
+msgid "{e} (après {attempt} essais ; le téléchargement reprendra où il s'est arrêté)"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:137
+#, placeholders
+msgid "{name} : empreinte SHA-256 différente du manifeste signé, fichier altéré supprimé"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:174
+msgid "reprise refusée par le serveur (plage incohérente) : nouvel essai depuis le début"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:185
+msgid "reprise refusée par le serveur : nouvel essai depuis le début"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:187
+#, placeholders
+msgid "téléchargement : réponse HTTP {s}"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:212
+#, placeholders
+msgid "connexion interrompue : {e}"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:218
+msgid "le serveur envoie plus de données que la taille signée : refusé"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:232
+#, placeholders
+msgid "connexion interrompue à {done} octets sur {total}"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:257
+#, placeholders
+msgid "{secs} s"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:258
+#, placeholders
+msgid "{v} min {v2} s"
+msgstr ""
+
+#: crates/halcyon-update/src/download.rs:259
+#, placeholders
+msgid "{v} h {v2} min"
+msgstr ""

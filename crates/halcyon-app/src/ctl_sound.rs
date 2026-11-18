@@ -100,7 +100,7 @@ impl Controller {
 
     fn sound_reset(&self) {
         self.edit_sound(|s| *s = SoundSettings::default());
-        self.toast("Réglages du son rétablis", false);
+        self.toast(tr!("Réglages du son rétablis"), false);
     }
 
     pub(crate) fn wire_sound(self: &Rc<Self>, app: &crate::AppWindow) {

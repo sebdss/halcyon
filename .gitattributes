@@ -1,0 +1,3 @@
+# Catalogues de traduction : toujours en LF, quel que soit le système.
+*.po  text eol=lf
+*.pot text eol=lf

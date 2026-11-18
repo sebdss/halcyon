@@ -1,6 +1,9 @@
 //! Installateur de Halcyon : moteur sans interface (testé) et charge utile autonome.
 //! L'interface (Slint) est dans `main.rs`.
 
+#[macro_use]
+extern crate halcyon_i18n;
+
 pub mod engine;
 pub mod payload;
 pub mod platform;

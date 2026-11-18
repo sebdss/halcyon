@@ -1,0 +1,462 @@
+# Halcyon — catalogue de traduction. Généré par tools/i18n/i18n.py extract ;
+# modifier seulement les lignes msgstr.
+msgid ""
+msgstr ""
+"Project-Id-Version: Halcyon\n"
+"Language: de-DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Halcyon-Native-Name: Deutsch\n"
+"X-Halcyon-Thousands-Separator: .\n"
+"X-Halcyon-Decimal-Separator: ,\n"
+"X-Halcyon-Domain: activity\n"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:38
+#, placeholders
+msgid "Complétion globale, {n} succès débloqué sur {}"
+msgid_plural "Complétion globale, {n} succès débloqués sur {}"
+msgstr[0] "Gesamtfortschritt, {n} Erfolg von {} freigeschaltet"
+msgstr[1] "Gesamtfortschritt, {n} Erfolge von {} freigeschaltet"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:61
+msgid "jeux terminés à 100 %"
+msgstr "Spiele zu 100 % abgeschlossen"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:62
+msgid "jeux suivis"
+msgstr "erfasste Spiele"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:63
+msgid "points RetroAchievements"
+msgstr "RetroAchievements-Punkte"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:71
+msgid "Steam : ajoutez votre clé Web API pour synchroniser vos succès Steam. "
+msgstr "Steam: Fügen Sie Ihren Web-API-Schlüssel hinzu, um Ihre Steam-Erfolge zu synchronisieren. "
+
+#: crates/halcyon-app/ui/pages/achievements.slint:72
+msgid "RetroAchievements : renseignez votre nom d'utilisateur et votre clé Web API pour les jeux émulés. "
+msgstr "RetroAchievements: Geben Sie Ihren Benutzernamen und Web-API-Schlüssel für emulierte Spiele ein. "
+
+#: crates/halcyon-app/ui/pages/achievements.slint:73
+msgid "Epic Games ne fournit pas d'API publique de succès : ils ne sont pas affichés."
+msgstr "Epic Games bietet keine öffentliche Erfolgs-API an: Sie werden nicht angezeigt."
+
+#: crates/halcyon-app/ui/pages/achievements.slint:82
+msgid "Par plateforme"
+msgstr "Nach Plattform"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:84
+msgid "Aucun succès synchronisé pour l'instant."
+msgstr "Noch keine Erfolge synchronisiert."
+
+#: crates/halcyon-app/ui/pages/achievements.slint:103
+msgid "Déblocages par mois"
+msgstr "Freischaltungen pro Monat"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:105
+msgid "La chronologie apparaîtra après vos premiers déblocages."
+msgstr "Die Zeitleiste erscheint nach Ihren ersten Freischaltungen."
+
+#: crates/halcyon-app/ui/pages/achievements.slint:131
+msgid "Récemment débloqués"
+msgstr "Kürzlich freigeschaltet"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:136
+msgid "Les plus rares"
+msgstr "Am seltensten"
+
+#: crates/halcyon-app/ui/pages/achievements.slint:141
+msgid "Terminés à 100 %"
+msgstr "Zu 100 % abgeschlossen"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:63
+msgid "Suggestions calculées sur ce PC à partir de vos données réelles : sessions, temps de jeu, statut, succès et genres préférés. Aucun service distant."
+msgstr "Vorschläge, die auf diesem PC aus Ihren echten Daten berechnet werden: Sitzungen, Spielzeit, Status, Erfolge und Lieblingsgenres. Kein externer Dienst."
+
+#: crates/halcyon-app/ui/pages/assistant.slint:69
+msgid "J'ai :"
+msgstr "Ich habe:"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:71
+msgid "Toute la soirée"
+msgstr "Den ganzen Abend"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:71
+#, placeholders
+msgid "{} min"
+msgstr "{} Min."
+
+#: crates/halcyon-app/ui/pages/assistant.slint:71
+#, placeholders
+msgid "{} h"
+msgstr "{} Std."
+
+#: crates/halcyon-app/ui/pages/assistant.slint:76
+#, placeholders
+msgid "Vos genres les plus joués : {}"
+msgstr "Ihre meistgespielten Genres: {}"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:79
+#, placeholders
+msgid "Pour {n} minute"
+msgid_plural "Pour {n} minutes"
+msgstr[0] "Für {n} Minute"
+msgstr[1] "Für {n} Minuten"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:79
+#, placeholders
+msgid "Pour {n} heure"
+msgid_plural "Pour {n} heures"
+msgstr[0] "Für {n} Stunde"
+msgstr[1] "Für {n} Stunden"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:80
+msgid "Pas assez de sessions suivies pour estimer la durée de vos parties : lancez vos jeux depuis Halcyon pour affiner."
+msgstr "Nicht genug erfasste Sitzungen, um Ihre Spieldauer zu schätzen: Starten Sie Ihre Spiele über Halcyon, um dies zu verfeinern."
+
+#: crates/halcyon-app/ui/pages/assistant.slint:83
+msgid "À reprendre"
+msgstr "Weiterspielen"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:83
+msgid "Aucune partie en cours."
+msgstr "Keine laufende Partie."
+
+#: crates/halcyon-app/ui/pages/assistant.slint:84
+msgid "Presque terminés"
+msgstr "Fast geschafft"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:84
+msgid "Aucun jeu à plus de 70 % de ses succès."
+msgstr "Kein Spiel mit über 70 % seiner Erfolge."
+
+#: crates/halcyon-app/ui/pages/assistant.slint:85
+msgid "Vous avez lancé tous vos jeux installés !"
+msgstr "Sie haben alle installierten Spiele bereits gestartet!"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:86
+msgid "À redécouvrir"
+msgstr "Wiederentdecken"
+
+#: crates/halcyon-app/ui/pages/assistant.slint:86
+msgid "Aucun jeu longuement joué puis délaissé."
+msgstr "Kein lange gespieltes und dann liegengelassenes Spiel."
+
+#: crates/halcyon-app/ui/pages/journal.slint:54
+msgid "Journal d'activité"
+msgstr "Aktivitätsprotokoll"
+
+#: crates/halcyon-app/ui/pages/journal.slint:55
+msgid "Historique lisible de vos sessions, succès, installations et mises à jour. Les journaux techniques restent dans le dossier des journaux."
+msgstr "Lesbarer Verlauf Ihrer Sitzungen, Erfolge, Installationen und Updates. Technische Protokolle bleiben im Protokollordner."
+
+#: crates/halcyon-app/ui/pages/journal.slint:63
+msgid "Rechercher dans le journal"
+msgstr "Protokoll durchsuchen"
+
+#: crates/halcyon-app/ui/pages/journal.slint:75
+#, placeholders
+msgid "{} sur {} entrées"
+msgstr "{} von {} Einträgen"
+
+#: crates/halcyon-app/ui/pages/journal.slint:75
+#, placeholders
+msgid "{n} entrée"
+msgid_plural "{n} entrées"
+msgstr[0] "{n} Eintrag"
+msgstr[1] "{n} Einträge"
+
+#: crates/halcyon-app/ui/pages/journal.slint:87
+msgid "Le journal est vide pour l'instant."
+msgstr "Das Protokoll ist noch leer."
+
+#: crates/halcyon-app/ui/pages/journal.slint:87
+msgid "Aucune entrée ne correspond à ces filtres."
+msgstr "Keine Einträge entsprechen diesen Filtern."
+
+#: crates/halcyon-app/ui/pages/journal.slint:95
+msgid "Vos sessions, succès, installations et mises à jour s'y inscriront au fil de l'eau."
+msgstr "Ihre Sitzungen, Erfolge, Installationen und Updates werden hier fortlaufend eingetragen."
+
+#: crates/halcyon-app/ui/pages/journal.slint:102
+msgid "Effacer les filtres"
+msgstr "Filter zurücksetzen"
+
+#: crates/halcyon-app/ui/pages/stats.slint:46
+#, placeholders
+msgid "Temps de jeu total retenu. {}"
+msgstr "Gesamte berücksichtigte Spielzeit. {}"
+
+#: crates/halcyon-app/ui/pages/stats.slint:51
+msgid "Temps par jeu (CSV)"
+msgstr "Zeit pro Spiel (CSV)"
+
+#: crates/halcyon-app/ui/pages/stats.slint:52
+msgid "Sessions (CSV)"
+msgstr "Sitzungen (CSV)"
+
+#: crates/halcyon-app/ui/pages/stats.slint:53
+msgid "Tout (JSON)"
+msgstr "Alles (JSON)"
+
+#: crates/halcyon-app/ui/pages/stats.slint:60
+msgid "jeux lancés au moins une fois"
+msgstr "mindestens einmal gestartete Spiele"
+
+#: crates/halcyon-app/ui/pages/stats.slint:61
+msgid "sessions suivies"
+msgstr "erfasste Sitzungen"
+
+#: crates/halcyon-app/ui/pages/stats.slint:62
+msgid "durée moyenne d'une session"
+msgstr "durchschnittliche Sitzungsdauer"
+
+#: crates/halcyon-app/ui/pages/stats.slint:63
+msgid "joué cette semaine"
+msgstr "diese Woche gespielt"
+
+#: crates/halcyon-app/ui/pages/stats.slint:64
+#, placeholders
+msgid "{} j"
+msgstr "{} Tg."
+
+#: crates/halcyon-app/ui/pages/stats.slint:64
+msgid "série de jours joués"
+msgstr "Serie gespielter Tage"
+
+#: crates/halcyon-app/ui/pages/stats.slint:65
+msgid "jeux terminés"
+msgstr "beendete Spiele"
+
+#: crates/halcyon-app/ui/pages/stats.slint:69
+msgid "Aucune session n'a encore été suivie par Halcyon. Les graphiques hebdomadaires et mensuels se remplissent à mesure que vous lancez vos jeux depuis Halcyon (y compris les jeux Steam et Epic, détectés pendant leur exécution)."
+msgstr "Halcyon hat noch keine Sitzung erfasst. Die Wochen- und Monatsdiagramme füllen sich, sobald Sie Ihre Spiele über Halcyon starten (einschließlich Steam- und Epic-Spielen, die während der Ausführung erkannt werden)."
+
+#: crates/halcyon-app/ui/pages/stats.slint:75
+msgid "Par semaine"
+msgstr "Pro Woche"
+
+#: crates/halcyon-app/ui/pages/stats.slint:76
+msgid "suivi local, 12 semaines"
+msgstr "lokale Erfassung, 12 Wochen"
+
+#: crates/halcyon-app/ui/pages/stats.slint:78 crates/halcyon-app/ui/pages/stats.slint:85
+msgid "Pas encore de session suivie."
+msgstr "Noch keine erfasste Sitzung."
+
+#: crates/halcyon-app/ui/pages/stats.slint:82
+msgid "Par mois"
+msgstr "Pro Monat"
+
+#: crates/halcyon-app/ui/pages/stats.slint:83
+msgid "suivi local, 12 mois"
+msgstr "lokale Erfassung, 12 Monate"
+
+#: crates/halcyon-app/ui/pages/stats.slint:94
+msgid "Jeux les plus joués"
+msgstr "Meistgespielte Spiele"
+
+#: crates/halcyon-app/ui/pages/stats.slint:95
+msgid "Aucun temps de jeu connu pour l'instant."
+msgstr "Noch keine bekannte Spielzeit."
+
+#: crates/halcyon-app/ui/pages/stats.slint:129
+msgid "Par source"
+msgstr "Nach Quelle"
+
+#: crates/halcyon-app/ui/pages/stats.slint:137
+msgid "Succès débloqués"
+msgstr "Freigeschaltete Erfolge"
+
+#: crates/halcyon-app/ui/pages/stats.slint:138
+msgid "données des plateformes, 12 mois"
+msgstr "Plattformdaten, 12 Monate"
+
+#: crates/halcyon-app/ui/pages/stats.slint:143
+msgid "Jeux terminés"
+msgstr "Beendete Spiele"
+
+#: crates/halcyon-app/ui/pages/stats.slint:144
+msgid "statut « Terminé », 12 mois"
+msgstr "Status „Beendet“, 12 Monate"
+
+#: crates/halcyon-app/ui/pages/stats.slint:151
+msgid "Sessions récentes"
+msgstr "Letzte Sitzungen"
+
+#: crates/halcyon-app/ui/pages/stats.slint:152
+msgid "Aucune session suivie."
+msgstr "Keine erfassten Sitzungen."
+
+#: crates/halcyon-app/src/ctl_assistant.rs:66
+msgid "Aucun jeu installé à proposer"
+msgstr "Kein installiertes Spiel zum Vorschlagen"
+
+#: crates/halcyon-core/src/export.rs:47
+msgctxt "csv"
+msgid "nom"
+msgstr "name"
+
+#: crates/halcyon-core/src/export.rs:48
+msgctxt "csv"
+msgid "source"
+msgstr "quelle"
+
+#: crates/halcyon-core/src/export.rs:49
+msgctxt "csv"
+msgid "installé"
+msgstr "installiert"
+
+#: crates/halcyon-core/src/export.rs:50
+msgctxt "csv"
+msgid "favori"
+msgstr "favorit"
+
+#: crates/halcyon-core/src/export.rs:51
+msgctxt "csv"
+msgid "statut"
+msgstr "status"
+
+#: crates/halcyon-core/src/export.rs:52
+msgctxt "csv"
+msgid "temps_de_jeu_s"
+msgstr "spielzeit_s"
+
+#: crates/halcyon-core/src/export.rs:53
+msgctxt "csv"
+msgid "temps_de_jeu_h"
+msgstr "spielzeit_h"
+
+#: crates/halcyon-core/src/export.rs:54
+msgctxt "csv"
+msgid "dernier_lancement"
+msgstr "zuletzt_gestartet"
+
+#: crates/halcyon-core/src/export.rs:61 crates/halcyon-core/src/export.rs:62
+msgid "oui"
+msgstr "ja"
+
+#: crates/halcyon-core/src/export.rs:61 crates/halcyon-core/src/export.rs:62
+msgid "non"
+msgstr "nein"
+
+#: crates/halcyon-core/src/export.rs:75
+msgctxt "csv"
+msgid "id_jeu"
+msgstr "spiel_id"
+
+#: crates/halcyon-core/src/export.rs:76
+msgctxt "csv"
+msgid "jeu"
+msgstr "spiel"
+
+#: crates/halcyon-core/src/export.rs:77
+msgctxt "csv"
+msgid "début"
+msgstr "beginn"
+
+#: crates/halcyon-core/src/export.rs:78
+msgctxt "csv"
+msgid "fin"
+msgstr "ende"
+
+#: crates/halcyon-core/src/export.rs:79
+msgctxt "csv"
+msgid "durée_s"
+msgstr "dauer_s"
+
+#: crates/halcyon-core/src/export.rs:80
+msgctxt "csv"
+msgid "durée_min"
+msgstr "dauer_min"
+
+#: crates/halcyon-core/src/recommend.rs:88
+#, placeholders
+msgid "Vos sessions durent en moyenne {a}"
+msgstr "Ihre Sitzungen dauern im Schnitt {a}"
+
+#: crates/halcyon-core/src/recommend.rs:97
+msgid "Genre adapté aux parties courtes"
+msgstr "Genre für kurze Sitzungen"
+
+#: crates/halcyon-core/src/recommend.rs:113
+msgid "Marqué « en cours »"
+msgstr "Als „am Spielen“ markiert"
+
+#: crates/halcyon-core/src/recommend.rs:119
+msgid "Joué aujourd'hui"
+msgstr "Heute gespielt"
+
+#: crates/halcyon-core/src/recommend.rs:120
+msgid "Joué hier"
+msgstr "Gestern gespielt"
+
+#: crates/halcyon-core/src/recommend.rs:121
+#, placeholders
+msgid "Joué il y a {n} jour"
+msgid_plural "Joué il y a {n} jours"
+msgstr[0] "Vor {n} Tag gespielt"
+msgstr[1] "Vor {n} Tagen gespielt"
+
+#: crates/halcyon-core/src/recommend.rs:141
+#, placeholders
+msgid "{unlocked} / {total} succès ({pct} %) : il en reste {n}"
+msgid_plural "{unlocked} / {total} succès ({pct} %) : il en reste {n}"
+msgstr[0] "{unlocked} / {total} Erfolge ({pct} %): noch {n}"
+msgstr[1] "{unlocked} / {total} Erfolge ({pct} %): noch {n}"
+
+#: crates/halcyon-core/src/recommend.rs:158
+#, placeholders
+msgid "Jamais lancé · genre que vous appréciez ({v})"
+msgstr "Nie gestartet · ein Genre, das Sie mögen ({v})"
+
+#: crates/halcyon-core/src/recommend.rs:163
+msgid "Dans votre liste « à jouer »"
+msgstr "Auf Ihrer „Geplant“-Liste"
+
+#: crates/halcyon-core/src/recommend.rs:180
+#, placeholders
+msgid "{playtime} de jeu · pas lancé depuis {n} mois"
+msgid_plural "{playtime} de jeu · pas lancé depuis {n} mois"
+msgstr[0] "{playtime} gespielt · seit {n} Monat nicht gestartet"
+msgstr[1] "{playtime} gespielt · seit {n} Monaten nicht gestartet"
+
+#: crates/halcyon-storage/src/tracking.rs:51
+#, placeholders
+msgid "{name} terminé"
+msgstr "{name} beendet"
+
+#: crates/halcyon-storage/src/tracking.rs:52
+#, placeholders
+msgid "Statut retiré pour {name}"
+msgstr "Status für {name} entfernt"
+
+#: crates/halcyon-storage/src/tracking.rs:71
+#, placeholders
+msgid "Temps corrigé : {v}"
+msgstr "Zeit korrigiert: {v}"
+
+#: crates/halcyon-storage/src/tracking.rs:72
+msgid "Retour au temps calculé"
+msgstr "Zurück zur berechneten Zeit"
+
+#: crates/halcyon-storage/src/tracking.rs:74
+#, placeholders
+msgid "Temps de jeu de {name} modifié"
+msgstr "Spielzeit von {name} geändert"
+
+#: crates/halcyon-storage/src/tracking.rs:176
+msgid "le profil doit avoir un nom"
+msgstr "Das Profil braucht einen Namen"
+
+#: crates/halcyon-storage/src/tracking.rs:229
+msgid "ajoutez au moins une règle"
+msgstr "Fügen Sie mindestens eine Regel hinzu"
+
+#: crates/halcyon-storage/src/tracking.rs:236
+#, placeholders
+msgid "une collection « {name} » existe déjà"
+msgstr "Eine Sammlung „{name}“ existiert bereits"

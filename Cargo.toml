@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/halcyon-i18n",
     "crates/halcyon-core",
     "crates/halcyon-storage",
     "crates/halcyon-integrations",
@@ -19,6 +20,7 @@ license = "MIT"
 authors = ["Sebi"]
 
 [workspace.dependencies]
+halcyon-i18n = { path = "crates/halcyon-i18n" }
 halcyon-core = { path = "crates/halcyon-core" }
 halcyon-storage = { path = "crates/halcyon-storage" }
 halcyon-integrations = { path = "crates/halcyon-integrations" }

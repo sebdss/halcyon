@@ -55,12 +55,12 @@ pub fn await_health(layout: &Layout, txid: &str, child: &mut Child, timeout: Dur
             if recovery::health_confirmed(layout, txid) {
                 return Ok(());
             }
-            return Err(format!("la nouvelle version s'est arrêtée au démarrage ({status})"));
+            return Err(tr!("la nouvelle version s'est arrêtée au démarrage ({status})", status = status));
         }
         if Instant::now() >= until {
             let _ = child.kill();
             let _ = child.wait();
-            return Err(format!("la nouvelle version n'a pas confirmé son démarrage en {} s", timeout.as_secs()));
+            return Err(tr!("la nouvelle version n'a pas confirmé son démarrage en {as_secs} s", as_secs = timeout.as_secs()));
         }
         std::thread::sleep(Duration::from_millis(200));
     }
@@ -83,8 +83,8 @@ pub struct ApplyOptions {
 fn relaunch_current(layout: &Layout, target: &Target, args: &[String]) {
     let exe = target.main_exe(&layout.root);
     match spawn_detached(&exe, args, &layout.root) {
-        Ok(_) => log(layout, &format!("Halcyon relancé ({})", exe.display())),
-        Err(e) => log(layout, &format!("relance impossible de {} : {e}", exe.display())),
+        Ok(_) => log(layout, &tr!("Halcyon relancé ({exe})", exe = exe.display())),
+        Err(e) => log(layout, &tr!("relance impossible de {exe} : {e}", exe = exe.display(), e = e)),
     }
 }
 
@@ -97,7 +97,7 @@ fn fail(layout: &Layout, state: State, message: &str, blocked: Option<&str>) {
         r.blocked = Some(b.to_string());
     }
     let _ = recovery::save(layout, &r);
-    log(layout, &format!("état {state:?} : {message}"));
+    log(layout, &tr!("état {state} : {message}", state = format!("{:?}", state), message = halcyon_i18n::render(message)));
 }
 
 /// `halcyon-updater apply` : installation du paquet en attente, contrôle de santé, et retour
@@ -105,19 +105,19 @@ fn fail(layout: &Layout, state: State, message: &str, blocked: Option<&str>) {
 pub fn apply(opts: &ApplyOptions) -> Result<State, String> {
     let layout = Layout::new(&opts.root);
     let _lock = Lock::acquire(&layout)?;
-    log(&layout, &format!("updater {} : installation demandée (version annoncée {})", updater_version(), opts.current));
-    let pending = install::read_pending(&layout).ok_or("aucune mise à jour en attente")?;
+    log(&layout, &tr!("updater {updater_version} : installation demandée (version annoncée {current})", updater_version = updater_version(), current = opts.current));
+    let pending = install::read_pending(&layout).ok_or(tr!("aucune mise à jour en attente"))?;
     let target = pending.target.clone();
 
     if let Some(pid) = opts.wait_pid {
         if !recovery::wait_pid(pid, Duration::from_secs(90)) {
-            let msg = "Halcyon ne s'est pas fermé : mise à jour reportée, rien n'a été modifié";
-            fail(&layout, State::Failed, msg, None);
-            return Err(msg.into());
+            let msg = tr_later!("Halcyon ne s'est pas fermé : mise à jour reportée, rien n'a été modifié");
+            fail(&layout, State::Failed, &msg, None);
+            return Err(halcyon_i18n::render(&msg));
         }
     }
     if install::interrupted(&layout) {
-        recovery::set_state(&layout, State::Recovery, "transaction précédente interrompue")?;
+        recovery::set_state(&layout, State::Recovery, &tr_later!("transaction précédente interrompue"))?;
         install::rollback(&layout)?;
     }
     // Plateforme du paquet : celle de l'installation visée (ZIP : Windows, AppImage : Linux),
@@ -127,17 +127,17 @@ pub fn apply(opts: &ApplyOptions) -> Result<State, String> {
         crate::core::PackageFormat::Appimage => Platform::LinuxX64,
     };
     if !cfg!(feature = "fault-injection") && Platform::current() != Some(platform) {
-        let msg = "paquet en attente destiné à un autre système";
+        let msg = tr_later!("paquet en attente destiné à un autre système");
         install::discard_pending(&layout);
-        fail(&layout, State::Failed, msg, None);
-        return Err(msg.into());
+        fail(&layout, State::Failed, &msg, None);
+        return Err(halcyon_i18n::render(&msg));
     }
-    recovery::set_state(&layout, State::Verifying, &format!("revérification de {}", pending.version))?;
+    recovery::set_state(&layout, State::Verifying, &tr_later!("revérification de {version}", version = pending.version))?;
     let verified = match install::verify_pending(&layout, &opts.keys, platform) {
         Ok(v) => v,
         Err(e) => {
             install::discard_pending(&layout);
-            fail(&layout, State::Failed, &format!("paquet refusé : {e}"), Some(&pending.version));
+            fail(&layout, State::Failed, &tr_later!("paquet refusé : {e}", e = e), Some(&pending.version));
             if opts.relaunch {
                 relaunch_current(&layout, &target, &[]);
             }
@@ -145,12 +145,12 @@ pub fn apply(opts: &ApplyOptions) -> Result<State, String> {
         }
     };
     if verified.checked.min_updater > updater_version() {
-        let msg = format!("cet updater ({}) est trop ancien pour {} (minimum {})", updater_version(), verified.checked.version, verified.checked.min_updater);
+        let msg = tr_later!("cet updater ({updater_version}) est trop ancien pour {version} (minimum {min_updater})", updater_version = updater_version(), version = verified.checked.version, min_updater = verified.checked.min_updater);
         fail(&layout, State::Failed, &msg, None);
         if opts.relaunch {
             relaunch_current(&layout, &target, &[]);
         }
-        return Err(msg);
+        return Err(halcyon_i18n::render(&msg));
     }
     let installed = recovery::read_installed(&layout).and_then(|i| i.version.parse::<Version>().ok()).map(|v| v.max(opts.current.clone())).unwrap_or_else(|| opts.current.clone());
     let to = verified.checked.version.to_string();
@@ -158,7 +158,7 @@ pub fn apply(opts: &ApplyOptions) -> Result<State, String> {
         Ok(t) => t,
         Err(e) => {
             install::discard_pending(&layout);
-            fail(&layout, State::Failed, &format!("installation de {to} impossible : {e}. La version {installed} est conservée."), Some(&to));
+            fail(&layout, State::Failed, &tr_later!("installation de {to} impossible : {e}. La version {installed} est conservée.", to = to, e = e, installed = installed), Some(&to));
             if opts.relaunch {
                 relaunch_current(&layout, &target, &[ARG_ROLLED_BACK.into()]);
             }
@@ -168,7 +168,7 @@ pub fn apply(opts: &ApplyOptions) -> Result<State, String> {
     install::fault(&layout, "before-health");
     let exe = target.main_exe(&layout.root);
     let health = spawn_detached(&exe, &[ARG_HEALTH.into(), txid.clone()], &layout.root)
-        .map_err(|e| format!("démarrage de {} impossible : {e}", exe.display()))
+        .map_err(|e| tr!("démarrage de {exe} impossible : {e}", exe = exe.display(), e = e))
         .and_then(|mut child| await_health(&layout, &txid, &mut child, opts.health_timeout));
     match health {
         Ok(()) => {
@@ -176,11 +176,11 @@ pub fn apply(opts: &ApplyOptions) -> Result<State, String> {
             Ok(State::Completed)
         }
         Err(e) => {
-            log(&layout, &format!("contrôle de santé échoué : {e}"));
+            log(&layout, &tr!("contrôle de santé échoué : {e}", e = e));
             recovery::set_state(&layout, State::Recovery, &e)?;
             install::rollback(&layout)?;
             install::discard_pending(&layout);
-            fail(&layout, State::RolledBack, &format!("Halcyon {to} n'a pas démarré correctement ({e}). La version {installed} a été restaurée."), Some(&to));
+            fail(&layout, State::RolledBack, &tr_later!("Halcyon {to} n'a pas démarré correctement ({e}). La version {installed} a été restaurée.", to = to, e = e, installed = installed), Some(&to));
             if opts.relaunch {
                 relaunch_current(&layout, &target, &[ARG_ROLLED_BACK.into()]);
             }
@@ -196,16 +196,16 @@ pub fn recover(root: &Path, wait_pid: Option<u32>, target: &Target, relaunch: bo
     let _lock = Lock::acquire(&layout)?;
     if let Some(pid) = wait_pid {
         if !recovery::wait_pid(pid, Duration::from_secs(90)) {
-            return Err("Halcyon ne s'est pas fermé".into());
+            return Err(tr!("Halcyon ne s'est pas fermé").into());
         }
     }
     let state = if install::interrupted(&layout) {
         let r = recovery::load(&layout);
-        recovery::set_state(&layout, State::Recovery, "reprise après interruption")?;
+        recovery::set_state(&layout, State::Recovery, &tr_later!("reprise après interruption"))?;
         install::rollback(&layout)?;
         install::discard_pending(&layout);
         let to = r.to.clone();
-        fail(&layout, State::RolledBack, &format!("L'installation de Halcyon {to} a été interrompue ; la version {} a été restaurée.", r.from), (!to.is_empty()).then_some(to.as_str()));
+        fail(&layout, State::RolledBack, &tr_later!("L'installation de Halcyon {to} a été interrompue ; la version {from} a été restaurée.", to = to, from = r.from), (!to.is_empty()).then_some(to.as_str()));
         State::RolledBack
     } else {
         recovery::load(&layout).state
@@ -271,7 +271,7 @@ pub fn prepare_runner(layout: &Layout, updater: &Path) -> Result<PathBuf, String
     }
     let name = format!("halcyon-updater-{}{}", std::process::id(), std::env::consts::EXE_SUFFIX);
     let dest = dir.join(name);
-    std::fs::copy(updater, &dest).map_err(|e| format!("copie de l'updater : {e}"))?;
+    std::fs::copy(updater, &dest).map_err(|e| tr!("copie de l'updater : {e}", e = e))?;
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -290,7 +290,7 @@ pub fn updater_from_package(layout: &Layout, package: &Path, target: &Target) ->
         Target::Zip => {
             let file = std::fs::File::open(package).map_err(|e| e.to_string())?;
             let mut zip = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
-            let mut entry = zip.by_name(crate::security::WINDOWS_UPDATER).map_err(|e| format!("updater absent du paquet : {e}"))?;
+            let mut entry = zip.by_name(crate::security::WINDOWS_UPDATER).map_err(|e| tr!("updater absent du paquet : {e}", e = e))?;
             let dest = dir.join(crate::security::WINDOWS_UPDATER);
             let mut out = std::fs::File::create(&dest).map_err(|e| e.to_string())?;
             std::io::copy(&mut entry, &mut out).map_err(|e| e.to_string())?;
@@ -303,10 +303,10 @@ pub fn updater_from_package(layout: &Layout, package: &Path, target: &Target) ->
                 .stdout(Stdio::null())
                 .stderr(Stdio::null())
                 .status()
-                .map_err(|e| format!("extraction de l'updater : {e}"))?;
+                .map_err(|e| tr!("extraction de l'updater : {e}", e = e))?;
             let p = dir.join("squashfs-root/usr/bin/halcyon-updater");
             if !status.success() || !p.is_file() {
-                return Err("updater absent de l'AppImage".into());
+                return Err(tr!("updater absent de l'AppImage").into());
             }
             Ok(p)
         }

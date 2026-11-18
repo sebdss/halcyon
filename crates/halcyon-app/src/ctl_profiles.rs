@@ -124,16 +124,16 @@ impl Controller {
         if !game.installed {
             if game.source == GameSource::Steam {
                 match launcher::open_uri(&format!("steam://install/{}", game.source_key)) {
-                    Ok(()) => self.toast(format!("Installation de « {} » demandée à Steam", game.name), false),
-                    Err(e) => self.toast(format!("Steam n'a pas pu être appelé : {e}"), true),
+                    Ok(()) => self.toast(tr!("Installation de « {name} » demandée à Steam", name = game.name), false),
+                    Err(e) => self.toast(tr!("Steam n'a pas pu être appelé : {e}", e = e), true),
                 }
             } else {
-                self.toast(format!("« {} » n'est pas installé", game.name), true);
+                self.toast(tr!("« {name} » n'est pas installé", name = game.name), true);
             }
             return;
         }
         if self.active_session.get() == Some(id) {
-            self.toast(format!("« {} » est déjà en cours", game.name), false);
+            self.toast(tr!("« {name} » est déjà en cours", name = game.name), false);
             return;
         }
         let profile = {
@@ -156,7 +156,7 @@ impl Controller {
             match game.launch_target() {
                 Some(t) => t,
                 None => {
-                    self.toast(format!("Impossible de lancer « {} » : aucun moyen de lancement configuré", game.name), true);
+                    self.toast(tr!("Impossible de lancer « {name} » : aucun moyen de lancement configuré", name = game.name), true);
                     return;
                 }
             }
@@ -170,7 +170,7 @@ impl Controller {
             || prepared.mod_job.is_some()
             || prepared.save_job.as_ref().is_some_and(|j| j.auto_before);
         if needs_thread {
-            self.toast(format!("Préparation de « {} »…", prepared.game.name), false);
+            self.toast(tr!("Préparation de « {name} »…", name = prepared.game.name), false);
             let db = self.db.clone();
             std::thread::Builder::new()
                 .name("halcyon-prelaunch".into())
@@ -180,7 +180,7 @@ impl Controller {
                         Some(e) => {
                             Cleanup { companions, gpu, post_command: String::new(), working_dir: None, save: None }
                                 .run(&prepared.game.name);
-                            c.toast(format!("Lancement annulé : {e}"), true);
+                            c.toast(tr!("Lancement annulé : {e}", e = e), true);
                         }
                         None => c.finish_launch(prepared, companions, gpu),
                     });
@@ -272,8 +272,8 @@ impl Controller {
             Err(e) => {
                 cleanup.run(&game.name);
                 log::warn!("échec du lancement de « {} » : {e}", game.name);
-                self.toast(format!("Impossible de lancer « {} » : {e}", game.name), true);
-                let _ = self.db().log_activity(ActivityKind::Error, Some(id), &format!("Échec du lancement de {}", game.name), &e.to_string());
+                self.toast(tr!("Impossible de lancer « {name} » : {e}", name = game.name, e = e), true);
+                let _ = self.db().log_activity(ActivityKind::Error, Some(id), &tr_later!("Échec du lancement de {name}", name = game.name), &e.to_string());
                 return;
             }
         };
@@ -283,10 +283,10 @@ impl Controller {
         }
         let profile_name = profile.as_ref().map(|p| p.name.clone());
         let detail = match &profile_name {
-            Some(n) => format!("Profil « {n} »"),
+            Some(n) => tr!("Profil « {n} »", n = n),
             None => String::new(),
         };
-        let _ = self.db().log_activity(ActivityKind::Launch, Some(id), &format!("Lancement de {}", game.name), &detail);
+        let _ = self.db().log_activity(ActivityKind::Launch, Some(id), &tr_later!("Lancement de {name}", name = game.name), &detail);
         // Avant le passage en « partie active » (qui peut rendre Halcyon silencieux).
         self.sound(halcyon_audio::Cue::Launch);
         self.mark_played(id, started);
@@ -296,17 +296,17 @@ impl Controller {
         if let Some(app) = self.app() {
             app.global::<crate::AppUi>().set_playing(game.name.clone().into());
         }
-        let task = self.task_start("session", format!("En jeu : {}", game.name));
-        self.task_update(task, Some(-1.0), Some("Session suivie par Halcyon"));
+        let task = self.task_start("session", tr!("En jeu : {name}", name = game.name));
+        self.task_update(task, Some(-1.0), Some(&tr!("Session suivie par Halcyon")));
         let mut msg = match &profile_name {
-            Some(n) => format!("Lancement de « {} » (profil « {n} »)", game.name),
-            None => format!("Lancement de « {} »", game.name),
+            Some(n) => tr!("Lancement de « {name} » (profil « {n} »)", name = game.name, n = n),
+            None => tr!("Lancement de « {name} »", name = game.name),
         };
         if !notes.is_empty() {
             for n in &notes {
                 log::info!("profil de « {} » : {n}", game.name);
             }
-            msg.push_str(&format!(" · {} réglage{} non appliqué{}", notes.len(), plural(notes.len()), plural(notes.len())));
+            msg.push_str(&trn!(notes.len(), " · {n} réglage non appliqué", " · {n} réglages non appliqués"));
             if self.detail_id.get() == Some(id) {
                 if let Some(app) = self.app() {
                     let v: Vec<SharedString> = notes.iter().map(|n| n.as_str().into()).collect();
@@ -403,7 +403,7 @@ impl Controller {
         if let Some(app) = self.app() {
             app.global::<crate::AppUi>().set_playing("".into());
         }
-        let detail = if measured { format!("Session de {}", halcyon_core::util::format_playtime(secs)) } else { "Session terminée (durée non mesurée)".to_string() };
+        let detail = if measured { tr!("Session de {secs}", secs = halcyon_core::util::format_playtime(secs)) } else { tr!("Session terminée (durée non mesurée)") };
         let task = self.tasks.borrow().find_kind("session");
         if let Some(task) = task {
             self.task_finish(task, true, detail, crate::tasks::Action::OpenGame(id));
@@ -442,17 +442,17 @@ impl Controller {
         let mod_profiles = self.db().mod_profiles(g.id).unwrap_or_default();
         let pads = self.settings.borrow().pad_profiles.clone();
         let rows: Vec<ProfileRow> = profiles.iter().map(|p| profile_row(p, &mod_profiles, &pads)).collect();
-        let mut pad_labels: Vec<SharedString> = vec!["Profil de manette actif".into()];
+        let mut pad_labels: Vec<SharedString> = vec![tr!("Profil de manette actif").into()];
         pad_labels.extend(pads.iter().map(|p| SharedString::from(p.name.as_str())));
         dui.set_pad_profile_labels(ModelRc::new(VecModel::from(pad_labels)));
-        let mut labels: Vec<SharedString> = vec!["Sans profil".into()];
+        let mut labels: Vec<SharedString> = vec![tr!("Sans profil").into()];
         labels.extend(profiles.iter().map(|p| SharedString::from(p.name.as_str())));
         let default = profiles.iter().position(|p| p.is_default).map(|i| i + 1).unwrap_or(0);
         dui.set_profiles(ModelRc::new(VecModel::from(rows)));
         dui.set_profile_labels(ModelRc::new(VecModel::from(labels)));
         dui.set_profile_index(default as i32);
         let engine = if g.source == GameSource::Emulated {
-            "émulateur (options transmises avant la ROM)".to_string()
+            tr!("émulateur (options transmises avant la ROM)")
         } else {
             g.install_dir.as_deref().map(engines::detect).unwrap_or_default().label().to_string()
         };
@@ -498,7 +498,7 @@ impl Controller {
     pub(crate) fn add_companion(&self, path: &str, args: &str, close: bool) {
         let path = path.trim().trim_matches('"');
         if !std::path::Path::new(path).is_file() {
-            self.toast(format!("Programme introuvable : {path}"), true);
+            self.toast(tr!("Programme introuvable : {path}", path = path), true);
             return;
         }
         self.edit_companions.push(CompanionRow { path: path.into(), args: args.trim().into(), close_after: close });
@@ -528,7 +528,7 @@ impl Controller {
             "" => None,
             v => match v.parse::<u32>() {
                 Ok(n) if (10..=1000).contains(&n) => Some(n),
-                _ => return self.toast("Limite d'images : nombre entre 10 et 1000 attendu", true),
+                _ => return self.toast(tr!("Limite d'images : nombre entre 10 et 1000 attendu"), true),
             },
         };
         p.gpu = GpuPreference::ALL.get(row.gpu as usize).copied().unwrap_or_default();
@@ -537,7 +537,7 @@ impl Controller {
         p.working_dir = Some(PathBuf::from(row.working_dir.trim())).filter(|d| !d.as_os_str().is_empty());
         if let Some(wd) = &p.working_dir {
             if !wd.is_dir() {
-                return self.toast(format!("Répertoire introuvable : {}", wd.display()), true);
+                return self.toast(tr!("Répertoire introuvable : {wd}", wd = wd.display()), true);
             }
         }
         p.env = match parse_env(&row.env) {
@@ -574,15 +574,15 @@ impl Controller {
                     let _ = self.db().log_activity(
                         ActivityKind::Profile,
                         Some(game),
-                        &format!("Profil « {} » enregistré", p.name),
+                        &tr_later!("Profil « {name} » enregistré", name = p.name),
                         &g.name,
                     );
                 }
                 app.global::<DetailUi>().set_editing_open(false);
                 *self.editing_profile.borrow_mut() = None;
-                self.toast(format!("Profil « {} » enregistré", p.name), false);
+                self.toast(tr!("Profil « {name} » enregistré", name = p.name), false);
             }
-            Err(e) => self.toast(format!("Enregistrement impossible : {e}"), true),
+            Err(e) => self.toast(tr!("Enregistrement impossible : {e}", e = e), true),
         }
     }
 
@@ -590,18 +590,18 @@ impl Controller {
         let Some(game) = self.detail_id.get() else { return };
         let Some(p) = self.db().launch_profiles(game).unwrap_or_default().into_iter().find(|p| p.id == id) else { return };
         self.confirm(
-            "Supprimer le profil ?",
-            &format!("Le profil « {} » sera supprimé. Le jeu et ses fichiers ne sont pas touchés.", p.name),
-            "Supprimer",
+            &tr!("Supprimer le profil ?"),
+            &tr!("Le profil « {name} » sera supprimé. Le jeu et ses fichiers ne sont pas touchés.", name = p.name),
+            &tr!("Supprimer"),
             move |c| {
                 if let Err(e) = c.db().delete_launch_profile(id) {
-                    return c.toast(format!("Suppression impossible : {e}"), true);
+                    return c.toast(tr!("Suppression impossible : {e}", e = e), true);
                 }
                 let g = c.lib.borrow().get(game).cloned();
                 if let Some(g) = g {
                     c.refresh_profiles_ui(&g);
                 }
-                c.toast(format!("Profil « {} » supprimé", p.name), false);
+                c.toast(tr!("Profil « {name} » supprimé", name = p.name), false);
             },
         );
     }
@@ -613,7 +613,7 @@ fn run_prelaunch(p: &Prepared, db: &Arc<Mutex<Database>>) -> (Vec<(Child, bool)>
     let mut companions = Vec::new();
     if let Some(job) = &p.mod_job {
         if let Err(e) = job.run() {
-            return (companions, None, Some(format!("application des mods : {e}")));
+            return (companions, None, Some(tr!("application des mods : {e}", e = e)));
         }
     }
     if let Some(job) = p.save_job.as_ref().filter(|j| j.auto_before) {
@@ -624,7 +624,7 @@ fn run_prelaunch(p: &Prepared, db: &Arc<Mutex<Database>>) -> (Vec<(Child, bool)>
     }
     let Some(profile) = &p.profile else { return (companions, None, None) };
     if let Err(e) = launcher::run_hook(&profile.pre_command, p.game.install_dir.as_deref(), Duration::from_secs(60)) {
-        return (companions, None, Some(format!("commande avant le lancement : {e}")));
+        return (companions, None, Some(tr!("commande avant le lancement : {e}", e = e)));
     }
     for c in &profile.companions {
         match launcher::spawn_companion(&c.path, &c.args) {
@@ -642,29 +642,25 @@ fn run_prelaunch(p: &Prepared, db: &Arc<Mutex<Database>>) -> (Vec<(Child, bool)>
     (companions, gpu, None)
 }
 
-fn plural(n: usize) -> &'static str {
-    if n > 1 { "s" } else { "" }
-}
-
 fn parse_resolution(s: &str) -> Result<Option<(u32, u32)>, String> {
     let s = s.trim().to_lowercase().replace(' ', "");
     if s.is_empty() {
         return Ok(None);
     }
-    let (w, h) = s.split_once(['x', '*', '×']).ok_or("Résolution : format attendu 1920x1080")?;
+    let (w, h) = s.split_once(['x', '*', '×']).ok_or(tr!("Résolution : format attendu 1920x1080"))?;
     match (w.parse::<u32>(), h.parse::<u32>()) {
         (Ok(w), Ok(h)) if (320..=16_384).contains(&w) && (200..=16_384).contains(&h) => Ok(Some((w, h))),
-        _ => Err("Résolution : format attendu 1920x1080".into()),
+        _ => Err(tr!("Résolution : format attendu 1920x1080").into()),
     }
 }
 
 fn parse_env(s: &str) -> Result<Vec<(String, String)>, String> {
     let mut out = Vec::new();
     for line in s.lines().map(str::trim).filter(|l| !l.is_empty() && !l.starts_with('#')) {
-        let (k, v) = line.split_once('=').ok_or_else(|| format!("Variable invalide (NOM=valeur attendu) : {line}"))?;
+        let (k, v) = line.split_once('=').ok_or_else(|| tr!("Variable invalide (NOM=valeur attendu) : {line}", line = line))?;
         let k = k.trim();
         if k.is_empty() || !k.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
-            return Err(format!("Nom de variable invalide : {k}"));
+            return Err(tr!("Nom de variable invalide : {k}", k = k));
         }
         out.push((k.to_string(), v.trim().to_string()));
     }
@@ -682,36 +678,36 @@ fn profile_row(p: &LaunchProfile, mod_profiles: &[halcyon_storage::ModProfile], 
         parts.push(format!("{w}×{h}"));
     }
     if let Some(f) = p.fps_limit {
-        parts.push(format!("{f} i/s max"));
+        parts.push(tr!("{f} i/s max", f = f));
     }
     if p.gpu != GpuPreference::Default {
         parts.push(p.gpu.label().to_string());
     }
     if p.priority != ProcessPriority::Normal {
-        parts.push(format!("priorité {}", p.priority.label().to_lowercase()));
+        parts.push(tr!("priorité {v}", v = p.priority.label().to_lowercase()));
     }
     if !p.args.is_empty() {
         parts.push(format!("« {} »", p.args));
     }
     if !p.companions.is_empty() {
-        parts.push(format!("{} programme{} associé{}", p.companions.len(), plural(p.companions.len()), plural(p.companions.len())));
+        parts.push(trn!(p.companions.len(), "{n} programme associé", "{n} programmes associés"));
     }
     if !p.pre_command.is_empty() || !p.post_command.is_empty() {
         parts.push("scripts".into());
     }
     if !p.env.is_empty() {
-        parts.push(format!("{} variable{}", p.env.len(), plural(p.env.len())));
+        parts.push(trn!(p.env.len(), "{n} variable", "{n} variables"));
     }
     if let Some(m) = p.mod_profile.and_then(|id| mod_profiles.iter().find(|m| m.id == id)) {
-        parts.push(format!("mods « {} »", m.name));
+        parts.push(tr!("mods « {name} »", name = m.name));
     }
     if let Some(x) = p.controller_profile.and_then(|id| pads.iter().find(|x| x.id == id)) {
-        parts.push(format!("manette « {} »", x.name));
+        parts.push(tr!("manette « {name} »", name = x.name));
     }
     ProfileRow {
         id: p.id as i32,
         name: p.name.as_str().into(),
-        summary: if parts.is_empty() { "Paramètres du jeu".into() } else { parts.join(" · ").into() },
+        summary: if parts.is_empty() { tr!("Paramètres du jeu").into() } else { parts.join(" · ").into() },
         is_default: p.is_default,
         args: p.args.as_str().into(),
         replace_args: p.replace_args,

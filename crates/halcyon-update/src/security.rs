@@ -57,15 +57,15 @@ pub fn hex(bytes: &[u8]) -> String {
 /// Vérifie une signature Ed25519 (base64) de `message` par l'une des clés `keys`.
 pub fn verify_signature(keys: &[PublicKey], message: &[u8], signature_b64: &str) -> Result<(), String> {
     if keys.is_empty() {
-        return Err("cette compilation de Halcyon n'intègre aucune clé de signature : installation automatique impossible".into());
+        return Err(tr!("cette compilation de Halcyon n'intègre aucune clé de signature : installation automatique impossible").into());
     }
     let b64 = base64::engine::general_purpose::STANDARD;
-    let sig = b64.decode(signature_b64.trim()).map_err(|_| "signature illisible".to_string())?;
-    let sig = ed25519_compact::Signature::from_slice(&sig).map_err(|_| "signature invalide".to_string())?;
+    let sig = b64.decode(signature_b64.trim()).map_err(|_| tr!("signature illisible").to_string())?;
+    let sig = ed25519_compact::Signature::from_slice(&sig).map_err(|_| tr!("signature invalide"))?;
     if keys.iter().any(|k| k.verify(message, &sig).is_ok()) {
         Ok(())
     } else {
-        Err("signature incorrecte : cette version n'a pas été publiée par l'auteur de Halcyon".into())
+        Err(tr!("signature incorrecte : cette version n'a pas été publiée par l'auteur de Halcyon").into())
     }
 }
 
@@ -73,7 +73,7 @@ pub fn verify_signature(keys: &[PublicKey], message: &[u8], signature_b64: &str)
 pub fn verify_signature_b64(pubkey_b64: &str, message: &[u8], signature_b64: &str) -> Result<(), String> {
     let keys = parse_keys(pubkey_b64);
     if keys.is_empty() {
-        return Err("clé publique de signature invalide".into());
+        return Err(tr!("clé publique de signature invalide").into());
     }
     verify_signature(&keys, message, signature_b64)
 }
@@ -102,11 +102,11 @@ pub fn sha256_bytes(bytes: &[u8]) -> String {
 /// accepté par cette installation.
 pub fn check_version_policy(candidate: &Version, installed: &Version, floor: Option<&Version>) -> Result<(), String> {
     if candidate <= installed {
-        return Err(format!("{candidate} n'est pas plus récente que la version installée ({installed}) : refusée"));
+        return Err(tr!("{candidate} n'est pas plus récente que la version installée ({installed}) : refusée", candidate = candidate, installed = installed));
     }
     if let Some(f) = floor {
         if candidate < f {
-            return Err(format!("{candidate} est inférieure à la version minimale de sécurité ({f}) : refusée"));
+            return Err(tr!("{candidate} est inférieure à la version minimale de sécurité ({f}) : refusée", candidate = candidate, f = f));
         }
     }
     Ok(())
@@ -148,38 +148,38 @@ pub fn safe_relative(name: &str) -> Option<String> {
 
 /// Entrées (fichiers) d'un paquet ZIP valide.
 pub fn check_zip(path: &Path) -> Result<Vec<String>, String> {
-    let file = std::fs::File::open(path).map_err(|e| format!("paquet : {e}"))?;
-    let mut zip = zip::ZipArchive::new(file).map_err(|e| format!("archive ZIP invalide : {e}"))?;
+    let file = std::fs::File::open(path).map_err(|e| tr!("paquet : {e}", e = e))?;
+    let mut zip = zip::ZipArchive::new(file).map_err(|e| tr!("archive ZIP invalide : {e}", e = e))?;
     if zip.len() > MAX_ENTRIES {
-        return Err("archive ZIP : trop de fichiers".into());
+        return Err(tr!("archive ZIP : trop de fichiers").into());
     }
     let mut files = Vec::new();
     let mut total = 0u64;
     for i in 0..zip.len() {
-        let e = zip.by_index_raw(i).map_err(|e| format!("archive ZIP : {e}"))?;
-        let name = e.name().map_err(|e| format!("archive ZIP : {e}"))?.to_string();
-        let rel = safe_relative(&name).ok_or_else(|| format!("archive ZIP : chemin refusé « {name} »"))?;
+        let e = zip.by_index_raw(i).map_err(|e| tr!("archive ZIP : {e}", e = e))?;
+        let name = e.name().map_err(|e| tr!("archive ZIP : {e}", e = e))?.to_string();
+        let rel = safe_relative(&name).ok_or_else(|| tr!("archive ZIP : chemin refusé « {name} »", name = name))?;
         if e.is_symlink() {
-            return Err(format!("archive ZIP : lien symbolique refusé « {name} »"));
+            return Err(tr!("archive ZIP : lien symbolique refusé « {name} »", name = name));
         }
         if e.is_dir() {
             continue;
         }
         total = total.saturating_add(e.size());
         if total > MAX_UNPACKED {
-            return Err("archive ZIP : taille décompressée excessive".into());
+            return Err(tr!("archive ZIP : taille décompressée excessive").into());
         }
         if e.size() > 1024 * 1024 && e.size() / e.compressed_size().max(1) > 200 {
-            return Err(format!("archive ZIP : taux de compression anormal pour « {name} »"));
+            return Err(tr!("archive ZIP : taux de compression anormal pour « {name} »", name = name));
         }
         if files.iter().any(|f: &String| f.eq_ignore_ascii_case(&rel)) {
-            return Err(format!("archive ZIP : « {name} » en double"));
+            return Err(tr!("archive ZIP : « {name} » en double", name = name));
         }
         files.push(rel);
     }
     for required in [WINDOWS_MAIN, WINDOWS_UPDATER] {
         if !files.iter().any(|f| f == required) {
-            return Err(format!("archive ZIP : {required} absent"));
+            return Err(tr!("archive ZIP : {required} absent", required = required));
         }
     }
     Ok(files)
@@ -196,29 +196,29 @@ fn u64le(b: &[u8], at: usize) -> u64 {
 }
 
 pub fn check_appimage(path: &Path) -> Result<(), String> {
-    let mut f = std::fs::File::open(path).map_err(|e| format!("AppImage : {e}"))?;
+    let mut f = std::fs::File::open(path).map_err(|e| tr!("AppImage : {e}", e = e))?;
     let len = f.metadata().map_err(|e| e.to_string())?.len();
     let mut head = [0u8; 64];
-    f.read_exact(&mut head).map_err(|_| "AppImage : fichier trop court".to_string())?;
+    f.read_exact(&mut head).map_err(|_| tr!("AppImage : fichier trop court"))?;
     if &head[0..4] != b"\x7fELF" || head[4] != 2 || head[5] != 1 {
-        return Err("AppImage : pas un exécutable ELF 64 bits".into());
+        return Err(tr!("AppImage : pas un exécutable ELF 64 bits").into());
     }
     if &head[8..11] != b"AI\x02" {
-        return Err("AppImage : signature AppImage type 2 absente".into());
+        return Err(tr!("AppImage : signature AppImage type 2 absente").into());
     }
     if u16le(&head, 18) != 0x3e {
-        return Err("AppImage : architecture différente de x86-64".into());
+        return Err(tr!("AppImage : architecture différente de x86-64").into());
     }
     // L'image SquashFS commence juste après l'exécutable (fin de la table des sections).
     let end = u64le(&head, 0x28).saturating_add(u16le(&head, 0x3a) * u16le(&head, 0x3c));
     if end == 0 || end + 4 > len {
-        return Err("AppImage : image du système de fichiers absente".into());
+        return Err(tr!("AppImage : image du système de fichiers absente").into());
     }
     use std::io::{Seek, SeekFrom};
     let mut magic = [0u8; 4];
-    f.seek(SeekFrom::Start(end)).and_then(|_| f.read_exact(&mut magic)).map_err(|e| format!("AppImage : {e}"))?;
+    f.seek(SeekFrom::Start(end)).and_then(|_| f.read_exact(&mut magic)).map_err(|e| tr!("AppImage : {e}", e = e))?;
     if &magic != b"hsqs" {
-        return Err("AppImage : image SquashFS introuvable".into());
+        return Err(tr!("AppImage : image SquashFS introuvable").into());
     }
     Ok(())
 }

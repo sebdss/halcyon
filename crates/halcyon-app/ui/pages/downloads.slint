@@ -35,7 +35,7 @@ component TaskLine inherits Rectangle {
             }
             if root.state == 0 && root.progress >= 0: Text { text: round(root.progress * 100) + " %"; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
             Text { text: root.time; color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
-            if root.cancellable: SecondaryButton { h: 32px; text: "Annuler"; clicked => { root.cancel(); } }
+            if root.cancellable: SecondaryButton { h: 32px; text: @tr("Annuler"); clicked => { root.cancel(); } }
         }
         if root.state == 0: ProgressBar { value: root.progress; }
     }
@@ -52,27 +52,27 @@ export component DownloadsPage inherits Rectangle {
             alignment: start;
 
             PageHeader {
-                title: "Téléchargements";
-                subtitle: "Tout ce que Halcyon télécharge lui-même (Minecraft, mods, modpacks, Java, mises à jour de Halcyon) passe par cette file. Les jeux Steam, Epic et GOG sont téléchargés par leur client officiel.";
-                if !DownloadsUi.paused: SecondaryButton { y: 8px; text: "Tout mettre en pause"; icon: Icons.clock; has-icon: true; clicked => { DownloadsUi.set-paused(true); } }
-                if DownloadsUi.paused: PrimaryButton { y: 8px; text: "Reprendre"; icon: Icons.play; has-icon: true; clicked => { DownloadsUi.set-paused(false); } }
+                title: @tr("Téléchargements");
+                subtitle: @tr("Tout ce que Halcyon télécharge lui-même (Minecraft, mods, modpacks, Java, mises à jour de Halcyon) passe par cette file. Les jeux Steam, Epic et GOG sont téléchargés par leur client officiel.");
+                if !DownloadsUi.paused: SecondaryButton { y: 8px; text: @tr("Tout mettre en pause"); icon: Icons.clock; has-icon: true; clicked => { DownloadsUi.set-paused(true); } }
+                if DownloadsUi.paused: PrimaryButton { y: 8px; text: @tr("Reprendre"); icon: Icons.play; has-icon: true; clicked => { DownloadsUi.set-paused(false); } }
             }
 
             Rectangle {
                 height: stats.preferred-height;
                 stats := HorizontalLayout {
                     spacing: 40px;
-                    BigStat { value: DownloadsUi.speed; label: "vitesse actuelle"; }
-                    BigStat { value: DownloadsUi.running; label: "en cours"; }
-                    BigStat { value: DownloadsUi.received; label: "reçus depuis l'ouverture"; }
+                    BigStat { value: DownloadsUi.speed; label: @tr("vitesse actuelle"); }
+                    BigStat { value: DownloadsUi.running; label: @tr("en cours"); }
+                    BigStat { value: DownloadsUi.received; label: @tr("reçus depuis l'ouverture"); }
                     Rectangle { horizontal-stretch: 1; }
                     VerticalLayout {
                         spacing: 6px;
                         alignment: center;
-                        Overline { text: "Limite de débit"; }
+                        Overline { text: @tr("Limite de débit"); }
                         Dropdown {
                             align-left: true;
-                            options: ["Illimitée", "1 Mio/s", "5 Mio/s", "10 Mio/s", "25 Mio/s", "50 Mio/s"];
+                            options: [@tr("Illimitée"), @tr("1 Mio/s"), @tr("5 Mio/s"), @tr("10 Mio/s"), @tr("25 Mio/s"), @tr("50 Mio/s")];
                             selected: DownloadsUi.limit-kib == 1024 ? 1 : DownloadsUi.limit-kib == 5120 ? 2 : DownloadsUi.limit-kib == 10240 ? 3 : DownloadsUi.limit-kib == 25600 ? 4 : DownloadsUi.limit-kib == 51200 ? 5 : 0;
                             changed(i) => { DownloadsUi.set-limit(i == 1 ? 1024 : i == 2 ? 5120 : i == 3 ? 10240 : i == 4 ? 25600 : i == 5 ? 51200 : 0); }
                         }
@@ -80,7 +80,7 @@ export component DownloadsPage inherits Rectangle {
                     VerticalLayout {
                         spacing: 6px;
                         alignment: center;
-                        Overline { text: "Simultanés"; }
+                        Overline { text: @tr("Simultanés"); }
                         Dropdown {
                             align-left: true;
                             options: ["1", "2", "3", "4"];
@@ -90,10 +90,10 @@ export component DownloadsPage inherits Rectangle {
                     }
                 }
             }
-            if DownloadsUi.paused: Notice { warning: true; text: "En pause : les transferts en cours attendent sans rien perdre et reprennent là où ils se sont arrêtés."; }
+            if DownloadsUi.paused: Notice { warning: true; text: @tr("En pause : les transferts en cours attendent sans rien perdre et reprennent là où ils se sont arrêtés."); }
 
-            Rubric { title: "En cours et en attente"; note: DownloadsUi.active.length > 0 ? DownloadsUi.active.length + " élément(s)" : ""; }
-            if DownloadsUi.active.length == 0: Text { text: "Aucun téléchargement en cours. Les installations Minecraft, mods, modpacks et mises à jour de Halcyon apparaîtront ici."; color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
+            Rubric { title: @tr("En cours et en attente"); note: DownloadsUi.active.length > 0 ? @tr("{n} élément" | "{n} éléments" % DownloadsUi.active.length) : ""; }
+            if DownloadsUi.active.length == 0: Text { text: @tr("Aucun téléchargement en cours. Les installations Minecraft, mods, modpacks et mises à jour de Halcyon apparaîtront ici."); color: Theme.text-dim; font-size: Theme.t-small; wrap: word-wrap; }
             for t in DownloadsUi.active: TaskLine {
                 title: t.title;
                 detail: t.detail;
@@ -104,7 +104,7 @@ export component DownloadsPage inherits Rectangle {
                 cancel => { DownloadsUi.cancel-minecraft(); }
             }
 
-            Rubric { title: "Jeux des plateformes"; }
+            Rubric { title: @tr("Jeux des plateformes"); }
             Rectangle {
                 height: plat.preferred-height;
                 plat := HorizontalLayout {
@@ -116,13 +116,13 @@ export component DownloadsPage inherits Rectangle {
                         wrap: word-wrap;
                         color: Theme.text-muted;
                         font-size: Theme.t-small;
-                        text: DownloadsUi.platform-pending == 0 ? "Aucune mise à jour de jeu en attente dans Steam, Epic ou GOG." : DownloadsUi.platform-pending + " mise(s) à jour de jeux en attente, dont " + DownloadsUi.platform-downloading + " en cours de téléchargement dans le client de la plateforme.";
+                        text: DownloadsUi.platform-pending == 0 ? @tr("Aucune mise à jour de jeu en attente dans Steam, Epic ou GOG.") : @tr("{n} mise à jour de jeu en attente, dont {} en cours de téléchargement dans le client de la plateforme." | "{n} mises à jour de jeux en attente, dont {} en cours de téléchargement dans le client de la plateforme." % DownloadsUi.platform-pending, DownloadsUi.platform-downloading);
                     }
-                    SecondaryButton { h: 34px; text: "Mises à jour des jeux"; clicked => { Nav.go(Page.updates); } }
+                    SecondaryButton { h: 34px; text: @tr("Mises à jour des jeux"); clicked => { Nav.go(Page.updates); } }
                 }
             }
 
-            if DownloadsUi.history.length > 0: Rubric { title: "Terminés récemment"; }
+            if DownloadsUi.history.length > 0: Rubric { title: @tr("Terminés récemment"); }
             for t in DownloadsUi.history: TaskLine {
                 title: t.title;
                 detail: t.detail;
@@ -131,7 +131,7 @@ export component DownloadsPage inherits Rectangle {
                 time: t.time;
             }
 
-            Notice { text: "Chaque fichier est vérifié par son empreinte (SHA-1 Mojang et Modrinth, SHA-256 et signature pour Halcyon) avant d'être gardé. Après une coupure réseau, un fichier partiel reprend où il s'était arrêté si le serveur le permet."; }
+            Notice { text: @tr("Chaque fichier est vérifié par son empreinte (SHA-1 Mojang et Modrinth, SHA-256 et signature pour Halcyon) avant d'être gardé. Après une coupure réseau, un fichier partiel reprend où il s'était arrêté si le serveur le permet."); }
         }
     }
 }

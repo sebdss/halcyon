@@ -8,6 +8,7 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
+halcyon-i18n.workspace = true
 halcyon-core.workspace = true
 serde.workspace = true
 serde_json.workspace = true

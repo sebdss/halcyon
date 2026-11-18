@@ -121,12 +121,12 @@ pub fn detect(layout: &Layout) -> Vec<JavaInstall> {
         for e in rd.flatten() {
             let p = e.path();
             if let Some(exe) = exe_in(&p) {
-                candidates.push((exe, "système".into()));
+                candidates.push((exe, tr!("système").into()));
             } else if let Ok(rd2) = std::fs::read_dir(&p) {
                 // runtime/<composant>/<plateforme>/<composant>/bin (launcher officiel)
                 for e2 in rd2.flatten() {
                     if let Some(exe) = exe_in(&e2.path()).or_else(|| exe_in(&e2.path().join(e.file_name()))) {
-                        candidates.push((exe, "système".into()));
+                        candidates.push((exe, tr!("système").into()));
                     }
                 }
             }
@@ -167,7 +167,7 @@ pub fn mojang_runtime(layout: &Layout, component: &str) -> Option<PathBuf> {
 /// Télécharge le runtime officiel `component` (`java-runtime-delta`, `jre-legacy`…).
 pub fn install_runtime(http: &Http, layout: &Layout, component: &str, cancel: &AtomicBool, sink: Sink) -> Result<PathBuf> {
     if component.is_empty() || component.contains(['/', '\\', '.']) {
-        return Err(Error::Invalid(format!("composant Java refusé : {component}")));
+        return Err(Error::Invalid(tr!("composant Java refusé : {component}", component = component)));
     }
     sink(Event::Step(format!("Java ({component})")));
     let all = http.get_json(RUNTIMES, &[])?;
@@ -176,24 +176,24 @@ pub fn install_runtime(http: &Http, layout: &Layout, component: &str, cancel: &A
         .and_then(|p| p.get(component))
         .and_then(|c| c.as_array())
         .and_then(|a| a.first())
-        .ok_or_else(|| Error::Invalid(format!("Mojang ne publie pas « {component} » pour {}", platform_key())))?;
-    let url = entry.pointer("/manifest/url").and_then(|u| u.as_str()).ok_or_else(|| Error::Invalid("manifeste Java incomplet".into()))?;
+        .ok_or_else(|| Error::Invalid(tr!("Mojang ne publie pas « {component} » pour {platform_key}", component = component, platform_key = platform_key())))?;
+    let url = entry.pointer("/manifest/url").and_then(|u| u.as_str()).ok_or_else(|| Error::Invalid(tr!("manifeste Java incomplet").into()))?;
     let manifest = http.get_json(url, &[])?;
-    let files = manifest.get("files").and_then(|f| f.as_object()).ok_or_else(|| Error::Invalid("manifeste Java vide".into()))?;
+    let files = manifest.get("files").and_then(|f| f.as_object()).ok_or_else(|| Error::Invalid(tr!("manifeste Java vide").into()))?;
     let dir = layout.runtime().join(component);
     let mut jobs = Vec::new();
     let mut executables = Vec::new();
     let mut links = Vec::new();
     for (rel, f) in files {
         if rel.split(['/', '\\']).any(|c| c == "..") || Path::new(rel).is_absolute() {
-            return Err(Error::Invalid(format!("chemin refusé dans le runtime Java : {rel}")));
+            return Err(Error::Invalid(tr!("chemin refusé dans le runtime Java : {rel}", rel = rel)));
         }
         match f.get("type").and_then(|t| t.as_str()) {
             Some("directory") => {
                 std::fs::create_dir_all(dir.join(rel)).map_err(|e| Error::Disk(e.to_string()))?;
             }
             Some("file") => {
-                let raw = f.pointer("/downloads/raw").ok_or_else(|| Error::Invalid(format!("{rel} sans téléchargement")))?;
+                let raw = f.pointer("/downloads/raw").ok_or_else(|| Error::Invalid(tr!("{rel} sans téléchargement", rel = rel)))?;
                 jobs.push(Job {
                     url: raw.get("url").and_then(|u| u.as_str()).unwrap_or_default().to_string(),
                     dest: dir.join(rel),
@@ -225,7 +225,7 @@ pub fn install_runtime(http: &Http, layout: &Layout, component: &str, cancel: &A
         }
     }
     let _ = (&executables, &links);
-    exe_in(&dir).ok_or_else(|| Error::Invalid(format!("runtime {component} installé sans exécutable java")))
+    exe_in(&dir).ok_or_else(|| Error::Invalid(tr!("runtime {component} installé sans exécutable java", component = component)))
 }
 
 #[cfg(test)]

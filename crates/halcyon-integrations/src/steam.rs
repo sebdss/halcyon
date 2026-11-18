@@ -79,8 +79,8 @@ impl GameScanner for SteamScanner {
     }
 
     fn scan(&self, ctx: &ScanContext) -> halcyon_core::Result<ScanReport> {
-        let root = self.root().ok_or_else(|| io_err("Steam n'a pas été trouvé sur cet ordinateur"))?;
-        ctx.progress("Steam : lecture des bibliothèques…");
+        let root = self.root().ok_or_else(|| io_err(&tr!("Steam n'a pas été trouvé sur cet ordinateur")))?;
+        ctx.progress(&tr!("Steam : lecture des bibliothèques…"));
         let mut report = ScanReport { complete: true, ..Default::default() };
 
         let libraries = library_folders(&root, &mut report.warnings);
@@ -96,7 +96,7 @@ impl GameScanner for SteamScanner {
                 Ok(e) => e,
                 Err(e) => {
                     // Disque débranché : on ne peut pas conclure que ses jeux sont désinstallés.
-                    report.warnings.push(format!("bibliothèque Steam inaccessible {} : {e}", lib.display()));
+                    report.warnings.push(tr!("bibliothèque Steam inaccessible {lib} : {e}", lib = lib.display(), e = e));
                     report.complete = false;
                     continue;
                 }
@@ -123,11 +123,11 @@ impl GameScanner for SteamScanner {
         }
         if let Some(web) = &self.web {
             if !ctx.is_cancelled() {
-                ctx.progress("Steam : jeux possédés (en ligne)…");
+                ctx.progress(&tr!("Steam : jeux possédés (en ligne)…"));
                 let dl = crate::artwork::Downloader::new();
                 match web.owned_games(&dl) {
                     Ok(owned) => merge_owned(&mut report.games, owned, &root),
-                    Err(e) => report.warnings.push(format!("jeux possédés indisponibles : {e}")),
+                    Err(e) => report.warnings.push(tr!("jeux possédés indisponibles : {e}", e = e)),
                 }
             }
         }
@@ -177,7 +177,7 @@ fn library_folders(root: &Path, warnings: &mut Vec<String>) -> Vec<PathBuf> {
                 }
             }
         }
-        Err(e) if path.exists() => warnings.push(format!("libraryfolders.vdf : {e}")),
+        Err(e) if path.exists() => warnings.push(tr!("libraryfolders.vdf : {e}", e = e)),
         Err(_) => {}
     }
     out
@@ -186,9 +186,9 @@ fn library_folders(root: &Path, warnings: &mut Vec<String>) -> Vec<PathBuf> {
 fn parse_manifest(path: &Path, steamapps: &Path) -> Result<Option<DiscoveredGame>, String> {
     let text = read_text(path).map_err(|e| e.to_string())?;
     let v = Vdf::parse(&text).map_err(|e| e.to_string())?;
-    let app = v.get("AppState").ok_or("section AppState absente")?;
-    let appid = app.get_u64("appid").ok_or("appid absent")?;
-    let name = app.get_str("name").map(str::trim).filter(|n| !n.is_empty()).ok_or("nom absent")?;
+    let app = v.get("AppState").ok_or(tr!("section AppState absente"))?;
+    let appid = app.get_u64("appid").ok_or(tr!("appid absent"))?;
+    let name = app.get_str("name").map(str::trim).filter(|n| !n.is_empty()).ok_or(tr!("nom absent"))?;
     if NON_GAME_APPIDS.contains(&appid) || NON_GAME_PREFIXES.iter().any(|p| name.starts_with(p)) {
         return Ok(None);
     }

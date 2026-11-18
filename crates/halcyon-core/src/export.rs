@@ -42,14 +42,24 @@ fn line(fields: &[String]) -> String {
 }
 
 pub fn games_csv(games: &[Game]) -> String {
-    let mut out = line(&["id", "nom", "source", "installé", "favori", "statut", "temps_de_jeu_s", "temps_de_jeu_h", "dernier_lancement"].map(String::from));
+    let mut out = line(&[
+        "id".to_string(),
+        trc!("csv", "nom"),
+        trc!("csv", "source"),
+        trc!("csv", "installé"),
+        trc!("csv", "favori"),
+        trc!("csv", "statut"),
+        trc!("csv", "temps_de_jeu_s"),
+        trc!("csv", "temps_de_jeu_h"),
+        trc!("csv", "dernier_lancement"),
+    ]);
     for g in games.iter().filter(|g| !g.hidden) {
         out.push_str(&line(&[
             g.id.to_string(),
             g.name.clone(),
             g.source.label().to_string(),
-            if g.installed { "oui" } else { "non" }.into(),
-            if g.favorite { "oui" } else { "non" }.into(),
+            if g.installed { tr!("oui") } else { tr!("non") },
+            if g.favorite { tr!("oui") } else { tr!("non") },
             g.status.label().to_string(),
             g.playtime_secs.to_string(),
             format!("{:.2}", g.playtime_secs as f64 / 3600.0),
@@ -61,7 +71,14 @@ pub fn games_csv(games: &[Game]) -> String {
 
 pub fn sessions_csv(sessions: &[SessionRow], games: &[Game]) -> String {
     let names: HashMap<GameId, &str> = games.iter().map(|g| (g.id, g.name.as_str())).collect();
-    let mut out = line(&["id_jeu", "jeu", "début", "fin", "durée_s", "durée_min"].map(String::from));
+    let mut out = line(&[
+        trc!("csv", "id_jeu"),
+        trc!("csv", "jeu"),
+        trc!("csv", "début"),
+        trc!("csv", "fin"),
+        trc!("csv", "durée_s"),
+        trc!("csv", "durée_min"),
+    ]);
     for s in sessions {
         out.push_str(&line(&[
             s.game_id.to_string(),

@@ -136,20 +136,20 @@ impl Controller {
     pub(crate) fn start_ach_sync(&self, only: Option<GameId>, force: bool) {
         if !self.net_allowed() {
             if only.is_some() && force {
-                self.toast("Hors ligne : les succès seront synchronisés au retour de la connexion", false);
+                self.toast(tr!("Hors ligne : les succès seront synchronisés au retour de la connexion"), false);
             }
             return;
         }
         let cfg = self.sync_config();
         if cfg.steam.is_none() && cfg.ra.is_none() {
             if only.is_some() {
-                self.toast("Configurez vos comptes Steam / RetroAchievements dans les paramètres", true);
+                self.toast(tr!("Configurez vos comptes Steam / RetroAchievements dans les paramètres"), true);
             }
             return;
         }
         if self.ach_syncing.replace(true) {
             if only.is_some() {
-                self.toast("Une synchronisation est déjà en cours", false);
+                self.toast(tr!("Une synchronisation est déjà en cours"), false);
             }
             return;
         }
@@ -189,11 +189,11 @@ impl Controller {
         if candidates.is_empty() {
             self.ach_syncing.set(false);
             if only.is_some() {
-                self.toast("Rien à synchroniser pour ce jeu", false);
+                self.toast(tr!("Rien à synchroniser pour ce jeu"), false);
             }
             return;
         }
-        self.set_sync_ui(true, &format!("Synchronisation de {} jeu(x)…", candidates.len()));
+        self.set_sync_ui(true, &trn!(candidates.len(), "Synchronisation de {n} jeu…", "Synchronisation de {n} jeux…"));
         let db = self.db.clone();
         std::thread::Builder::new()
             .name("halcyon-achievements".into())
@@ -204,13 +204,13 @@ impl Controller {
                 let mut errors = Vec::new();
                 for (i, c) in candidates.iter().enumerate() {
                     if total > 1 && i % 5 == 0 {
-                        let msg = format!("Succès : {}/{total}", i + 1);
+                        let msg = tr!("Succès : {v}/{total}", v = i + 1, total = total);
                         post(move |ctl| ctl.set_sync_ui(true, &msg));
                     }
                     match sync_one(c, &cfg, &dl, &db) {
                         Ok(mut u) => unlocks.append(&mut u),
                         Err(FetchError::Network(e)) => {
-                            errors.push(format!("réseau : {e}"));
+                            errors.push(tr!("réseau : {e}", e = e));
                             break;
                         }
                         Err(FetchError::Unavailable(e)) => errors.push(format!("{} : {e}", c.name)),
@@ -225,7 +225,7 @@ impl Controller {
 
     fn set_sync_ui(&self, syncing: bool, status: &str) {
         if syncing {
-            let id = self.task_start("ach", "Synchronisation des succès");
+            let id = self.task_start("ach", &tr!("Synchronisation des succès"));
             self.task_update(id, None, Some(status));
         }
         if let Some(app) = self.app() {
@@ -244,11 +244,11 @@ impl Controller {
         }
         self.reload_progress();
         let status = match errors.first() {
-            Some(e) => format!("{total} jeu(x) traités · {} erreur(s) — {e}", errors.len()),
-            None => format!("Synchronisé à {} · {total} jeu(x)", clock_now()),
+            Some(e) => tr!("Jeux traités : {total} · erreurs : {errors} — {e}", total = total, errors = errors.len(), e = e),
+            None => trn!(total, "Synchronisé à {clock_now} · {n} jeu", "Synchronisé à {clock_now} · {n} jeux", clock_now = clock_now()),
         };
         let unlocked = unlocks.len();
-        let detail = if unlocked > 0 { format!("{status} · {unlocked} nouveau(x) succès") } else { status.clone() };
+        let detail = if unlocked > 0 { trn!(unlocked, "{status} · {n} nouveau succès", "{status} · {n} nouveaux succès", status = status) } else { status.clone() };
         let id = self.tasks.borrow().find_kind("ach");
         if let Some(id) = id {
             self.task_finish(id, errors.is_empty(), detail, crate::tasks::Action::OpenPage("achievements"));
@@ -330,7 +330,7 @@ impl Controller {
         if unlocks.len() > 3 {
             if notify {
                 crate::notify::achievement(
-                    &format!("{} succès débloqués", unlocks.len()),
+                    &trn!(unlocks.len(), "{n} succès débloqué", "{n} succès débloqués"),
                     "",
                     &unlocks[0].game,
                     None,
@@ -369,7 +369,7 @@ impl Controller {
         let d = &a.data;
         let date = match (d.unlocked, d.unlocked_at) {
             (true, Some(t)) => util::format_date(t),
-            (true, None) => "Débloqué".into(),
+            (true, None) => tr!("Débloqué").into(),
             _ => String::new(),
         };
         let progress = d.progress.filter(|(_, max)| *max > 0.0);
@@ -386,7 +386,7 @@ impl Controller {
             rarity: d.rarity.map(|r| format!("{} · {r:.1} %", rarity_label(r))).unwrap_or_default().into(),
             rarity_pct: d.rarity.unwrap_or(100.0),
             has_rarity: d.rarity.is_some(),
-            points: d.points.map(|p| format!("{p} points")).unwrap_or_default().into(),
+            points: d.points.map(|p| trn!(p, "{n} point", "{n} points")).unwrap_or_default().into(),
             hardcore: d.unlocked_hardcore_at.is_some(),
             hidden: d.hidden,
             progress: progress.map(|(c, m)| (c / m) as f32).unwrap_or(0.0),
@@ -405,15 +405,15 @@ impl Controller {
         let unlocked = list.iter().filter(|a| a.data.unlocked).count();
         let mode = self.ach_mode(g);
         let summary = match (mode, list.len()) {
-            ("epic", _) => "Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici.".to_string(),
-            ("unsupported", _) => "Cette plateforme n'est pas prise en charge par RetroAchievements.".to_string(),
+            ("epic", _) => tr!("Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici."),
+            ("unsupported", _) => tr!("Cette plateforme n'est pas prise en charge par RetroAchievements."),
             ("unconfigured", _) if g.source == GameSource::Steam => {
-                "Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam.".to_string()
+                tr!("Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam.")
             }
-            ("unconfigured", _) => "Renseignez votre compte RetroAchievements dans les paramètres.".to_string(),
-            ("custom", 0) => "Aucun succès personnalisé pour l'instant.".to_string(),
-            (_, 0) => "Aucun succès synchronisé pour ce jeu.".to_string(),
-            (_, n) => format!("{unlocked} / {n} succès débloqués"),
+            ("unconfigured", _) => tr!("Renseignez votre compte RetroAchievements dans les paramètres."),
+            ("custom", 0) => tr!("Aucun succès personnalisé pour l'instant."),
+            (_, 0) => tr!("Aucun succès synchronisé pour ce jeu."),
+            (_, n) => trn!(n, "{unlocked} / {n} succès débloqué", "{unlocked} / {n} succès débloqués", unlocked = halcyon_i18n::number(unlocked as u64)),
         };
         let provider = match g.source {
             GameSource::Steam => Some(AchievementProvider::Steam),
@@ -425,15 +425,15 @@ impl Controller {
             .map(|(t, s)| {
                 let when = util::format_relative(t, now_unix()).to_lowercase();
                 match s {
-                    SyncStatus::Ok => format!("Synchronisé {when}"),
-                    SyncStatus::NoAchievements => format!("Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})"),
+                    SyncStatus::Ok => tr!("Synchronisé {when}", when = when),
+                    SyncStatus::NoAchievements => tr!("Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})", when = when),
                     SyncStatus::NotRecognized => {
-                        "ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres.".into()
+                        tr!("ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres.").into()
                     }
-                    SyncStatus::Error(e) => format!("Dernière tentative {when} : {e}"),
+                    SyncStatus::Error(e) => tr!("Dernière tentative {when} : {e}", when = when, e = e),
                 }
             })
-            .unwrap_or_else(|| if mode == "custom" { "Succès locaux, non vérifiés par une plateforme.".into() } else { String::new() });
+            .unwrap_or_else(|| if mode == "custom" { tr!("Succès locaux, non vérifiés par une plateforme.").into() } else { String::new() });
         dui.set_achievements(ModelRc::new(VecModel::from(rows)));
         dui.set_ach_summary(summary.into());
         dui.set_ach_status(status.into());
@@ -531,17 +531,17 @@ impl Controller {
         let v = value.trim();
         let parsed = if v.is_empty() { None } else { v.parse::<u32>().ok() };
         if !v.is_empty() && parsed.is_none() {
-            self.toast("L'identifiant RetroAchievements est un nombre", true);
+            self.toast(tr!("L'identifiant RetroAchievements est un nombre"), true);
             return;
         }
         if let Err(e) = self.db().set_ra_game_id(id, parsed) {
-            self.toast(format!("Erreur : {e}"), true);
+            self.toast(tr!("Erreur : {e}", e = e), true);
             return;
         }
         if let Some(g) = self.lib.borrow_mut().get_mut(id) {
             g.ra_game_id = parsed;
         }
-        self.toast("Identifiant enregistré", false);
+        self.toast(tr!("Identifiant enregistré"), false);
         self.start_ach_sync(Some(id), true);
     }
 }
@@ -602,7 +602,7 @@ fn sync_one(c: &Candidate, cfg: &SyncConfig, dl: &Downloader, db: &Arc<Mutex<Dat
     };
     let newly = lock()
         .merge_achievements(c.id, provider, &list)
-        .map_err(|e| FetchError::Unavailable(format!("base de données : {e}")))?;
+        .map_err(|e| FetchError::Unavailable(tr!("base de données : {e}", e = e)))?;
     // Icônes des nouveaux succès téléchargées tout de suite (pour la notification).
     Ok(newly
         .into_iter()

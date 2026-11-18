@@ -8,5 +8,6 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
+halcyon-i18n.workspace = true
 log.workspace = true
 cpal = "0.18"

@@ -28,10 +28,10 @@ pub enum Adapter {
 impl Adapter {
     pub fn label(&self) -> String {
         match self {
-            Adapter::Generic { target } if target.is_empty() => "Copie dans le dossier du jeu".into(),
-            Adapter::Generic { target } => format!("Copie dans {target}"),
+            Adapter::Generic { target } if target.is_empty() => tr!("Copie dans le dossier du jeu").into(),
+            Adapter::Generic { target } => tr!("Copie dans {target}", target = target),
             Adapter::BepInEx => "BepInEx (Unity)".into(),
-            Adapter::UnrealPaks { paks } => format!("Paquets Unreal ({paks}/~mods)"),
+            Adapter::UnrealPaks { paks } => tr!("Paquets Unreal ({paks}/~mods)", paks = paks),
         }
     }
 
@@ -85,7 +85,7 @@ fn sanitize(s: &str) -> String {
 /// Adaptateur conseillé d'après les fichiers du jeu, avec explication.
 pub fn suggest(install_dir: &Path) -> (Adapter, String) {
     if install_dir.join("BepInEx").is_dir() {
-        return (Adapter::BepInEx, "BepInEx est installé dans ce jeu.".into());
+        return (Adapter::BepInEx, tr!("BepInEx est installé dans ce jeu.").into());
     }
     // Unreal : premier dossier contenant Content/Paks.
     if let Ok(entries) = std::fs::read_dir(install_dir) {
@@ -93,17 +93,17 @@ pub fn suggest(install_dir: &Path) -> (Adapter, String) {
             let paks = e.path().join("Content").join("Paks");
             if paks.is_dir() {
                 let rel = format!("{}/Content/Paks", e.file_name().to_string_lossy());
-                return (Adapter::UnrealPaks { paks: rel }, "Jeu Unreal Engine : les mods sont des paquets .pak.".into());
+                return (Adapter::UnrealPaks { paks: rel }, tr!("Jeu Unreal Engine : les mods sont des paquets .pak.").into());
             }
         }
     }
     if crate::engines::detect(install_dir) == halcyon_core::profiles::Engine::Unity {
         return (
             Adapter::Generic { target: String::new() },
-            "Jeu Unity sans BepInEx : installez BepInEx (en tant que mod) puis choisissez l'adaptateur BepInEx.".into(),
+            tr!("Jeu Unity sans BepInEx : installez BepInEx (en tant que mod) puis choisissez l'adaptateur BepInEx.").into(),
         );
     }
-    (Adapter::Generic { target: String::new() }, "Méthode générique : les fichiers du mod sont copiés dans le dossier du jeu.".into())
+    (Adapter::Generic { target: String::new() }, tr!("Méthode générique : les fichiers du mod sont copiés dans le dossier du jeu.").into())
 }
 
 /// Mod de la bibliothèque.
@@ -222,7 +222,7 @@ impl ModStore {
         } else if src.extension().is_some_and(|e| e.eq_ignore_ascii_case("zip")) {
             archive::extract_prefix(src, "", &files_dir).map(|_| ())
         } else {
-            Err(io::Error::other("format non pris en charge : utilisez une archive .zip ou un dossier"))
+            Err(io::Error::other(tr!("format non pris en charge : utilisez une archive .zip ou un dossier")))
         };
         if let Err(e) = result {
             let _ = std::fs::remove_dir_all(&dir);
@@ -250,10 +250,10 @@ impl ModStore {
     /// Supprime un mod de la bibliothèque (refusé s'il est déployé).
     pub fn remove(&self, key: &str, id: &str) -> io::Result<()> {
         if self.deployment(key).files.iter().any(|f| f.mod_id == id) {
-            return Err(io::Error::other("ce mod est actuellement installé dans le jeu : retirez les mods d'abord"));
+            return Err(io::Error::other(tr!("ce mod est actuellement installé dans le jeu : retirez les mods d'abord")));
         }
         if id.contains(['/', '\\']) || id.contains("..") {
-            return Err(io::Error::other("identifiant invalide"));
+            return Err(io::Error::other(tr!("identifiant invalide")));
         }
         std::fs::remove_dir_all(self.mod_dir(key, id))
     }
@@ -345,19 +345,16 @@ impl ModStore {
     /// Déploie un plan (les mods déjà déployés sont retirés d'abord).
     pub fn deploy(&self, key: &str, install_dir: &Path, plan: &Plan, profile: Option<i64>, now: i64) -> io::Result<Deployment> {
         if !install_dir.is_dir() {
-            return Err(io::Error::other("dossier du jeu introuvable"));
+            return Err(io::Error::other(tr!("dossier du jeu introuvable")));
         }
         let report = self.undeploy(key, install_dir)?;
         if !report.kept_modified.is_empty() {
-            return Err(io::Error::other(format!(
-                "{} fichier(s) de mods ont été modifiés depuis leur installation ; vérifiez-les avant de redéployer",
-                report.kept_modified.len()
-            )));
+            return Err(io::Error::other(trn!(report.kept_modified.len(), "{n} fichier de mod a été modifié depuis son installation ; vérifiez-le avant de redéployer", "{n} fichiers de mods ont été modifiés depuis leur installation ; vérifiez-les avant de redéployer")));
         }
         let backup = self.game(key).join("backup");
         let mut d = Deployment { profile, at: now, ..Default::default() };
         for (target, mod_id, src) in &plan.files {
-            let rel = safe_relative(target).ok_or_else(|| io::Error::other(format!("chemin refusé : {target}")))?;
+            let rel = safe_relative(target).ok_or_else(|| io::Error::other(tr!("chemin refusé : {target}", target = target)))?;
             let full = install_dir.join(&rel);
             // Dossiers créés (retirés s'ils redeviennent vides).
             let mut cur = install_dir.to_path_buf();
@@ -432,7 +429,7 @@ fn flatten_single_root(dir: &Path) -> io::Result<()> {
 pub fn nexus_latest(dl: &crate::artwork::Downloader, api_key: &str, domain: &str, mod_id: u64) -> Result<String, String> {
     let url = format!("https://api.nexusmods.com/v1/games/{domain}/mods/{mod_id}.json");
     let v = dl.get_json_with(&url, &[("apikey", api_key), ("accept", "application/json")]).map_err(|e| e.to_string())?;
-    v.get("version").and_then(|x| x.as_str()).map(str::to_string).ok_or_else(|| "réponse inattendue de Nexus Mods".into())
+    v.get("version").and_then(|x| x.as_str()).map(str::to_string).ok_or_else(|| tr!("réponse inattendue de Nexus Mods").into())
 }
 
 #[cfg(test)]

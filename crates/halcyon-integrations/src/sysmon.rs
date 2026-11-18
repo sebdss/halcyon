@@ -150,7 +150,7 @@ impl Monitor {
             snap.gpus = g
                 .iter()
                 .map(|g| GpuStat {
-                    name: g.model().or(g.vendor()).unwrap_or("Carte graphique").to_string(),
+                    name: g.model().or(g.vendor()).unwrap_or(&tr!("Carte graphique")).to_string(),
                     usage: g.usage().map(|u| u.clamp(0.0, 100.0)),
                     vram_used_mb: g.used_memory().map(|v| v / MIB),
                     vram_total_mb: g.total_memory().map(|v| v / MIB),
@@ -296,8 +296,8 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
         out.push(Recommendation {
             id: "ram-high",
             level: Level::Warning,
-            title: format!("Mémoire presque pleine ({ram:.0} %)"),
-            detail: if top.is_empty() { "Fermez les applications inutiles avant de jouer.".into() } else { format!("Plus gros consommateurs : {}. Fermez celles dont vous n'avez pas besoin avant de jouer.", top.join(", ")) },
+            title: tr!("Mémoire presque pleine ({ram} %)", ram = format!("{:.0}", ram)),
+            detail: if top.is_empty() { tr!("Fermez les applications inutiles avant de jouer.").into() } else { tr!("Plus gros consommateurs : {join}. Fermez celles dont vous n'avez pas besoin avant de jouer.", join = top.join(", ")) },
             action: None,
         });
     }
@@ -305,8 +305,8 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
         out.push(Recommendation {
             id: "swap",
             level: Level::Warning,
-            title: format!("{} de mémoire d'échange utilisés", fmt_mb(s.swap_used_mb)),
-            detail: "Le système déplace de la mémoire vers le disque : cela provoque des saccades en jeu.".into(),
+            title: tr!("{swap_used_mb} de mémoire d'échange utilisés", swap_used_mb = fmt_mb(s.swap_used_mb)),
+            detail: tr!("Le système déplace de la mémoire vers le disque : cela provoque des saccades en jeu.").into(),
             action: None,
         });
     }
@@ -315,8 +315,8 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
             out.push(Recommendation {
                 id: "cpu-app",
                 level: Level::Warning,
-                title: format!("{} utilise {:.0} % du processeur", a.name, a.cpu),
-                detail: "Hors partie, cette charge réduira la marge disponible pour vos jeux.".into(),
+                title: tr!("{name} utilise {cpu} % du processeur", name = a.name, cpu = format!("{:.0}", a.cpu)),
+                detail: tr!("Hors partie, cette charge réduira la marge disponible pour vos jeux.").into(),
                 action: None,
             });
         }
@@ -324,8 +324,8 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
             out.push(Recommendation {
                 id: "gpu-busy",
                 level: Level::Info,
-                title: format!("Carte graphique occupée ({g:.0} % en moyenne) sans partie en cours"),
-                detail: "Une application (vidéo, navigateur, enregistrement) utilise la carte graphique.".into(),
+                title: tr!("Carte graphique occupée ({g} % en moyenne) sans partie en cours", g = format!("{:.0}", g)),
+                detail: tr!("Une application (vidéo, navigateur, enregistrement) utilise la carte graphique.").into(),
                 action: None,
             });
         }
@@ -336,8 +336,8 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
             out.push(Recommendation {
                 id: "disk-low",
                 level: if d.free_mb < 5 * 1024 { Level::Warning } else { Level::Info },
-                title: format!("Peu d'espace libre sur {} ({})", d.mount, fmt_mb(d.free_mb)),
-                detail: "Les mises à jour de jeux et la mémoire virtuelle ont besoin d'espace libre.".into(),
+                title: tr!("Peu d'espace libre sur {mount} ({free_mb})", mount = d.mount, free_mb = fmt_mb(d.free_mb)),
+                detail: tr!("Les mises à jour de jeux et la mémoire virtuelle ont besoin d'espace libre.").into(),
                 action: None,
             });
         }
@@ -346,8 +346,8 @@ pub fn recommend(s: &Snapshot, h: &History, ctx: RecoContext) -> Vec<Recommendat
         out.push(Recommendation {
             id: "perf-mode",
             level: Level::Info,
-            title: "Mode Performance de Halcyon désactivé".into(),
-            detail: "Il coupe animations et effets de Halcyon et reporte ses tâches secondaires. Désactivable à tout moment.".into(),
+            title: tr!("Mode Performance de Halcyon désactivé").into(),
+            detail: tr!("Il coupe animations et effets de Halcyon et reporte ses tâches secondaires. Désactivable à tout moment.").into(),
             action: Some(RecoAction::EnablePerformanceMode),
         });
     }
@@ -364,9 +364,9 @@ fn top_by_ram(apps: &[AppUsage], n: usize) -> Vec<&AppUsage> {
 /// « 512 Mo », « 3,4 Go ».
 pub fn fmt_mb(mb: u64) -> String {
     if mb >= 1024 {
-        format!("{:.1} Go", mb as f64 / 1024.0).replace('.', ",")
+        tr!("{v} Go", v = halcyon_i18n::decimal(mb as f64 / 1024.0, 1))
     } else {
-        format!("{mb} Mo")
+        tr!("{v} Mo", v = halcyon_i18n::number(mb))
     }
 }
 

@@ -153,7 +153,7 @@ impl Controller {
     pub(crate) fn install_plugin(self: &Rc<Self>, path: &str) {
         let src = PathBuf::from(path.trim());
         if !src.exists() {
-            self.plugins_status("Chemin introuvable");
+            self.plugins_status(&tr!("Chemin introuvable"));
             return;
         }
         let staging = self.plugin_staging();
@@ -161,7 +161,7 @@ impl Controller {
             Ok(m) => m,
             Err(e) => {
                 let _ = std::fs::remove_dir_all(&staging);
-                self.plugins_status(format!("Extension refusée : {e}"));
+                self.plugins_status(tr!("Extension refusée : {e}", e = e));
                 return;
             }
         };
@@ -172,27 +172,27 @@ impl Controller {
             Err(e) => {
                 let _ = std::fs::remove_dir_all(&staging);
                 halcyon_storage::audit::event("plugin.rejected", &format!("{} : {e}", manifest.id));
-                self.plugins_status(format!("Extension refusée : {e}"));
+                self.plugins_status(tr!("Extension refusée : {e}", e = e));
                 return;
             }
         };
         if let Err(e) = halcyon_integrations::plugin_trust::check_replacement(existing.as_ref().and_then(|p| p.trust.as_ref()), &trust) {
             let _ = std::fs::remove_dir_all(&staging);
             halcyon_storage::audit::event("plugin.rejected", &format!("{} : {e}", manifest.id));
-            self.plugins_status(format!("Extension refusée : {e}"));
+            self.plugins_status(tr!("Extension refusée : {e}", e = e));
             return;
         }
         let trust_label = trust.label();
         let mut text = format!("{trust_label}\n{}", manifest.permission_summary().join("\n"));
         if let Some(old) = existing.as_ref().and_then(|p| p.manifest.as_ref()) {
-            text = format!("Remplace la version {} installée.\n{text}", old.version);
+            text = tr!("Remplace la version {version} installée.\n{text}", version = old.version, text = text);
         }
-        text.push_str("\n\nL'extension sera installée désactivée : vous pourrez l'activer ensuite.");
+        text.push_str(&tr!("\n\nL'extension sera installée désactivée : vous pourrez l'activer ensuite."));
         let id = manifest.id.clone();
         let name = manifest.name.clone();
         let perms = manifest.permissions.clone();
         let old_perms = existing.and_then(|p| p.manifest).map(|m| m.permissions);
-        self.confirm(&format!("Installer « {} » {} ?", manifest.name, manifest.version), &text, "Installer", move |c| {
+        self.confirm(&tr!("Installer « {name} » {version} ?", name = manifest.name, version = manifest.version), &text, &tr!("Installer"), move |c| {
             match plugins::install(&c.plugin_staging(), &c.plugins_dir(), &id) {
                 Ok(_) => {
                     // Une mise à jour qui demande d'autres autorisations doit être réactivée.
@@ -201,12 +201,12 @@ impl Controller {
                         c.save_settings();
                     }
                     c.plugin_updates.borrow_mut().remove(&id);
-                    c.log_plugin(&format!("Extension « {name} » installée"));
+                    c.log_plugin(&tr!("Extension « {name} » installée", name = name));
                     halcyon_storage::audit::event("plugin.installed", &format!("{id} permissions=[{}] {trust_label}", perms.join(", ")));
-                    c.plugins_status(format!("« {name} » installée"));
+                    c.plugins_status(tr!("« {name} » installée", name = name));
                     c.apply_plugins();
                 }
-                Err(e) => c.plugins_status(format!("Installation impossible : {e}")),
+                Err(e) => c.plugins_status(tr!("Installation impossible : {e}", e = e)),
             }
         });
     }
@@ -216,30 +216,30 @@ impl Controller {
         if !on {
             self.settings.borrow_mut().plugins_enabled.retain(|x| *x != id);
             self.save_settings();
-            self.log_plugin(&format!("Extension « {id} » désactivée"));
+            self.log_plugin(&tr!("Extension « {id} » désactivée", id = id));
             halcyon_storage::audit::event("plugin.disabled", &id);
             self.apply_plugins();
             return;
         }
         let Some(p) = plugins::list(&self.plugins_dir(), VERSION).into_iter().find(|p| p.id() == id) else { return };
         let Some(m) = p.manifest.clone().filter(|_| p.usable()) else {
-            self.plugins_status("Extension inutilisable : corrigez les erreurs indiquées");
+            self.plugins_status(&tr!("Extension inutilisable : corrigez les erreurs indiquées"));
             self.refresh_plugins_ui();
             return;
         };
         let text = m.permission_summary().join("\n");
         // L'interrupteur revient à sa position si la confirmation est refusée.
         self.refresh_plugins_ui();
-        self.confirm(&format!("Activer « {} » ?", m.name), &text, "Activer", move |c| {
+        self.confirm(&tr!("Activer « {name} » ?", name = m.name), &text, &tr!("Activer"), move |c| {
             let mut s = c.settings.borrow_mut();
             if !s.plugins_enabled.contains(&id) {
                 s.plugins_enabled.push(id.clone());
             }
             drop(s);
             c.save_settings();
-            c.log_plugin(&format!("Extension « {} » activée", m.name));
+            c.log_plugin(&tr!("Extension « {name} » activée", name = m.name));
             halcyon_storage::audit::event("plugin.enabled", &format!("{id} permissions=[{}]", m.permissions.join(", ")));
-            c.plugins_status(format!("« {} » activée", m.name));
+            c.plugins_status(tr!("« {name} » activée", name = m.name));
             c.apply_plugins();
         });
     }
@@ -251,34 +251,34 @@ impl Controller {
             return;
         }
         self.confirm(
-            &format!("Désinstaller « {id} » ?"),
-            "Le dossier de l'extension est supprimé. Vos jeux, sauvegardes et paramètres ne sont pas modifiés ; un thème fourni par l'extension est remplacé par le thème Halcyon.",
-            "Désinstaller",
+            &tr!("Désinstaller « {id} » ?", id = id),
+            &tr!("Le dossier de l'extension est supprimé. Vos jeux, sauvegardes et paramètres ne sont pas modifiés ; un thème fourni par l'extension est remplacé par le thème Halcyon."),
+            &tr!("Désinstaller"),
             move |c| match std::fs::remove_dir_all(&dir) {
                 Ok(()) => {
                     halcyon_storage::audit::event("plugin.uninstalled", &id);
                     c.settings.borrow_mut().plugins_enabled.retain(|x| *x != id);
                     c.save_settings();
-                    c.log_plugin(&format!("Extension « {id} » désinstallée"));
-                    c.plugins_status(format!("« {id} » désinstallée"));
+                    c.log_plugin(&tr!("Extension « {id} » désinstallée", id = id));
+                    c.plugins_status(tr!("« {id} » désinstallée", id = id));
                     c.apply_plugins();
                 }
-                Err(e) => c.plugins_status(format!("Suppression impossible : {e}")),
+                Err(e) => c.plugins_status(tr!("Suppression impossible : {e}", e = e)),
             },
         );
     }
 
     pub(crate) fn check_plugin_updates(&self) {
         if !self.net_allowed() {
-            self.plugins_status("Hors ligne : vérification impossible");
+            self.plugins_status(&tr!("Hors ligne : vérification impossible"));
             return;
         }
         let list: Vec<Manifest> = plugins::list(&self.plugins_dir(), VERSION).into_iter().filter_map(|p| p.manifest).collect();
         if !list.iter().any(|m| !m.update_url.is_empty()) {
-            self.plugins_status("Aucune extension n'indique d'adresse de mise à jour");
+            self.plugins_status(&tr!("Aucune extension n'indique d'adresse de mise à jour"));
             return;
         }
-        self.plugins_status("Vérification…");
+        self.plugins_status(&tr!("Vérification…"));
         std::thread::Builder::new()
             .name("halcyon-plugin-updates".into())
             .spawn(move || {
@@ -297,9 +297,9 @@ impl Controller {
                 post(move |c| {
                     let n = found.len();
                     *c.plugin_updates.borrow_mut() = found;
-                    let mut msg = if n == 0 { "Toutes les extensions sont à jour".to_string() } else { format!("{n} mise(s) à jour disponible(s) : téléchargez-la depuis la page de l'extension puis installez-la ici") };
+                    let mut msg = if n == 0 { tr!("Toutes les extensions sont à jour") } else { trn!(n, "{n} mise à jour disponible : téléchargez-la depuis la page de l'extension puis installez-la ici", "{n} mises à jour disponibles : téléchargez-les depuis la page de l'extension puis installez-les ici") };
                     if !errors.is_empty() {
-                        msg.push_str(&format!(" — erreurs : {}", errors.join(" ; ")));
+                        msg.push_str(&tr!(" — erreurs : {join}", join = errors.join(" ; ")));
                     }
                     c.plugins_status(msg);
                     c.refresh_plugins_ui();

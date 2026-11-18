@@ -252,10 +252,26 @@ fn tokenize(input: &str) -> Vec<String> {
     out
 }
 
+/// Champs reconnus. Les mots-clés existent dans chaque langue de l'interface (forme sans
+/// accents, comme après `util::search_key`) : l'aide de la recherche, traduite, cite ceux de
+/// la langue active.
 const FIELDS: &[&str] = &[
-    "dev", "developpeur", "developer", "studio", "editeur", "publisher", "pub", "genre", "plateforme", "platform",
-    "console", "source", "tag", "etiquette", "installe", "installed", "favori", "fav", "statut", "status", "temps",
-    "playtime", "succes", "achievements", "maj", "update",
+    // français
+    "dev", "developpeur", "studio", "editeur", "pub", "genre", "genero", "genere", "plateforme", "console", "source", "tag", "etiquette",
+    "installe", "favori", "fav", "statut", "temps", "succes", "maj",
+    // anglais
+    "developer", "publisher", "platform", "installed", "favorite", "favourite", "status", "playtime", "time",
+    "achievements", "update",
+    // allemand
+    "entwickler", "herausgeber", "plattform", "installiert", "favorit", "spielzeit", "erfolge", "aktualisierung",
+    // espagnol
+    "desarrollador", "editor", "plataforma", "etiqueta", "instalado", "favorito", "estado", "tiempo", "logros",
+    "actualizacion",
+    // italien
+    "sviluppatore", "editore", "piattaforma", "etichetta", "installato", "preferito", "stato", "tempo", "obiettivi",
+    "aggiornamento",
+    // portugais
+    "programador", "editora", "conquistas", "atualizacao",
 ];
 
 fn is_field(f: &str) -> bool {
@@ -264,8 +280,8 @@ fn is_field(f: &str) -> bool {
 
 fn yes_no(v: &str) -> Option<bool> {
     match util::search_key(v).as_str() {
-        "oui" | "yes" | "1" | "vrai" | "true" | "o" | "y" => Some(true),
-        "non" | "no" | "0" | "faux" | "false" | "n" => Some(false),
+        "oui" | "yes" | "1" | "vrai" | "true" | "o" | "y" | "ja" | "j" | "si" | "s" | "sim" => Some(true),
+        "non" | "no" | "0" | "faux" | "false" | "n" | "nein" | "nao" => Some(false),
         _ => None,
     }
 }
@@ -300,36 +316,36 @@ pub fn parse_duration(v: &str) -> Option<u64> {
 fn parse_filter(field: &str, value: &str) -> Option<Filter> {
     let text = || Some(util::search_key(value)).filter(|v| !v.is_empty());
     Some(match field {
-        "dev" | "developpeur" | "developer" | "studio" => Filter::Developer(text()?),
-        "editeur" | "publisher" | "pub" => Filter::Publisher(text()?),
-        "genre" => Filter::Genre(text()?),
-        "plateforme" | "platform" | "console" | "source" => Filter::Platform(text()?),
-        "tag" | "etiquette" => Filter::Tag(text()?),
-        "installe" | "installed" => Filter::Installed(yes_no(value)?),
-        "favori" | "fav" => Filter::Favorite(yes_no(value)?),
-        "maj" | "update" => Filter::NeedsUpdate(yes_no(value)?),
-        "statut" | "status" => {
+        "dev" | "developpeur" | "developer" | "studio" | "entwickler" | "desarrollador" | "sviluppatore" | "programador" => Filter::Developer(text()?),
+        "editeur" | "publisher" | "pub" | "herausgeber" | "editor" | "editore" | "editora" => Filter::Publisher(text()?),
+        "genre" | "genero" | "genere" => Filter::Genre(text()?),
+        "plateforme" | "platform" | "console" | "source" | "plattform" | "plataforma" | "piattaforma" => Filter::Platform(text()?),
+        "tag" | "etiquette" | "etiqueta" | "etichetta" => Filter::Tag(text()?),
+        "installe" | "installed" | "installiert" | "instalado" | "installato" => Filter::Installed(yes_no(value)?),
+        "favori" | "fav" | "favorite" | "favourite" | "favorit" | "favorito" | "preferito" => Filter::Favorite(yes_no(value)?),
+        "maj" | "update" | "aktualisierung" | "actualizacion" | "aggiornamento" | "atualizacao" => Filter::NeedsUpdate(yes_no(value)?),
+        "statut" | "status" | "estado" | "stato" => {
             let v = util::search_key(value).replace(' ', "");
             Filter::Status(match v.as_str() {
-                "termine" | "fini" | "completed" | "done" => PlayStatus::Completed,
-                "encours" | "playing" => PlayStatus::Playing,
-                "ajouer" | "backlog" | "afaire" => PlayStatus::Backlog,
-                "abandonne" | "abandoned" => PlayStatus::Abandoned,
-                "aucun" | "none" => PlayStatus::None,
+                "termine" | "fini" | "completed" | "finished" | "done" | "terminato" | "abgeschlossen" | "beendet" | "completado" | "terminado" | "completato" | "concluido" => PlayStatus::Completed,
+                "encours" | "playing" | "laufend" | "spielend" | "amspielen" | "jugando" | "incorso" | "ajogar" | "emcurso" => PlayStatus::Playing,
+                "ajouer" | "backlog" | "afaire" | "geplant" | "pendiente" | "dagiocare" | "pendente" | "porjogar" => PlayStatus::Backlog,
+                "abandonne" | "abandoned" | "dropped" | "abgebrochen" | "abandonado" | "abbandonato" => PlayStatus::Abandoned,
+                "aucun" | "none" | "kein" | "keiner" | "ninguno" | "nessuno" | "nenhum" => PlayStatus::None,
                 _ => return None,
             })
         }
-        "temps" | "playtime" => {
+        "temps" | "playtime" | "time" | "spielzeit" | "tiempo" | "tempo" => {
             let (cmp, rest) = parse_cmp(value);
             Filter::Playtime(cmp, parse_duration(rest)?)
         }
-        "succes" | "achievements" => {
+        "succes" | "achievements" | "erfolge" | "logros" | "obiettivi" | "conquistas" => {
             let v = util::search_key(value).replace(' ', "");
             Filter::Achievements(match v.as_str() {
-                "complet" | "complets" | "100" | "complete" => AchFilter::Complete,
-                "manquants" | "manquant" | "incomplet" | "missing" => AchFilter::Missing,
-                "aucun" | "none" => AchFilter::None,
-                "oui" | "any" => AchFilter::Any,
+                "complet" | "complets" | "100" | "complete" | "vollstaendig" | "vollstandig" | "komplett" | "completo" | "completos" | "completi" => AchFilter::Complete,
+                "manquants" | "manquant" | "incomplet" | "missing" | "fehlend" | "fehlende" | "faltan" | "pendientes" | "mancanti" | "emfalta" | "faltam" => AchFilter::Missing,
+                "aucun" | "none" | "keine" | "ninguno" | "nessuno" | "nenhum" => AchFilter::None,
+                "oui" | "any" | "yes" | "ja" | "si" | "sim" => AchFilter::Any,
                 _ => {
                     let (cmp, rest) = parse_cmp(value);
                     let n: u64 = rest.trim_end_matches('%').trim().parse().ok()?;
@@ -353,7 +369,7 @@ pub(crate) fn filter_matches(f: &Filter, g: &Game, ctx: &QueryContext) -> bool {
         Filter::Tag(v) => g.tags.iter().any(|x| util::search_key(x).contains(v.as_str())),
         Filter::Platform(v) => {
             let source_hit = util::search_key(g.source.as_str()).contains(v.as_str())
-                || util::search_key(g.source.label()).contains(v.as_str())
+                || util::search_key(&g.source.label()).contains(v.as_str())
                 || (v == "standalone" && g.source == GameSource::Manual);
             source_hit
                 || g.platform.as_deref().is_some_and(|p| {

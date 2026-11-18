@@ -103,12 +103,12 @@ fn appimage_outside_user_dir() -> Option<std::path::PathBuf> {
 #[cfg(target_os = "linux")]
 fn install_appimage_for_user(src: &std::path::Path) -> Result<std::path::PathBuf, String> {
     use std::os::unix::fs::PermissionsExt;
-    let home = dirs::home_dir().ok_or("dossier personnel introuvable")?;
+    let home = dirs::home_dir().ok_or(tr!("dossier personnel introuvable"))?;
     let dir = home.join(".local/opt/halcyon");
     std::fs::create_dir_all(&dir).map_err(|e| format!("{} : {e}", dir.display()))?;
     let dest = dir.join(install::APPIMAGE_FILE);
     let tmp = dir.join(".Halcyon.AppImage.tmp");
-    std::fs::copy(src, &tmp).map_err(|e| format!("copie : {e}"))?;
+    std::fs::copy(src, &tmp).map_err(|e| tr!("copie : {e}", e = e))?;
     std::fs::set_permissions(&tmp, std::fs::Permissions::from_mode(0o755)).map_err(|e| e.to_string())?;
     security::check_appimage(&tmp)?;
     std::fs::rename(&tmp, &dest).map_err(|e| e.to_string())?;
@@ -141,9 +141,9 @@ impl Controller {
         let Some(src) = appimage_outside_user_dir() else { return };
         match install_appimage_for_user(&src) {
             Ok(dest) => self.confirm(
-                "Halcyon est installé pour votre compte",
-                &format!("Halcyon est maintenant dans {} et dans le menu des applications. Redémarrer depuis cet emplacement ? Le fichier téléchargé peut ensuite être supprimé.", dest.display()),
-                "Redémarrer",
+                &tr!("Halcyon est installé pour votre compte"),
+                &tr!("Halcyon est maintenant dans {dest} et dans le menu des applications. Redémarrer depuis cet emplacement ? Le fichier téléchargé peut ensuite être supprimé.", dest = dest.display()),
+                &tr!("Redémarrer"),
                 move |c| {
                     // L'instance unique est libérée d'abord : la nouvelle ne s'y renvoie pas.
                     c.quit();
@@ -152,7 +152,7 @@ impl Controller {
                     }
                 },
             ),
-            Err(e) => self.toast(format!("Installation impossible : {e}"), true),
+            Err(e) => self.toast(tr!("Installation impossible : {e}", e = e), true),
         }
     }
 
@@ -224,16 +224,16 @@ impl Controller {
         }
         match r.state {
             State::Completed => {
-                self.toast(format!("Halcyon {} est installé", r.to), false);
+                self.toast(tr!("Halcyon {to} est installé", to = r.to), false);
                 halcyon_storage::audit::event("update.installed", &format!("{} → {}", r.from, r.to));
-                let _ = self.db().log_activity(halcyon_storage::ActivityKind::Settings, None, "Mise à jour de Halcyon", &format!("{} → {}", r.from, r.to));
+                let _ = self.db().log_activity(halcyon_storage::ActivityKind::Settings, None, &tr_later!("Mise à jour de Halcyon"), &format!("{} → {}", r.from, r.to));
             }
             State::RolledBack | State::Failed => {
-                self.toast(r.message.clone(), true);
-                halcyon_storage::audit::event("update.failed", &r.message);
+                self.toast(halcyon_i18n::render(&r.message), true);
+                halcyon_storage::audit::event("update.failed", &halcyon_i18n::render(&r.message));
                 let mut h = self.hus.borrow_mut();
                 h.state = r.state;
-                h.detail = r.message.clone();
+                h.detail = halcyon_i18n::render(&r.message);
                 h.error = true;
             }
             _ => return,
@@ -260,13 +260,13 @@ impl Controller {
         let keys = security::trusted_keys();
         ui.set_verification(
             if keys.is_empty() {
-                "Cette compilation n'intègre aucune clé de signature : les nouvelles versions sont signalées, jamais installées automatiquement.".to_string()
+                tr!("Cette compilation n'intègre aucune clé de signature : les nouvelles versions sont signalées, jamais installées automatiquement.")
             } else {
-                format!("Manifeste signé Ed25519 (clé {}), empreinte SHA-256 du paquet, contrôle du paquet avant installation, aucun retour vers une version plus ancienne.", keys.iter().map(security::fingerprint).collect::<Vec<_>>().join(", "))
+                tr!("Manifeste signé Ed25519 (clé {v}), empreinte SHA-256 du paquet, contrôle du paquet avant installation, aucun retour vers une version plus ancienne.", v = keys.iter().map(security::fingerprint).collect::<Vec<_>>().join(", "))
             }
             .into(),
         );
-        ui.set_last_check(if s.update_last_check > 0 { format!("{}, {}", util::format_relative(s.update_last_check, halcyon_storage::now_unix()), util::format_date(s.update_last_check)).into() } else { "Jamais".into() });
+        ui.set_last_check(if s.update_last_check > 0 { format!("{}, {}", util::format_relative(s.update_last_check, halcyon_storage::now_unix()), util::format_date(s.update_last_check)).into() } else { tr!("Jamais").into() });
         let latest = h.found.as_ref().map(|f| f.checked.version.to_string()).or_else(|| h.unverified.as_ref().map(|u| u.0.clone())).or_else(|| pending.as_ref().filter(|_| staged).map(|p| p.version.clone())).unwrap_or_default();
         ui.set_latest(latest.as_str().into());
         ui.set_notes(h.found.as_ref().map(|f| f.checked.manifest.notes.clone()).unwrap_or_default().into());
@@ -275,11 +275,11 @@ impl Controller {
         let state = if staged && !matches!(h.state, State::Downloading | State::Verifying) { State::Staging } else { h.state };
         ui.set_state(state.code());
         let status = match state {
-            State::Available if h.unverified.is_some() && h.found.is_none() => format!("Version {latest} publiée"),
-            State::Available => format!("Version {latest} disponible"),
-            State::Staging => format!("Version {latest} prête à être installée"),
-            State::UpToDate => format!("Halcyon {} est à jour", env!("CARGO_PKG_VERSION")),
-            State::Idle => "Aucune recherche effectuée".to_string(),
+            State::Available if h.unverified.is_some() && h.found.is_none() => tr!("Version {latest} publiée", latest = latest),
+            State::Available => tr!("Version {latest} disponible", latest = latest),
+            State::Staging => tr!("Version {latest} prête à être installée", latest = latest),
+            State::UpToDate => tr!("Halcyon {v} est à jour", v = env!("CARGO_PKG_VERSION")),
+            State::Idle => tr!("Aucune recherche effectuée"),
             other => other.label().to_string(),
         };
         ui.set_status(status.into());
@@ -294,8 +294,8 @@ impl Controller {
         ui.set_progress(if h.cancel.is_some() && p.total > 0 { p.ratio() } else { -1.0 });
         ui.set_progress_text(if p.total > 0 { format!("{} %", (p.ratio() * 100.0).floor() as u32).into() } else { "".into() });
         ui.set_speed(if p.speed > 0 { download::format_speed(p.speed).into() } else { "".into() });
-        ui.set_eta(p.eta.map(|e| format!("{} restantes", download::format_eta(e))).unwrap_or_default().into());
-        ui.set_size_text(if p.total > 0 { format!("{} sur {}", download::format_bytes(p.done), download::format_bytes(p.total)).into() } else { "".into() });
+        ui.set_eta(p.eta.map(|e| tr!("{eta} restantes", eta = download::format_eta(e))).unwrap_or_default().into());
+        ui.set_size_text(if p.total > 0 { tr!("{done} sur {total}", done = download::format_bytes(p.done), total = download::format_bytes(p.total)).into() } else { "".into() });
         ui.set_can_install_user(appimage_outside_user_dir().is_some());
         let shell = app.global::<AppUi>();
         let announce = if h.found.is_some() || h.unverified.is_some() || staged { latest } else { String::new() };
@@ -306,7 +306,7 @@ impl Controller {
     pub(crate) fn hus_check(self: &Rc<Self>, manual: bool) {
         if !self.net_allowed() {
             if manual {
-                self.toast("Hors ligne : recherche des mises à jour impossible pour l'instant", true);
+                self.toast(tr!("Hors ligne : recherche des mises à jour impossible pour l'instant"), true);
             }
             return;
         }
@@ -315,7 +315,7 @@ impl Controller {
         }
         let Some(platform) = Platform::current() else {
             if manual {
-                self.toast("Mises à jour automatiques indisponibles sur ce système", true);
+                self.toast(tr!("Mises à jour automatiques indisponibles sur ce système"), true);
             }
             return;
         };
@@ -371,31 +371,31 @@ impl Controller {
                 Ok(Ok(Outcome::Available(found))) => {
                     let v = found.checked.version.to_string();
                     h.state = State::Available;
-                    h.detail = if found.security { "Mise à jour de sécurité recommandée".into() } else { String::new() };
+                    h.detail = if found.security { tr!("Mise à jour de sécurité recommandée").into() } else { String::new() };
                     if blocked.as_deref() == Some(v.as_str()) {
-                        h.detail = format!("La dernière tentative d'installation de {v} a échoué : installation manuelle uniquement");
+                        h.detail = tr!("La dernière tentative d'installation de {v} a échoué : installation manuelle uniquement", v = v);
                     }
                     start_download = self.settings.borrow().update_auto && h.kind.managed() && blocked.as_deref() != Some(v.as_str());
-                    message = format!("Version {v} disponible");
+                    message = tr!("Version {v} disponible", v = v);
                     h.found = Some(found);
                 }
                 Ok(Ok(Outcome::UpToDate { note })) => {
                     h.state = State::UpToDate;
                     h.found = None;
                     h.detail = note.unwrap_or_default();
-                    message = format!("Halcyon {} est à jour", env!("CARGO_PKG_VERSION"));
+                    message = tr!("Halcyon {v} est à jour", v = env!("CARGO_PKG_VERSION"));
                 }
                 Ok(Err(Some(unverified))) => {
                     h.state = State::Available;
                     h.found = None;
-                    h.detail = "Compilation sans clé de signature : téléchargez cette version depuis sa page GitHub".into();
-                    message = format!("Version {} publiée", unverified.0);
+                    h.detail = tr!("Compilation sans clé de signature : téléchargez cette version depuis sa page GitHub").into();
+                    message = tr!("Version {v} publiée", v = unverified.0);
                     h.unverified = Some(unverified);
                 }
                 Ok(Err(None)) => {
                     h.state = State::UpToDate;
                     h.found = None;
-                    message = format!("Halcyon {} est à jour", env!("CARGO_PKG_VERSION"));
+                    message = tr!("Halcyon {v} est à jour", v = env!("CARGO_PKG_VERSION"));
                 }
                 Err(e) => {
                     if e.contains("signature") {
@@ -404,7 +404,7 @@ impl Controller {
                     log::warn!("recherche de mise à jour : {e}");
                     h.state = State::Failed;
                     h.error = true;
-                    h.detail = format!("Recherche impossible : {e}");
+                    h.detail = tr!("Recherche impossible : {e}", e = e);
                     message = h.detail.clone();
                 }
             }
@@ -442,7 +442,7 @@ impl Controller {
             h.error = false;
             h.progress = None;
         }
-        let task = self.task_start("hus", format!("Mise à jour de Halcyon {version}"));
+        let task = self.task_start("hus", tr!("Mise à jour de Halcyon {version}", version = version));
         self.hus_refresh_ui();
         std::thread::Builder::new()
             .name("hus-download".into())
@@ -464,7 +464,7 @@ impl Controller {
 
     fn hus_progress(&self, task: u64, p: Progress) {
         self.hus.borrow_mut().progress = Some(p);
-        self.task_update(task, Some(p.ratio()), Some(&format!("{} sur {}", download::format_bytes(p.done), download::format_bytes(p.total))));
+        self.task_update(task, Some(p.ratio()), Some(&tr!("{done} sur {total}", done = download::format_bytes(p.done), total = download::format_bytes(p.total))));
         self.hus_refresh_ui();
     }
 
@@ -480,24 +480,24 @@ impl Controller {
                 }
                 Err(DownloadError::Cancelled) => {
                     h.state = State::Available;
-                    h.detail = "Téléchargement annulé : il reprendra où il s'est arrêté".into();
+                    h.detail = tr!("Téléchargement annulé : il reprendra où il s'est arrêté").into();
                 }
                 Err(DownloadError::Failed(e)) => {
                     h.state = State::Failed;
                     h.error = true;
-                    h.detail = format!("Téléchargement impossible : {e}");
+                    h.detail = tr!("Téléchargement impossible : {e}", e = e);
                 }
             }
         }
         let action = crate::tasks::Action::OpenPage("settings");
         match result {
             Ok(()) => {
-                halcyon_storage::audit::event("update.verified", &format!("{version} : signature, SHA-256 et paquet vérifiés"));
-                self.task_finish(task, true, "Téléchargée et vérifiée", action);
+                halcyon_storage::audit::event("update.verified", &tr!("{version} : signature, SHA-256 et paquet vérifiés", version = version));
+                self.task_finish(task, true, &tr!("Téléchargée et vérifiée"), action);
                 let auto = self.settings.borrow().update_auto;
-                self.toast(if auto { format!("Halcyon {version} est prêt : il sera installé au prochain démarrage") } else { format!("Halcyon {version} est prêt à être installé") }, false);
+                self.toast(if auto { tr!("Halcyon {version} est prêt : il sera installé au prochain démarrage", version = version) } else { tr!("Halcyon {version} est prêt à être installé", version = version) }, false);
             }
-            Err(DownloadError::Cancelled) => self.task_finish(task, false, "Annulé", action),
+            Err(DownloadError::Cancelled) => self.task_finish(task, false, &tr!("Annulé"), action),
             Err(DownloadError::Failed(e)) => {
                 if e.contains("SHA-256") {
                     halcyon_storage::audit::event("update.rejected", &e);
@@ -517,12 +517,12 @@ impl Controller {
     /// Installe maintenant : l'updater prend le relais et Halcyon se ferme.
     pub(crate) fn hus_install_now(self: &Rc<Self>) {
         let Some(version) = self.hus_layout().and_then(|l| install::read_pending(&l)).map(|p| p.version) else {
-            return self.toast("Aucune mise à jour prête à être installée", true);
+            return self.toast(tr!("Aucune mise à jour prête à être installée"), true);
         };
         self.confirm(
-            &format!("Installer Halcyon {version} ?"),
-            "Halcyon va se fermer, installer la mise à jour vérifiée puis redémarrer. Si la nouvelle version ne démarre pas correctement, la version actuelle est restaurée automatiquement. Vos jeux, paramètres et sauvegardes ne sont pas modifiés.",
-            "Installer et redémarrer",
+            &tr!("Installer Halcyon {version} ?", version = version),
+            &tr!("Halcyon va se fermer, installer la mise à jour vérifiée puis redémarrer. Si la nouvelle version ne démarre pas correctement, la version actuelle est restaurée automatiquement. Vos jeux, paramètres et sauvegardes ne sont pas modifiés."),
+            &tr!("Installer et redémarrer"),
             |c| {
                 let (layout, updater) = match &c.hus.borrow().kind {
                     Kind::Managed { layout, updater, .. } => (layout.clone(), updater.clone()),
@@ -530,7 +530,7 @@ impl Controller {
                 };
                 match client::launch_apply(&layout, &updater, &Version::current()) {
                     Ok(()) => c.quit(),
-                    Err(e) => c.toast(format!("Installation impossible : {e}"), true),
+                    Err(e) => c.toast(tr!("Installation impossible : {e}", e = e), true),
                 }
             },
         );
@@ -539,8 +539,8 @@ impl Controller {
     pub(crate) fn hus_install_at_restart(&self) {
         let Some(layout) = self.hus_layout() else { return };
         match client::set_install_at_restart(&layout, true) {
-            Ok(()) => self.toast("La mise à jour sera installée au prochain démarrage de Halcyon", false),
-            Err(e) => self.toast(format!("Choix non enregistré : {e}"), true),
+            Ok(()) => self.toast(tr!("La mise à jour sera installée au prochain démarrage de Halcyon"), false),
+            Err(e) => self.toast(tr!("Choix non enregistré : {e}", e = e), true),
         }
         self.hus_refresh_ui();
     }
@@ -557,10 +557,10 @@ impl Controller {
                     let mut r = recovery::load(&layout);
                     r.state = State::Idle;
                     let _ = recovery::save(&layout, &r);
-                    recovery::log(&layout, &format!("canal {} : mise à jour {} en attente abandonnée", channel.as_str(), p.version));
+                    recovery::log(&layout, &tr!("canal {channel} : mise à jour {version} en attente abandonnée", channel = channel.as_str(), version = p.version));
                 }
             }
-            recovery::log(&layout, &format!("canal choisi par l'utilisateur : {}", channel.as_str()));
+            recovery::log(&layout, &tr!("canal choisi par l'utilisateur : {channel}", channel = channel.as_str()));
         }
         self.hus.borrow_mut().found = None;
         self.hus_refresh_ui();

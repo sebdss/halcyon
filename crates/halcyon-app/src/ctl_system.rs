@@ -17,13 +17,13 @@ use std::time::Duration;
 
 /// Actions associables à un raccourci (identifiant, libellé, combinaison par défaut).
 pub const SHORTCUTS: [(&str, &str, &str); 7] = [
-    ("quick_launch", "Lancement rapide", "Ctrl+K"),
-    ("search", "Rechercher dans la bibliothèque", "Ctrl+F"),
-    ("big_picture", "Big Picture", "F11"),
-    ("mini_mode", "Mode compact", "Ctrl+M"),
-    ("rescan", "Analyser les sources", "F5"),
-    ("surprise", "Surprends-moi", "Ctrl+J"),
-    ("settings", "Paramètres", "Ctrl+,"),
+    ("quick_launch", tr_noop!("Lancement rapide"), "Ctrl+K"),
+    ("search", tr_noop!("Rechercher dans la bibliothèque"), "Ctrl+F"),
+    ("big_picture", tr_noop!("Big Picture"), "F11"),
+    ("mini_mode", tr_noop!("Mode compact"), "Ctrl+M"),
+    ("rescan", tr_noop!("Analyser les sources"), "F5"),
+    ("surprise", tr_noop!("Surprends-moi"), "Ctrl+J"),
+    ("settings", tr_noop!("Paramètres"), "Ctrl+,"),
 ];
 
 /// Ctrl+1 … Ctrl+9 : pages (non modifiable).
@@ -32,25 +32,25 @@ const NAV_PAGES: [Page; 9] =
 
 /// Pages proposées par le lancement rapide (libellé, mots-clés, page).
 const QUICK_PAGES: [(&str, &str, Page); 19] = [
-    ("Accueil", "home debut", Page::Home),
-    ("Bibliothèque", "jeux library", Page::Library),
-    ("Que jouer ?", "assistant suggestions recommandations", Page::Assistant),
-    ("Succès", "achievements trophees", Page::Achievements),
-    ("Statistiques", "stats temps graphiques", Page::Stats),
-    ("Journal", "activite historique", Page::Journal),
-    ("Mises à jour", "updates telechargements", Page::Updates),
-    ("Sauvegardes", "saves backup", Page::Saves),
-    ("Émulateurs", "emulation roms retro", Page::Emulators),
-    ("Manettes", "controller gamepad pad", Page::Controllers),
-    ("Jeu à distance", "streaming sunshine moonlight remote", Page::Remote),
-    ("Performances", "performance center fps cpu gpu ram processeur memoire carte graphique monitoring", Page::Performance),
-    ("Minecraft", "java mods modpacks fabric forge neoforge", Page::Minecraft),
-    ("Téléchargements", "downloads file attente pause debit vitesse", Page::Downloads),
-    ("Extensions", "plugins", Page::Plugins),
-    ("Apparence", "theme couleurs fond", Page::Appearance),
-    ("Paramètres", "settings options reglages raccourcis", Page::Settings),
-    ("Paramètres › Raccourcis", "clavier hotkey", Page::Settings),
-    ("Paramètres › Exporter la configuration", "backup restauration", Page::Settings),
+    (tr_noop!("Accueil"), trc_noop!("keywords", "home debut"), Page::Home),
+    (tr_noop!("Bibliothèque"), trc_noop!("keywords", "jeux library"), Page::Library),
+    (tr_noop!("Que jouer ?"), trc_noop!("keywords", "assistant suggestions recommandations"), Page::Assistant),
+    (tr_noop!("Succès"), trc_noop!("keywords", "achievements trophees"), Page::Achievements),
+    (tr_noop!("Statistiques"), trc_noop!("keywords", "stats temps graphiques"), Page::Stats),
+    (tr_noop!("Journal"), trc_noop!("keywords", "activite historique"), Page::Journal),
+    (tr_noop!("Mises à jour"), trc_noop!("keywords", "updates telechargements"), Page::Updates),
+    (tr_noop!("Sauvegardes"), trc_noop!("keywords", "saves backup"), Page::Saves),
+    (tr_noop!("Émulateurs"), trc_noop!("keywords", "emulation roms retro"), Page::Emulators),
+    (tr_noop!("Manettes"), trc_noop!("keywords", "controller gamepad pad"), Page::Controllers),
+    (tr_noop!("Jeu à distance"), trc_noop!("keywords", "streaming sunshine moonlight remote"), Page::Remote),
+    (tr_noop!("Performances"), trc_noop!("keywords", "performance center fps cpu gpu ram processeur memoire carte graphique monitoring"), Page::Performance),
+    (tr_noop!("Minecraft"), trc_noop!("keywords", "java mods modpacks fabric forge neoforge"), Page::Minecraft),
+    (tr_noop!("Téléchargements"), trc_noop!("keywords", "downloads file attente pause debit vitesse"), Page::Downloads),
+    (tr_noop!("Extensions"), trc_noop!("keywords", "plugins"), Page::Plugins),
+    (tr_noop!("Apparence"), trc_noop!("keywords", "theme couleurs fond"), Page::Appearance),
+    (tr_noop!("Paramètres"), trc_noop!("keywords", "settings options reglages raccourcis"), Page::Settings),
+    (tr_noop!("Paramètres › Raccourcis"), trc_noop!("keywords", "clavier hotkey"), Page::Settings),
+    (tr_noop!("Paramètres › Exporter la configuration"), trc_noop!("keywords", "backup restauration"), Page::Settings),
 ];
 
 /// Combinaison lisible (« Ctrl+Shift+K », « F5 ») à partir d'un évènement clavier Slint.
@@ -185,11 +185,11 @@ impl Controller {
             self.settings.borrow_mut().shortcuts.insert(action.to_string(), String::new());
         } else {
             let Some(c) = normalize_combo(combo) else {
-                self.toast(format!("Combinaison « {combo} » invalide"), true);
+                self.toast(tr!("Combinaison « {combo} » invalide", combo = combo), true);
                 return;
             };
             if let Some(other) = SHORTCUTS.iter().find(|x| x.0 != action && self.shortcut_combo(x.0).eq_ignore_ascii_case(&c)) {
-                self.toast(format!("{c} est déjà utilisé par « {} »", other.1), true);
+                self.toast(tr!("{c} est déjà utilisé par « {v} »", c = c, v = halcyon_i18n::t(other.1)), true);
                 self.refresh_system_ui();
                 return;
             }
@@ -207,7 +207,7 @@ impl Controller {
         self.settings.borrow_mut().shortcuts.clear();
         self.save_settings();
         self.refresh_system_ui();
-        self.toast("Raccourcis par défaut rétablis", false);
+        self.toast(tr!("Raccourcis par défaut rétablis"), false);
     }
 
     pub(crate) fn refresh_system_ui(&self) {
@@ -222,7 +222,7 @@ impl Controller {
         ui.set_companion(s.companion_window);
         let rows: Vec<ShortcutRow> = SHORTCUTS
             .iter()
-            .map(|(a, l, d)| ShortcutRow { action: (*a).into(), label: (*l).into(), combo: self.shortcut_combo(a).into(), default_combo: (*d).into() })
+            .map(|(a, l, d)| ShortcutRow { action: (*a).into(), label: halcyon_i18n::t(l).into(), combo: self.shortcut_combo(a).into(), default_combo: (*d).into() })
             .collect();
         ui.set_shortcuts(ModelRc::new(VecModel::from(rows)));
         ui.set_tray_available(self.tray.borrow().is_some());
@@ -234,7 +234,7 @@ impl Controller {
         match key {
             "autostart" => match crate::desktop::set_autostart(value) {
                 Ok(()) => self.settings.borrow_mut().autostart = value,
-                Err(e) => self.toast(format!("Démarrage automatique : {e}"), true),
+                Err(e) => self.toast(tr!("Démarrage automatique : {e}", e = e), true),
             },
             "close_to_tray" => self.settings.borrow_mut().close_to_tray = value,
             "minimize_to_tray" => self.settings.borrow_mut().minimize_to_tray = value,
@@ -261,7 +261,7 @@ impl Controller {
 
     pub(crate) fn set_global_hotkey(self: &Rc<Self>, combo: &str) {
         let Some(c) = normalize_combo(combo) else {
-            self.system_status_global("Combinaison invalide (ex. Ctrl+Alt+H)");
+            self.system_status_global(&tr!("Combinaison invalide (ex. Ctrl+Alt+H)"));
             return;
         };
         self.settings.borrow_mut().global_hotkey = c;
@@ -294,19 +294,19 @@ impl Controller {
         }
         let hk: HotKey = match combo.parse() {
             Ok(h) => h,
-            Err(e) => return self.system_status_global(&format!("Combinaison non reconnue : {e}")),
+            Err(e) => return self.system_status_global(&tr!("Combinaison non reconnue : {e}", e = e)),
         };
         if cfg!(target_os = "linux") && std::env::var_os("WAYLAND_DISPLAY").is_some() && std::env::var_os("DISPLAY").is_none() {
-            return self.system_status_global(
-                "Session Wayland : les raccourcis globaux ne sont pas accessibles aux applications. Associez « halcyon --quick » à un raccourci dans les réglages de votre bureau.",
-            );
+            return self.system_status_global(&tr!(
+                "Session Wayland : les raccourcis globaux ne sont pas accessibles aux applications. Associez « halcyon --quick » à un raccourci dans les réglages de votre bureau."
+            ));
         }
         match GlobalHotKeyManager::new().and_then(|m| m.register(hk).map(|_| m)) {
             Ok(m) => {
                 *self.hotkey.borrow_mut() = Some((m, hk));
-                self.system_status_global(&format!("{combo} ouvre le lancement rapide, même quand Halcyon est en arrière-plan"));
+                self.system_status_global(&tr!("{combo} ouvre le lancement rapide, même quand Halcyon est en arrière-plan", combo = combo));
             }
-            Err(e) => self.system_status_global(&format!("Raccourci indisponible (déjà utilisé ?) : {e}")),
+            Err(e) => self.system_status_global(&tr!("Raccourci indisponible (déjà utilisé ?) : {e}", e = e)),
         }
     }
 
@@ -330,11 +330,11 @@ impl Controller {
         match crate::tray::create(|ev| post(move |c| c.on_tray(ev))) {
             Ok(t) => {
                 *self.tray.borrow_mut() = Some(t);
-                self.set_tray_status("Icône active dans la zone de notification");
+                self.set_tray_status(&tr!("Icône active dans la zone de notification"));
             }
             Err(e) => {
                 log::warn!("{e}");
-                self.set_tray_status(&format!("{e} : la fenêtre sera réduite au lieu d'être masquée"));
+                self.set_tray_status(&tr!("{e} : la fenêtre sera réduite au lieu d'être masquée", e = e));
             }
         }
     }
@@ -494,7 +494,7 @@ impl Controller {
             kind: 0,
             id: g.id as i32,
             title: g.name.clone().into(),
-            subtitle: format!("{}{}", g.source.label(), if g.installed { "" } else { " · non installé" }).into(),
+            subtitle: if g.installed { g.source.label() } else { tr!("{source} · non installé", source = g.source.label()) }.into(),
             card: card_for(g, &self.images, now),
         };
         if q.trim().is_empty() {
@@ -516,9 +516,9 @@ impl Controller {
             rows.extend(found.into_iter().take(7).map(|(_, g)| game_row(g)));
             let key = halcyon_core::util::search_key(q);
             for (i, (label, words, _)) in QUICK_PAGES.iter().enumerate() {
-                let hay = halcyon_core::util::search_key(&format!("{label} {words}"));
+                let hay = halcyon_core::util::search_key(&crate::ctl_palette::search_text(label, words));
                 if key.split(' ').filter(|w| !w.is_empty()).all(|w| hay.contains(w)) {
-                    rows.push(QuickRow { kind: 1, id: i as i32, title: (*label).into(), subtitle: "Page".into(), card: Default::default() });
+                    rows.push(QuickRow { kind: 1, id: i as i32, title: halcyon_i18n::t(label).into(), subtitle: tr!("Page").into(), card: Default::default() });
                 }
             }
         }
@@ -556,7 +556,7 @@ impl Controller {
         if self.mini.borrow().is_none() {
             let w = match MiniWindow::new() {
                 Ok(w) => w,
-                Err(e) => return self.toast(format!("Mode compact indisponible : {e}"), true),
+                Err(e) => return self.toast(tr!("Mode compact indisponible : {e}", e = e), true),
             };
             let weak = Rc::downgrade(self);
             let wk = weak.clone();
@@ -653,7 +653,7 @@ impl Controller {
                     if let Some(id) = id {
                         c.save_notes(id, &notes);
                         if let Some(w) = c.companion.borrow().as_ref() {
-                            w.set_status("Notes enregistrées".into());
+                            w.set_status(tr!("Notes enregistrées").into());
                         }
                     }
                 }
@@ -690,7 +690,7 @@ impl Controller {
             };
             let ach = c.progress.borrow().get(&id).map(|p| {
                 let new = p.unlocked.saturating_sub(base);
-                format!("Succès : {} / {}{}", p.unlocked, p.total, if new > 0 { format!(" (+{new} pendant cette session)") } else { String::new() })
+                if new > 0 { tr!("Succès : {unlocked} / {total} (+{new} pendant cette session)", unlocked = p.unlocked, total = p.total, new = new) } else { tr!("Succès : {unlocked} / {total}", unlocked = p.unlocked, total = p.total) }
             });
             let companion = c.companion.borrow();
             if let Some(w) = companion.as_ref() {
@@ -748,8 +748,8 @@ impl Controller {
         let Some(g) = self.lib.borrow().get(id).cloned() else { return };
         let icon = g.artwork.cover.clone();
         match crate::desktop::create_game_shortcut(&g.name, g.id, icon.as_deref()) {
-            Ok(p) => self.toast(format!("Raccourci créé : {}", p.display()), false),
-            Err(e) => self.toast(format!("Raccourci impossible : {e}"), true),
+            Ok(p) => self.toast(tr!("Raccourci créé : {p}", p = p.display()), false),
+            Err(e) => self.toast(tr!("Raccourci impossible : {e}", e = e), true),
         }
     }
 
@@ -764,30 +764,30 @@ impl Controller {
         let mut problems = 0;
         let db_result = self.db().integrity_check();
         match db_result {
-            Ok(None) => lines.push("Base de données : intègre".into()),
+            Ok(None) => lines.push(tr!("Base de données : intègre").into()),
             Ok(Some(e)) => {
                 problems += 1;
-                lines.push(format!("Base de données : problèmes détectés ({e}). Exportez la configuration puis restaurez-la pour reconstruire la base."));
+                lines.push(tr!("Base de données : problèmes détectés ({e}). Exportez la configuration puis restaurez-la pour reconstruire la base.", e = e));
             }
             Err(e) => {
                 problems += 1;
-                lines.push(format!("Base de données : vérification impossible ({e})"));
+                lines.push(tr!("Base de données : vérification impossible ({e})", e = e));
             }
         }
         match std::fs::read_to_string(self.paths.settings_path()).map(|t| serde_json::from_str::<serde_json::Value>(&t)) {
-            Ok(Ok(_)) => lines.push("Paramètres : lisibles".into()),
+            Ok(Ok(_)) => lines.push(tr!("Paramètres : lisibles").into()),
             Ok(Err(e)) => {
                 problems += 1;
-                lines.push(format!("Paramètres : fichier invalide ({e})"));
+                lines.push(tr!("Paramètres : fichier invalide ({e})", e = e));
             }
-            Err(_) => lines.push("Paramètres : valeurs par défaut (aucun fichier)".into()),
+            Err(_) => lines.push(tr!("Paramètres : valeurs par défaut (aucun fichier)").into()),
         }
         let probe = self.paths.data_dir.join(".integrity-test");
         match std::fs::write(&probe, b"ok").and_then(|_| std::fs::remove_file(&probe)) {
-            Ok(()) => lines.push("Dossier des données : accessible en écriture".into()),
+            Ok(()) => lines.push(tr!("Dossier des données : accessible en écriture").into()),
             Err(e) => {
                 problems += 1;
-                lines.push(format!("Dossier des données : écriture impossible ({e})"));
+                lines.push(tr!("Dossier des données : écriture impossible ({e})", e = e));
             }
         }
         let (missing_dirs, missing_art) = {
@@ -797,12 +797,12 @@ impl Controller {
             (dirs, art)
         };
         if missing_dirs > 0 {
-            lines.push(format!("{missing_dirs} jeu(x) marqué(s) installé(s) dont le dossier a disparu : relancez une analyse des sources"));
+            lines.push(trn!(missing_dirs, "{n} jeu marqué installé dont le dossier a disparu : relancez une analyse des sources", "{n} jeux marqués installés dont le dossier a disparu : relancez une analyse des sources"));
         } else {
-            lines.push("Dossiers des jeux installés : présents".into());
+            lines.push(tr!("Dossiers des jeux installés : présents").into());
         }
         if missing_art > 0 {
-            lines.push(format!("{missing_art} jaquette(s) manquante(s) : elles seront retéléchargées si les visuels en ligne sont activés"));
+            lines.push(trn!(missing_art, "{n} jaquette manquante : elle sera retéléchargée si les visuels en ligne sont activés", "{n} jaquettes manquantes : elles seront retéléchargées si les visuels en ligne sont activés"));
         }
         let bad_plugins: Vec<String> = halcyon_integrations::plugins::list(&self.plugins_dir(), crate::ctl_plugins::VERSION)
             .into_iter()
@@ -811,13 +811,14 @@ impl Controller {
             .collect();
         if !bad_plugins.is_empty() {
             problems += 1;
-            lines.push(format!("Extensions inutilisables : {}", bad_plugins.join(", ")));
+            lines.push(tr!("Extensions inutilisables : {list}", list = bad_plugins.join(", ")));
         }
-        let summary = if problems == 0 { "Aucun problème détecté".to_string() } else { format!("{problems} problème(s) à corriger") };
+        let summary = if problems == 0 { tr!("Aucun problème détecté") } else { trn!(problems, "{n} problème à corriger", "{n} problèmes à corriger") };
+        let logged = if problems == 0 { tr_later!("Aucun problème détecté") } else { trn_later!(problems, "{n} problème à corriger", "{n} problèmes à corriger") };
         lines.insert(0, summary.clone());
         ui.set_integrity_status(lines.join("\n").into());
         ui.set_integrity_running(false);
-        let _ = self.db().log_activity(halcyon_storage::ActivityKind::Settings, None, "Vérification d'intégrité", &summary);
+        let _ = self.db().log_activity(halcyon_storage::ActivityKind::Settings, None, &tr_later!("Vérification d'intégrité"), &logged);
     }
 
     pub(crate) fn wire_system(self: &Rc<Self>, app: &crate::AppWindow) {
