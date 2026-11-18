@@ -640,7 +640,9 @@ pub fn run(
     let _ = std::fs::write(&pointer, serde_json::json!({ "dir": dir }).to_string());
     let _ = std::fs::remove_dir_all(&backup);
     let _ = std::fs::remove_dir_all(&staging);
-    let _ = std::fs::remove_file(dir.join(JOURNAL));
+    // Sans journal, l'installation est considérée comme terminée : s'il restait, la prochaine
+    // ouverture proposerait une réparation inutile.
+    remove_file_retry(&dir.join(JOURNAL));
     on(Event::Component(tr!("Installation enregistrée"), true, tr!("version {version}", version = m.version)));
     Ok(report)
 }
@@ -848,6 +850,19 @@ pub fn uninstall(record: &Record, env: &Env, opts: &UninstallOptions, on: &mut d
         on(Event::Component(tr!("Données personnelles"), true, tr!("conservées")));
     }
     Ok(report)
+}
+
+/// Supprime un fichier en réessayant brièvement : sous Windows, un antivirus ou l'indexation
+/// peut garder quelques instants un fichier qui vient d'être écrit (partage refusé).
+fn remove_file_retry(path: &Path) {
+    for attempt in 0..20 {
+        match std::fs::remove_file(path) {
+            Ok(()) => return,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return,
+            Err(e) if attempt == 19 => log::warn!("{} non supprimé : {e}", path.display()),
+            Err(_) => std::thread::sleep(std::time::Duration::from_millis(50 * (attempt + 1))),
+        }
+    }
 }
 
 fn remove_empty_parents(file: &Path, stop: &Path) {
