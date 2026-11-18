@@ -226,7 +226,7 @@ impl Lock {
                 Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
                     let owner = std::fs::read_to_string(&path).ok().and_then(|s| s.trim().parse::<u32>().ok());
                     match owner {
-                        Some(pid) if pid != std::process::id() && pid_alive(pid) => return Err(tr!("une mise à jour est déjà en cours").into()),
+                        Some(pid) if pid != std::process::id() && pid_alive(pid) => return Err(tr!("une mise à jour est déjà en cours")),
                         _ => {
                             let _ = std::fs::remove_file(&path);
                         }
@@ -235,7 +235,7 @@ impl Lock {
                 Err(e) => return Err(tr!("verrou de mise à jour : {e}", e = e)),
             }
         }
-        Err(tr!("verrou de mise à jour indisponible").into())
+        Err(tr!("verrou de mise à jour indisponible"))
     }
 
     /// Un updater vivant tient-il le verrou ?
@@ -262,7 +262,7 @@ pub const ARG_ROLLED_BACK: &str = "--hus-rolled-back";
 /// Appelée par Halcyon une fois sa fenêtre affichée et sa boucle d'évènements active.
 pub fn confirm_health(layout: &Layout, txid: &str) -> Result<(), String> {
     if txid.is_empty() || !txid.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-') {
-        return Err(tr!("identifiant de transaction invalide").into());
+        return Err(tr!("identifiant de transaction invalide"));
     }
     write_atomic(&layout.health().join(format!("{txid}.ok")), b"ok").map_err(|e| tr!("contrôle de santé : {e}", e = e))?;
     log(layout, &tr!("santé confirmée pour la transaction {txid}", txid = txid));

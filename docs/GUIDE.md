@@ -148,20 +148,36 @@ Une nouvelle plateforme se déclare de la même façon dans le dossier `platform
 
 ## 5. Succès
 
-Configurez vos comptes dans **Paramètres › Comptes et succès** :
+Les succès Steam et les visuels ne demandent **aucune configuration**. Les comptes se règlent
+dans **Paramètres › Comptes et succès** :
 
 | Plateforme | Ce qu'il faut | Remarques |
 |---|---|---|
-| Steam | Clé Web API (steamcommunity.com/dev/apikey) | Les « détails de jeu » de votre profil doivent être publics. SteamID détecté automatiquement. Ajoute aussi vos jeux possédés non installés. |
+| Steam | **Rien** : le client Steam de ce PC suffit | Succès lus dans les fichiers que Steam enregistre sur ce PC (`appcache/stats`), compte détecté automatiquement, fonctionne hors ligne. Un jeu apparaît après sa première session sur ce PC. Rareté mondiale ajoutée quand la connexion est disponible. |
+| Steam (facultatif) | Clé Web API (steamcommunity.com/dev/apikey), dans **Réglages avancés** | Récupère en ligne les succès des jeux jamais lancés sur ce PC et ajoute vos jeux possédés non installés. Les « détails de jeu » de votre profil doivent être publics. |
 | RetroAchievements | Pseudo + clé Web API (paramètres du site) | ROM reconnues automatiquement par empreinte pour les consoles à cartouche (NES, SNES, N64, GB/GBC/GBA, Mega Drive, Master System, Game Gear, PC Engine, Atari 2600/7800, Lynx). Pour les jeux sur disque, saisissez l'identifiant du jeu dans sa fiche. Modes normal et Hardcore distingués. |
 | Epic Games | — | Aucune API publique : non disponibles, jamais estimés. |
 | Jeux standalone | — | Succès **personnalisés**, créés par vous et marqués « non vérifiés ». |
 
-- **Synchronisation** incrémentale au démarrage (jeux non vérifiés depuis 12 h ou joués depuis).
-- **Pendant une partie**, le jeu lancé est vérifié régulièrement ; un succès débloqué déclenche
+- **Synchronisation** incrémentale au démarrage (jeux non vérifiés depuis 12 h, ou dont Steam a
+  enregistré de nouveaux succès depuis).
+- **Pendant une partie**, le jeu lancé est vérifié régulièrement (Steam : toutes les 20 s sur le
+  disque, ou toutes les 2 min en ligne avec une clé ; RetroAchievements : toutes les 90 s) ; un
+  succès débloqué déclenche
   une **notification système** (elle ne prend pas le focus et n'interrompt pas le jeu).
 - Page **Succès** : complétion globale, progression par plateforme, chronologie, succès
   récents et les plus rares, jeux terminés à 100 %.
+
+**Visuels** (jaquette, bannière, logo), sans clé :
+
+| Jeux | Source |
+|---|---|
+| Steam, Epic Games, GOG | Le launcher lui-même (cache local, sinon son CDN) |
+| Jeux autonomes et ajoutés à la main | Recherche du titre dans la boutique Steam (correspondance exacte du nom), puis CDN Steam |
+| Jeux émulés | [libretro-thumbnails](https://github.com/libretro-thumbnails) (projet RetroArch), d'après le nom de la ROM : boîte et capture |
+
+Une clé SteamGridDB (facultative, **Réglages avancés**) complète ce qui manque encore. Les
+visuels personnalisés restent prioritaires.
 
 ## 6. Mode Big Picture
 

@@ -123,7 +123,7 @@ pub fn set_language(code: &str) -> bool {
 /// Choisit la langue à utiliser parmi `available` :
 /// préférence enregistrée si disponible, sinon langues du système dans l'ordre (code exact,
 /// puis même langue d'une autre région : « de-AT » → « de-DE »), sinon l'anglais.
-pub fn resolve<'a>(preferred: Option<&str>, system: impl IntoIterator<Item = String>, available: &'a [String]) -> String {
+pub fn resolve(preferred: Option<&str>, system: impl IntoIterator<Item = String>, available: &[String]) -> String {
     if let Some(p) = preferred.filter(|p| !p.is_empty()) {
         if let Some(a) = available.iter().find(|a| a.eq_ignore_ascii_case(p)) {
             return a.clone();
@@ -275,7 +275,7 @@ pub fn number(n: u64) -> String {
     let s = n.to_string();
     let mut out = String::new();
     for (i, c) in s.chars().enumerate() {
-        if i > 0 && (s.len() - i) % 3 == 0 {
+        if i > 0 && (s.len() - i).is_multiple_of(3) {
             out.push_str(&sep);
         }
         out.push(c);

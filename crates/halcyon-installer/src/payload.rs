@@ -153,7 +153,7 @@ impl Payload {
         let offset = u64::from_le_bytes(foot[8..16].try_into().unwrap_or_default());
         let len = u64::from_le_bytes(foot[16..24].try_into().unwrap_or_default());
         if offset.checked_add(len).is_none_or(|e| e != footer_pos) {
-            return Err(tr!("charge utile incohérente : fichier d'installation endommagé").into());
+            return Err(tr!("charge utile incohérente : fichier d'installation endommagé"));
         }
         Self::open(exe, offset, len).map(Some)
     }

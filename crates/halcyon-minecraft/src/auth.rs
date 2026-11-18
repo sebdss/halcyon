@@ -54,25 +54,25 @@ fn now() -> i64 {
 pub fn explain(e: &Error) -> String {
     let text = e.to_string();
     if text.contains("2148916233") {
-        return tr!("ce compte Microsoft n'a pas de profil Xbox : créez-le sur xbox.com, puis réessayez").into();
+        return tr!("ce compte Microsoft n'a pas de profil Xbox : créez-le sur xbox.com, puis réessayez");
     }
     if text.contains("2148916235") {
-        return tr!("Xbox Live n'est pas disponible dans le pays de ce compte").into();
+        return tr!("Xbox Live n'est pas disponible dans le pays de ce compte");
     }
     if text.contains("2148916236") || text.contains("2148916237") {
-        return tr!("ce compte doit d'abord confirmer l'âge de son titulaire sur xbox.com").into();
+        return tr!("ce compte doit d'abord confirmer l'âge de son titulaire sur xbox.com");
     }
     if text.contains("2148916238") {
-        return tr!("compte d'un mineur : il doit être ajouté à une famille Microsoft (account.microsoft.com/family)").into();
+        return tr!("compte d'un mineur : il doit être ajouté à une famille Microsoft (account.microsoft.com/family)");
     }
     if text.contains("Invalid app registration") || text.contains("AppRegInfo") {
-        return tr!("Mojang n'a pas encore autorisé l'identifiant d'application de Halcyon (aka.ms/mce-reviewappid)").into();
+        return tr!("Mojang n'a pas encore autorisé l'identifiant d'application de Halcyon (aka.ms/mce-reviewappid)");
     }
     if text.contains("AADSTS70002") || text.contains("AADSTS7000218") {
-        return tr!("l'application Azure doit autoriser les « flux de clients publics » (Authentification)").into();
+        return tr!("l'application Azure doit autoriser les « flux de clients publics » (Authentification)");
     }
     if text.contains("AADSTS700016") {
-        return tr!("identifiant d'application Azure inconnu : vérifiez-le dans les paramètres Minecraft").into();
+        return tr!("identifiant d'application Azure inconnu : vérifiez-le dans les paramètres Minecraft");
     }
     text
 }
@@ -85,7 +85,7 @@ pub struct Auth<'a> {
 impl Auth<'_> {
     fn check(&self) -> Result<()> {
         if self.client_id.trim().is_empty() {
-            return Err(Error::Invalid(tr!("aucun identifiant d'application Azure configuré (Minecraft › Paramètres)").into()));
+            return Err(Error::Invalid(tr!("aucun identifiant d'application Azure configuré (Minecraft › Paramètres)")));
         }
         Ok(())
     }
@@ -95,9 +95,9 @@ impl Auth<'_> {
         let v = self.http.post_form(&format!("{MS}/devicecode"), &[("client_id", self.client_id.trim()), ("scope", SCOPE)])?;
         let s = |k: &str| v.get(k).and_then(|x| x.as_str()).map(str::to_string);
         Ok(DeviceCode {
-            user_code: s("user_code").ok_or_else(|| Error::Invalid(tr!("réponse de Microsoft incomplète").into()))?,
+            user_code: s("user_code").ok_or_else(|| Error::Invalid(tr!("réponse de Microsoft incomplète")))?,
             verification_uri: s("verification_uri").unwrap_or_else(|| "https://www.microsoft.com/link".into()),
-            device_code: s("device_code").ok_or_else(|| Error::Invalid(tr!("réponse de Microsoft incomplète").into()))?,
+            device_code: s("device_code").ok_or_else(|| Error::Invalid(tr!("réponse de Microsoft incomplète")))?,
             interval: v.get("interval").and_then(|x| x.as_u64()).unwrap_or(5).max(1),
             expires_in: v.get("expires_in").and_then(|x| x.as_u64()).unwrap_or(900),
         })
@@ -115,7 +115,7 @@ impl Auth<'_> {
                 std::thread::sleep(Duration::from_millis(100));
             }
             if now() > deadline {
-                return Err(Error::Invalid(tr!("le code a expiré : recommencez la connexion").into()));
+                return Err(Error::Invalid(tr!("le code a expiré : recommencez la connexion")));
             }
             let r = self.http.post_form(
                 &format!("{MS}/token"),
@@ -125,8 +125,8 @@ impl Auth<'_> {
                 Ok(v) => return tokens(&v),
                 Err(Error::Http(_, body)) if body.contains("authorization_pending") => {}
                 Err(Error::Http(_, body)) if body.contains("slow_down") => interval += 5,
-                Err(Error::Http(_, body)) if body.contains("authorization_declined") => return Err(Error::Invalid(tr!("connexion refusée sur le site de Microsoft").into())),
-                Err(Error::Http(_, body)) if body.contains("expired_token") => return Err(Error::Invalid(tr!("le code a expiré : recommencez la connexion").into())),
+                Err(Error::Http(_, body)) if body.contains("authorization_declined") => return Err(Error::Invalid(tr!("connexion refusée sur le site de Microsoft"))),
+                Err(Error::Http(_, body)) if body.contains("expired_token") => return Err(Error::Invalid(tr!("le code a expiré : recommencez la connexion"))),
                 Err(e) => return Err(e),
             }
         }
@@ -149,26 +149,26 @@ impl Auth<'_> {
                                 "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT"}),
             &[],
         )?;
-        let xbl_token = xbl.get("Token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Xbox Live : réponse sans jeton").into()))?;
+        let xbl_token = xbl.get("Token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Xbox Live : réponse sans jeton")))?;
         let xsts = self.http.post_json(
             XSTS,
             &serde_json::json!({"Properties": {"SandboxId": "RETAIL", "UserTokens": [xbl_token]}, "RelyingParty": "rp://api.minecraftservices.com/", "TokenType": "JWT"}),
             &[],
         )?;
-        let xsts_token = xsts.get("Token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("XSTS : réponse sans jeton").into()))?;
-        let uhs = xsts.pointer("/DisplayClaims/xui/0/uhs").and_then(|u| u.as_str()).ok_or_else(|| Error::Invalid(tr!("XSTS : identifiant utilisateur absent").into()))?;
+        let xsts_token = xsts.get("Token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("XSTS : réponse sans jeton")))?;
+        let uhs = xsts.pointer("/DisplayClaims/xui/0/uhs").and_then(|u| u.as_str()).ok_or_else(|| Error::Invalid(tr!("XSTS : identifiant utilisateur absent")))?;
         let xuid = xsts.pointer("/DisplayClaims/xui/0/xid").and_then(|u| u.as_str()).unwrap_or_default().to_string();
         let mc = self.http.post_json(&format!("{MC}/authentication/login_with_xbox"), &serde_json::json!({"identityToken": format!("XBL3.0 x={uhs};{xsts_token}")}), &[])?;
-        let token = mc.get("access_token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Minecraft : réponse sans jeton").into()))?.to_string();
+        let token = mc.get("access_token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Minecraft : réponse sans jeton")))?.to_string();
         let expires = mc.get("expires_in").and_then(|e| e.as_i64()).unwrap_or(86_400);
         let bearer = format!("Bearer {token}");
         let ent = self.http.get_json(&format!("{MC}/entitlements/mcstore"), &[("Authorization", &bearer)])?;
         if !owns_java(&ent) {
-            return Err(Error::Invalid(tr!("ce compte ne possède pas Minecraft Java Edition (achat ou Xbox Game Pass PC requis)").into()));
+            return Err(Error::Invalid(tr!("ce compte ne possède pas Minecraft Java Edition (achat ou Xbox Game Pass PC requis)")));
         }
         let profile = match self.http.get_json(&format!("{MC}/minecraft/profile"), &[("Authorization", &bearer)]) {
             Ok(p) => p,
-            Err(Error::Http(404, _)) => return Err(Error::Invalid(tr!("ce compte n'a pas encore de profil Minecraft : lancez une fois le launcher officiel pour choisir un pseudo").into())),
+            Err(Error::Http(404, _)) => return Err(Error::Invalid(tr!("ce compte n'a pas encore de profil Minecraft : lancez une fois le launcher officiel pour choisir un pseudo"))),
             Err(e) => return Err(e),
         };
         Ok(Account {
@@ -183,8 +183,8 @@ impl Auth<'_> {
 }
 
 fn tokens(v: &serde_json::Value) -> Result<(String, String)> {
-    let refresh = v.get("refresh_token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Microsoft : jeton de renouvellement absent").into()))?;
-    let access = v.get("access_token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Microsoft : jeton d'accès absent").into()))?;
+    let refresh = v.get("refresh_token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Microsoft : jeton de renouvellement absent")))?;
+    let access = v.get("access_token").and_then(|t| t.as_str()).ok_or_else(|| Error::Invalid(tr!("Microsoft : jeton d'accès absent")))?;
     Ok((refresh.to_string(), access.to_string()))
 }
 

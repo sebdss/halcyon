@@ -147,16 +147,16 @@ pub fn verify_pending(layout: &Layout, keys: &[PublicKey], platform: Platform) -
     security::verify_signature(keys, &bytes, &sig)?;
     let checked = Manifest::parse(&bytes)?.check(None, None)?;
     if checked.version.to_string() != pending.version {
-        return Err(tr!("paquet en attente incohérent avec son manifeste").into());
+        return Err(tr!("paquet en attente incohérent avec son manifeste"));
     }
     let pkg = checked.package(platform).ok_or(tr!("aucun paquet pour ce système dans le manifeste"))?;
     if pkg.name != pending.package || pkg.format != pending.target.format() {
-        return Err(tr!("paquet en attente différent du manifeste signé").into());
+        return Err(tr!("paquet en attente différent du manifeste signé"));
     }
     let path = dir.join(&pkg.name);
     let len = std::fs::metadata(&path).map(|m| m.len()).map_err(|e| tr!("paquet : {e}", e = e))?;
     if len != pkg.size || security::sha256_file(&path).map_err(|e| e.to_string())? != pkg.sha256 {
-        return Err(tr!("paquet en attente altéré (SHA-256 différent du manifeste signé)").into());
+        return Err(tr!("paquet en attente altéré (SHA-256 différent du manifeste signé)"));
     }
     security::check_package(&path, pkg.format)?;
     Ok(Verified { pending, checked, package_path: path })
@@ -504,7 +504,7 @@ pub fn rollback(layout: &Layout) -> Result<bool, String> {
 pub fn finalize(layout: &Layout, txid: &str) -> Result<(), String> {
     let j: Journal = serde_json::from_slice(&std::fs::read(layout.journal()).map_err(|e| tr!("journal : {e}", e = e))?).map_err(|e| e.to_string())?;
     if j.txid != txid {
-        return Err(tr!("transaction inattendue").into());
+        return Err(tr!("transaction inattendue"));
     }
     let prev = layout.previous();
     let _ = std::fs::remove_dir_all(&prev);

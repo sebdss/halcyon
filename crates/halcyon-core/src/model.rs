@@ -110,7 +110,7 @@ impl PlayStatus {
         match self {
             Self::None => tr!("Aucun statut"),
             Self::Backlog => tr!("À jouer"),
-            Self::Playing => tr!("En cours").into(),
+            Self::Playing => tr!("En cours"),
             Self::Completed => tr!("Terminé"),
             Self::Abandoned => tr!("Abandonné"),
         }

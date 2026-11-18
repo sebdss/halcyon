@@ -29,7 +29,7 @@ msgctxt "date"
 msgid "{day} {month}"
 msgstr "{day} {month}"
 
-#: crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:219
+#: crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:228
 #, placeholders
 msgctxt "date"
 msgid "{month} {year}"
@@ -120,42 +120,42 @@ msgctxt "date"
 msgid "{day} {month} {year}"
 msgstr "{day} {month} {year}"
 
-#: crates/halcyon-core/src/util.rs:164
+#: crates/halcyon-core/src/util.rs:173
 msgid "Aujourd'hui"
 msgstr "Hoje"
 
-#: crates/halcyon-core/src/util.rs:165
+#: crates/halcyon-core/src/util.rs:174
 msgid "Hier"
 msgstr "Ontem"
 
-#: crates/halcyon-core/src/util.rs:166
+#: crates/halcyon-core/src/util.rs:175
 #, placeholders
 msgid "Il y a {n} jour"
 msgid_plural "Il y a {n} jours"
 msgstr[0] "Há {n} dia"
 msgstr[1] "Há {n} dias"
 
-#: crates/halcyon-core/src/util.rs:181
+#: crates/halcyon-core/src/util.rs:190
 #, placeholders
 msgid "{value} o"
 msgstr "{value} B"
 
-#: crates/halcyon-core/src/util.rs:182
+#: crates/halcyon-core/src/util.rs:191
 #, placeholders
 msgid "{value} Ko"
 msgstr "{value} KB"
 
-#: crates/halcyon-core/src/util.rs:183
+#: crates/halcyon-core/src/util.rs:192
 #, placeholders
 msgid "{value} Mo"
 msgstr "{value} MB"
 
-#: crates/halcyon-core/src/util.rs:184
+#: crates/halcyon-core/src/util.rs:193
 #, placeholders
 msgid "{value} Go"
 msgstr "{value} GB"
 
-#: crates/halcyon-core/src/util.rs:185
+#: crates/halcyon-core/src/util.rs:194
 #, placeholders
 msgid "{value} To"
 msgstr "{value} TB"

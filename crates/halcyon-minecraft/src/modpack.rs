@@ -52,10 +52,10 @@ pub struct Pack {
 
 pub fn read_index(v: &Value) -> Result<Pack> {
     if v.get("game").and_then(|g| g.as_str()) != Some("minecraft") {
-        return Err(Error::Invalid(tr!("ce modpack n'est pas destiné à Minecraft").into()));
+        return Err(Error::Invalid(tr!("ce modpack n'est pas destiné à Minecraft")));
     }
-    let deps = v.get("dependencies").and_then(|d| d.as_object()).ok_or_else(|| Error::Invalid(tr!("modpack sans dépendances").into()))?;
-    let mc = deps.get("minecraft").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid(tr!("modpack sans version de Minecraft").into()))?.to_string();
+    let deps = v.get("dependencies").and_then(|d| d.as_object()).ok_or_else(|| Error::Invalid(tr!("modpack sans dépendances")))?;
+    let mc = deps.get("minecraft").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid(tr!("modpack sans version de Minecraft")))?.to_string();
     let mut loader = Loader::Vanilla;
     let mut loader_version = String::new();
     for (k, l) in [("fabric-loader", Loader::Fabric), ("quilt-loader", Loader::Quilt), ("forge", Loader::Forge), ("neoforge", Loader::NeoForge)] {
@@ -103,7 +103,7 @@ pub fn read_mrpack(path: &Path) -> Result<Pack> {
     let mut zip = zip::ZipArchive::new(f).map_err(|e| Error::Invalid(tr!("archive illisible : {e}", e = e)))?;
     let mut text = String::new();
     zip.by_name("modrinth.index.json")
-        .map_err(|_| Error::Invalid(tr!("ce fichier n'est pas un modpack Modrinth (.mrpack)").into()))?
+        .map_err(|_| Error::Invalid(tr!("ce fichier n'est pas un modpack Modrinth (.mrpack)")))?
         .read_to_string(&mut text)
         .map_err(|e| Error::Invalid(e.to_string()))?;
     read_index(&serde_json::from_str(&text).map_err(|e| Error::Invalid(tr!("index illisible : {e}", e = e)))?)
@@ -159,7 +159,7 @@ pub fn install_mrpack(http: &Http, layout: &Layout, mrpack: &Path, reference: Mo
     let jobs: Vec<Job> = pack.files.iter().map(|(rel, j)| Job { dest: dir.join(rel), ..j.clone() }).collect();
     sink(Event::Step(tr!("Téléchargement des fichiers du modpack ({jobs})", jobs = jobs.len())));
     fetch_all(http, jobs, true, cancel, sink)?;
-    sink(Event::Step(tr!("Fichiers de configuration du modpack").into()));
+    sink(Event::Step(tr!("Fichiers de configuration du modpack")));
     let mut files: Vec<String> = pack.files.iter().map(|(rel, _)| rel.to_string_lossy().replace('\\', "/")).collect();
     files.extend(extract_overrides(mrpack, &dir, &["overrides", "client-overrides"])?);
     for (rel, job) in &pack.files {
@@ -280,11 +280,11 @@ pub fn read_curseforge(path: &Path) -> Result<(String, String, String, Loader, S
     let mut zip = zip::ZipArchive::new(f).map_err(|e| Error::Invalid(tr!("archive illisible : {e}", e = e)))?;
     let mut text = String::new();
     zip.by_name("manifest.json")
-        .map_err(|_| Error::Invalid(tr!("ce fichier n'est ni un .mrpack ni un modpack CurseForge").into()))?
+        .map_err(|_| Error::Invalid(tr!("ce fichier n'est ni un .mrpack ni un modpack CurseForge")))?
         .read_to_string(&mut text)
         .map_err(|e| Error::Invalid(e.to_string()))?;
     let v: Value = serde_json::from_str(&text).map_err(|e| Error::Invalid(e.to_string()))?;
-    let mc = v.pointer("/minecraft/version").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid(tr!("manifeste sans version de Minecraft").into()))?.to_string();
+    let mc = v.pointer("/minecraft/version").and_then(|x| x.as_str()).ok_or_else(|| Error::Invalid(tr!("manifeste sans version de Minecraft")))?.to_string();
     let primary = v
         .pointer("/minecraft/modLoaders")
         .and_then(|l| l.as_array())
@@ -314,7 +314,7 @@ pub fn read_curseforge(path: &Path) -> Result<(String, String, String, Loader, S
 /// fichiers que l'auteur interdit de télécharger hors du site (à déposer à la main).
 pub fn install_curseforge(http: &Http, key: &str, layout: &Layout, zip_path: &Path, cancel: &AtomicBool, sink: Sink) -> Result<(Profile, Vec<String>)> {
     if key.trim().is_empty() {
-        return Err(Error::Invalid(tr!("CurseForge demande une clé d'API (Minecraft › Paramètres)").into()));
+        return Err(Error::Invalid(tr!("CurseForge demande une clé d'API (Minecraft › Paramètres)")));
     }
     let (name, version, mc, loader, lv, files) = read_curseforge(zip_path)?;
     sink(Event::Step(format!("Modpack {name} {version}")));

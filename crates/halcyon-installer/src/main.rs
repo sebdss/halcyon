@@ -224,7 +224,7 @@ fn describe_found(ui: &SetupWindow, st: &State) {
         }
         Found::Interrupted { dir } => (
             3,
-            tr!("Une installation a été interrompue.").into(),
+            tr!("Une installation a été interrompue."),
             tr!("Dans {dir}. La réparation remet l'installation dans un état cohérent ; vos données ne sont pas touchées.", dir = dir.display()),
             st.payload.is_some(),
             false,
@@ -598,14 +598,14 @@ fn wire(ui: &SetupWindow, state: &Shared) {
 fn checks_for(p: &Payload, opts: &Options, found: &Found, mode: Mode) -> Vec<engine::Check> {
     let mut out = Vec::new();
     if !opts.dir.is_absolute() {
-        out.push(engine::Check { label: tr!("Dossier").into(), detail: tr!("indiquez un chemin complet (par exemple celui proposé par défaut)").into(), level: Level::Error });
+        out.push(engine::Check { label: tr!("Dossier"), detail: tr!("indiquez un chemin complet (par exemple celui proposé par défaut)"), level: Level::Error });
         return out;
     }
     let ours = opts.dir.join(engine::RECORD).is_file() || opts.dir.join(platform::main_exe_name()).is_file();
     if !ours && std::fs::read_dir(&opts.dir).is_ok_and(|mut d| d.next().is_some()) {
         out.push(engine::Check {
-            label: tr!("Dossier").into(),
-            detail: tr!("il contient déjà des fichiers : ils ne seront ni modifiés ni supprimés, y compris à la désinstallation").into(),
+            label: tr!("Dossier"),
+            detail: tr!("il contient déjà des fichiers : ils ne seront ni modifiés ni supprimés, y compris à la désinstallation"),
             level: Level::Warning,
         });
     }
@@ -723,9 +723,9 @@ fn start_install(ui: &SetupWindow, state: &Shared) {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match (&payload, &previous) {
             (Some(p), _) => engine::run(p, &opts, &env, mode, previous.as_ref(), Some(&exe), &cancel, &mut |e| fwd.send(e)),
             (None, Some(rec)) => engine::repair_integration(rec, &env, &mut |e| fwd.send(e)),
-            (None, None) => Err(tr!("aucun fichier à installer").into()),
+            (None, None) => Err(tr!("aucun fichier à installer")),
         }))
-        .unwrap_or_else(|_| Err(tr!("erreur interne du programme d'installation").into()));
+        .unwrap_or_else(|_| Err(tr!("erreur interne du programme d'installation")));
         let dir = opts.dir.clone();
         let version = engine::read_record(&dir).map(|r| r.version).unwrap_or_default();
         let _ = slint::invoke_from_event_loop(move || {
@@ -789,7 +789,7 @@ fn start_uninstall(ui: &SetupWindow, state: &Shared) {
     std::thread::spawn(move || {
         let mut fwd = Forward { w: w.clone(), last: Instant::now() - Duration::from_secs(1) };
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| engine::uninstall(&record, &env, &opts, &mut |e| fwd.send(e))))
-            .unwrap_or_else(|_| Err(tr!("erreur interne du programme de désinstallation").into()));
+            .unwrap_or_else(|_| Err(tr!("erreur interne du programme de désinstallation")));
         let _ = slint::invoke_from_event_loop(move || {
             let Some(ui) = w.upgrade() else { return };
             let s = ui.global::<Setup>();
@@ -936,7 +936,7 @@ fn pack_cli(stub: &Path, args: &[String]) -> Result<(), String> {
     // Le paquet produit doit se relire.
     match Payload::from_exe(Path::new(&out))? {
         Some(p) if p.manifest == m => Ok(()),
-        _ => Err(tr!("la charge utile produite ne se relit pas").into()),
+        _ => Err(tr!("la charge utile produite ne se relit pas")),
     }
 }
 

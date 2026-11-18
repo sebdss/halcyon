@@ -337,7 +337,7 @@ impl Controller {
                 let result = if slot.is_none() {
                     Err(Error::Cancelled)
                 } else {
-                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(&ctx))).unwrap_or_else(|_| Err(Error::Invalid(tr!("erreur interne").into())))
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(&ctx))).unwrap_or_else(|_| Err(Error::Invalid(tr!("erreur interne"))))
                 };
                 drop(slot);
                 post(move |c| {
@@ -540,9 +540,9 @@ impl Controller {
         let client_id = s.client_id.trim().to_string();
         self.mc_run(&tr!("Lancement de {name}", name = p.name), move |ctx| {
             let account = if account.expires_at <= profiles::now() {
-                ctx.sink()(Event::Step(tr!("Renouvellement de la session Microsoft").into()));
+                ctx.sink()(Event::Step(tr!("Renouvellement de la session Microsoft")));
                 let store = auth::Store::new(ctx.layout.root.join("accounts"));
-                let refresh = store.refresh_token(&account.uuid).ok_or_else(|| Error::Invalid(tr!("session expirée : reconnectez-vous").into()))?;
+                let refresh = store.refresh_token(&account.uuid).ok_or_else(|| Error::Invalid(tr!("session expirée : reconnectez-vous")))?;
                 let a = Auth { http: &ctx.http, client_id: &client_id };
                 let (new_refresh, ms) = a.refresh(&refresh)?;
                 let fresh = a.minecraft(&ms)?;
@@ -553,7 +553,7 @@ impl Controller {
             };
             let v = install::install(&ctx.http, &ctx.layout, &p.version_id, ctx.manifest.as_deref(), false, &ctx.cancel, &ctx.sink())?;
             let java = ctx.java(&v)?;
-            ctx.sink()(Event::Step(tr!("Natives et assets").into()));
+            ctx.sink()(Event::Step(tr!("Natives et assets")));
             let natives = install::extract_natives(&ctx.layout, &v)?;
             let game = p.game_dir(&ctx.layout);
             install::prepare_legacy_assets(&ctx.layout, &v, Some(&game))?;
@@ -868,10 +868,10 @@ impl Controller {
         self.mc_run(&tr!("Installation du modpack {title}", title = project.title), move |ctx| {
             let c = mods::Client { http: &ctx.http, curseforge_key: &key };
             let versions = c.versions(project.source, &project.id, None, None)?;
-            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid(tr!("modpack sans version publiée").into()))?;
-            let url = v.file.url.clone().ok_or_else(|| Error::Invalid(tr!("l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge").into()))?;
+            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid(tr!("modpack sans version publiée")))?;
+            let url = v.file.url.clone().ok_or_else(|| Error::Invalid(tr!("l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge")))?;
             if !mods::safe_name(&v.file.filename) {
-                return Err(Error::Invalid(tr!("nom de fichier refusé").into()));
+                return Err(Error::Invalid(tr!("nom de fichier refusé")));
             }
             let file = ctx.layout.cache().join("packs").join(&v.file.filename);
             ctx.sink()(Event::Step(tr!("Téléchargement de {filename}", filename = v.file.filename)));
@@ -896,7 +896,7 @@ impl Controller {
         self.mc_run(&tr!("Mise à jour de {name}", name = p.name), move |ctx| {
             let c = mods::Client { http: &ctx.http, curseforge_key: "" };
             let versions = c.versions(Source::Modrinth, &r.project_id, None, None)?;
-            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid(tr!("aucune version publiée").into()))?;
+            let v = versions.iter().find(|v| v.channel == "release").or(versions.first()).cloned().ok_or_else(|| Error::Invalid(tr!("aucune version publiée")))?;
             if v.id == r.version_id {
                 return Ok(Box::new(|ctl: &Rc<Controller>| ctl.mc_info(&tr!("Le modpack est déjà à jour."))));
             }
@@ -1137,7 +1137,7 @@ fn library_entry(layout: &Layout) -> Option<halcyon_core::DiscoveredGame> {
     d.developer = Some("Mojang Studios".into());
     d.publisher = Some("Mojang Studios".into());
     d.release_date = Some("2011-11-18".into());
-    d.genres = vec![tr!("Bac à sable").into(), tr!("Survie").into()];
+    d.genres = vec![tr!("Bac à sable"), tr!("Survie")];
     d.description = Some(match list.len() {
         0 => tr!("Aucune installation Halcyon pour l'instant : Jouer ouvre l'onglet Minecraft."),
         n => trn!(n, "{n} installation dans l'onglet Minecraft : {v}.", "{n} installations dans l'onglet Minecraft : {v}.", v = list.iter().map(|p| p.name.as_str()).collect::<Vec<_>>().join(", ")),

@@ -23,7 +23,7 @@ impl Kind {
             Kind::Managed { target: Target::Zip, layout, .. } => tr!("Installation utilisateur ({root})", root = layout.root.display()),
             Kind::Managed { target: Target::Appimage { .. }, layout, .. } => format!("AppImage ({})", layout.root.display()),
             Kind::Managed { target: Target::Migrate, layout, .. } => tr!("Installation utilisateur ({root}) : passera au format AppImage à la prochaine mise à jour", root = layout.root.display()),
-            Kind::PackageManager => tr!("Paquet système : mises à jour par votre gestionnaire de paquets (apt…)").into(),
+            Kind::PackageManager => tr!("Paquet système : mises à jour par votre gestionnaire de paquets (apt…)"),
             Kind::Unsupported(why) => why.clone(),
         }
     }
@@ -46,31 +46,31 @@ fn dev_build(exe: &Path) -> bool {
 
 /// Détecte l'installation de ce processus.
 pub fn detect() -> Kind {
-    let Ok(exe) = std::env::current_exe() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu").into()) };
+    let Ok(exe) = std::env::current_exe() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu")) };
     detect_from(&exe, std::env::var_os("APPIMAGE").map(PathBuf::from), std::env::var_os("APPDIR").map(PathBuf::from))
 }
 
 pub fn detect_from(exe: &Path, appimage: Option<PathBuf>, appdir: Option<PathBuf>) -> Kind {
     if cfg!(windows) {
-        let Some(root) = exe.parent() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu").into()) };
+        let Some(root) = exe.parent() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu")) };
         if dev_build(exe) {
-            return Kind::Unsupported(tr!("Version compilée localement : mise à jour manuelle").into());
+            return Kind::Unsupported(tr!("Version compilée localement : mise à jour manuelle"));
         }
         let updater = root.join(crate::security::WINDOWS_UPDATER);
         if !updater.is_file() {
-            return Kind::Unsupported(tr!("halcyon-updater.exe absent : réinstallez Halcyon avec le dernier programme d'installation").into());
+            return Kind::Unsupported(tr!("halcyon-updater.exe absent : réinstallez Halcyon avec le dernier programme d'installation"));
         }
         if !writable(root) {
-            return Kind::Unsupported(tr!("Installation pour tous les utilisateurs : mise à jour par le programme d'installation (droits d'administrateur)").into());
+            return Kind::Unsupported(tr!("Installation pour tous les utilisateurs : mise à jour par le programme d'installation (droits d'administrateur)"));
         }
         return Kind::Managed { layout: Layout::new(root), target: Target::Zip, updater };
     }
     if let Some(img) = appimage.filter(|p| p.is_file()) {
         let (Some(root), Some(name)) = (img.parent(), img.file_name().and_then(|n| n.to_str())) else {
-            return Kind::Unsupported(tr!("emplacement de l'AppImage inconnu").into());
+            return Kind::Unsupported(tr!("emplacement de l'AppImage inconnu"));
         };
         let Some(updater) = appdir.map(|d| d.join("usr/bin/halcyon-updater")).filter(|p| p.is_file()) else {
-            return Kind::Unsupported(tr!("updater absent de cette AppImage").into());
+            return Kind::Unsupported(tr!("updater absent de cette AppImage"));
         };
         if !writable(root) {
             return Kind::Unsupported(tr!("{root} n'est pas modifiable : déplacez l'AppImage dans un dossier personnel", root = root.display()));
@@ -81,13 +81,13 @@ pub fn detect_from(exe: &Path, appimage: Option<PathBuf>, appdir: Option<PathBuf
         return Kind::PackageManager;
     }
     if dev_build(exe) {
-        return Kind::Unsupported(tr!("Version compilée localement : mise à jour manuelle").into());
+        return Kind::Unsupported(tr!("Version compilée localement : mise à jour manuelle"));
     }
-    let Some(root) = exe.parent() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu").into()) };
+    let Some(root) = exe.parent() else { return Kind::Unsupported(tr!("emplacement de Halcyon inconnu")) };
     if root.join(install::SETUP_RECORD).is_file() && root.join("halcyon-updater").is_file() && writable(root) {
         return Kind::Managed { layout: Layout::new(root), target: Target::Migrate, updater: root.join("halcyon-updater") };
     }
-    Kind::Unsupported(tr!("Archive ou installation manuelle : téléchargez la nouvelle version depuis GitHub").into())
+    Kind::Unsupported(tr!("Archive ou installation manuelle : téléchargez la nouvelle version depuis GitHub"))
 }
 
 /// Lance l'updater (copie dans `.hus/runner`) pour installer le paquet en attente, puis le

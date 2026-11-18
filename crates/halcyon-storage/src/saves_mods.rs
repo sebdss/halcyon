@@ -124,7 +124,7 @@ impl Database {
     pub fn save_mod_profile(&self, p: &ModProfile) -> Result<i64> {
         let name = p.name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict(tr!("le profil de mods doit avoir un nom").into()));
+            return Err(StorageError::Conflict(tr!("le profil de mods doit avoir un nom")));
         }
         let entries = serde_json::to_string(&p.entries)?;
         if p.id == 0 {

@@ -62,7 +62,7 @@ impl Database {
         list: &[AchievementData],
     ) -> Result<Vec<Achievement>> {
         if provider == AchievementProvider::Custom {
-            return Err(StorageError::Conflict(tr!("les succès personnalisés ne se synchronisent pas").into()));
+            return Err(StorageError::Conflict(tr!("les succès personnalisés ne se synchronisent pas")));
         }
         let tx = self.conn.transaction()?;
         let previous: HashMap<String, bool> = {
@@ -174,6 +174,7 @@ impl Database {
                         "ok" => SyncStatus::Ok,
                         "none" => SyncStatus::NoAchievements,
                         "unknown" => SyncStatus::NotRecognized,
+                        "notcached" => SyncStatus::NotCached,
                         _ => SyncStatus::Error(msg.unwrap_or_default()),
                     };
                     Ok((r.get(0)?, s))
@@ -194,7 +195,7 @@ impl Database {
     pub fn add_custom_achievement(&self, game: GameId, name: &str, description: &str) -> Result<()> {
         let name = name.trim();
         if name.is_empty() {
-            return Err(StorageError::Conflict(tr!("le nom du succès est vide").into()));
+            return Err(StorageError::Conflict(tr!("le nom du succès est vide")));
         }
         let order: i64 = self.conn.query_row(
             "SELECT COALESCE(MAX(display_order), 0) + 1 FROM achievements WHERE game_id = ?1 AND provider = 'custom'",

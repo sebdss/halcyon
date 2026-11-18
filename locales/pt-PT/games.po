@@ -762,138 +762,142 @@ msgstr "Criar um atalho no ambiente de trabalho"
 msgid "Publier dans Sunshine…"
 msgstr "Publicar no Sunshine…"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:139
+#: crates/halcyon-app/src/ctl_achievements.rs:174
 msgid "Hors ligne : les succès seront synchronisés au retour de la connexion"
 msgstr "Sem ligação: as conquistas serão sincronizadas quando a ligação voltar"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:146
+#: crates/halcyon-app/src/ctl_achievements.rs:180
 msgid "Configurez vos comptes Steam / RetroAchievements dans les paramètres"
 msgstr "Configure as suas contas Steam / RetroAchievements nas definições"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:152
+#: crates/halcyon-app/src/ctl_achievements.rs:186
 msgid "Une synchronisation est déjà en cours"
 msgstr "Já está em curso uma sincronização"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:192
+#: crates/halcyon-app/src/ctl_achievements.rs:233
 msgid "Rien à synchroniser pour ce jeu"
 msgstr "Nada a sincronizar para este jogo"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:196
+#: crates/halcyon-app/src/ctl_achievements.rs:237
 #, placeholders
 msgid "Synchronisation de {n} jeu…"
 msgid_plural "Synchronisation de {n} jeux…"
 msgstr[0] "A sincronizar {n} jogo…"
 msgstr[1] "A sincronizar {n} jogos…"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:207
+#: crates/halcyon-app/src/ctl_achievements.rs:248
 #, placeholders
 msgid "Succès : {v}/{total}"
 msgstr "Conquistas: {v}/{total}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:228
+#: crates/halcyon-app/src/ctl_achievements.rs:272
 msgid "Synchronisation des succès"
 msgstr "Sincronização das conquistas"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:247
+#: crates/halcyon-app/src/ctl_achievements.rs:291
 #, placeholders
 msgid "Jeux traités : {total} · erreurs : {errors} — {e}"
 msgstr "Jogos processados: {total} · erros: {errors} — {e}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:248
+#: crates/halcyon-app/src/ctl_achievements.rs:292
 #, placeholders
 msgid "Synchronisé à {clock_now} · {n} jeu"
 msgid_plural "Synchronisé à {clock_now} · {n} jeux"
 msgstr[0] "Sincronizado às {clock_now} · {n} jogo"
 msgstr[1] "Sincronizado às {clock_now} · {n} jogos"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:251
+#: crates/halcyon-app/src/ctl_achievements.rs:295
 #, placeholders
 msgid "{status} · {n} nouveau succès"
 msgid_plural "{status} · {n} nouveaux succès"
 msgstr[0] "{status} · {n} nova conquista"
 msgstr[1] "{status} · {n} novas conquistas"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:333
+#: crates/halcyon-app/src/ctl_achievements.rs:381
 #, placeholders
 msgid "{n} succès débloqué"
 msgid_plural "{n} succès débloqués"
 msgstr[0] "{n} conquista desbloqueada"
 msgstr[1] "{n} conquistas desbloqueadas"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:372
+#: crates/halcyon-app/src/ctl_achievements.rs:420
 msgid "Débloqué"
 msgstr "Desbloqueada"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:389
+#: crates/halcyon-app/src/ctl_achievements.rs:437
 #, placeholders
 msgid "{n} point"
 msgid_plural "{n} points"
 msgstr[0] "{n} ponto"
 msgstr[1] "{n} pontos"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:408
+#: crates/halcyon-app/src/ctl_achievements.rs:456
 msgid "Epic Games ne fournit pas d'API publique de succès : ils ne peuvent pas être affichés ici."
 msgstr "A Epic Games não disponibiliza uma API pública de conquistas: não podem ser apresentadas aqui."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:409
+#: crates/halcyon-app/src/ctl_achievements.rs:457
 msgid "Cette plateforme n'est pas prise en charge par RetroAchievements."
 msgstr "Esta plataforma não é suportada pelo RetroAchievements."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:411
-msgid "Ajoutez votre clé Steam Web API dans les paramètres pour afficher vos succès Steam."
-msgstr "Adicione a sua chave de Steam Web API nas definições para mostrar as conquistas do Steam."
+#: crates/halcyon-app/src/ctl_achievements.rs:459
+msgid "Aucun compte Steam trouvé sur ce PC : ouvrez Steam une fois connecté, puis relancez une analyse."
+msgstr "Nenhuma conta Steam encontrada neste PC: abra o Steam uma vez com a sessão iniciada e volte a analisar."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:413
+#: crates/halcyon-app/src/ctl_achievements.rs:461
 msgid "Renseignez votre compte RetroAchievements dans les paramètres."
 msgstr "Indique a sua conta RetroAchievements nas definições."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:414
+#: crates/halcyon-app/src/ctl_achievements.rs:462
 msgid "Aucun succès personnalisé pour l'instant."
 msgstr "Ainda não há conquistas personalizadas."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:415
+#: crates/halcyon-app/src/ctl_achievements.rs:463
 msgid "Aucun succès synchronisé pour ce jeu."
 msgstr "Nenhuma conquista sincronizada para este jogo."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:416
+#: crates/halcyon-app/src/ctl_achievements.rs:464
 #, placeholders
 msgid "{unlocked} / {n} succès débloqué"
 msgid_plural "{unlocked} / {n} succès débloqués"
 msgstr[0] "{unlocked} / {n} conquista desbloqueada"
 msgstr[1] "{unlocked} / {n} conquistas desbloqueadas"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:428
+#: crates/halcyon-app/src/ctl_achievements.rs:476
 #, placeholders
 msgid "Synchronisé {when}"
 msgstr "Sincronizado {when}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:429
+#: crates/halcyon-app/src/ctl_achievements.rs:477
 #, placeholders
 msgid "Ce jeu n'a pas de succès sur cette plateforme (vérifié {when})"
 msgstr "Este jogo não tem conquistas nesta plataforma (verificado {when})"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:431
+#: crates/halcyon-app/src/ctl_achievements.rs:479
 msgid "ROM non reconnue par RetroAchievements : indiquez l'identifiant du jeu dans l'onglet Paramètres."
 msgstr "ROM não reconhecida pelo RetroAchievements: indique o ID do jogo no separador Definições."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:433
+#: crates/halcyon-app/src/ctl_achievements.rs:481
+msgid "Steam n'a pas encore enregistré les succès de ce jeu sur ce PC : lancez-le une fois. Pour les jeux jamais lancés ici, une clé Steam Web API (Paramètres › Comptes, réglages avancés) les récupère en ligne."
+msgstr "O Steam ainda não guardou as conquistas deste jogo neste PC: inicie-o uma vez. Para os jogos nunca iniciados aqui, uma chave Steam Web API (Definições › Contas, definições avançadas) obtém-nas online."
+
+#: crates/halcyon-app/src/ctl_achievements.rs:484
 #, placeholders
 msgid "Dernière tentative {when} : {e}"
 msgstr "Última tentativa {when}: {e}"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:436
+#: crates/halcyon-app/src/ctl_achievements.rs:487
 msgid "Succès locaux, non vérifiés par une plateforme."
 msgstr "Conquistas locais, não verificadas por uma plataforma."
 
-#: crates/halcyon-app/src/ctl_achievements.rs:534
+#: crates/halcyon-app/src/ctl_achievements.rs:585
 msgid "L'identifiant RetroAchievements est un nombre"
 msgstr "O ID do RetroAchievements é um número"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:544
+#: crates/halcyon-app/src/ctl_achievements.rs:595
 msgid "Identifiant enregistré"
 msgstr "ID guardado"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:605
+#: crates/halcyon-app/src/ctl_achievements.rs:699
 #, placeholders
 msgid "base de données : {e}"
 msgstr "base de dados: {e}"
@@ -1438,27 +1442,27 @@ msgstr "definições do perfil não aplicáveis: o arranque é delegado no siste
 msgid "priorité « {label} » refusée par le système (droits insuffisants pour l'augmenter)"
 msgstr "prioridade «{label}» recusada pelo sistema (direitos insuficientes para a aumentar)"
 
-#: crates/halcyon-integrations/src/launcher.rs:199
+#: crates/halcyon-integrations/src/launcher.rs:202
 #, placeholders
 msgid "« {v} » est requis pour lancer un jeu Windows ({e})"
 msgstr "«{v}» é necessário para iniciar um jogo Windows ({e})"
 
-#: crates/halcyon-integrations/src/launcher.rs:249
+#: crates/halcyon-integrations/src/launcher.rs:252
 #, placeholders
 msgid "commande impossible à lancer : {e}"
 msgstr "não é possível executar o comando: {e}"
 
-#: crates/halcyon-integrations/src/launcher.rs:254
+#: crates/halcyon-integrations/src/launcher.rs:257
 #, placeholders
 msgid "la commande s'est terminée avec le code {v}"
 msgstr "o comando terminou com o código {v}"
 
-#: crates/halcyon-integrations/src/launcher.rs:258
+#: crates/halcyon-integrations/src/launcher.rs:261
 #, placeholders
 msgid "commande interrompue après {as_secs} s"
 msgstr "comando interrompido após {as_secs} s"
 
-#: crates/halcyon-integrations/src/launcher.rs:269
+#: crates/halcyon-integrations/src/launcher.rs:272
 #, placeholders
 msgid "programme introuvable : {path}"
 msgstr "programa não encontrado: {path}"

@@ -93,7 +93,7 @@ impl Controller {
         let default_name = {
             let mut g = game.clone();
             g.emulator = None;
-            self.emulator_for(&g).map(|(d, _)| d.name).unwrap_or_else(|| tr!("aucun détecté").into())
+            self.emulator_for(&g).map(|(d, _)| d.name).unwrap_or_else(|| tr!("aucun détecté"))
         };
         let reg = self.registry.borrow();
         let detected = self.detected.borrow();

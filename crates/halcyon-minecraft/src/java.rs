@@ -121,12 +121,12 @@ pub fn detect(layout: &Layout) -> Vec<JavaInstall> {
         for e in rd.flatten() {
             let p = e.path();
             if let Some(exe) = exe_in(&p) {
-                candidates.push((exe, tr!("système").into()));
+                candidates.push((exe, tr!("système")));
             } else if let Ok(rd2) = std::fs::read_dir(&p) {
                 // runtime/<composant>/<plateforme>/<composant>/bin (launcher officiel)
                 for e2 in rd2.flatten() {
                     if let Some(exe) = exe_in(&e2.path()).or_else(|| exe_in(&e2.path().join(e.file_name()))) {
-                        candidates.push((exe, tr!("système").into()));
+                        candidates.push((exe, tr!("système")));
                     }
                 }
             }
@@ -177,9 +177,9 @@ pub fn install_runtime(http: &Http, layout: &Layout, component: &str, cancel: &A
         .and_then(|c| c.as_array())
         .and_then(|a| a.first())
         .ok_or_else(|| Error::Invalid(tr!("Mojang ne publie pas « {component} » pour {platform_key}", component = component, platform_key = platform_key())))?;
-    let url = entry.pointer("/manifest/url").and_then(|u| u.as_str()).ok_or_else(|| Error::Invalid(tr!("manifeste Java incomplet").into()))?;
+    let url = entry.pointer("/manifest/url").and_then(|u| u.as_str()).ok_or_else(|| Error::Invalid(tr!("manifeste Java incomplet")))?;
     let manifest = http.get_json(url, &[])?;
-    let files = manifest.get("files").and_then(|f| f.as_object()).ok_or_else(|| Error::Invalid(tr!("manifeste Java vide").into()))?;
+    let files = manifest.get("files").and_then(|f| f.as_object()).ok_or_else(|| Error::Invalid(tr!("manifeste Java vide")))?;
     let dir = layout.runtime().join(component);
     let mut jobs = Vec::new();
     let mut executables = Vec::new();

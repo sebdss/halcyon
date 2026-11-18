@@ -121,7 +121,21 @@ impl Manifest {
         if !adds.is_empty() {
             out.push(tr!("Ajoute : {join}", join = adds.join(", ")));
         }
-        out.push(tr!("Aucun code n'est exécuté : l'extension ne contient que des données.").into());
+        // Les émulateurs désignent des programmes déjà installés, lancés pour jouer : on les nomme.
+        let mut programs: Vec<String> = p
+            .emulators
+            .iter()
+            .filter_map(|e| e.get("executables"))
+            .flat_map(|x| ["windows", "linux", "macos"].into_iter().filter_map(move |os| x.get(os)?.as_array()))
+            .flatten()
+            .filter_map(|v| v.as_str().map(str::to_string))
+            .collect();
+        programs.sort();
+        programs.dedup();
+        if !programs.is_empty() {
+            out.push(tr!("Pour jouer, lance ces programmes s'ils sont installés sur ce PC : {join}", join = programs.join(", ")));
+        }
+        out.push(tr!("Aucun code n'est exécuté : l'extension ne contient que des données."));
         out
     }
 
@@ -136,7 +150,7 @@ impl Manifest {
             errors.push(tr!("nom manquant"));
         }
         if self.version.trim().is_empty() {
-            errors.push(tr!("version manquante").into());
+            errors.push(tr!("version manquante"));
         }
         if !self.min_halcyon.is_empty() && util::version_newer(&self.min_halcyon, current_version) {
             errors.push(tr!("nécessite Halcyon {min_halcyon} ou plus récent", min_halcyon = self.min_halcyon));
@@ -152,7 +166,7 @@ impl Manifest {
             }
         }
         if !self.provides.game_folders.is_empty() && !self.permissions.iter().any(|p| p == "folders") {
-            warnings.push(tr!("dossiers de jeux ignorés : permission « folders » absente").into());
+            warnings.push(tr!("dossiers de jeux ignorés : permission « folders » absente"));
         }
         (errors, warnings)
     }
@@ -243,7 +257,12 @@ pub fn stage(src: &Path, staging: &Path, current_version: &str) -> Result<Manife
     // Pas d'exécutables : une extension ne contient que des données.
     for f in crate::archive::walk_files(staging, 5000).map_err(|e| e.to_string())? {
         let ext = f.extension().map(|e| e.to_string_lossy().to_lowercase()).unwrap_or_default();
-        if matches!(ext.as_str(), "exe" | "dll" | "so" | "dylib" | "bat" | "cmd" | "ps1" | "sh" | "msi" | "scr" | "com" | "vbs" | "js" | "py") {
+        if matches!(
+            ext.as_str(),
+            "exe" | "dll" | "so" | "dylib" | "bat" | "cmd" | "ps1" | "psm1" | "sh" | "bash" | "msi" | "msix" | "scr" | "com" | "pif" | "cpl"
+                | "vbs" | "vbe" | "js" | "jse" | "wsf" | "wsh" | "hta" | "py" | "pyw" | "pl" | "rb" | "php" | "lua" | "jar" | "lnk" | "reg"
+                | "appimage" | "run" | "command" | "desktop" | "elf"
+        ) {
             return Err(tr!("fichier exécutable refusé dans l'extension : {f}", f = f.display()));
         }
     }
@@ -273,7 +292,7 @@ pub fn check_update(dl: &Downloader, m: &Manifest) -> Result<Option<String>, Str
         return Ok(None);
     }
     if !m.update_url.starts_with("https://") {
-        return Err(tr!("adresse de mise à jour non sécurisée (HTTPS requis)").into());
+        return Err(tr!("adresse de mise à jour non sécurisée (HTTPS requis)"));
     }
     let v = dl.get_json(&m.update_url).map_err(|e| e.to_string())?;
     let latest = v.get("version").and_then(|x| x.as_str()).ok_or(tr!("réponse sans numéro de version"))?;
@@ -306,7 +325,7 @@ pub fn fetch_metadata(
 ) -> Result<halcyon_core::OnlineMetadata, String> {
     let url = fill_url(&src.url, name, steam_appid);
     if !m.allows_url(&url) {
-        return Err(tr!("domaine non autorisé").into());
+        return Err(tr!("domaine non autorisé"));
     }
     let v = dl.get_json(&url).map_err(|e| e.to_string())?;
     Ok(extract_metadata(&v, src))

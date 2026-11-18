@@ -160,7 +160,7 @@ pub fn version_id(loader: Loader, mc: &str, lv: &str) -> String {
 #[allow(clippy::too_many_arguments)]
 pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str, java: Option<&Path>, cancel: &AtomicBool, sink: Sink) -> Result<String> {
     if lv.contains(['/', '\\']) || lv.contains("..") || mc.contains(['/', '\\']) {
-        return Err(Error::Invalid(tr!("version refusée").into()));
+        return Err(Error::Invalid(tr!("version refusée")));
     }
     match loader {
         Loader::Vanilla => Ok(mc.to_string()),
@@ -169,7 +169,7 @@ pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str,
             let base = if loader == Loader::Fabric { FABRIC_META } else { QUILT_META };
             let url = format!("{base}/versions/loader/{}/{}/profile/json", crate::http::encode(mc), crate::http::encode(lv));
             let profile = http.get_json(&url, &[])?;
-            let id = profile.get("id").and_then(|i| i.as_str()).ok_or_else(|| Error::Invalid(tr!("profil sans identifiant").into()))?.to_string();
+            let id = profile.get("id").and_then(|i| i.as_str()).ok_or_else(|| Error::Invalid(tr!("profil sans identifiant")))?.to_string();
             if id.contains(['/', '\\']) || id.contains("..") {
                 return Err(Error::Invalid(tr!("identifiant refusé : {id}", id = id)));
             }
@@ -179,7 +179,7 @@ pub fn install(http: &Http, layout: &Layout, loader: Loader, mc: &str, lv: &str,
             Ok(id)
         }
         Loader::Forge | Loader::NeoForge => {
-            let java = java.ok_or_else(|| Error::Invalid(tr!("Java est nécessaire pour l'installateur officiel").into()))?;
+            let java = java.ok_or_else(|| Error::Invalid(tr!("Java est nécessaire pour l'installateur officiel")))?;
             let (url, name) = if loader == Loader::Forge {
                 let full = format!("{mc}-{lv}");
                 (format!("{FORGE_MAVEN}/{full}/forge-{full}-installer.jar"), format!("forge-{full}-installer.jar"))

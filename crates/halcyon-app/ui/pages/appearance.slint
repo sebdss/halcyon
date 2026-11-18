@@ -129,7 +129,7 @@ export component AppearancePage inherits Rectangle {
                         description: @tr("Agrandit tous les textes de l'interface (accessibilité).");
                         Segmented {
                             y: (parent.height - self.height) / 2;
-                            items: ["90 %", "100 %", "115 %", "130 %"];
+                            items: [@tr("{} %", 90), @tr("{} %", 100), @tr("{} %", 115), @tr("{} %", 130)];
                             selected: ThemeUi.text-scale < 0.95 ? 0 : ThemeUi.text-scale < 1.07 ? 1 : ThemeUi.text-scale < 1.2 ? 2 : 3;
                             activated(i) => { ThemeUi.set-text-scale(i == 0 ? 0.9 : i == 1 ? 1.0 : i == 2 ? 1.15 : 1.3); }
                         }
@@ -204,12 +204,12 @@ export component AppearancePage inherits Rectangle {
                     }
                     if ThemeUi.background != "": Row {
                         title: @tr("Intensité du fond");
-                        description: round(ThemeUi.background-opacity * 100) + " %";
+                        description: @tr("{} %", round(ThemeUi.background-opacity * 100));
                         HorizontalLayout {
                             spacing: 6px;
                             for v in [0.08, 0.15, 0.25, 0.4]: Chip {
                                 y: (parent.height - self.height) / 2;
-                                text: round(v * 100) + " %";
+                                text: @tr("{} %", round(v * 100));
                                 checked: abs(ThemeUi.background-opacity - v) < 0.01;
                                 toggled => { ThemeUi.set-background-opacity(v); }
                             }

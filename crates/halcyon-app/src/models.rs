@@ -199,7 +199,7 @@ pub fn detail_for(g: &Game, images: &ImageCache, tracking: Tracking, now: i64) -
         publisher: s(&g.publisher),
         release: s(&g.release_date),
         playtime: util::format_playtime(g.effective_playtime()).into(),
-        last_played: g.last_played.map(|t| util::format_relative(t, now)).unwrap_or_else(|| tr!("Jamais").into()).into(),
+        last_played: g.last_played.map(|t| util::format_relative(t, now)).unwrap_or_else(|| tr!("Jamais")).into(),
         sessions: sessions_text.into(),
         installed: g.installed,
         install_state: if g.installed { tr!("Installé") } else { tr!("Non installé") }.into(),
@@ -241,8 +241,8 @@ pub fn detail_for(g: &Game, images: &ImageCache, tracking: Tracking, now: i64) -
         .into(),
         playtime_platform: match g.playtime_platform_secs {
             Some(s) if g.source.uses_platform_client() => util::format_playtime(s),
-            _ if g.source.uses_platform_client() => tr!("Non fourni").into(),
-            _ => tr!("Sans objet").into(),
+            _ if g.source.uses_platform_client() => tr!("Non fourni"),
+            _ => tr!("Sans objet"),
         }
         .into(),
         playtime_local: match sessions {

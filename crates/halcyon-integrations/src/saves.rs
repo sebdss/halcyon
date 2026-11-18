@@ -192,7 +192,7 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
     if g.source == Some(GameSource::Steam) {
         if let (Some(root), Some(acct)) = (&env.steam_root, env.steam_account) {
             let remote = root.join("userdata").join(acct.to_string()).join(&g.source_key).join("remote");
-            push(remote, tr!("Steam Cloud (copie locale, synchronisée par Steam)").into(), true);
+            push(remote, tr!("Steam Cloud (copie locale, synchronisée par Steam)"), true);
         }
         let mut prefixes: Vec<PathBuf> = Vec::new();
         if let Some(root) = &env.steam_root {
@@ -269,7 +269,7 @@ pub fn detect(g: &GameInfo, env: &SaveEnv) -> Vec<Candidate> {
     for pattern in &g.extra {
         let p = pattern.replace("{name}", &g.name);
         if let Some(path) = env.resolve(&p, g.install_dir.as_deref()) {
-            push(path, tr!("Définition d'extension").into(), true);
+            push(path, tr!("Définition d'extension"), true);
         }
     }
     out

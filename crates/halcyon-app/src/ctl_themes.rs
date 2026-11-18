@@ -144,10 +144,10 @@ pub fn theme_from_value(value: &serde_json::Value) -> Result<ThemeDef, String> {
     let t: ThemeDef = serde_json::from_value(value.clone()).map_err(|e| tr!("thème invalide : {e}", e = e))?;
     let id_ok = !t.id.is_empty() && t.id.len() <= 64 && t.id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
     if !id_ok {
-        return Err(tr!("identifiant de thème invalide (lettres, chiffres, - et _)").into());
+        return Err(tr!("identifiant de thème invalide (lettres, chiffres, - et _)"));
     }
     if t.name.trim().is_empty() {
-        return Err(tr!("nom de thème manquant").into());
+        return Err(tr!("nom de thème manquant"));
     }
     if builtin_themes().iter().any(|b| b.id == t.id) {
         return Err(tr!("« {id} » est un thème intégré : choisissez un autre identifiant", id = t.id));
@@ -204,7 +204,7 @@ impl Controller {
             for f in files {
                 match read_theme_file(&f) {
                     Ok(mut t) if !out.iter().any(|o| o.id == t.id) => {
-                        t.source = tr!("importé").into();
+                        t.source = tr!("importé");
                         out.push(t);
                     }
                     Ok(_) => {}
@@ -435,7 +435,7 @@ impl Controller {
         let path = path.trim();
         if path.is_empty() {
             self.update_appearance(|a| a.background = None);
-            self.theme_status(&tr!("Fond retiré"));
+            self.theme_status(tr!("Fond retiré"));
             return;
         }
         let src = Path::new(path);
@@ -455,7 +455,7 @@ impl Controller {
                 if let Some(old) = old.filter(|o| o.starts_with(&dir) && *o != dest) {
                     let _ = std::fs::remove_file(old);
                 }
-                self.theme_status(&tr!("Fond appliqué (copie conservée dans les données de Halcyon)"));
+                self.theme_status(tr!("Fond appliqué (copie conservée dans les données de Halcyon)"));
             }
             Err(e) => self.theme_status(tr!("Copie de l'image impossible : {e}", e = e)),
         }
@@ -574,10 +574,42 @@ impl Controller {
             &tr!("Rétablir"),
             |c| {
                 c.update_appearance(|a| *a = Appearance::default());
-                c.theme_status(&tr!("Apparence d'origine rétablie"));
+                c.theme_status(tr!("Apparence d'origine rétablie"));
                 c.refresh_home();
             },
         );
+    }
+}
+
+impl Controller {
+    // ------------------------------------------------------------------ profils d'interface (1.0.0)
+
+    pub(crate) fn save_ui_profile(&self, name: &str) {
+        let ok = self.settings.borrow_mut().save_ui_profile(name);
+        if ok {
+            self.save_settings();
+            self.toast(tr!("Profil d'interface « {name} » enregistré", name = name.trim()), false);
+        } else {
+            self.toast(tr!("Nom vide, ou 20 profils déjà enregistrés"), true);
+        }
+        self.refresh_appearance_ui();
+    }
+
+    pub(crate) fn apply_ui_profile(&self, index: usize) {
+        let name = self.settings.borrow().ui_profiles.get(index).map(|p| p.name.clone());
+        if self.settings.borrow_mut().apply_ui_profile(index) {
+            self.save_settings();
+            self.apply_appearance();
+            self.refresh_appearance_ui();
+            self.toast(tr!("Profil « {name} » appliqué", name = name.unwrap_or_default()), false);
+        }
+    }
+
+    pub(crate) fn delete_ui_profile(&self, index: usize) {
+        if self.settings.borrow_mut().delete_ui_profile(index) {
+            self.save_settings();
+            self.refresh_appearance_ui();
+        }
     }
 }
 
@@ -610,37 +642,5 @@ mod tests {
     fn on_accent_contrast() {
         assert_eq!(on_accent_for(Color::from_rgb_u8(20, 20, 60)), Color::from_rgb_u8(255, 255, 255));
         assert!(on_accent_for(Color::from_rgb_u8(0xf2, 0xc9, 0x4c)).red() < 40);
-    }
-}
-
-impl Controller {
-    // ------------------------------------------------------------------ profils d'interface (1.0.0)
-
-    pub(crate) fn save_ui_profile(&self, name: &str) {
-        let ok = self.settings.borrow_mut().save_ui_profile(name);
-        if ok {
-            self.save_settings();
-            self.toast(format!("Profil d'interface « {} » enregistré", name.trim()), false);
-        } else {
-            self.toast("Nom vide, ou 20 profils déjà enregistrés", true);
-        }
-        self.refresh_appearance_ui();
-    }
-
-    pub(crate) fn apply_ui_profile(&self, index: usize) {
-        let name = self.settings.borrow().ui_profiles.get(index).map(|p| p.name.clone());
-        if self.settings.borrow_mut().apply_ui_profile(index) {
-            self.save_settings();
-            self.apply_appearance();
-            self.refresh_appearance_ui();
-            self.toast(format!("Profil « {} » appliqué", name.unwrap_or_default()), false);
-        }
-    }
-
-    pub(crate) fn delete_ui_profile(&self, index: usize) {
-        if self.settings.borrow_mut().delete_ui_profile(index) {
-            self.save_settings();
-            self.refresh_appearance_ui();
-        }
     }
 }

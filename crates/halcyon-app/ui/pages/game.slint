@@ -374,7 +374,7 @@ component AchievementsTab inherits VerticalLayout {
             padding-bottom: 8px;
             spacing: 18px;
             if DetailUi.ach-percent >= 0: Text {
-                text: round(DetailUi.ach-percent * 100) + " %";
+                text: @tr("{} %", round(DetailUi.ach-percent * 100));
                 color: DetailUi.ach-percent >= 1 ? Theme.warm : Theme.text;
                 font-family: Theme.display;
                 font-size: Theme.t-title + 6px;
@@ -1445,7 +1445,7 @@ export component GamePage inherits Rectangle {
                             spacing: Theme.s6;
                             HeroStat { label: @tr("Temps de jeu"); value: DetailUi.game.playtime != "" ? DetailUi.game.playtime : "—"; }
                             HeroStat { label: @tr("Dernière session"); value: DetailUi.game.last-played != "" ? DetailUi.game.last-played : @tr("Jamais"); }
-                            if DetailUi.ach-percent >= 0: HeroStat { label: @tr("Succès"); value: round(DetailUi.ach-percent * 100) + " %"; }
+                            if DetailUi.ach-percent >= 0: HeroStat { label: @tr("Succès"); value: @tr("{} %", round(DetailUi.ach-percent * 100)); }
                         }
                     }
                 }
@@ -1461,7 +1461,7 @@ export component GamePage inherits Rectangle {
                 Tab { text: @tr("Aperçu"); selected: root.tab == 0; clicked => { DetailUi.tab = 0; } }
                 if root.has-ach: Tab {
                     text: @tr("Succès");
-                    badge: DetailUi.ach-percent >= 0 ? round(DetailUi.ach-percent * 100) + " %" : "";
+                    badge: DetailUi.ach-percent >= 0 ? @tr("{} %", round(DetailUi.ach-percent * 100)) : "";
                     selected: root.tab == 2;
                     clicked => { DetailUi.tab = 2; }
                 }

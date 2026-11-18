@@ -28,7 +28,7 @@ pub enum Adapter {
 impl Adapter {
     pub fn label(&self) -> String {
         match self {
-            Adapter::Generic { target } if target.is_empty() => tr!("Copie dans le dossier du jeu").into(),
+            Adapter::Generic { target } if target.is_empty() => tr!("Copie dans le dossier du jeu"),
             Adapter::Generic { target } => tr!("Copie dans {target}", target = target),
             Adapter::BepInEx => "BepInEx (Unity)".into(),
             Adapter::UnrealPaks { paks } => tr!("Paquets Unreal ({paks}/~mods)", paks = paks),
@@ -85,7 +85,7 @@ fn sanitize(s: &str) -> String {
 /// Adaptateur conseillé d'après les fichiers du jeu, avec explication.
 pub fn suggest(install_dir: &Path) -> (Adapter, String) {
     if install_dir.join("BepInEx").is_dir() {
-        return (Adapter::BepInEx, tr!("BepInEx est installé dans ce jeu.").into());
+        return (Adapter::BepInEx, tr!("BepInEx est installé dans ce jeu."));
     }
     // Unreal : premier dossier contenant Content/Paks.
     if let Ok(entries) = std::fs::read_dir(install_dir) {
@@ -93,17 +93,17 @@ pub fn suggest(install_dir: &Path) -> (Adapter, String) {
             let paks = e.path().join("Content").join("Paks");
             if paks.is_dir() {
                 let rel = format!("{}/Content/Paks", e.file_name().to_string_lossy());
-                return (Adapter::UnrealPaks { paks: rel }, tr!("Jeu Unreal Engine : les mods sont des paquets .pak.").into());
+                return (Adapter::UnrealPaks { paks: rel }, tr!("Jeu Unreal Engine : les mods sont des paquets .pak."));
             }
         }
     }
     if crate::engines::detect(install_dir) == halcyon_core::profiles::Engine::Unity {
         return (
             Adapter::Generic { target: String::new() },
-            tr!("Jeu Unity sans BepInEx : installez BepInEx (en tant que mod) puis choisissez l'adaptateur BepInEx.").into(),
+            tr!("Jeu Unity sans BepInEx : installez BepInEx (en tant que mod) puis choisissez l'adaptateur BepInEx."),
         );
     }
-    (Adapter::Generic { target: String::new() }, tr!("Méthode générique : les fichiers du mod sont copiés dans le dossier du jeu.").into())
+    (Adapter::Generic { target: String::new() }, tr!("Méthode générique : les fichiers du mod sont copiés dans le dossier du jeu."))
 }
 
 /// Mod de la bibliothèque.
@@ -429,7 +429,7 @@ fn flatten_single_root(dir: &Path) -> io::Result<()> {
 pub fn nexus_latest(dl: &crate::artwork::Downloader, api_key: &str, domain: &str, mod_id: u64) -> Result<String, String> {
     let url = format!("https://api.nexusmods.com/v1/games/{domain}/mods/{mod_id}.json");
     let v = dl.get_json_with(&url, &[("apikey", api_key), ("accept", "application/json")]).map_err(|e| e.to_string())?;
-    v.get("version").and_then(|x| x.as_str()).map(str::to_string).ok_or_else(|| tr!("réponse inattendue de Nexus Mods").into())
+    v.get("version").and_then(|x| x.as_str()).map(str::to_string).ok_or_else(|| tr!("réponse inattendue de Nexus Mods"))
 }
 
 #[cfg(test)]

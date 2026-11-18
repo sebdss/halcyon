@@ -106,6 +106,8 @@ pub enum SyncStatus {
     NoAchievements,
     /// Le jeu n'est pas reconnu (ex. ROM sans correspondance RetroAchievements).
     NotRecognized,
+    /// Steam n'a pas encore enregistré les succès de ce jeu sur ce PC (lecture locale).
+    NotCached,
     Error(String),
 }
 
@@ -115,6 +117,7 @@ impl SyncStatus {
             Self::Ok => "ok",
             Self::NoAchievements => "none",
             Self::NotRecognized => "unknown",
+            Self::NotCached => "notcached",
             Self::Error(_) => "error",
         }
     }

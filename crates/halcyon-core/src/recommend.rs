@@ -94,7 +94,7 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
                 let short = g.genres.iter().any(|x| SHORT_GENRES.iter().any(|s| genre_key(x).contains(s)));
                 (minutes <= 45 && short).then(|| Suggestion {
                     game: g.id,
-                    reason: tr!("Genre adapté aux parties courtes").into(),
+                    reason: tr!("Genre adapté aux parties courtes"),
                     score: 1.0 + recency_bonus(g, ctx.now),
                 })
             })
@@ -110,14 +110,14 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
         .filter_map(|g| {
             let recent = g.last_played.is_some_and(|t| ctx.now - t <= 30 * DAY);
             if g.status == PlayStatus::Playing {
-                Some(Suggestion { game: g.id, reason: tr!("Marqué « en cours »").into(), score: 3.0 + recency_bonus(g, ctx.now) })
+                Some(Suggestion { game: g.id, reason: tr!("Marqué « en cours »"), score: 3.0 + recency_bonus(g, ctx.now) })
             } else if recent && g.effective_playtime() > 0 {
                 let days = (ctx.now - g.last_played.unwrap_or(ctx.now)) / DAY;
                 Some(Suggestion {
                     game: g.id,
                     reason: match days {
-                        0 => tr!("Joué aujourd'hui").into(),
-                        1 => tr!("Joué hier").into(),
+                        0 => tr!("Joué aujourd'hui"),
+                        1 => tr!("Joué hier"),
                         d => trn!(d, "Joué il y a {n} jour", "Joué il y a {n} jours"),
                     },
                     score: 1.0 + recency_bonus(g, ctx.now),
@@ -160,7 +160,7 @@ pub fn suggest(games: &[Game], ctx: &Context, minutes: u32, per_section: usize) 
                 },
                 None => Suggestion {
                     game: g.id,
-                    reason: if g.status == PlayStatus::Backlog { tr!("Dans votre liste « à jouer »").into() } else { tr!("Jamais lancé").into() },
+                    reason: if g.status == PlayStatus::Backlog { tr!("Dans votre liste « à jouer »") } else { tr!("Jamais lancé") },
                     score: if g.status == PlayStatus::Backlog { 1.8 } else { 1.0 } - (added_days as f32 / 3650.0).min(0.5),
                 },
             }

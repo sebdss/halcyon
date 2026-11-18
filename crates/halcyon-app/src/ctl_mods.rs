@@ -22,7 +22,7 @@ impl Controller {
         let state = self.db().mod_state(g.id).unwrap_or_default();
         let suggested = g.install_dir.as_deref().map(mods::suggest);
         match state.adapter.as_deref().and_then(|a| serde_json::from_str::<Adapter>(a).ok()) {
-            Some(a) => (a, tr!("Méthode choisie pour ce jeu.").into()),
+            Some(a) => (a, tr!("Méthode choisie pour ce jeu.")),
             None => suggested.unwrap_or((Adapter::Generic { target: String::new() }, String::new())),
         }
     }
@@ -38,7 +38,7 @@ impl Controller {
             return p.clone();
         }
         // Pas encore enregistré : créé à la première modification.
-        ModProfile { id: 0, game_id: g.id, name: tr!("Par défaut").into(), entries: vec![] }
+        ModProfile { id: 0, game_id: g.id, name: tr!("Par défaut"), entries: vec![] }
     }
 
     /// Les mods de la bibliothèque absents du profil y sont ajoutés (désactivés).

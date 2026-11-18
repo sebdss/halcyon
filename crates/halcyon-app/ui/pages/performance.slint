@@ -96,13 +96,13 @@ export component PerformancePage inherits Rectangle {
                 }
                 MeasureCard {
                     title: @tr("Mémoire");
-                    value: Math.round(PerfUi.ram * 100) + " %";
+                    value: @tr("{} %", Math.round(PerfUi.ram * 100));
                     MeterRow { label: @tr("Utilisée"); value: PerfUi.ram-text; ratio: PerfUi.ram; bar-color: PerfUi.ram > 0.85 ? Theme.warm : Theme.accent; }
                     if PerfUi.swap-text != "": Text { text: PerfUi.swap-text; color: Theme.text-dim; font-size: Theme.t-caption; }
                 }
                 MeasureCard {
                     title: @tr("Carte graphique");
-                    value: PerfUi.gpus.length == 0 ? "—" : PerfUi.gpus[0].usage < 0 ? @tr("n/d") : Math.round(PerfUi.gpus[0].usage * 100) + " %";
+                    value: PerfUi.gpus.length == 0 ? "—" : PerfUi.gpus[0].usage < 0 ? @tr("n/d") : @tr("{} %", Math.round(PerfUi.gpus[0].usage * 100));
                     caption: PerfUi.gpus.length == 0 ? @tr("Aucune carte graphique mesurable") : PerfUi.gpus[0].name;
                     if PerfUi.gpu-curve.length > 0: Curve { values: PerfUi.gpu-curve; tint: Theme.success; }
                     for g in PerfUi.gpus: VerticalLayout {

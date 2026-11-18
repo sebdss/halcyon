@@ -58,7 +58,7 @@ impl SaveJob {
                 self.remember(db, &m);
                 return Ok(None);
             }
-            Created::Empty => return Err(tr!("aucun fichier de sauvegarde trouvé dans les emplacements").into()),
+            Created::Empty => return Err(tr!("aucun fichier de sauvegarde trouvé dans les emplacements")),
         };
         self.remember(db, &meta);
         for m in &self.mirrors {
@@ -206,7 +206,7 @@ impl Controller {
                 let p = env.resolve(t, g.install_dir.as_deref());
                 SaveLocRow {
                     token: t.as_str().into(),
-                    path: p.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Introuvable sur ce PC").into()).into(),
+                    path: p.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| tr!("Introuvable sur ce PC")).into(),
                     exists: p.as_ref().is_some_and(|p| p.exists()),
                 }
             })
@@ -410,7 +410,7 @@ impl Controller {
             name = g.name,
             date = date_time(snap.created_at),
             machine = snap.machine,
-            reason = snap.reason_label().to_lowercase()
+            reason = halcyon_i18n::lower_first(&snap.reason_label())
         );
         let db = self.db.clone();
         self.confirm(&tr!("Restaurer cette sauvegarde ?"), &text, &tr!("Restaurer"), move |c| {
@@ -509,7 +509,7 @@ impl Controller {
         let sid = snap_id.to_string();
         self.confirm(
             &tr!("Supprimer cette sauvegarde ?"),
-            &tr!("La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés.", created_at = date_time(snap.created_at), v = snap.reason_label().to_lowercase()),
+            &tr!("La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés.", created_at = date_time(snap.created_at), v = halcyon_i18n::lower_first(&snap.reason_label())),
             &tr!("Supprimer"),
             move |c| {
                 match job.primary.delete(&job.key, &sid) {
@@ -568,7 +568,7 @@ impl Controller {
                         id: *id as i32,
                         title: name.as_str().into(),
                         count: *n as i32,
-                        last: last.map(date_time).unwrap_or_else(|| tr!("Jamais").into()).into(),
+                        last: last.map(date_time).unwrap_or_else(|| tr!("Jamais")).into(),
                         size: util::format_size(*size).into(),
                         other_machine: *other,
                         card: lib.get(*id).map(|g| crate::models::card_for(g, &c.images, now_unix())).unwrap_or_default(),
