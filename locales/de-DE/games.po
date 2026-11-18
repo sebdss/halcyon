@@ -828,13 +828,6 @@ msgid_plural "{status} · {n} nouveaux succès"
 msgstr[0] "{status} · {n} neuer Erfolg"
 msgstr[1] "{status} · {n} neue Erfolge"
 
-#: crates/halcyon-app/src/ctl_achievements.rs:383
-#, placeholders
-msgid "{n} succès débloqué"
-msgid_plural "{n} succès débloqués"
-msgstr[0] "{n} Erfolg freigeschaltet"
-msgstr[1] "{n} Erfolge freigeschaltet"
-
 #: crates/halcyon-app/src/ctl_achievements.rs:422
 msgid "Débloqué"
 msgstr "Freigeschaltet"

@@ -273,6 +273,7 @@ impl Controller {
         self.start_connectivity_monitor();
         self.sync_pending_saves();
         self.start_ludusavi();
+        self.announce_recap();
         self.refresh_remote();
         self.ensure_tray();
         self.register_global_hotkey();
@@ -350,6 +351,7 @@ impl Controller {
     }
 
     fn wire(self: &Rc<Self>, app: &AppWindow) {
+        self.wire_recap_with(app);
         let weak = Rc::downgrade(self);
         // Chaque callback récupère le contrôleur sans cycle de références.
         macro_rules! with {
@@ -970,6 +972,7 @@ impl Controller {
             Page::Home => self.refresh_home(),
             Page::Stats => self.refresh_stats(),
             Page::Journal => self.refresh_journal(),
+            Page::Recap => self.refresh_recap(),
             Page::Updates => self.refresh_updates(),
             Page::Saves => self.refresh_saves_page(),
             Page::Appearance => self.refresh_appearance_ui(),

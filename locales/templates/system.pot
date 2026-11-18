@@ -1555,7 +1555,7 @@ msgstr ""
 msgid "{name} · personnalisé"
 msgstr ""
 
-#: crates/halcyon-storage/src/achievements.rs:312
+#: crates/halcyon-storage/src/achievements.rs:321
 msgid "personnalisé"
 msgstr ""
 

@@ -107,6 +107,8 @@ pub struct Settings {
     pub start_in_big_picture: bool,
     /// Notification système quand une mise à jour de jeu est détectée.
     pub update_notifications: bool,
+    /// Début de la dernière semaine dont le récap a été annoncé (1.1).
+    pub recap_announced: i64,
 
     /// Dépôt des sauvegardes de jeux (dossier local, disque secondaire, NAS) ;
     /// `None` : dans les données de Halcyon.
@@ -472,6 +474,7 @@ impl Default for Settings {
             update_last_check: 0,
             start_in_big_picture: false,
             update_notifications: true,
+            recap_announced: 0,
             save_root: None,
             save_mirrors: Vec::new(),
             save_keep_auto: 20,

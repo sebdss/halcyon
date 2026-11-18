@@ -1,0 +1,289 @@
+// Récap de la semaine, du mois ou de l'année, et « story » au format vertical (1.1).
+//
+// Le récap se lit comme une page de statistiques ; la story reprend les mêmes chiffres en
+// pages plein cadre, au format 9:16, faites pour être partagées (image ou vidéo).
+
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Actions, RecapUi } from "../state.slint";
+import { StoryPage } from "../types.slint";
+import { BigStat, Notice, GameCover, SecondaryButton, PrimaryButton, Rubric, Segmented, IconButton, MeterRow } from "../components.slint";
+
+/// Une page de la story : surtitre, grand chiffre, titre, texte, jaquette ou liste.
+component StoryCard inherits Rectangle {
+    in property <StoryPage> page;
+    in property <bool> shown;
+    clip: true;
+    opacity: root.shown ? 1 : 0;
+    animate opacity { duration: Theme.motion < 2 ? 320ms : 0ms; easing: ease-out; }
+    VerticalLayout {
+        y: root.shown ? 0 : 24px;
+        animate y { duration: Theme.motion < 2 ? 420ms : 0ms; easing: ease-out; }
+        padding: root.width * 0.09;
+        padding-top: root.height * 0.1;
+        spacing: root.height * 0.022;
+        alignment: start;
+        Text {
+            text: root.page.kicker;
+            color: Theme.warm;
+            font-size: root.width * 0.045;
+            font-weight: 700;
+            letter-spacing: 1px;
+            wrap: word-wrap;
+        }
+        if root.page.value != "": Text {
+            text: root.page.value;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: root.width * (root.page.value.character-count > 8 ? 0.12 : 0.18);
+            font-weight: 800;
+            wrap: word-wrap;
+        }
+        Text {
+            text: root.page.title;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: root.width * 0.07;
+            font-weight: 700;
+            wrap: word-wrap;
+        }
+        if root.page.text != "": Text {
+            text: root.page.text;
+            color: #ffffffcc;
+            font-size: root.width * 0.042;
+            wrap: word-wrap;
+        }
+        if root.page.has-card: HorizontalLayout {
+            padding-top: root.height * 0.02;
+            alignment: start;
+            GameCover {
+                width: root.width * 0.46;
+                height: root.width * 0.46 * 1.5;
+                source: root.page.card.cover;
+                has-image: root.page.card.has-cover;
+                color-a: root.page.card.color-a;
+                color-b: root.page.card.color-b;
+                initials: root.page.card.initials;
+                title: root.page.card.title;
+                show-title: !root.page.card.has-cover;
+                corner: 6px;
+            }
+        }
+        for line[i] in root.page.lines: HorizontalLayout {
+            spacing: root.width * 0.035;
+            Text {
+                width: root.width * 0.07;
+                text: i + 1;
+                color: Theme.warm;
+                font-family: Theme.display;
+                font-size: root.width * 0.05;
+                font-weight: 800;
+            }
+            Text { text: line; color: #ffffff; font-size: root.width * 0.045; overflow: elide; horizontal-stretch: 1; }
+        }
+    }
+}
+
+/// Story plein écran : pages, barres de progression, navigation au clic et au clavier.
+export component StoryOverlay inherits Rectangle {
+    background: #000000e6;
+    // Format 9:16, le plus grand possible dans la fenêtre.
+    property <length> card-h: min(root.height - 120px, (root.width - 80px) * 16 / 9);
+    property <length> card-w: root.card-h * 9 / 16;
+    // Géométrie reprise en Rust pour l'export (voir `ctl_recap::card_rect`).
+    TouchArea { clicked => { RecapUi.story-open = false; } }
+    fs := FocusScope {
+        init => { self.focus(); }
+        key-pressed(e) => {
+            if (e.text == Key.Escape) { RecapUi.story-open = false; return accept; }
+            if (e.text == Key.RightArrow || e.text == " ") { RecapUi.story-index = min(RecapUi.pages.length - 1, RecapUi.story-index + 1); return accept; }
+            if (e.text == Key.LeftArrow) { RecapUi.story-index = max(0, RecapUi.story-index - 1); return accept; }
+            reject
+        }
+    }
+    card := Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2 - 24px;
+        width: root.card-w;
+        height: root.card-h;
+        border-radius: RecapUi.exporting ? 0px : 14px;
+        clip: true;
+        // Fond : couleurs de la jaquette du jeu le plus joué.
+        background: @linear-gradient(160deg, RecapUi.color-a.darker(0.5) 0%, #0b0d12 70%);
+        Rectangle {
+            width: parent.width * 1.4;
+            height: self.width;
+            x: parent.width * 0.3;
+            y: -parent.height * 0.25;
+            border-radius: self.width / 2;
+            background: RecapUi.color-b.with-alpha(0.18);
+        }
+        for p[i] in RecapUi.pages: StoryCard { page: p; shown: i == RecapUi.story-index; }
+        // Barres de progression.
+        HorizontalLayout {
+            y: 14px;
+            height: 3px;
+            padding-left: 14px;
+            padding-right: 14px;
+            spacing: 4px;
+            for p[i] in RecapUi.pages: Rectangle {
+                border-radius: 1.5px;
+                background: i <= RecapUi.story-index ? #ffffff : #ffffff40;
+            }
+        }
+        Text {
+            x: parent.width * 0.09;
+            y: parent.height - self.height - parent.height * 0.04;
+            text: "Halcyon";
+            color: #ffffff99;
+            font-family: Theme.display;
+            font-size: parent.width * 0.04;
+            font-weight: 700;
+        }
+        // Moitié gauche : précédente ; moitié droite : suivante.
+        if !RecapUi.exporting: HorizontalLayout {
+            TouchArea { clicked => { RecapUi.story-index = max(0, RecapUi.story-index - 1); } }
+            TouchArea { clicked => { RecapUi.story-index = min(RecapUi.pages.length - 1, RecapUi.story-index + 1); } }
+        }
+    }
+    if !RecapUi.exporting: HorizontalLayout {
+        y: card.y + card.height + 14px;
+        x: (parent.width - self.width) / 2;
+        width: self.preferred-width;
+        height: 36px;
+        spacing: 10px;
+        SecondaryButton { text: @tr("Image de cette page"); icon: Icons.upload; has-icon: true; clicked => { RecapUi.export-image(); } }
+        SecondaryButton { text: @tr("Exporter en vidéo"); icon: Icons.upload; has-icon: true; clicked => { RecapUi.export-video(); } }
+        SecondaryButton { text: @tr("Fermer"); clicked => { RecapUi.story-open = false; } }
+    }
+    if RecapUi.exporting: Text {
+        y: card.y + card.height + 20px;
+        x: (parent.width - self.width) / 2;
+        text: RecapUi.export-status;
+        color: Theme.text-muted;
+        font-size: Theme.t-small;
+    }
+}
+
+export component RecapPage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 36px;
+            alignment: start;
+
+            HorizontalLayout {
+                spacing: 14px;
+                alignment: start;
+                Segmented {
+                    items: [@tr("Semaine"), @tr("Mois"), @tr("Année")];
+                    selected <=> RecapUi.period;
+                    activated => { RecapUi.offset = 0; RecapUi.changed(); }
+                }
+                IconButton {
+                    icon: Icons.chevron-left;
+                    tooltip: @tr("Période précédente");
+                    clicked => { RecapUi.offset -= 1; RecapUi.changed(); }
+                }
+                Text { text: RecapUi.label; color: Theme.text; font-size: Theme.t-body; font-weight: 600; vertical-alignment: center; min-width: 180px; horizontal-alignment: center; }
+                IconButton {
+                    icon: Icons.chevron-right;
+                    tooltip: @tr("Période suivante");
+                    enabled: RecapUi.offset < 0;
+                    clicked => { RecapUi.offset += 1; RecapUi.changed(); }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                if RecapUi.has-data: PrimaryButton {
+                    text: @tr("Voir ma story");
+                    icon: Icons.play;
+                    has-icon: true;
+                    h: 36px;
+                    font-size: Theme.t-small;
+                    clicked => { RecapUi.story-index = 0; RecapUi.story-open = true; }
+                }
+            }
+
+            if !RecapUi.has-data: Notice {
+                text: @tr("Aucune session suivie par Halcyon sur cette période. Le récap se remplit à mesure que vous jouez (jeux lancés depuis Halcyon, ou détectés pendant leur exécution).");
+            }
+
+            if RecapUi.has-data: VerticalLayout {
+                spacing: 36px;
+                VerticalLayout {
+                    spacing: 8px;
+                    Text { text: RecapUi.total; color: Theme.text; font-family: Theme.display; font-size: Theme.t-display + 4px; font-weight: 800; }
+                    Text { text: RecapUi.compare; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+                }
+                HorizontalLayout {
+                    spacing: 44px;
+                    alignment: start;
+                    BigStat { value: RecapUi.sessions; label: @tr("sessions"); }
+                    BigStat { value: RecapUi.days; label: @tr("jours de jeu"); }
+                    BigStat { value: @tr("{} j", RecapUi.streak); label: @tr("plus longue série"); }
+                    BigStat { value: RecapUi.new-games; label: @tr("jeux découverts"); }
+                    BigStat { value: RecapUi.unlocks; label: @tr("succès débloqués"); }
+                }
+                HorizontalLayout {
+                    spacing: Theme.s6;
+                    Rubric {
+                        horizontal-stretch: 3;
+                        title: @tr("Jeux les plus joués");
+                        for t[i] in RecapUi.top: Rectangle {
+                            height: 54px;
+                            border-radius: Theme.radius-sm;
+                            background: ta.has-hover ? Theme.surface : transparent;
+                            ta := TouchArea { mouse-cursor: pointer; clicked => { Actions.open-game(t.id); } }
+                            HorizontalLayout {
+                                padding: 4px;
+                                spacing: 14px;
+                                Text { width: 22px; text: i + 1; color: Theme.text-dim; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
+                                GameCover {
+                                    width: 30px;
+                                    height: 45px;
+                                    source: t.card.cover;
+                                    has-image: t.card.has-cover;
+                                    color-a: t.card.color-a;
+                                    color-b: t.card.color-b;
+                                    initials: t.card.initials;
+                                    title: t.title;
+                                    show-title: false;
+                                    corner: 2px;
+                                }
+                                MeterRow {
+                                    y: (parent.height - self.preferred-height) / 2;
+                                    label: t.title;
+                                    value: t.value + " · " + t.origin;
+                                    ratio: t.ratio;
+                                }
+                            }
+                        }
+                    }
+                    Rubric {
+                        horizontal-stretch: 2;
+                        title: @tr("Votre période");
+                        for f in RecapUi.facts: VerticalLayout {
+                            spacing: 2px;
+                            padding-bottom: 10px;
+                            Text { text: f.label; color: Theme.text-dim; font-size: Theme.t-caption; }
+                            Text { text: f.value; color: Theme.text; font-size: Theme.t-small; font-weight: 500; wrap: word-wrap; }
+                        }
+                    }
+                }
+                Rubric {
+                    title: @tr("Profil de joueur");
+                    Text { text: RecapUi.profile-title; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 6px; font-weight: 700; }
+                    Text { text: RecapUi.profile-text; color: Theme.text-muted; font-size: Theme.t-small; wrap: word-wrap; }
+                }
+                Text {
+                    text: @tr("Calculé sur les sessions suivies par Halcyon : le temps indiqué par les plateformes n'est pas daté.");
+                    color: Theme.text-dim;
+                    font-size: Theme.t-caption;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}

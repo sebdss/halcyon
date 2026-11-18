@@ -1556,7 +1556,7 @@ msgstr "Personal goal reached: {ach}"
 msgid "{name} · personnalisé"
 msgstr "{name} · custom"
 
-#: crates/halcyon-storage/src/achievements.rs:312
+#: crates/halcyon-storage/src/achievements.rs:321
 msgid "personnalisé"
 msgstr "custom"
 

@@ -5,7 +5,7 @@
 import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
-    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, ThemeRow, ToggleRow,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft, performance, downloads
+    remote, plugins, appearance, minecraft, performance, downloads, recap
 }
 
 export global Nav {
@@ -322,6 +322,37 @@ export global StatsUi {
     in property <[TopGame]> top;
     in property <[SessionRow]> recent;
     in property <int> completed;
+}
+
+/// Récap de la semaine, du mois ou de l'année et sa story (1.1).
+export global RecapUi {
+    /// 0 semaine, 1 mois, 2 année ; `offset` : 0 période en cours, -1 la précédente…
+    in-out property <int> period;
+    in-out property <int> offset;
+    callback changed();
+    in property <string> label;
+    in property <bool> has-data;
+    in property <string> total;
+    in property <string> compare;
+    in property <int> sessions;
+    in property <string> days;
+    in property <int> streak;
+    in property <int> new-games;
+    in property <int> unlocks;
+    in property <[TopGame]> top;
+    in property <[KeyValue]> facts;
+    in property <string> profile-title;
+    in property <string> profile-text;
+    // Story
+    in property <[StoryPage]> pages;
+    in property <color> color-a: #3d9be9;
+    in property <color> color-b: #f08a24;
+    in-out property <bool> story-open;
+    in-out property <int> story-index;
+    in property <bool> exporting;
+    in property <string> export-status;
+    callback export-image();
+    callback export-video();
 }
 
 export global JournalUi {

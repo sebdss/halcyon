@@ -347,6 +347,20 @@ mettent à jour seules et apparaissent dans le filtre *Collections*.
   sauvegardes, mods, profils, extensions et synchronisations. Il est filtrable par catégorie
   et consultable par recherche.
 
+### Récap et story (1.1)
+
+**Activité › Récap** : votre semaine, votre mois ou votre année (flèches : périodes
+précédentes). Temps de jeu comparé à la période d'avant, sessions, jours joués, plus longue
+série, jeux découverts, succès débloqués, top 5, moment préféré, plus longue session, succès le
+plus rare et **profil de joueur**. Le récap est calculé sur les sessions suivies par Halcyon
+(les plateformes ne datent pas leur temps de jeu).
+
+**Voir ma story** ouvre les mêmes chiffres en pages verticales : clic à droite ou flèche →
+page suivante, clic à gauche ou ← page précédente, Échap pour fermer. **Image de cette page**
+enregistre la page dans *Images/Halcyon* ; **Exporter en vidéo** produit une vidéo 1080 × 1920
+dans *Vidéos/Halcyon* si [ffmpeg](https://ffmpeg.org) est installé (sinon, les pages sont
+enregistrées en images).
+
 ## 9. Profils de lancement
 
 Onglet **Profils** de la fiche : plusieurs façons de lancer un même jeu, choisies dans le menu

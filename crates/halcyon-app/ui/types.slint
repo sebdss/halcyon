@@ -513,6 +513,17 @@ export struct WidgetRow {
 }
 
 /// Valeur clé (widgets, statistiques).
+/// Page de la story du récap (format vertical).
+export struct StoryPage {
+    kicker: string,
+    value: string,
+    title: string,
+    text: string,
+    card: GameCard,
+    has-card: bool,
+    lines: [string],
+}
+
 export struct KeyValue {
     label: string,
     value: string,

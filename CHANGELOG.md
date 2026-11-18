@@ -13,6 +13,18 @@
   des collections intelligentes étendue.
 - Un visuel dont l'adresse ne répond plus est cherché ailleurs (boutique Steam, SteamGridDB).
 
+### Récap et story
+
+- **Activité › Récap** : semaine, mois ou année (et les périodes précédentes) : temps de jeu
+  comparé à la période d'avant, sessions, jours joués, plus longue série, jeux découverts,
+  succès, top 5, moment préféré, plus longue session, succès le plus rare, profil de joueur
+  (« le noctambule », « le marathonien »…). Calculé sur les sessions suivies par Halcyon.
+- **Story** au format vertical : jusqu'à 9 pages animées aux couleurs du jeu le plus joué,
+  clic à gauche ou à droite, flèches, Échap. **Image de cette page** (PNG) et **vidéo**
+  1080 × 1920 avec fondu entre les pages (assemblée par ffmpeg s'il est installé ; sinon les
+  pages sont enregistrées en images).
+- Le récap de la semaine écoulée est annoncé au démarrage, une seule fois.
+
 ### Steam hors ligne : fiches, collections, Workshop
 
 - **Fiches lues dans le cache du client** (`appinfo.vdf`, versions 27 à 29) : studio, éditeur,

@@ -19,6 +19,32 @@ msgstr ""
 msgid "{v} Go"
 msgstr "{v} Go"
 
+#: crates/halcyon-app/src/ctl_recap.rs:20 crates/halcyon-core/src/util.rs:140
+msgctxt "month"
+msgid "mars"
+msgstr "mars"
+
+#: crates/halcyon-app/src/ctl_recap.rs:22 crates/halcyon-core/src/util.rs:142
+msgctxt "month"
+msgid "mai"
+msgstr "mai"
+
+#: crates/halcyon-app/src/ctl_recap.rs:23 crates/halcyon-core/src/util.rs:143
+msgctxt "month"
+msgid "juin"
+msgstr "juin"
+
+#: crates/halcyon-app/src/ctl_recap.rs:25 crates/halcyon-core/src/util.rs:145
+msgctxt "month"
+msgid "août"
+msgstr "août"
+
+#: crates/halcyon-app/src/ctl_recap.rs:42 crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:228
+#, placeholders
+msgctxt "date"
+msgid "{month} {year}"
+msgstr "{month} {year}"
+
 #: crates/halcyon-app/src/ctl_tracking.rs:38 crates/halcyon-core/src/util.rs:107
 msgid "< 1 min"
 msgstr "< 1 min"
@@ -28,12 +54,6 @@ msgstr "< 1 min"
 msgctxt "date"
 msgid "{day} {month}"
 msgstr "{day} {month}"
-
-#: crates/halcyon-core/src/stats.rs:59 crates/halcyon-core/src/util.rs:228
-#, placeholders
-msgctxt "date"
-msgid "{month} {year}"
-msgstr "{month} {year}"
 
 #: crates/halcyon-core/src/util.rs:107
 msgid "Jamais joué"
@@ -64,35 +84,15 @@ msgctxt "month"
 msgid "févr."
 msgstr "févr."
 
-#: crates/halcyon-core/src/util.rs:140
-msgctxt "month"
-msgid "mars"
-msgstr "mars"
-
 #: crates/halcyon-core/src/util.rs:141
 msgctxt "month"
 msgid "avr."
 msgstr "avr."
 
-#: crates/halcyon-core/src/util.rs:142
-msgctxt "month"
-msgid "mai"
-msgstr "mai"
-
-#: crates/halcyon-core/src/util.rs:143
-msgctxt "month"
-msgid "juin"
-msgstr "juin"
-
 #: crates/halcyon-core/src/util.rs:144
 msgctxt "month"
 msgid "juil."
 msgstr "juil."
-
-#: crates/halcyon-core/src/util.rs:145
-msgctxt "month"
-msgid "août"
-msgstr "août"
 
 #: crates/halcyon-core/src/util.rs:146
 msgctxt "month"

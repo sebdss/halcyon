@@ -23,6 +23,7 @@ mod ctl_pads;
 mod ctl_perf;
 mod ctl_plugins;
 mod ctl_profiles;
+mod ctl_recap;
 mod ctl_remote;
 mod ctl_saves;
 mod ctl_shell;

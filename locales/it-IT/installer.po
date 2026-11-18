@@ -13,7 +13,7 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: installer\n"
 
-#: crates/halcyon-app/ui/app.slint:198 crates/halcyon-app/ui/app.slint:224 crates/halcyon-app/ui/pages/appearance.slint:195
+#: crates/halcyon-app/ui/app.slint:200 crates/halcyon-app/ui/app.slint:226 crates/halcyon-app/ui/pages/appearance.slint:195
 #: crates/halcyon-app/ui/pages/appearance.slint:294 crates/halcyon-app/ui/pages/emulators.slint:65 crates/halcyon-app/ui/pages/emulators.slint:152
 #: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:89 crates/halcyon-app/ui/pages/saves.slint:14
 #: crates/halcyon-app/ui/pages/settings.slint:145 crates/halcyon-app/ui/pages/settings.slint:187 crates/halcyon-app/ui/pages/settings.slint:562
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Parcourir…"
 msgstr "Sfoglia…"
 
-#: crates/halcyon-app/ui/app.slint:238 crates/halcyon-app/ui/app.slint:274 crates/halcyon-app/ui/pages/controllers.slint:116
+#: crates/halcyon-app/ui/app.slint:240 crates/halcyon-app/ui/app.slint:276 crates/halcyon-app/ui/pages/controllers.slint:116
 #: crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225 crates/halcyon-app/ui/pages/game.slint:741
 #: crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258 crates/halcyon-app/ui/pages/settings.slint:272
 #: crates/halcyon-app/ui/pages/smart.slint:190 crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
@@ -40,8 +40,9 @@ msgid_plural "{n} éléments"
 msgstr[0] "{n} elemento"
 msgstr[1] "{n} elementi"
 
-#: crates/halcyon-app/ui/pages/emulators.slint:143 crates/halcyon-app/ui/pages/smart.slint:106 crates/halcyon-installer/ui/setup.slint:639
-#: crates/halcyon-installer/ui/setup.slint:681 crates/halcyon-installer/ui/setup.slint:693 crates/halcyon-app/src/ctl_bigpicture.rs:318
+#: crates/halcyon-app/ui/pages/emulators.slint:143 crates/halcyon-app/ui/pages/recap.slint:157 crates/halcyon-app/ui/pages/smart.slint:106
+#: crates/halcyon-installer/ui/setup.slint:639 crates/halcyon-installer/ui/setup.slint:681 crates/halcyon-installer/ui/setup.slint:693
+#: crates/halcyon-app/src/ctl_bigpicture.rs:318
 msgid "Fermer"
 msgstr "Chiudi"
 
