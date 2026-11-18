@@ -1,0 +1,155 @@
+// Page Stockage (Outils) et écran de lancement d'un jeu (1.1).
+
+import { ScrollView } from "std-widgets.slint";
+import { Theme, Icons } from "../theme.slint";
+import { Actions, StorageUi, LaunchUi } from "../state.slint";
+import { StorageGame } from "../types.slint";
+import { GameCover, Rubric, Notice, MeterRow, PageHeader, Icon } from "../components.slint";
+
+component StorageGameRow inherits Rectangle {
+    in property <StorageGame> game;
+    height: 58px;
+    border-radius: Theme.radius-sm;
+    background: ta.has-hover ? Theme.surface : transparent;
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            if root.game.id >= 0 { Actions.open-game(root.game.id); } else { Actions.open-url(root.game.url); }
+        }
+    }
+    HorizontalLayout {
+        padding: 4px;
+        spacing: 14px;
+        if root.game.id >= 0: GameCover {
+            width: 32px;
+            height: 48px;
+            source: root.game.card.cover;
+            has-image: root.game.card.has-cover;
+            color-a: root.game.card.color-a;
+            color-b: root.game.card.color-b;
+            initials: root.game.card.initials;
+            title: root.game.title;
+            show-title: false;
+            corner: 2px;
+        }
+        if root.game.id < 0: Rectangle {
+            width: 32px;
+            Icon { source: Icons.sparkle; width: 20px; height: 20px; colorize: Theme.warm; }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 3px;
+            horizontal-stretch: 1;
+            Text { text: root.game.title; color: Theme.text; font-size: Theme.t-small; font-weight: 600; overflow: elide; }
+            Text { text: root.game.detail; color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
+        }
+        Text { text: root.game.size; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
+    }
+}
+
+export component StoragePage inherits Rectangle {
+    ScrollView {
+        content-height: content.preferred-height;
+        content := VerticalLayout {
+            width: root.width;
+            padding: Theme.page-padding;
+            padding-top: 32px;
+            spacing: 36px;
+            alignment: start;
+
+            PageHeader {
+                title: @tr("Stockage");
+                subtitle: @tr("Espace libre de vos disques et jeux installés que vous ne lancez plus.");
+            }
+
+            Rubric {
+                title: @tr("Disques");
+                for d in StorageUi.disks: VerticalLayout {
+                    spacing: 4px;
+                    padding-bottom: 10px;
+                    MeterRow {
+                        label: d.mount;
+                        value: d.low ? @tr("presque plein") : "";
+                        ratio: d.used;
+                        bar-color: d.low ? Theme.danger : Theme.accent;
+                    }
+                    Text { text: d.detail; color: Theme.text-dim; font-size: Theme.t-caption; wrap: word-wrap; }
+                }
+            }
+
+            Rubric {
+                title: @tr("Pas lancés depuis six mois");
+                note: StorageUi.idle.length > 0 ? @tr("{} récupérables", StorageUi.reclaim) : "";
+                if StorageUi.idle.length == 0: Notice {
+                    text: @tr("Aucun jeu installé délaissé : tous ceux dont la taille est connue ont été lancés ces six derniers mois.");
+                }
+                for g in StorageUi.idle: StorageGameRow { game: g; }
+                if StorageUi.idle.length > 0: Text {
+                    text: @tr("Ouvrez un jeu pour le désinstaller depuis sa plateforme : vos sauvegardes Halcyon et votre temps de jeu sont conservés.");
+                    color: Theme.text-dim;
+                    font-size: Theme.t-caption;
+                    wrap: word-wrap;
+                }
+            }
+
+            if StorageUi.free-games.length > 0: Rubric {
+                title: @tr("Offerts en ce moment sur l'Epic Games Store");
+                for g in StorageUi.free-games: StorageGameRow { game: g; }
+            }
+        }
+    }
+}
+
+/// Plein cadre pendant le démarrage d'un jeu : bannière, logo, puis « Bonne partie ».
+export component LaunchOverlay inherits Rectangle {
+    background: #07080a;
+    TouchArea { clicked => { LaunchUi.open = false; } }
+    if LaunchUi.has-banner: Image {
+        width: parent.width;
+        height: parent.height;
+        source: LaunchUi.banner;
+        image-fit: cover;
+        opacity: 0.55;
+    }
+    // Voile : le texte reste lisible quelle que soit la bannière.
+    Rectangle {
+        background: @linear-gradient(0deg, #07080af0 0%, #07080a30 100%);
+    }
+    VerticalLayout {
+        alignment: end;
+        padding: 72px;
+        spacing: 18px;
+        if LaunchUi.has-logo: Image {
+            source: LaunchUi.logo;
+            height: min(160px, root.height * 0.2);
+            image-fit: contain;
+            horizontal-alignment: left;
+        }
+        if !LaunchUi.has-logo: Text {
+            text: LaunchUi.title;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: 54px;
+            font-weight: 800;
+            wrap: word-wrap;
+        }
+        HorizontalLayout {
+            spacing: 14px;
+            alignment: start;
+            Rectangle {
+                width: 10px;
+                height: 10px;
+                y: (parent.height - self.height) / 2;
+                border-radius: 5px;
+                background: LaunchUi.running ? Theme.accent : Theme.warm;
+                opacity: LaunchUi.running ? 1 : (mod(animation-tick(), 1200ms) < 600ms ? 1 : 0.3);
+            }
+            Text {
+                text: LaunchUi.running ? @tr("Bonne partie !") : @tr("Lancement en cours…");
+                color: #ffffffd0;
+                font-size: Theme.t-body + 2px;
+                font-weight: 600;
+            }
+        }
+    }
+}

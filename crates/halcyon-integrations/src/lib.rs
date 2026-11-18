@@ -15,6 +15,7 @@ pub mod emulators;
 pub mod engines;
 pub mod frametimes;
 pub mod epic;
+pub mod epic_free;
 pub mod gog;
 pub mod gpu;
 pub mod launcher;

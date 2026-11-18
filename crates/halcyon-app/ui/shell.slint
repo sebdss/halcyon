@@ -292,6 +292,7 @@ export component SpaceBar inherits Rectangle {
             if Spaces.current == 3 && AppUi.nav.journal: SpaceTab { text: @tr("Journal"); active: Nav.page == Page.journal; clicked => { Nav.go(Page.journal); } }
             if Spaces.current == 4: SpaceTab { text: @tr("Téléchargements"); active: Nav.page == Page.downloads; count: DownloadsUi.active.length > 0 ? DownloadsUi.active.length : ""; warm: true; clicked => { Nav.go(Page.downloads); } }
             if Spaces.current == 4 && AppUi.nav.updates: SpaceTab { text: @tr("Mises à jour"); active: Nav.page == Page.updates; count: UpdatesUi.pending.length > 0 ? UpdatesUi.pending.length : ""; warm: true; clicked => { Nav.go(Page.updates); } }
+            if Spaces.current == 4: SpaceTab { text: @tr("Stockage"); active: Nav.page == Page.storage; clicked => { Nav.go(Page.storage); } }
             if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { text: @tr("Sauvegardes"); active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
             if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { text: @tr("Émulateurs"); active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
             if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { text: @tr("Manettes"); active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }

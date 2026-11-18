@@ -5,7 +5,7 @@
 import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
-    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, ThemeRow, ToggleRow,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, StorageDisk, StorageGame, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft, performance, downloads, recap
+    remote, plugins, appearance, minecraft, performance, downloads, recap, storage
 }
 
 export global Nav {
@@ -322,6 +322,27 @@ export global StatsUi {
     in property <[TopGame]> top;
     in property <[SessionRow]> recent;
     in property <int> completed;
+}
+
+/// Écran affiché au lancement d'un jeu (1.1).
+export global LaunchUi {
+    in-out property <bool> open;
+    /// Le jeu a démarré : « Bonne partie ».
+    in property <bool> running;
+    in property <string> title;
+    in property <image> banner;
+    in property <bool> has-banner;
+    in property <image> logo;
+    in property <bool> has-logo;
+    in property <GameCard> card;
+}
+
+/// Page Stockage : espace disque et jeux peu joués (1.1).
+export global StorageUi {
+    in property <[StorageDisk]> disks;
+    in property <[StorageGame]> idle;
+    in property <string> reclaim;
+    in property <[StorageGame]> free-games;
 }
 
 /// Récap de la semaine, du mois ou de l'année et sa story (1.1).
@@ -645,6 +666,12 @@ export global SettingsUi {
     in property <bool> online-artwork;
     in property <bool> scan-on-startup;
     in property <bool> minimize-on-launch;
+    in property <bool> launch-screen;
+    /// Rappel de pause : 0 désactivé, sinon toutes les N heures (1 à 3).
+    in property <int> break-reminder;
+    callback set-break-reminder(int);
+    in property <bool> free-games;
+    in property <bool> disk-alerts;
     in property <string> cache-size;
     in property <string> data-dir;
     in property <string> log-dir;

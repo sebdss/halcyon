@@ -91,6 +91,8 @@ pub struct Controller {
     pub(crate) ach_syncing: Cell<bool>,
     pub(crate) poll_generation: Arc<AtomicU64>,
     pub(crate) active_session: Cell<Option<GameId>>,
+    pub(crate) break_timer: RefCell<Option<slint::Timer>>,
+    pub(crate) free_games: RefCell<Vec<halcyon_integrations::epic_free::FreeGame>>,
     pub(crate) bp: RefCell<BigPicture>,
     pub(crate) bp_clock: RefCell<Option<slint::Timer>>,
     pub(crate) pad_connected: Cell<bool>,
@@ -181,6 +183,8 @@ impl Controller {
             ach_syncing: Cell::new(false),
             poll_generation: Arc::new(AtomicU64::new(0)),
             active_session: Cell::new(None),
+            break_timer: RefCell::new(None),
+            free_games: RefCell::new(Vec::new()),
             bp: RefCell::new(BigPicture::default()),
             bp_clock: RefCell::new(None),
             pad_connected: Cell::new(false),
@@ -274,6 +278,8 @@ impl Controller {
         self.sync_pending_saves();
         self.start_ludusavi();
         self.announce_recap();
+        self.check_free_games();
+        self.check_disks();
         self.refresh_remote();
         self.ensure_tray();
         self.register_global_hotkey();
@@ -498,6 +504,11 @@ impl Controller {
         sui.on_add_folder(with!(|c, path| c.add_folder(&path)));
         sui.on_remove_folder(with!(|c, i| c.remove_folder(i as usize)));
         sui.on_set_option(with!(|c, name, v| c.set_option(&name, v)));
+        sui.on_set_break_reminder(with!(|c, i| {
+            c.settings.borrow_mut().break_reminder_hours = i.clamp(0, 3) as u32;
+            c.save_settings();
+            c.refresh_settings_ui();
+        }));
         sui.on_set_language(with!(|c, i| c.set_ui_language(i)));
         sui.on_set_text(with!(|c, key, value| c.set_text(&key, &value)));
         sui.on_clear_cache(with!(|c| c.clear_cache()));
@@ -973,6 +984,7 @@ impl Controller {
             Page::Stats => self.refresh_stats(),
             Page::Journal => self.refresh_journal(),
             Page::Recap => self.refresh_recap(),
+            Page::Storage => self.refresh_storage(),
             Page::Updates => self.refresh_updates(),
             Page::Saves => self.refresh_saves_page(),
             Page::Appearance => self.refresh_appearance_ui(),
@@ -1946,6 +1958,10 @@ impl Controller {
         sui.set_online_artwork(s.online_artwork);
         sui.set_scan_on_startup(s.scan_on_startup);
         sui.set_minimize_on_launch(s.minimize_on_launch);
+        sui.set_launch_screen(s.launch_screen);
+        sui.set_break_reminder(s.break_reminder_hours.min(3) as i32);
+        sui.set_free_games(s.free_games_notifications);
+        sui.set_disk_alerts(s.disk_alerts);
         sui.set_is_linux(cfg!(target_os = "linux"));
         sui.set_windows_runner(s.windows_runner.as_str().into());
         sui.set_steam_key(s.steam_api_key.as_str().into());
@@ -2076,6 +2092,9 @@ impl Controller {
                 "check_updates" => s.check_updates = value,
                 "start_in_big_picture" => s.start_in_big_picture = value,
                 "offline_forced" => s.offline_forced = value,
+                "launch_screen" => s.launch_screen = value,
+                "free_games_notifications" => s.free_games_notifications = value,
+                "disk_alerts" => s.disk_alerts = value,
                 _ => return,
             }
         }
@@ -2083,6 +2102,12 @@ impl Controller {
         self.refresh_settings_ui();
         if (name == "online_artwork" || name == "online_metadata") && value {
             self.start_online_jobs();
+        }
+        if name == "free_games_notifications" && value {
+            self.check_free_games();
+        }
+        if name == "disk_alerts" && value {
+            self.check_disks();
         }
         if name == "offline_forced" {
             let online = self.online.get();

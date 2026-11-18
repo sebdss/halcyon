@@ -109,6 +109,17 @@ pub struct Settings {
     pub update_notifications: bool,
     /// Début de la dernière semaine dont le récap a été annoncé (1.1).
     pub recap_announced: i64,
+    /// Rappel de pause pendant une partie, en heures (0 : désactivé), 1.1.
+    pub break_reminder_hours: u32,
+    /// Écran de lancement plein cadre (1.1).
+    pub launch_screen: bool,
+    /// Signale les jeux offerts par l'Epic Games Store (1.1).
+    pub free_games_notifications: bool,
+    /// Offres Epic déjà signalées (identifiants).
+    pub free_games_seen: Vec<String>,
+    /// Alerte quand un disque est presque plein (1.1), au plus une fois par jour.
+    pub disk_alerts: bool,
+    pub disk_alert_day: i64,
 
     /// Dépôt des sauvegardes de jeux (dossier local, disque secondaire, NAS) ;
     /// `None` : dans les données de Halcyon.
@@ -475,6 +486,12 @@ impl Default for Settings {
             start_in_big_picture: false,
             update_notifications: true,
             recap_announced: 0,
+            break_reminder_hours: 2,
+            launch_screen: true,
+            free_games_notifications: true,
+            free_games_seen: Vec::new(),
+            disk_alerts: true,
+            disk_alert_day: 0,
             save_root: None,
             save_mirrors: Vec::new(),
             save_keep_auto: 20,

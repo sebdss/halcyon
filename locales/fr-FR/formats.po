@@ -14,7 +14,7 @@ msgstr ""
 "X-Halcyon-Domain: formats\n"
 
 #: crates/halcyon-app/src/ctl_home.rs:99 crates/halcyon-app/src/ctl_home.rs:101 crates/halcyon-installer/src/engine.rs:432
-#: crates/halcyon-integrations/src/sysmon.rs:367 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
+#: crates/halcyon-integrations/src/sysmon.rs:374 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
 #, placeholders
 msgid "{v} Go"
 msgstr "{v} Go"
@@ -160,7 +160,7 @@ msgstr "{value} Go"
 msgid "{value} To"
 msgstr "{value} To"
 
-#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:369 crates/halcyon-minecraft/src/mods.rs:513
+#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:376 crates/halcyon-minecraft/src/mods.rs:513
 #: crates/halcyon-update/src/download.rs:247
 #, placeholders
 msgid "{v} Mo"

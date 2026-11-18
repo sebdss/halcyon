@@ -234,6 +234,7 @@ rendu logiciel) : 51 Mo à l'accueil (40 jeux), démarrage en 92 ms (53 jeux). A
 | Extensions | — | `integrations::plugins` (manifeste, permissions, refus des exécutables) | `plugins` |
 | Apparence | — | `ctl_themes` (thèmes JSON, accent, densité, fond) | `appearance` |
 | Manettes | — | `gamepad` (marque, batterie, association des touches, capture) | `controllers` |
+| Écran de lancement, rappel de pause, jeux offerts, stockage | — | `ctl_extras`, `integrations::{epic_free, sysmon::list_disks}` | `pages/storage.slint` (`LaunchOverlay`, `StoragePage`) |
 | Que jouer ? | `core::recommend` (raisons explicites, données réelles) | — | `assistant`, accueil |
 | Jeu à distance | — | `integrations::remote_play` | `remote` |
 | Système | — | `desktop` (démarrage, raccourcis), `instance` (instance unique), `tray`, `global-hotkey`, `update::download_verified` | Paramètres, mode compact, fenêtre compagnon |
@@ -390,7 +391,7 @@ halcyon/
 │   └── halcyon-app/              # binaire : UI Slint + contrôleurs
 │       ├── build.rs              # compilation de l'UI, icône Windows
 │       ├── ui/                   # app, theme, types, state, components, shell, pages/, icons/, fonts/
-│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
+│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_extras,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
 ├── packaging/                    # windows/ (icône ; halcyon.iss, Inno Setup, hors CI), linux/ (.desktop, MIME, install/uninstall de l'archive)
 ├── tools/                        # make_demo_fixture.py, make_big_library.py, bench.py, package_linux.sh, sound/make_sounds.py
 └── .github/workflows/            # build.yml (tests, compilation), release.yml (publication signée sur tag v*)

@@ -513,6 +513,24 @@ export struct WidgetRow {
 }
 
 /// Valeur clé (widgets, statistiques).
+/// Disque de la page Stockage.
+export struct StorageDisk {
+    mount: string,
+    detail: string,
+    used: float,
+    low: bool,
+}
+
+/// Jeu de la page Stockage (jeu installé peu joué, ou jeu offert : `id` = -1 et `url`).
+export struct StorageGame {
+    id: int,
+    title: string,
+    detail: string,
+    size: string,
+    url: string,
+    card: GameCard,
+}
+
 /// Page de la story du récap (format vertical).
 export struct StoryPage {
     kicker: string,

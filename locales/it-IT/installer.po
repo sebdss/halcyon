@@ -13,7 +13,7 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: installer\n"
 
-#: crates/halcyon-app/ui/app.slint:200 crates/halcyon-app/ui/app.slint:226 crates/halcyon-app/ui/pages/appearance.slint:195
+#: crates/halcyon-app/ui/app.slint:201 crates/halcyon-app/ui/app.slint:227 crates/halcyon-app/ui/pages/appearance.slint:195
 #: crates/halcyon-app/ui/pages/appearance.slint:294 crates/halcyon-app/ui/pages/emulators.slint:65 crates/halcyon-app/ui/pages/emulators.slint:152
 #: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:89 crates/halcyon-app/ui/pages/saves.slint:14
 #: crates/halcyon-app/ui/pages/settings.slint:145 crates/halcyon-app/ui/pages/settings.slint:187 crates/halcyon-app/ui/pages/settings.slint:562
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Parcourir…"
 msgstr "Sfoglia…"
 
-#: crates/halcyon-app/ui/app.slint:240 crates/halcyon-app/ui/app.slint:276 crates/halcyon-app/ui/pages/controllers.slint:116
+#: crates/halcyon-app/ui/app.slint:241 crates/halcyon-app/ui/app.slint:277 crates/halcyon-app/ui/pages/controllers.slint:116
 #: crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225 crates/halcyon-app/ui/pages/game.slint:741
 #: crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258 crates/halcyon-app/ui/pages/settings.slint:272
 #: crates/halcyon-app/ui/pages/smart.slint:190 crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
@@ -70,7 +70,7 @@ msgid "Analyse en cours…"
 msgstr "Analisi in corso…"
 
 #: crates/halcyon-app/ui/pages/minecraft.slint:104 crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-app/ui/pages/minecraft.slint:445
-#: crates/halcyon-app/ui/pages/settings.slint:1001 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
+#: crates/halcyon-app/ui/pages/settings.slint:1038 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
 #: crates/halcyon-installer/src/main.rs:339
 msgid "Installer"
 msgstr "Installa"
@@ -88,7 +88,7 @@ msgstr "Ripara"
 msgid "Désinstaller"
 msgstr "Disinstalla"
 
-#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:883
+#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:920
 #: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_palette.rs:20
 #: crates/halcyon-installer/src/engine.rs:333 crates/halcyon-installer/src/engine.rs:335 crates/halcyon-storage/src/activity.rs:40
 msgid "Système"
@@ -104,7 +104,7 @@ msgstr "Configurazione"
 msgid "Langue"
 msgstr "Lingua"
 
-#: crates/halcyon-app/ui/pages/settings.slint:889 crates/halcyon-installer/ui/setup.slint:446
+#: crates/halcyon-app/ui/pages/settings.slint:926 crates/halcyon-installer/ui/setup.slint:446
 msgid "Démarrer avec la session"
 msgstr "Avvia con la sessione"
 
@@ -332,7 +332,7 @@ msgid "Le programme d'installation ne peut pas démarrer."
 msgstr "Il programma di installazione non può avviarsi."
 
 #: crates/halcyon-app/src/ctl_home.rs:99 crates/halcyon-app/src/ctl_home.rs:101 crates/halcyon-installer/src/engine.rs:432
-#: crates/halcyon-integrations/src/sysmon.rs:367 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
+#: crates/halcyon-integrations/src/sysmon.rs:374 crates/halcyon-minecraft/src/mods.rs:512 crates/halcyon-update/src/download.rs:245
 #, placeholders
 msgid "{v} Go"
 msgstr "{v} GB"
@@ -551,7 +551,7 @@ msgstr "{free} liberi, {need} necessari: libera spazio o scegli un'altra cartell
 msgid "espace libre non déterminé"
 msgstr "spazio libero non determinato"
 
-#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:369 crates/halcyon-minecraft/src/mods.rs:513
+#: crates/halcyon-installer/src/engine.rs:432 crates/halcyon-integrations/src/sysmon.rs:376 crates/halcyon-minecraft/src/mods.rs:513
 #: crates/halcyon-update/src/download.rs:247
 #, placeholders
 msgid "{v} Mo"

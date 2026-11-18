@@ -25,6 +25,19 @@
   pages sont enregistrées en images).
 - Le récap de la semaine écoulée est annoncé au démarrage, une seule fois.
 
+### Confort
+
+- **Écran de lancement** : bannière et logo du jeu en plein cadre pendant son démarrage,
+  puis « Bonne partie ! » quand le jeu apparaît (la réduction de Halcyon vient ensuite).
+  Un clic le referme ; désactivable dans Réglages › Comportement.
+- **Rappel de pause** toutes les 1, 2 ou 3 heures pendant une partie suivie (désactivé :
+  « Jamais » ; 2 h par défaut).
+- **Jeux offerts sur l'Epic Games Store** signalés au démarrage, une fois chacun (API
+  publique de la boutique, sans compte ; désactivable).
+- **Outils › Stockage** : espace libre de chaque disque, part occupée par les jeux de la
+  bibliothèque, et jeux installés non lancés depuis six mois, les plus gros d'abord.
+- **Alerte de disque presque plein** (moins de 10 % ou de 10 Go), au plus une fois par jour.
+
 ### Steam hors ligne : fiches, collections, Workshop
 
 - **Fiches lues dans le cache du client** (`appinfo.vdf`, versions 27 à 29) : studio, éditeur,

@@ -1158,105 +1158,105 @@ msgid_plural " · {n} réglages non appliqués"
 msgstr[0] " · {n} Einstellung nicht angewendet"
 msgstr[1] " · {n} Einstellungen nicht angewendet"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:415
+#: crates/halcyon-app/src/ctl_profiles.rs:419
 #, placeholders
 msgid "Session de {secs}"
 msgstr "Sitzung von {secs}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:415
+#: crates/halcyon-app/src/ctl_profiles.rs:419
 msgid "Session terminée (durée non mesurée)"
 msgstr "Sitzung beendet (Dauer nicht gemessen)"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:454
+#: crates/halcyon-app/src/ctl_profiles.rs:458
 msgid "Profil de manette actif"
 msgstr "Controller-Profil aktiv"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:464
+#: crates/halcyon-app/src/ctl_profiles.rs:468
 msgid "émulateur (options transmises avant la ROM)"
 msgstr "Emulator (Optionen vor der ROM übergeben)"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:510
+#: crates/halcyon-app/src/ctl_profiles.rs:514
 #, placeholders
 msgid "Programme introuvable : {path}"
 msgstr "Programm nicht gefunden: {path}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:540
+#: crates/halcyon-app/src/ctl_profiles.rs:544
 msgid "Limite d'images : nombre entre 10 et 1000 attendu"
 msgstr "Bildratenbegrenzung: Zahl zwischen 10 und 1000 erwartet"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:602
+#: crates/halcyon-app/src/ctl_profiles.rs:606
 msgid "Supprimer le profil ?"
 msgstr "Profil löschen?"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:603
+#: crates/halcyon-app/src/ctl_profiles.rs:607
 #, placeholders
 msgid "Le profil « {name} » sera supprimé. Le jeu et ses fichiers ne sont pas touchés."
 msgstr "Das Profil „{name}“ wird gelöscht. Das Spiel und seine Dateien bleiben unberührt."
 
-#: crates/halcyon-app/src/ctl_profiles.rs:613
+#: crates/halcyon-app/src/ctl_profiles.rs:617
 #, placeholders
 msgid "Profil « {name} » supprimé"
 msgstr "Profil „{name}“ gelöscht"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:625
+#: crates/halcyon-app/src/ctl_profiles.rs:629
 #, placeholders
 msgid "application des mods : {e}"
 msgstr "Anwenden der Mods: {e}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:636
+#: crates/halcyon-app/src/ctl_profiles.rs:640
 #, placeholders
 msgid "commande avant le lancement : {e}"
 msgstr "Befehl vor dem Start: {e}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:659 crates/halcyon-app/src/ctl_profiles.rs:662
+#: crates/halcyon-app/src/ctl_profiles.rs:663 crates/halcyon-app/src/ctl_profiles.rs:666
 msgid "Résolution : format attendu 1920x1080"
 msgstr "Auflösung: erwartetes Format 1920x1080"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:669
+#: crates/halcyon-app/src/ctl_profiles.rs:673
 #, placeholders
 msgid "Variable invalide (NOM=valeur attendu) : {line}"
 msgstr "Ungültige Variable (NAME=Wert erwartet): {line}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:672
+#: crates/halcyon-app/src/ctl_profiles.rs:676
 #, placeholders
 msgid "Nom de variable invalide : {k}"
 msgstr "Ungültiger Variablenname: {k}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:690
+#: crates/halcyon-app/src/ctl_profiles.rs:694
 #, placeholders
 msgid "{f} i/s max"
 msgstr "max. {f} FPS"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:696
+#: crates/halcyon-app/src/ctl_profiles.rs:700
 #, placeholders
 msgid "priorité {v}"
 msgstr "Priorität {v}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:702
+#: crates/halcyon-app/src/ctl_profiles.rs:706
 #, placeholders
 msgid "{n} programme associé"
 msgid_plural "{n} programmes associés"
 msgstr[0] "{n} zugehöriges Programm"
 msgstr[1] "{n} zugehörige Programme"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:708
+#: crates/halcyon-app/src/ctl_profiles.rs:712
 #, placeholders
 msgid "{n} variable"
 msgid_plural "{n} variables"
 msgstr[0] "{n} Variable"
 msgstr[1] "{n} Variablen"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:711
+#: crates/halcyon-app/src/ctl_profiles.rs:715
 #, placeholders
 msgid "mods « {name} »"
 msgstr "Mods „{name}“"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:714
+#: crates/halcyon-app/src/ctl_profiles.rs:718
 #, placeholders
 msgid "manette « {name} »"
 msgstr "Controller „{name}“"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:719
+#: crates/halcyon-app/src/ctl_profiles.rs:723
 msgid "Paramètres du jeu"
 msgstr "Spieleinstellungen"
 

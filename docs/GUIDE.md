@@ -361,6 +361,22 @@ enregistre la page dans *Images/Halcyon* ; **Exporter en vidéo** produit une vi
 dans *Vidéos/Halcyon* si [ffmpeg](https://ffmpeg.org) est installé (sinon, les pages sont
 enregistrées en images).
 
+### Confort (1.1)
+
+- **Écran de lancement** : au clic sur *Jouer*, la bannière et le logo du jeu occupent la
+  fenêtre pendant son démarrage, puis « Bonne partie ! » quand le jeu est détecté. Un clic le
+  referme. *Réglages › Comportement › Écran de lancement* pour le désactiver.
+- **Rappel de pause** : *Réglages › Comportement* (Jamais, 1 h, 2 h ou 3 h). Une notification
+  pendant les parties suivies par Halcyon.
+- **Jeux offerts** : les jeux gratuits de la semaine sur l'Epic Games Store sont signalés au
+  démarrage, une fois chacun, et listés dans *Outils › Stockage*.
+- **Outils › Stockage** : espace libre de chaque disque, place prise par les jeux de la
+  bibliothèque, et jeux installés non lancés depuis six mois (les plus gros d'abord). Ouvrez un
+  jeu pour le désinstaller depuis sa plateforme ; vos sauvegardes Halcyon et votre temps de
+  jeu restent.
+- **Disque presque plein** : moins de 10 % ou de 10 Go libres → une alerte, au plus une fois
+  par jour (désactivable).
+
 ## 9. Profils de lancement
 
 Onglet **Profils** de la fiche : plusieurs façons de lancer un même jeu, choisies dans le menu
@@ -642,7 +658,8 @@ les jaquettes et les extensions.
   jour) sont marquées **EN LIGNE** et désactivables.
 - Services publics contactés, sans compte : boutique et API publique de Steam (visuels,
   recherche par nom, rareté des succès), libretro-thumbnails et la base Ludusavi (dépôts
-  GitHub), GitHub (mises à jour de Halcyon). Avec une clé facultative : Steam Web API,
+  GitHub), GitHub (mises à jour de Halcyon), la liste des jeux offerts de l'Epic Games Store
+  (désactivable). Avec une clé facultative : Steam Web API,
   RetroAchievements, SteamGridDB, Nexus Mods, CurseForge.
 - Les clés d'API restent sur votre ordinateur, dans `settings.json`.
 - `HALCYON_DEBUG=1` active des journaux détaillés ; `HALCYON_DATA_DIR` change le dossier de données.

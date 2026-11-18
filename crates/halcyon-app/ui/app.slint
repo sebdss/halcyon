@@ -19,7 +19,7 @@ import {
 } from "types.slint";
 import {
     Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
-    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi
+    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi, LaunchUi, StorageUi
 } from "state.slint";
 import { Icon, PrimaryButton, SecondaryButton, TextField, TextArea, Badge, Panel, GameCover, IconButton, ModalPanel, Overline } from "components.slint";
 import { HomePage } from "pages/home.slint";
@@ -33,6 +33,7 @@ import { BigPicturePage } from "pages/bigpicture.slint";
 import { StatsPage } from "pages/stats.slint";
 import { JournalPage } from "pages/journal.slint";
 import { RecapPage, StoryOverlay } from "pages/recap.slint";
+import { StoragePage, LaunchOverlay } from "pages/storage.slint";
 import { UpdatesPage } from "pages/updates.slint";
 import { SmartDialog } from "pages/smart.slint";
 import { SavesPage } from "pages/saves.slint";
@@ -60,9 +61,9 @@ export { PerfUi, PerfGpuRow, PerfDiskRow, PerfAppRow, PerfRecoRow, PerfSessionRo
 export { Theme, Icons, Sound }
 export {
     Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
-    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi
+    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi, LaunchUi, StorageUi
 }
-export { StoryPage, WorkshopRow } from "types.slint";
+export { StoryPage, WorkshopRow, StorageDisk, StorageGame } from "types.slint";
 
 /// Menu contextuel d'un jeu : superposition (pas de fenêtre surgissante) pour rester
 /// pilotable aux flèches et à la manette. Échap ou clic à l'extérieur : fermeture.
@@ -641,6 +642,7 @@ export component AppWindow inherits Window {
                     if Nav.page == Page.stats: StatsPage { }
                     if Nav.page == Page.journal: JournalPage { }
                     if Nav.page == Page.recap: RecapPage { }
+                    if Nav.page == Page.storage: StoragePage { }
                     if Nav.page == Page.updates: UpdatesPage { }
                     if Nav.page == Page.saves: SavesPage { }
                     if Nav.page == Page.appearance: AppearancePage { }
@@ -680,6 +682,7 @@ export component AppWindow inherits Window {
     if AppUi.add-dialog-open: AddGameDialog { }
     if SmartUi.open: SmartDialog { }
     if RecapUi.story-open: StoryOverlay { }
+    if LaunchUi.open: LaunchOverlay { }
     if QuickUi.open: QuickLaunch { }
     if AppUi.confirm-open: ConfirmDialog { }
     if GameMenu.open: GameMenuOverlay { }
