@@ -485,6 +485,8 @@ pub struct DiscoveredGame {
     pub version: Option<String>,
     /// État de mise à jour, `None` si la plateforme ne l'expose pas.
     pub update: Option<UpdateInfo>,
+    /// Étiquettes Halcyon (« multijoueur », « coop », « manette »…), vide si inconnues.
+    pub tags: Vec<String>,
 }
 
 impl DiscoveredGame {

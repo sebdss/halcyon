@@ -209,11 +209,11 @@ msgstr "Cancella"
 msgid "Les analyses, téléchargements, synchronisations, sauvegardes, notifications et erreurs apparaîtront ici."
 msgstr "Analisi, download, sincronizzazioni, backup, notifiche ed errori appariranno qui."
 
-#: crates/halcyon-app/ui/state.slint:83 crates/halcyon-app/src/controller.rs:715
+#: crates/halcyon-app/ui/state.slint:83 crates/halcyon-app/src/controller.rs:718
 msgid "Toutes les collections"
 msgstr "Tutte le raccolte"
 
-#: crates/halcyon-app/ui/state.slint:85 crates/halcyon-app/src/controller.rs:692
+#: crates/halcyon-app/ui/state.slint:85 crates/halcyon-app/src/controller.rs:695
 msgid "Tous les genres"
 msgstr "Tutti i generi"
 
@@ -221,233 +221,233 @@ msgstr "Tutti i generi"
 msgid "Ajout récent"
 msgstr "Aggiunti di recente"
 
-#: crates/halcyon-app/ui/state.slint:677
+#: crates/halcyon-app/ui/state.slint:679
 msgid "Confirmer"
 msgstr "Conferma"
 
-#: crates/halcyon-app/src/controller.rs:346
+#: crates/halcyon-app/src/controller.rs:349
 msgid "Jamais analysé pendant cette session"
 msgstr "Mai analizzato in questa sessione"
 
-#: crates/halcyon-app/src/controller.rs:664
+#: crates/halcyon-app/src/controller.rs:667
 #, placeholders
 msgid "Filtre non reconnu : {join} (exemples : statut:terminé, temps:>10h, succès:manquants)"
 msgstr "Filtro non riconosciuto: {join} (esempi: stato:terminato, tempo:>10h, obiettivi:mancanti)"
 
-#: crates/halcyon-app/src/controller.rs:736
+#: crates/halcyon-app/src/controller.rs:789
 #, placeholders
 msgid "{effective_playtime} de jeu"
 msgstr "{effective_playtime} di gioco"
 
-#: crates/halcyon-app/src/controller.rs:739
+#: crates/halcyon-app/src/controller.rs:792
 #, placeholders
 msgid "Joué : {t}"
 msgstr "Giocato: {t}"
 
-#: crates/halcyon-app/src/controller.rs:742
+#: crates/halcyon-app/src/controller.rs:795
 #, placeholders
 msgid "{unlocked}/{n} succès"
 msgid_plural "{unlocked}/{n} succès"
 msgstr[0] "{unlocked}/{n} obiettivo"
 msgstr[1] "{unlocked}/{n} obiettivi"
 
-#: crates/halcyon-app/src/controller.rs:758
+#: crates/halcyon-app/src/controller.rs:811
 #, placeholders
 msgid "Émulateur : {name}"
 msgstr "Emulatore: {name}"
 
-#: crates/halcyon-app/src/controller.rs:759
+#: crates/halcyon-app/src/controller.rs:812
 msgid "Aucun émulateur détecté pour cette plateforme"
 msgstr "Nessun emulatore rilevato per questa piattaforma"
 
-#: crates/halcyon-app/src/controller.rs:1030
+#: crates/halcyon-app/src/controller.rs:1083
 #, placeholders
 msgid "« {name} » est masqué (filtre « Masqués » pour le retrouver)"
 msgstr "«{name}» è nascosto (filtro «Nascosti» per ritrovarlo)"
 
-#: crates/halcyon-app/src/controller.rs:1032
+#: crates/halcyon-app/src/controller.rs:1085
 #, placeholders
 msgid "« {name} » est de nouveau visible"
 msgstr "«{name}» è di nuovo visibile"
 
-#: crates/halcyon-app/src/controller.rs:1041
+#: crates/halcyon-app/src/controller.rs:1094
 msgid "Aucun dossier associé"
 msgstr "Nessuna cartella associata"
 
-#: crates/halcyon-app/src/controller.rs:1046
+#: crates/halcyon-app/src/controller.rs:1099
 #, placeholders
 msgid "Ce dossier n'existe pas : {e}"
 msgstr "Questa cartella non esiste: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1089
+#: crates/halcyon-app/src/controller.rs:1142
 #, placeholders
 msgid "Exécutable introuvable : {exe}"
 msgstr "Eseguibile non trovato: {exe}"
 
-#: crates/halcyon-app/src/controller.rs:1104
+#: crates/halcyon-app/src/controller.rs:1157
 msgid "Paramètres enregistrés"
 msgstr "Impostazioni salvate"
 
-#: crates/halcyon-app/src/controller.rs:1135
+#: crates/halcyon-app/src/controller.rs:1188
 msgid "Métadonnées enregistrées"
 msgstr "Metadati salvati"
 
-#: crates/halcyon-app/src/controller.rs:1150
+#: crates/halcyon-app/src/controller.rs:1203
 #, placeholders
 msgid "Image illisible : {src}"
 msgstr "Immagine illeggibile: {src}"
 
-#: crates/halcyon-app/src/controller.rs:1158
+#: crates/halcyon-app/src/controller.rs:1211
 #, placeholders
 msgid "Copie impossible : {e}"
 msgstr "Impossibile copiare: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1173
+#: crates/halcyon-app/src/controller.rs:1226
 msgid "Visuel mis à jour"
 msgstr "Immagine aggiornata"
 
-#: crates/halcyon-app/src/controller.rs:1189
+#: crates/halcyon-app/src/controller.rs:1242
 msgid "Jeu retiré de la bibliothèque"
 msgstr "Gioco rimosso dalla libreria"
 
-#: crates/halcyon-app/src/controller.rs:1198
+#: crates/halcyon-app/src/controller.rs:1251
 #, placeholders
 msgid "Fichier introuvable : {exe_path}"
 msgstr "File non trovato: {exe_path}"
 
-#: crates/halcyon-app/src/controller.rs:1212
+#: crates/halcyon-app/src/controller.rs:1265
 #, placeholders
 msgid "« {name} » a été ajouté"
 msgstr "«{name}» è stato aggiunto"
 
-#: crates/halcyon-app/src/controller.rs:1250
+#: crates/halcyon-app/src/controller.rs:1303
 #, placeholders
 msgid "Ajouté à la collection « {name} »"
 msgstr "Aggiunto alla raccolta «{name}»"
 
-#: crates/halcyon-app/src/controller.rs:1281
+#: crates/halcyon-app/src/controller.rs:1334
 msgid "Préparation…"
 msgstr "Preparazione…"
 
-#: crates/halcyon-app/src/controller.rs:1283
+#: crates/halcyon-app/src/controller.rs:1336
 msgid "Analyse des sources"
 msgstr "Analisi delle fonti"
 
-#: crates/halcyon-app/src/controller.rs:1391 crates/halcyon-app/src/controller.rs:1392
+#: crates/halcyon-app/src/controller.rs:1447 crates/halcyon-app/src/controller.rs:1448
 #, placeholders
 msgid "Erreur de base de données : {e}"
 msgstr "Errore del database: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1415
+#: crates/halcyon-app/src/controller.rs:1472
 #, placeholders
 msgid "Terminée en {secs} s · {n} jeu"
 msgid_plural "Terminée en {secs} s · {n} jeux"
 msgstr[0] "Completata in {secs} s · {n} gioco"
 msgstr[1] "Completata in {secs} s · {n} giochi"
 
-#: crates/halcyon-app/src/controller.rs:1422
+#: crates/halcyon-app/src/controller.rs:1479
 #, placeholders
 msgid "{status} · {n} nouveau"
 msgid_plural "{status} · {n} nouveaux"
 msgstr[0] "{status} · {n} nuovo"
 msgstr[1] "{status} · {n} nuovi"
 
-#: crates/halcyon-app/src/controller.rs:1437
+#: crates/halcyon-app/src/controller.rs:1494
 #, placeholders
 msgid "Analyse incomplète : {e}"
 msgstr "Analisi incompleta: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1439
+#: crates/halcyon-app/src/controller.rs:1496
 #, placeholders
 msgid "{n} nouveau jeu ajouté"
 msgid_plural "{n} nouveaux jeux ajoutés"
 msgstr[0] "{n} nuovo gioco aggiunto"
 msgstr[1] "{n} nuovi giochi aggiunti"
 
-#: crates/halcyon-app/src/controller.rs:1571
+#: crates/halcyon-app/src/controller.rs:1628
 msgid "Visuels et fiches en ligne"
 msgstr "Immagini e schede online"
 
-#: crates/halcyon-app/src/controller.rs:1575
+#: crates/halcyon-app/src/controller.rs:1632
 #, placeholders
 msgid "Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}"
 msgstr "Immagini da recuperare: {sgdb_jobs} · schede: {plugin_jobs}"
 
-#: crates/halcyon-app/src/controller.rs:1741
+#: crates/halcyon-app/src/controller.rs:1798
 msgid "SteamGridDB a refusé la clé d'API : vérifiez-la dans Paramètres › Comptes"
 msgstr "SteamGridDB ha rifiutato la chiave API: verificala in Impostazioni › Account"
 
-#: crates/halcyon-app/src/controller.rs:1800
+#: crates/halcyon-app/src/controller.rs:1857
 #, placeholders
 msgid "{n} visuel récupéré · réseau indisponible, reprise plus tard"
 msgid_plural "{n} visuels récupérés · réseau indisponible, reprise plus tard"
 msgstr[0] "{n} immagine recuperata · rete non disponibile, si riprenderà più tardi"
 msgstr[1] "{n} immagini recuperate · rete non disponibile, si riprenderà più tardi"
 
-#: crates/halcyon-app/src/controller.rs:1802
+#: crates/halcyon-app/src/controller.rs:1859
 #, placeholders
 msgid "{n} visuel récupéré"
 msgid_plural "{n} visuels récupérés"
 msgstr[0] "{n} immagine recuperata"
 msgstr[1] "{n} immagini recuperate"
 
-#: crates/halcyon-app/src/controller.rs:1853
+#: crates/halcyon-app/src/controller.rs:1910
 #, placeholders
 msgid "Paramètres non enregistrés : {e}"
 msgstr "Impostazioni non salvate: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1876
+#: crates/halcyon-app/src/controller.rs:1933
 msgid "Epic Games (launcher Epic, Heroic ou Legendary)"
 msgstr "Epic Games (launcher Epic, Heroic o Legendary)"
 
-#: crates/halcyon-app/src/controller.rs:1877
+#: crates/halcyon-app/src/controller.rs:1934
 msgid "GOG (Heroic ou GOG Galaxy)"
 msgstr "GOG (Heroic o GOG Galaxy)"
 
-#: crates/halcyon-app/src/controller.rs:1913
+#: crates/halcyon-app/src/controller.rs:1970
 #, placeholders
 msgid "{thumbs} sur le disque · {u64} en mémoire"
 msgstr "{thumbs} su disco · {u64} in memoria"
 
-#: crates/halcyon-app/src/controller.rs:1945
+#: crates/halcyon-app/src/controller.rs:2002
 #, placeholders
 msgid "Dossier introuvable : {p}"
 msgstr "Cartella non trovata: {p}"
 
-#: crates/halcyon-app/src/controller.rs:1963
+#: crates/halcyon-app/src/controller.rs:2020
 msgid "Source trouvée — lancez une analyse pour importer les jeux"
 msgstr "Fonte trovata: avvia un'analisi per importare i giochi"
 
-#: crates/halcyon-app/src/controller.rs:1963
+#: crates/halcyon-app/src/controller.rs:2020
 msgid "Source toujours introuvable à cet emplacement"
 msgstr "Fonte ancora non trovata in questa posizione"
 
-#: crates/halcyon-app/src/controller.rs:1982
+#: crates/halcyon-app/src/controller.rs:2039
 msgid "Ce dossier est déjà surveillé"
 msgstr "Questa cartella è già monitorata"
 
-#: crates/halcyon-app/src/controller.rs:2047
+#: crates/halcyon-app/src/controller.rs:2104
 msgid "Le SteamID64 est un nombre (17 chiffres)"
 msgstr "Lo SteamID64 è un numero (17 cifre)"
 
-#: crates/halcyon-app/src/controller.rs:2083
+#: crates/halcyon-app/src/controller.rs:2140
 #, placeholders
 msgid "{removed} libérés"
 msgstr "{removed} liberati"
 
-#: crates/halcyon-app/src/controller.rs:2149
+#: crates/halcyon-app/src/controller.rs:2206
 msgid "Hors ligne : actualités indisponibles."
 msgstr "Offline: notizie non disponibili."
 
-#: crates/halcyon-app/src/controller.rs:2152
+#: crates/halcyon-app/src/controller.rs:2209
 msgid "Chargement des actualités…"
 msgstr "Caricamento delle notizie…"
 
-#: crates/halcyon-app/src/controller.rs:2161
+#: crates/halcyon-app/src/controller.rs:2218
 msgid "Aucune actualité publiée."
 msgstr "Nessuna notizia pubblicata."
 
-#: crates/halcyon-app/src/controller.rs:2165
+#: crates/halcyon-app/src/controller.rs:2222
 msgid "Actualités indisponibles pour le moment."
 msgstr "Notizie non disponibili al momento."
 

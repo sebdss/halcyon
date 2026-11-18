@@ -75,11 +75,17 @@ impl Kv {
 /// Lit un document KeyValues binaire : suite de `type, nom\0, valeur`, terminée par 0x08.
 pub fn parse_binary(data: &[u8]) -> Result<Kv, String> {
     let mut pos = 0;
-    let root = read_map(data, &mut pos, 0)?;
+    let root = read_map(data, &mut pos, 0, None)?;
     Ok(root)
 }
 
-fn read_map(data: &[u8], pos: &mut usize, depth: usize) -> Result<Kv, String> {
+/// Lit un bloc à partir de `pos`, jusqu'à son marqueur de fin. `strings` : table des noms
+/// (`appinfo.vdf` v29, où chaque nom est un indice de 4 octets), sinon noms en clair.
+pub fn parse_binary_at(data: &[u8], pos: &mut usize, strings: Option<&[String]>) -> Result<Kv, String> {
+    read_map(data, pos, 1, strings)
+}
+
+fn read_map(data: &[u8], pos: &mut usize, depth: usize, strings: Option<&[String]>) -> Result<Kv, String> {
     if depth > 64 {
         return Err(tr!("fichier Steam illisible (imbrication trop profonde)"));
     }
@@ -94,9 +100,15 @@ fn read_map(data: &[u8], pos: &mut usize, depth: usize) -> Result<Kv, String> {
         if kind == 0x08 || kind == 0x0B {
             return Ok(Kv::Map(items));
         }
-        let name = read_cstr(data, pos)?;
+        let name = match strings {
+            Some(table) => {
+                let i = u32::from_le_bytes(take::<4>(data, pos)?) as usize;
+                table.get(i).cloned().ok_or_else(|| tr!("fichier Steam incomplet"))?
+            }
+            None => read_cstr(data, pos)?,
+        };
         let value = match kind {
-            0x00 => read_map(data, pos, depth + 1)?,
+            0x00 => read_map(data, pos, depth + 1, strings)?,
             0x01 => Kv::Str(read_cstr(data, pos)?),
             0x05 => Kv::Str(read_wstr(data, pos)?),
             0x02 | 0x04 | 0x06 => Kv::Int(i64::from(i32::from_le_bytes(take::<4>(data, pos)?))),

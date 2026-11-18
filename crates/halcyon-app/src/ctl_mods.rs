@@ -2,10 +2,11 @@
 
 use crate::controller::{post, Controller};
 use crate::ctl_tracking::date_time;
-use crate::{DetailUi, ModRow};
-use halcyon_core::{util, Game, GameId};
+use crate::{DetailUi, ModRow, WorkshopRow};
+use halcyon_core::{util, Game, GameId, GameSource};
 use halcyon_integrations::artwork::Downloader;
 use halcyon_integrations::mods::{self, Adapter, ModStore};
+use halcyon_integrations::steam;
 use halcyon_storage::{now_unix, ActivityKind, ModEntry, ModProfile};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use std::collections::HashMap;
@@ -53,9 +54,62 @@ impl Controller {
         infos
     }
 
+    /// Objets du Steam Workshop installés (titres demandés une fois à Steam, sans clé).
+    fn refresh_workshop(&self, g: &Game) {
+        let Some(app) = self.app() else { return };
+        let dui = app.global::<DetailUi>();
+        let items = match (g.source, g.source_key.parse::<u64>()) {
+            (GameSource::Steam, Ok(appid)) => steam::SteamScanner::new(self.settings.borrow().steam_path.clone())
+                .root()
+                .map(|r| steam::workshop_items(&r, appid))
+                .unwrap_or_default(),
+            _ => Vec::new(),
+        };
+        let titles = self.workshop_titles.borrow();
+        let rows: Vec<WorkshopRow> = items
+            .iter()
+            .map(|i| WorkshopRow {
+                title: titles.get(&i.id).cloned().unwrap_or_else(|| tr!("Objet {id}", id = i.id)).into(),
+                detail: match i.updated {
+                    Some(t) => tr!("{size} · mis à jour le {date}", size = util::format_size(i.size), date = util::format_date(t)),
+                    None => util::format_size(i.size),
+                }
+                .into(),
+                url: format!("https://steamcommunity.com/sharedfiles/filedetails/?id={}", i.id).into(),
+            })
+            .collect();
+        dui.set_workshop(ModelRc::new(VecModel::from(rows)));
+        let missing: Vec<u64> = items.iter().map(|i| i.id).filter(|id| !titles.contains_key(id)).collect();
+        drop(titles);
+        if missing.is_empty() || !self.net_allowed() {
+            return;
+        }
+        // Marqués d'avance : une seule demande par objet, même si l'onglet est rouvert.
+        for id in &missing {
+            self.workshop_titles.borrow_mut().insert(*id, tr!("Objet {id}", id = id));
+        }
+        let game = g.id;
+        std::thread::spawn(move || {
+            let dl = halcyon_integrations::artwork::Downloader::new();
+            match steam::workshop_titles(&dl, &missing) {
+                Ok(found) => post(move |c| {
+                    c.workshop_titles.borrow_mut().extend(found);
+                    if c.detail_id.get() == Some(game) {
+                        let g = c.lib.borrow().get(game).cloned();
+                        if let Some(g) = g {
+                            c.refresh_workshop(&g);
+                        }
+                    }
+                }),
+                Err(e) => log::warn!("titres du Workshop indisponibles : {e}"),
+            }
+        });
+    }
+
     pub(crate) fn refresh_mods_tab(&self, g: &Game) {
         let Some(app) = self.app() else { return };
         let dui = app.global::<DetailUi>();
+        self.refresh_workshop(g);
         let key = self.game_key(g);
         let store = self.mod_store();
         let (adapter, hint) = self.mod_adapter(g);

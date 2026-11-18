@@ -166,8 +166,8 @@ msgstr "{value} TB"
 msgid "{v} Mo"
 msgstr "{v} MB"
 
-#: crates/halcyon-integrations/src/artwork.rs:79 crates/halcyon-integrations/src/artwork.rs:80 crates/halcyon-integrations/src/artwork.rs:97
-#: crates/halcyon-integrations/src/artwork.rs:100 crates/halcyon-integrations/src/artwork.rs:101 crates/halcyon-integrations/src/artwork.rs:140
+#: crates/halcyon-integrations/src/artwork.rs:87 crates/halcyon-integrations/src/artwork.rs:88 crates/halcyon-integrations/src/artwork.rs:105
+#: crates/halcyon-integrations/src/artwork.rs:108 crates/halcyon-integrations/src/artwork.rs:109 crates/halcyon-integrations/src/artwork.rs:148
 #: crates/halcyon-update/src/download.rs:220
 #, placeholders
 msgid "écriture : {e}"

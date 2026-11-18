@@ -1564,49 +1564,49 @@ msgstr "personalizada"
 msgid "Sessions"
 msgstr "Sessões"
 
-#: crates/halcyon-storage/src/repo.rs:291
+#: crates/halcyon-storage/src/repo.rs:294
 #, placeholders
 msgid "{name} mis à jour"
 msgstr "{name} atualizado"
 
-#: crates/halcyon-storage/src/repo.rs:297
+#: crates/halcyon-storage/src/repo.rs:300
 #, placeholders
 msgid "Mise à jour disponible pour {name}"
 msgstr "Atualização disponível para {name}"
 
-#: crates/halcyon-storage/src/repo.rs:302
+#: crates/halcyon-storage/src/repo.rs:305
 #, placeholders
 msgid "{name} installé"
 msgstr "{name} instalado"
 
-#: crates/halcyon-storage/src/repo.rs:346 crates/halcyon-storage/src/repo.rs:412
+#: crates/halcyon-storage/src/repo.rs:350 crates/halcyon-storage/src/repo.rs:416
 #, placeholders
 msgid "{name} ajouté à la bibliothèque"
 msgstr "{name} adicionado à biblioteca"
 
-#: crates/halcyon-storage/src/repo.rs:358
+#: crates/halcyon-storage/src/repo.rs:362
 #, placeholders
 msgid "{n} autre jeu ajouté ({label})"
 msgid_plural "{n} autres jeux ajoutés ({label})"
 msgstr[0] "mais {n} jogo adicionado ({label})"
 msgstr[1] "mais {n} jogos adicionados ({label})"
 
-#: crates/halcyon-storage/src/repo.rs:368
+#: crates/halcyon-storage/src/repo.rs:372
 #, placeholders
 msgid "{name} désinstallé"
 msgstr "{name} desinstalado"
 
-#: crates/halcyon-storage/src/repo.rs:389
+#: crates/halcyon-storage/src/repo.rs:393
 #, placeholders
 msgid "cet exécutable est déjà dans la bibliothèque (« {name} »)"
 msgstr "este executável já está na biblioteca («{name}»)"
 
-#: crates/halcyon-storage/src/repo.rs:467
+#: crates/halcyon-storage/src/repo.rs:471
 #, placeholders
 msgid "Session de {name}"
 msgstr "Sessão de {name}"
 
-#: crates/halcyon-storage/src/repo.rs:497
+#: crates/halcyon-storage/src/repo.rs:501
 msgid "seuls les jeux ajoutés manuellement peuvent être supprimés"
 msgstr "só podem ser eliminados os jogos adicionados manualmente"
 

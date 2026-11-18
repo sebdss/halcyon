@@ -233,6 +233,12 @@ fn store_tags(d: &Value) -> Vec<String> {
         .and_then(Value::as_array)
         .map(|c| c.iter().filter_map(|x| x.get("id")?.as_u64()).collect())
         .unwrap_or_default();
+    tags_from_categories(&ids)
+}
+
+/// Étiquettes Halcyon d'après les numéros de catégorie de la boutique (fiche en ligne ou
+/// `appinfo.vdf`).
+pub fn tags_from_categories(ids: &[u64]) -> Vec<String> {
     let mut tags = Vec::new();
     let mut add = |cond: bool, tag: &str| {
         if cond && !tags.iter().any(|t| t == tag) {

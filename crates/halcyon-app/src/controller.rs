@@ -110,6 +110,8 @@ pub struct Controller {
     pub(crate) save_candidates: RefCell<Vec<halcyon_integrations::saves::Candidate>>,
     /// Base Ludusavi des emplacements de sauvegarde (chargée en arrière-plan).
     pub(crate) ludusavi: RefCell<Option<Arc<halcyon_integrations::ludusavi::Index>>>,
+    /// Titres des objets du Steam Workshop déjà demandés (identifiant → titre).
+    pub(crate) workshop_titles: RefCell<HashMap<u64, String>>,
     pub(crate) save_remote: RefCell<Option<String>>,
     pub(crate) mod_profile_cache: RefCell<Option<halcyon_storage::ModProfile>>,
     /// Extensions activées et valides.
@@ -196,6 +198,7 @@ impl Controller {
             plugin_saves: RefCell::new(HashMap::new()),
             save_candidates: RefCell::new(Vec::new()),
             ludusavi: RefCell::new(None),
+            workshop_titles: RefCell::new(HashMap::new()),
             save_remote: RefCell::new(None),
             mod_profile_cache: RefCell::new(None),
             plugins: RefCell::new(Vec::new()),
@@ -721,6 +724,56 @@ impl Controller {
         lui.set_collection_labels(ModelRc::new(VecModel::from(clabels)));
         if lui.get_collection() as usize >= n {
             lui.set_collection(0);
+        }
+    }
+
+    /// Reprend les collections de Steam sous le nom « Steam · <nom> » : créées, tenues à jour
+    /// (mêmes jeux que dans Steam) et retirées quand elles disparaissent de Steam. Les autres
+    /// collections ne sont jamais touchées.
+    fn sync_steam_collections(&self) {
+        const PREFIX: &str = "Steam · ";
+        if !self.settings.borrow().steam_enabled {
+            return;
+        }
+        let Some(root) = steam::SteamScanner::new(self.settings.borrow().steam_path.clone()).root() else { return };
+        let Some(account) = self.local_steam_id().map(|id| u64::from(halcyon_integrations::steam_stats::account_id(id))) else { return };
+        // Fichier absent ou illisible : rien n'est créé ni retiré.
+        let Some(wanted) = steam::collections(&root, account) else { return };
+        if wanted.is_empty() && !self.collections.borrow().iter().any(|c| c.name.starts_with(PREFIX)) {
+            return;
+        }
+        let by_appid: HashMap<String, GameId> =
+            self.lib.borrow().games.iter().filter(|g| g.source == GameSource::Steam).map(|g| (g.source_key.clone(), g.id)).collect();
+        let db = self.db();
+        let existing = db.collections().unwrap_or_default();
+        for (name, apps) in &wanted {
+            let full = format!("{PREFIX}{name}");
+            let id = match existing.iter().find(|c| c.name.eq_ignore_ascii_case(&full)) {
+                Some(c) => c.id,
+                None => match db.create_collection(&full) {
+                    Ok(id) => id,
+                    Err(e) => {
+                        log::warn!("collection Steam « {name} » : {e}");
+                        continue;
+                    }
+                },
+            };
+            let want: HashSet<GameId> = apps.iter().filter_map(|a| by_appid.get(&a.to_string()).copied()).collect();
+            let have = db.collection_members(id).unwrap_or_default();
+            for g in want.difference(&have) {
+                let _ = db.set_in_collection(id, *g, true);
+            }
+            for g in have.difference(&want) {
+                let _ = db.set_in_collection(id, *g, false);
+            }
+        }
+        for c in existing.iter().filter(|c| c.name.starts_with(PREFIX)) {
+            if !wanted.iter().any(|(n, _)| c.name.eq_ignore_ascii_case(&format!("{PREFIX}{n}"))) {
+                let _ = db.delete_collection(c.id);
+            }
+        }
+        if !wanted.is_empty() {
+            log::info!("Steam : {} collections reprises", wanted.len());
         }
     }
 
@@ -1288,6 +1341,8 @@ impl Controller {
             }
         }
         let steam_web = if self.net_allowed() { self.steam_web() } else { None };
+        let tags_cache = self.paths.cache_dir.join(format!("steam-tags-{}.json", steam_web::steam_language()));
+        let tags_online = self.net_allowed() && settings.online_metadata;
         let rom_folders: Vec<_> = {
             let reg = self.registry.borrow();
             settings
@@ -1309,7 +1364,8 @@ impl Controller {
                 let ctx = ScanContext::new(Arc::new(AtomicBool::new(false)), progress);
                 let mut scanners: Vec<Box<dyn GameScanner>> = Vec::new();
                 if settings.steam_enabled {
-                    scanners.push(Box::new(steam::SteamScanner::new(settings.steam_path.clone()).with_web(steam_web)));
+                    let tags = Arc::new(steam_tag_names(&tags_cache, tags_online));
+                    scanners.push(Box::new(steam::SteamScanner::new(settings.steam_path.clone()).with_web(steam_web).with_tag_names(tags)));
                 }
                 if settings.epic_enabled {
                     scanners.push(Box::new(epic::EpicScanner::new(settings.epic_manifests_path.clone())));
@@ -1398,6 +1454,7 @@ impl Controller {
         };
         self.reload_games(games);
         self.detect_sources();
+        self.sync_steam_collections();
         self.reload_collections();
         self.refresh_all();
         self.refresh_emulators_ui();
@@ -2186,5 +2243,34 @@ impl Controller {
             .collect();
         ui.set_news(ModelRc::new(VecModel::from(rows)));
         ui.set_news_status(status.into());
+    }
+}
+
+/// Noms des étiquettes de la boutique Steam dans la langue de Halcyon : copie locale,
+/// renouvelée au plus une fois par mois (liste publique, sans clé). Hors ligne : la copie.
+fn steam_tag_names(cache: &Path, online: bool) -> HashMap<u64, String> {
+    const MAX_AGE: i64 = 30 * 86_400;
+    let saved: serde_json::Value = std::fs::read_to_string(cache).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+    let local: HashMap<u64, String> = saved
+        .get("tags")
+        .and_then(|t| t.as_object())
+        .map(|m| m.iter().filter_map(|(k, v)| Some((k.parse().ok()?, v.as_str()?.to_string()))).collect())
+        .unwrap_or_default();
+    let fresh = saved.get("fetched").and_then(|v| v.as_i64()).is_some_and(|t| now_unix() - t < MAX_AGE);
+    if !online || (fresh && !local.is_empty()) {
+        return local;
+    }
+    let url = halcyon_integrations::steam_appinfo::tag_list_url(steam_web::steam_language());
+    match Downloader::new().get_json(&url).map(|v| halcyon_integrations::steam_appinfo::parse_tag_list(&v)) {
+        Ok(tags) if !tags.is_empty() => {
+            let map: serde_json::Map<String, serde_json::Value> = tags.iter().map(|(k, v)| (k.to_string(), serde_json::Value::from(v.as_str()))).collect();
+            let _ = std::fs::write(cache, serde_json::json!({ "fetched": now_unix(), "tags": map }).to_string());
+            tags
+        }
+        Ok(_) => local,
+        Err(e) => {
+            log::warn!("étiquettes Steam non téléchargées : {e}");
+            local
+        }
     }
 }

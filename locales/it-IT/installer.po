@@ -45,20 +45,20 @@ msgstr[1] "{n} elementi"
 msgid "Fermer"
 msgstr "Chiudi"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1529 crates/halcyon-app/ui/pages/home.slint:345
+#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1564 crates/halcyon-app/ui/pages/home.slint:345
 #: crates/halcyon-core/src/model.rs:171 crates/halcyon-installer/src/main.rs:743
 msgid "Terminé"
 msgstr "Completato"
 
-#: crates/halcyon-app/ui/pages/game.slint:555 crates/halcyon-app/ui/pages/game.slint:1075 crates/halcyon-installer/src/engine.rs:401
+#: crates/halcyon-app/ui/pages/game.slint:555 crates/halcyon-app/ui/pages/game.slint:1110 crates/halcyon-installer/src/engine.rs:401
 msgid "Version"
 msgstr "Versione"
 
-#: crates/halcyon-app/ui/pages/game.slint:1532 crates/halcyon-installer/src/main.rs:322
+#: crates/halcyon-app/ui/pages/game.slint:1567 crates/halcyon-installer/src/main.rs:322
 msgid "Mise à jour"
 msgstr "Aggiornamento"
 
-#: crates/halcyon-app/ui/pages/game.slint:1535 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
+#: crates/halcyon-app/ui/pages/game.slint:1570 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
 #: crates/halcyon-installer/src/main.rs:321
 msgid "Installation"
 msgstr "Installazione"

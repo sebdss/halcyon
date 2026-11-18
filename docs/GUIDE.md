@@ -105,6 +105,10 @@ d'onglet.
   Vos modifications ne sont jamais écrasées par une synchronisation.
 - **Jeux Steam** : sans exécutable, le jeu passe par Steam (recommandé : succès, cloud, DRM).
   Un jeu possédé mais non installé propose **Installer via Steam**.
+- **Steam, sans réseau** : studio, éditeur, date de sortie, catégories (solo, coop, manette) et
+  genres (étiquettes de la boutique) viennent du cache du client Steam. Vos **collections Steam**
+  apparaissent dans la bibliothèque (« Steam · <nom> ») et suivent Steam. L'onglet **Mods** liste
+  les objets du **Steam Workshop** installés (gérés par Steam).
 - **Linux, jeux Windows** : les `.exe` passent par la commande définie dans
   **Paramètres › Linux** (`wine` par défaut ; `umu-run`, Proton…).
 

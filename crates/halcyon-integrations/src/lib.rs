@@ -33,6 +33,7 @@ pub mod roms;
 pub mod saves;
 pub mod standalone;
 pub mod steam;
+pub mod steam_appinfo;
 pub mod steam_stats;
 pub mod steam_web;
 pub mod steamgriddb;

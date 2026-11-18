@@ -219,7 +219,8 @@ impl Database {
                     update_downloaded = COALESCE(?31, update_downloaded),
                     update_total = COALESCE(?32, update_total),
                     installed_at = CASE WHEN ?16 AND (installed = 0 OR installed_at IS NULL) THEN ?33
-                                        ELSE installed_at END
+                                        ELSE installed_at END,
+                    tags         = CASE WHEN ?34 = '[]' OR overrides & 32 THEN tags ELSE ?34 END
                  WHERE id = ?1",
             )?;
             let mut insert = tx.prepare(
@@ -227,9 +228,9 @@ impl Database {
                     genres, install_dir, executable, arguments, working_dir, launch_uri, installed,
                     cover_path, banner_path, logo_path, cover_url, banner_url, logo_url,
                     added_at, last_played, playtime_secs, size_bytes, platform,
-                    playtime_platform_secs, version, update_state, update_downloaded, update_total, installed_at)
+                    playtime_platform_secs, version, update_state, update_downloaded, update_total, installed_at, tags)
                  VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,
-                    ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30, CASE WHEN ?14 THEN ?21 END)",
+                    ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30, CASE WHEN ?14 THEN ?21 END, ?31)",
             )?;
 
             for d in &report.games {
@@ -237,6 +238,7 @@ impl Database {
                     continue;
                 }
                 let genres = serde_json::to_string(&d.genres)?;
+                let tags = serde_json::to_string(&d.tags)?;
                 let a = &d.artwork;
                 let upd = d.update;
                 let upd_state = upd.map(|u| u.state.as_str());
@@ -278,6 +280,7 @@ impl Database {
                         upd_done,
                         upd_total,
                         now,
+                        tags,
                     ])?;
                     stats.updated += 1;
                     // Historique des versions et événements du journal.
@@ -333,6 +336,7 @@ impl Database {
                         upd_state.unwrap_or(""),
                         upd_done.unwrap_or(0),
                         upd_total.unwrap_or(0),
+                        tags,
                     ])?;
                     stats.added += 1;
                     let id = tx.last_insert_rowid();

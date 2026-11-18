@@ -85,11 +85,11 @@ msgstr "Metadaten"
 msgid "Description"
 msgstr "Beschreibung"
 
-#: crates/halcyon-app/ui/pages/game.slint:201 crates/halcyon-app/ui/pages/game.slint:1549
+#: crates/halcyon-app/ui/pages/game.slint:201 crates/halcyon-app/ui/pages/game.slint:1584
 msgid "Développeur"
 msgstr "Entwickler"
 
-#: crates/halcyon-app/ui/pages/game.slint:202 crates/halcyon-app/ui/pages/game.slint:1550
+#: crates/halcyon-app/ui/pages/game.slint:202 crates/halcyon-app/ui/pages/game.slint:1585
 msgid "Éditeur"
 msgstr "Publisher"
 
@@ -237,7 +237,7 @@ msgstr "Die Korrektur ersetzt die überall angezeigte Zeit (Bibliothek, Statisti
 msgid "Enregistrer les notes"
 msgstr "Notizen speichern"
 
-#: crates/halcyon-app/ui/pages/game.slint:555 crates/halcyon-app/ui/pages/game.slint:1075 crates/halcyon-installer/src/engine.rs:401
+#: crates/halcyon-app/ui/pages/game.slint:555 crates/halcyon-app/ui/pages/game.slint:1110 crates/halcyon-installer/src/engine.rs:401
 msgid "Version"
 msgstr "Version"
 
@@ -504,7 +504,7 @@ msgstr "Jetzt sichern"
 msgid "Historique ({})"
 msgstr "Verlauf ({})"
 
-#: crates/halcyon-app/ui/pages/game.slint:941 crates/halcyon-app/ui/pages/game.slint:1054
+#: crates/halcyon-app/ui/pages/game.slint:941 crates/halcyon-app/ui/pages/game.slint:1089
 #, placeholders
 msgid "{n} fichier, {}"
 msgid_plural "{n} fichiers, {}"
@@ -519,246 +519,261 @@ msgstr "Mit aktuellen Dateien vergleichen"
 msgid "Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer."
 msgstr "Mods verändern die Spieldateien: Vermeiden Sie sie in Onlinespielen mit Anti-Cheat-Schutz. Halcyon bewahrt jede ersetzte Datei auf und kann alles wieder entfernen."
 
-#: crates/halcyon-app/ui/pages/game.slint:982
+#: crates/halcyon-app/ui/pages/game.slint:985
+#, placeholders
+msgid "Steam Workshop : {n} objet installé"
+msgid_plural "Steam Workshop : {n} objets installés"
+msgstr[0] "Steam Workshop: {n} Objekt installiert"
+msgstr[1] "Steam Workshop: {n} Objekte installiert"
+
+#: crates/halcyon-app/ui/pages/game.slint:991
+msgid "Gérés par Steam : abonnez-vous ou désabonnez-vous dans le Workshop, Steam les installe et les met à jour."
+msgstr "Von Steam verwaltet: Abonnieren oder kündigen Sie im Workshop, Steam installiert und aktualisiert sie."
+
+#: crates/halcyon-app/ui/pages/game.slint:1011
+msgid "Page du Workshop"
+msgstr "Workshop-Seite"
+
+#: crates/halcyon-app/ui/pages/game.slint:1017
 msgid "Dossier d'installation introuvable : les mods sont indisponibles pour ce jeu."
 msgstr "Installationsordner nicht gefunden: Mods sind für dieses Spiel nicht verfügbar."
 
-#: crates/halcyon-app/ui/pages/game.slint:990
+#: crates/halcyon-app/ui/pages/game.slint:1025
 msgid "Méthode d'installation"
 msgstr "Installationsmethode"
 
-#: crates/halcyon-app/ui/pages/game.slint:995 crates/halcyon-integrations/src/mods.rs:31
+#: crates/halcyon-app/ui/pages/game.slint:1030 crates/halcyon-integrations/src/mods.rs:31
 msgid "Copie dans le dossier du jeu"
 msgstr "In den Spielordner kopieren"
 
-#: crates/halcyon-app/ui/pages/game.slint:995
+#: crates/halcyon-app/ui/pages/game.slint:1030
 msgid "BepInEx (Unity)"
 msgstr "BepInEx (Unity)"
 
-#: crates/halcyon-app/ui/pages/game.slint:995
+#: crates/halcyon-app/ui/pages/game.slint:1030
 msgid "Paquets Unreal (.pak)"
 msgstr "Unreal-Pakete (.pak)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1001
+#: crates/halcyon-app/ui/pages/game.slint:1036
 msgid "Dossier Content/Paks"
 msgstr "Ordner Content/Paks"
 
-#: crates/halcyon-app/ui/pages/game.slint:1001
+#: crates/halcyon-app/ui/pages/game.slint:1036
 msgid "Sous-dossier cible (facultatif)"
 msgstr "Zielunterordner (optional)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1004
+#: crates/halcyon-app/ui/pages/game.slint:1039
 msgid "MonJeu/Content/Paks"
 msgstr "MeinSpiel/Content/Paks"
 
-#: crates/halcyon-app/ui/pages/game.slint:1004
+#: crates/halcyon-app/ui/pages/game.slint:1039
 msgid "ex. data"
 msgstr "z. B. data"
 
-#: crates/halcyon-app/ui/pages/game.slint:1015
+#: crates/halcyon-app/ui/pages/game.slint:1050
 msgid "Profil :"
 msgstr "Profil:"
 
-#: crates/halcyon-app/ui/pages/game.slint:1022
+#: crates/halcyon-app/ui/pages/game.slint:1057
 msgid "Nouveau profil (ex. Vanilla+)"
 msgstr "Neues Profil (z. B. Vanilla+)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1023
+#: crates/halcyon-app/ui/pages/game.slint:1058
 msgid "Créer"
 msgstr "Erstellen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1027
+#: crates/halcyon-app/ui/pages/game.slint:1062
 msgid "Aucun mod dans la bibliothèque de ce jeu : importez une archive .zip ou un dossier."
 msgstr "Keine Mods in der Bibliothek dieses Spiels: Importieren Sie ein .zip-Archiv oder einen Ordner."
 
-#: crates/halcyon-app/ui/pages/game.slint:1027
+#: crates/halcyon-app/ui/pages/game.slint:1062
 msgid "Ordre de chargement : en cas de conflit, le mod le plus bas l'emporte."
 msgstr "Ladereihenfolge: Bei Konflikten gewinnt der unterste Mod."
 
-#: crates/halcyon-app/ui/pages/game.slint:1051
+#: crates/halcyon-app/ui/pages/game.slint:1086
 #, placeholders
 msgid "{n} conflit"
 msgid_plural "{n} conflits"
 msgstr[0] "{n} Konflikt"
 msgstr[1] "{n} Konflikte"
 
-#: crates/halcyon-app/ui/pages/game.slint:1054
+#: crates/halcyon-app/ui/pages/game.slint:1089
 #, placeholders
 msgid ", Nexus {}"
 msgstr ", Nexus {}"
 
-#: crates/halcyon-app/ui/pages/game.slint:1062
+#: crates/halcyon-app/ui/pages/game.slint:1097
 msgid "Version et identifiant Nexus"
 msgstr "Version und Nexus-ID"
 
-#: crates/halcyon-app/ui/pages/game.slint:1069
+#: crates/halcyon-app/ui/pages/game.slint:1104
 msgid "Supprimer de la bibliothèque"
 msgstr "Aus der Bibliothek löschen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1076
+#: crates/halcyon-app/ui/pages/game.slint:1111
 msgid "ID Nexus Mods"
 msgstr "Nexus-Mods-ID"
 
-#: crates/halcyon-app/ui/pages/game.slint:1084
+#: crates/halcyon-app/ui/pages/game.slint:1119
 msgid "Archive .zip ou dossier du mod"
 msgstr ".zip-Archiv oder Ordner des Mods"
 
-#: crates/halcyon-app/ui/pages/game.slint:1085
+#: crates/halcyon-app/ui/pages/game.slint:1120
 msgid "Nom (facultatif)"
 msgstr "Name (optional)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1097
+#: crates/halcyon-app/ui/pages/game.slint:1132
 msgid "Appliquer le profil au jeu"
 msgstr "Profil auf das Spiel anwenden"
 
-#: crates/halcyon-app/ui/pages/game.slint:1098
+#: crates/halcyon-app/ui/pages/game.slint:1133
 msgid "Retirer tous les mods"
 msgstr "Alle Mods entfernen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1103
+#: crates/halcyon-app/ui/pages/game.slint:1138
 msgid "Conflits"
 msgstr "Konflikte"
 
-#: crates/halcyon-app/ui/pages/game.slint:1105
+#: crates/halcyon-app/ui/pages/game.slint:1140
 msgid "Fichiers de mods présents mais non installés par Halcyon (laissés tels quels)"
 msgstr "Vorhandene, aber nicht von Halcyon installierte Mod-Dateien (bleiben unverändert)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1110
+#: crates/halcyon-app/ui/pages/game.slint:1145
 msgid "Jeu sur Nexus (ex. stardewvalley)"
 msgstr "Spiel auf Nexus (z. B. stardewvalley)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1111
+#: crates/halcyon-app/ui/pages/game.slint:1146
 msgid "Vérifier les versions sur Nexus Mods"
 msgstr "Versionen auf Nexus Mods prüfen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1120
+#: crates/halcyon-app/ui/pages/game.slint:1155
 msgid "À propos"
 msgstr "Über"
 
-#: crates/halcyon-app/ui/pages/game.slint:1122
+#: crates/halcyon-app/ui/pages/game.slint:1157
 msgid "Aucune description disponible pour ce jeu."
 msgstr "Für dieses Spiel ist keine Beschreibung verfügbar."
 
-#: crates/halcyon-app/ui/pages/game.slint:1128
+#: crates/halcyon-app/ui/pages/game.slint:1163
 #, placeholders
 msgid "Genres : {}"
 msgstr "Genres: {}"
 
-#: crates/halcyon-app/ui/pages/game.slint:1134
+#: crates/halcyon-app/ui/pages/game.slint:1169
 msgid "Captures d'écran"
 msgstr "Screenshots"
 
-#: crates/halcyon-app/ui/pages/game.slint:1156
+#: crates/halcyon-app/ui/pages/game.slint:1191
 msgid "Actualités"
 msgstr "Neuigkeiten"
 
-#: crates/halcyon-app/ui/pages/game.slint:1186
+#: crates/halcyon-app/ui/pages/game.slint:1221
 msgid "Aucune collection pour l'instant."
 msgstr "Noch keine Sammlungen."
 
-#: crates/halcyon-app/ui/pages/game.slint:1197
+#: crates/halcyon-app/ui/pages/game.slint:1232
 msgid "Nouvelle collection (ex. Coop, À finir)"
 msgstr "Neue Sammlung (z. B. Koop, Zu beenden)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1204
+#: crates/halcyon-app/ui/pages/game.slint:1239
 msgid "Créer et ajouter"
 msgstr "Erstellen und hinzufügen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1222
+#: crates/halcyon-app/ui/pages/game.slint:1257
 #, placeholders
 msgid "Vos captures ({})"
 msgstr "Ihre Screenshots ({})"
 
-#: crates/halcyon-app/ui/pages/game.slint:1244
+#: crates/halcyon-app/ui/pages/game.slint:1279
 msgid "Visuels officiels"
 msgstr "Offizielle Grafiken"
 
-#: crates/halcyon-app/ui/pages/game.slint:1259
+#: crates/halcyon-app/ui/pages/game.slint:1294
 msgid "Les vidéos ne sont pas lues dans Halcyon. Les captures Steam sont lues dans le dossier de votre compte local, sans modification."
 msgstr "Videos werden in Halcyon nicht abgespielt. Steam-Screenshots werden unverändert aus Ihrem lokalen Kontoordner gelesen."
 
-#: crates/halcyon-app/ui/pages/game.slint:1344
+#: crates/halcyon-app/ui/pages/game.slint:1379
 msgid "Masqué"
 msgstr "Ausgeblendet"
 
-#: crates/halcyon-app/ui/pages/game.slint:1403
+#: crates/halcyon-app/ui/pages/game.slint:1438
 msgid "Installer via Steam"
 msgstr "Über Steam installieren"
 
-#: crates/halcyon-app/ui/pages/game.slint:1409
+#: crates/halcyon-app/ui/pages/game.slint:1444
 msgid "Profil"
 msgstr "Profil"
 
-#: crates/halcyon-app/ui/pages/game.slint:1432
+#: crates/halcyon-app/ui/pages/game.slint:1467
 msgid "Aucun dossier connu"
 msgstr "Kein bekannter Ordner"
 
-#: crates/halcyon-app/ui/pages/game.slint:1440
+#: crates/halcyon-app/ui/pages/game.slint:1475
 msgid "Plus d'actions"
 msgstr "Weitere Aktionen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1447
+#: crates/halcyon-app/ui/pages/game.slint:1482
 msgid "Dernière session"
 msgstr "Letzte Sitzung"
 
-#: crates/halcyon-app/ui/pages/game.slint:1461
+#: crates/halcyon-app/ui/pages/game.slint:1496
 msgid "Aperçu"
 msgstr "Übersicht"
 
-#: crates/halcyon-app/ui/pages/game.slint:1488 crates/halcyon-app/ui/pages/game.slint:1538
+#: crates/halcyon-app/ui/pages/game.slint:1523 crates/halcyon-app/ui/pages/game.slint:1573
 msgid "Lancement"
 msgstr "Start"
 
-#: crates/halcyon-app/ui/pages/game.slint:1488
+#: crates/halcyon-app/ui/pages/game.slint:1523
 msgid "Paramètres de lancement"
 msgstr "Starteinstellungen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1527
+#: crates/halcyon-app/ui/pages/game.slint:1562
 msgid "Suivi"
 msgstr "Erfassung"
 
-#: crates/halcyon-app/ui/pages/game.slint:1531
+#: crates/halcyon-app/ui/pages/game.slint:1566
 msgid "Sessions (Halcyon)"
 msgstr "Sitzungen (Halcyon)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1532 crates/halcyon-installer/src/main.rs:322
+#: crates/halcyon-app/ui/pages/game.slint:1567 crates/halcyon-installer/src/main.rs:322
 msgid "Mise à jour"
 msgstr "Update"
 
-#: crates/halcyon-app/ui/pages/game.slint:1535 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
+#: crates/halcyon-app/ui/pages/game.slint:1570 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
 #: crates/halcyon-installer/src/main.rs:321
 msgid "Installation"
 msgstr "Installation"
 
-#: crates/halcyon-app/ui/pages/game.slint:1537
+#: crates/halcyon-app/ui/pages/game.slint:1572
 msgid "Plateforme"
 msgstr "Plattform"
 
-#: crates/halcyon-app/ui/pages/game.slint:1539
+#: crates/halcyon-app/ui/pages/game.slint:1574
 msgid "Taille"
 msgstr "Größe"
 
-#: crates/halcyon-app/ui/pages/game.slint:1541
+#: crates/halcyon-app/ui/pages/game.slint:1576
 msgid "Emplacement inconnu"
 msgstr "Unbekannter Ort"
 
-#: crates/halcyon-app/ui/pages/game.slint:1548
+#: crates/halcyon-app/ui/pages/game.slint:1583
 msgid "Édition"
 msgstr "Vertrieb"
 
-#: crates/halcyon-app/ui/pages/game.slint:1551
+#: crates/halcyon-app/ui/pages/game.slint:1586
 msgid "Sortie"
 msgstr "Erscheinung"
 
-#: crates/halcyon-app/ui/pages/game.slint:1554
+#: crates/halcyon-app/ui/pages/game.slint:1589
 msgid "Liens"
 msgstr "Links"
 
-#: crates/halcyon-app/ui/pages/game.slint:1563
+#: crates/halcyon-app/ui/pages/game.slint:1598
 msgid "Créer un raccourci sur le Bureau"
 msgstr "Desktop-Verknüpfung erstellen"
 
-#: crates/halcyon-app/ui/pages/game.slint:1569
+#: crates/halcyon-app/ui/pages/game.slint:1604
 msgid "Publier dans Sunshine…"
 msgstr "In Sunshine veröffentlichen…"
 
@@ -902,164 +917,174 @@ msgstr "ID gespeichert"
 msgid "base de données : {e}"
 msgstr "Datenbank: {e}"
 
-#: crates/halcyon-app/src/ctl_mods.rs:25
+#: crates/halcyon-app/src/ctl_mods.rs:26
 msgid "Méthode choisie pour ce jeu."
 msgstr "Für dieses Spiel gewählte Methode."
 
-#: crates/halcyon-app/src/ctl_mods.rs:119
+#: crates/halcyon-app/src/ctl_mods.rs:72 crates/halcyon-app/src/ctl_mods.rs:89
+#, placeholders
+msgid "Objet {id}"
+msgstr "Objekt {id}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:74
+#, placeholders
+msgid "{size} · mis à jour le {date}"
+msgstr "{size} · aktualisiert am {date}"
+
+#: crates/halcyon-app/src/ctl_mods.rs:173
 #, placeholders
 msgid "Mods : {name}"
 msgstr "Mods: {name}"
 
-#: crates/halcyon-app/src/ctl_mods.rs:124
+#: crates/halcyon-app/src/ctl_mods.rs:178
 msgid "Aucun mod installé par Halcyon dans ce jeu."
 msgstr "Keine von Halcyon installierten Mods in diesem Spiel."
 
-#: crates/halcyon-app/src/ctl_mods.rs:126
+#: crates/halcyon-app/src/ctl_mods.rs:180
 #, placeholders
 msgid "Installés le {at} : {n} fichier{v}. Retirer les mods remet le jeu dans son état d'origine."
 msgid_plural "Installés le {at} : {n} fichiers{v}. Retirer les mods remet le jeu dans son état d'origine."
 msgstr[0] "Installiert am {at}: {n} Datei{v}. Durch Entfernen der Mods wird das Spiel in seinen Originalzustand versetzt."
 msgstr[1] "Installiert am {at}: {n} Dateien{v}. Durch Entfernen der Mods wird das Spiel in seinen Originalzustand versetzt."
 
-#: crates/halcyon-app/src/ctl_mods.rs:137
+#: crates/halcyon-app/src/ctl_mods.rs:191
 #, placeholders
 msgid "{rel} — {join} (gagnant : {v})"
 msgstr "{rel} — {join} (gewinnt: {v})"
 
-#: crates/halcyon-app/src/ctl_mods.rs:141
+#: crates/halcyon-app/src/ctl_mods.rs:195
 #, placeholders
 msgid "{n} fichier ignoré par cette méthode d'installation"
 msgid_plural "{n} fichiers ignorés par cette méthode d'installation"
 msgstr[0] "{n} Datei von dieser Installationsmethode ignoriert"
 msgstr[1] "{n} Dateien von dieser Installationsmethode ignoriert"
 
-#: crates/halcyon-app/src/ctl_mods.rs:200
+#: crates/halcyon-app/src/ctl_mods.rs:254
 #, placeholders
 msgid "Introuvable : {src}"
 msgstr "Nicht gefunden: {src}"
 
-#: crates/halcyon-app/src/ctl_mods.rs:210
+#: crates/halcyon-app/src/ctl_mods.rs:264
 #, placeholders
 msgid "Mod « {name} » ajouté"
 msgstr "Mod „{name}“ hinzugefügt"
 
-#: crates/halcyon-app/src/ctl_mods.rs:211
+#: crates/halcyon-app/src/ctl_mods.rs:265
 #, placeholders
 msgid "Mod « {name} » importé ({n} fichier) — activez-le puis appliquez"
 msgid_plural "Mod « {name} » importé ({n} fichiers) — activez-le puis appliquez"
 msgstr[0] "Mod „{name}“ importiert ({n} Datei) – aktivieren und anwenden"
 msgstr[1] "Mod „{name}“ importiert ({n} Dateien) – aktivieren und anwenden"
 
-#: crates/halcyon-app/src/ctl_mods.rs:225
+#: crates/halcyon-app/src/ctl_mods.rs:279
 msgid "Supprimer ce mod de la bibliothèque ?"
 msgstr "Diesen Mod aus der Bibliothek löschen?"
 
-#: crates/halcyon-app/src/ctl_mods.rs:226
+#: crates/halcyon-app/src/ctl_mods.rs:280
 msgid "Ses fichiers sont supprimés de la bibliothèque de mods de Halcyon. Le jeu n'est pas modifié."
 msgstr "Seine Dateien werden aus der Mod-Bibliothek von Halcyon gelöscht. Das Spiel bleibt unverändert."
 
-#: crates/halcyon-app/src/ctl_mods.rs:230
+#: crates/halcyon-app/src/ctl_mods.rs:284
 msgid "Mod supprimé"
 msgstr "Mod gelöscht"
 
-#: crates/halcyon-app/src/ctl_mods.rs:248
+#: crates/halcyon-app/src/ctl_mods.rs:302
 msgid "Identifiant Nexus : nombre attendu (visible dans l'adresse de la page du mod)"
 msgstr "Nexus-ID: Zahl erwartet (in der Adresse der Mod-Seite sichtbar)"
 
-#: crates/halcyon-app/src/ctl_mods.rs:261
+#: crates/halcyon-app/src/ctl_mods.rs:315
 msgid "Dossier cible : chemin relatif au dossier du jeu attendu"
 msgstr "Zielordner: Pfad relativ zum Spielordner erwartet"
 
-#: crates/halcyon-app/src/ctl_mods.rs:269
+#: crates/halcyon-app/src/ctl_mods.rs:323
 msgid "Dossier Content/Paks introuvable : indiquez-le (ex. MonJeu/Content/Paks)"
 msgstr "Ordner Content/Paks nicht gefunden: Geben Sie ihn an (z. B. MeinSpiel/Content/Paks)"
 
-#: crates/halcyon-app/src/ctl_mods.rs:312
+#: crates/halcyon-app/src/ctl_mods.rs:366
 #, placeholders
 msgid "Profil de mods « {name} » créé (copie du profil actuel)"
 msgstr "Mod-Profil „{name}“ erstellt (Kopie des aktuellen Profils)"
 
-#: crates/halcyon-app/src/ctl_mods.rs:323
+#: crates/halcyon-app/src/ctl_mods.rs:377
 msgid "Gardez au moins un profil de mods"
 msgstr "Behalten Sie mindestens ein Mod-Profil"
 
-#: crates/halcyon-app/src/ctl_mods.rs:326
+#: crates/halcyon-app/src/ctl_mods.rs:380
 msgid "Supprimer ce profil de mods ?"
 msgstr "Dieses Mod-Profil löschen?"
 
-#: crates/halcyon-app/src/ctl_mods.rs:327
+#: crates/halcyon-app/src/ctl_mods.rs:381
 #, placeholders
 msgid "Le profil « {name} » (ordre et activation) sera supprimé. Les mods restent dans la bibliothèque."
 msgstr "Das Profil „{name}“ (Reihenfolge und Aktivierung) wird gelöscht. Die Mods bleiben in der Bibliothek."
 
-#: crates/halcyon-app/src/ctl_mods.rs:341 crates/halcyon-app/src/ctl_mods.rs:372
+#: crates/halcyon-app/src/ctl_mods.rs:395 crates/halcyon-app/src/ctl_mods.rs:426
 msgid "Fermez le jeu avant de modifier ses mods"
 msgstr "Schließen Sie das Spiel, bevor Sie seine Mods ändern"
 
-#: crates/halcyon-app/src/ctl_mods.rs:356
+#: crates/halcyon-app/src/ctl_mods.rs:410
 #, placeholders
 msgid "Mods appliqués à {name}"
 msgstr "Mods auf {name} angewendet"
 
-#: crates/halcyon-app/src/ctl_mods.rs:356
+#: crates/halcyon-app/src/ctl_mods.rs:410
 #, placeholders
 msgid "Profil « {name} » · {n} fichier"
 msgid_plural "Profil « {name} » · {n} fichiers"
 msgstr[0] "Profil „{name}“ · {n} Datei"
 msgstr[1] "Profil „{name}“ · {n} Dateien"
 
-#: crates/halcyon-app/src/ctl_mods.rs:360
+#: crates/halcyon-app/src/ctl_mods.rs:414
 #, placeholders
 msgid "Mods appliqués ({n} fichier)"
 msgid_plural "Mods appliqués ({n} fichiers)"
 msgstr[0] "Mods angewendet ({n} Datei)"
 msgstr[1] "Mods angewendet ({n} Dateien)"
 
-#: crates/halcyon-app/src/ctl_mods.rs:361
+#: crates/halcyon-app/src/ctl_mods.rs:415
 #, placeholders
 msgid "Application impossible : {e}"
 msgstr "Anwenden nicht möglich: {e}"
 
-#: crates/halcyon-app/src/ctl_mods.rs:381
+#: crates/halcyon-app/src/ctl_mods.rs:435
 #, placeholders
 msgid "Mods retirés de {name}"
 msgstr "Mods aus {name} entfernt"
 
-#: crates/halcyon-app/src/ctl_mods.rs:386
+#: crates/halcyon-app/src/ctl_mods.rs:440
 #, placeholders
 msgid "Mods retirés · fichiers supprimés : {removed} · originaux rétablis : {restored}"
 msgstr "Mods entfernt · gelöschte Dateien: {removed} · wiederhergestellte Originale: {restored}"
 
-#: crates/halcyon-app/src/ctl_mods.rs:389
+#: crates/halcyon-app/src/ctl_mods.rs:443
 #, placeholders
 msgid "{n} fichier modifié depuis l'installation a été laissé en place"
 msgid_plural "{n} fichiers modifiés depuis l'installation ont été laissés en place"
 msgstr[0] "{n} seit der Installation geänderte Datei wurde belassen"
 msgstr[1] "{n} seit der Installation geänderte Dateien wurden belassen"
 
-#: crates/halcyon-app/src/ctl_mods.rs:392
+#: crates/halcyon-app/src/ctl_mods.rs:446
 #, placeholders
 msgid "Retrait impossible : {e}"
 msgstr "Entfernen nicht möglich: {e}"
 
-#: crates/halcyon-app/src/ctl_mods.rs:423
+#: crates/halcyon-app/src/ctl_mods.rs:477
 msgid "Ajoutez votre clé d'API Nexus Mods dans les paramètres (Comptes)"
 msgstr "Fügen Sie Ihren Nexus-Mods-API-Schlüssel in den Einstellungen hinzu (Konten)"
 
-#: crates/halcyon-app/src/ctl_mods.rs:426
+#: crates/halcyon-app/src/ctl_mods.rs:480
 msgid "Mode hors ligne activé"
 msgstr "Offlinemodus aktiv"
 
-#: crates/halcyon-app/src/ctl_mods.rs:430
+#: crates/halcyon-app/src/ctl_mods.rs:484
 msgid "Indiquez le nom du jeu sur Nexus Mods (ex. « skyrimspecialedition », visible dans l'adresse)"
 msgstr "Geben Sie den Namen des Spiels auf Nexus Mods an (z. B. „skyrimspecialedition“, in der Adresse sichtbar)"
 
-#: crates/halcyon-app/src/ctl_mods.rs:460
+#: crates/halcyon-app/src/ctl_mods.rs:514
 msgid "Aucun mod n'a d'identifiant Nexus : renseignez-le dans la ligne du mod"
 msgstr "Kein Mod hat eine Nexus-ID: Tragen Sie sie in der Zeile des Mods ein"
 
-#: crates/halcyon-app/src/ctl_mods.rs:462
+#: crates/halcyon-app/src/ctl_mods.rs:516
 #, placeholders
 msgid "Mods vérifiés : {checked} · mises à jour disponibles : {newer}"
 msgstr "Geprüfte Mods: {checked} · verfügbare Updates: {newer}"

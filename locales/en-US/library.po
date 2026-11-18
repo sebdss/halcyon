@@ -420,16 +420,16 @@ msgstr "Multiplayer"
 msgid "trop de requêtes, réessai plus tard"
 msgstr "too many requests, retrying later"
 
-#: crates/halcyon-integrations/src/artwork.rs:108
+#: crates/halcyon-integrations/src/artwork.rs:116
 msgid "aucune URL"
 msgstr "no URL"
 
-#: crates/halcyon-integrations/src/artwork.rs:132
+#: crates/halcyon-integrations/src/artwork.rs:140
 #, placeholders
 msgid "type de contenu inattendu « {other} »"
 msgstr "unexpected content type “{other}”"
 
-#: crates/halcyon-integrations/src/artwork.rs:136
+#: crates/halcyon-integrations/src/artwork.rs:144
 msgid "image vide"
 msgstr "empty image"
 
@@ -476,94 +476,100 @@ msgstr "Folders: {root}"
 msgid "dossier inaccessible {root} : {e}"
 msgstr "folder not accessible {root}: {e}"
 
-#: crates/halcyon-integrations/src/steam.rs:82
+#: crates/halcyon-integrations/src/steam.rs:89
 msgid "Steam n'a pas été trouvé sur cet ordinateur"
 msgstr "Steam wasn't found on this computer"
 
-#: crates/halcyon-integrations/src/steam.rs:83
+#: crates/halcyon-integrations/src/steam.rs:90
 msgid "Steam : lecture des bibliothèques…"
 msgstr "Steam: reading libraries…"
 
-#: crates/halcyon-integrations/src/steam.rs:99
+#: crates/halcyon-integrations/src/steam.rs:106
 #, placeholders
 msgid "bibliothèque Steam inaccessible {lib} : {e}"
 msgstr "Steam library not accessible {lib}: {e}"
 
-#: crates/halcyon-integrations/src/steam.rs:126
+#: crates/halcyon-integrations/src/steam.rs:133
 msgid "Steam : jeux possédés (en ligne)…"
 msgstr "Steam: owned games (online)…"
 
-#: crates/halcyon-integrations/src/steam.rs:130
+#: crates/halcyon-integrations/src/steam.rs:137
 #, placeholders
 msgid "jeux possédés indisponibles : {e}"
 msgstr "owned games unavailable: {e}"
 
-#: crates/halcyon-integrations/src/steam.rs:180
+#: crates/halcyon-integrations/src/steam.rs:142
+msgid "Steam : fiches des jeux (cache du client)…"
+msgstr "Steam: game details (client cache)…"
+
+#: crates/halcyon-integrations/src/steam.rs:331
 #, placeholders
 msgid "libraryfolders.vdf : {e}"
 msgstr "libraryfolders.vdf: {e}"
 
-#: crates/halcyon-integrations/src/steam.rs:189
+#: crates/halcyon-integrations/src/steam.rs:340
 msgid "section AppState absente"
 msgstr "AppState section missing"
 
-#: crates/halcyon-integrations/src/steam.rs:190
+#: crates/halcyon-integrations/src/steam.rs:341
 msgid "appid absent"
 msgstr "appid missing"
 
-#: crates/halcyon-integrations/src/steam.rs:191
+#: crates/halcyon-integrations/src/steam.rs:342
 msgid "nom absent"
 msgstr "name missing"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:84
-msgid "fichier Steam illisible (imbrication trop profonde)"
-msgstr "unreadable Steam file (nesting too deep)"
+#: crates/halcyon-integrations/src/steam_appinfo.rs:80 crates/halcyon-integrations/src/steam_stats.rs:290
+#, placeholders
+msgid "{path} : fichier trop volumineux"
+msgstr "{path}: file too large"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:90 crates/halcyon-integrations/src/steam_stats.rs:113 crates/halcyon-integrations/src/steam_stats.rs:114
-#: crates/halcyon-integrations/src/steam_stats.rs:122 crates/halcyon-integrations/src/steam_stats.rs:125 crates/halcyon-integrations/src/steam_stats.rs:132
+#: crates/halcyon-integrations/src/steam_appinfo.rs:105 crates/halcyon-integrations/src/steam_appinfo.rs:110 crates/halcyon-integrations/src/steam_appinfo.rs:111
+#: crates/halcyon-integrations/src/steam_stats.rs:96 crates/halcyon-integrations/src/steam_stats.rs:106 crates/halcyon-integrations/src/steam_stats.rs:125
+#: crates/halcyon-integrations/src/steam_stats.rs:126 crates/halcyon-integrations/src/steam_stats.rs:134 crates/halcyon-integrations/src/steam_stats.rs:137
+#: crates/halcyon-integrations/src/steam_stats.rs:144
 msgid "fichier Steam incomplet"
 msgstr "incomplete Steam file"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:106
+#: crates/halcyon-integrations/src/steam_appinfo.rs:114 crates/halcyon-integrations/src/steam_stats.rs:118
 #, placeholders
 msgid "fichier Steam d'un format inconnu (type {kind})"
 msgstr "Steam file in an unknown format (type {kind})"
 
-#: crates/halcyon-integrations/src/steam_stats.rs:278
-#, placeholders
-msgid "{path} : fichier trop volumineux"
-msgstr "{path}: file too large"
+#: crates/halcyon-integrations/src/steam_stats.rs:90
+msgid "fichier Steam illisible (imbrication trop profonde)"
+msgstr "unreadable Steam file (nesting too deep)"
 
 #: crates/halcyon-integrations/src/steam_web.rs:60
 msgid "erreur Steam"
 msgstr "Steam error"
 
-#: crates/halcyon-integrations/src/steam_web.rs:244
+#: crates/halcyon-integrations/src/steam_web.rs:250
 msgctxt "tag"
 msgid "multijoueur"
 msgstr "multiplayer"
 
-#: crates/halcyon-integrations/src/steam_web.rs:246
+#: crates/halcyon-integrations/src/steam_web.rs:252
 msgctxt "tag"
 msgid "coop"
 msgstr "co-op"
 
-#: crates/halcyon-integrations/src/steam_web.rs:247
+#: crates/halcyon-integrations/src/steam_web.rs:253
 msgctxt "tag"
 msgid "écran partagé"
 msgstr "split screen"
 
-#: crates/halcyon-integrations/src/steam_web.rs:248
+#: crates/halcyon-integrations/src/steam_web.rs:254
 msgctxt "tag"
 msgid "solo"
 msgstr "single-player"
 
-#: crates/halcyon-integrations/src/steam_web.rs:249
+#: crates/halcyon-integrations/src/steam_web.rs:255
 msgctxt "tag"
 msgid "manette"
 msgstr "controller"
 
-#: crates/halcyon-integrations/src/steam_web.rs:250
+#: crates/halcyon-integrations/src/steam_web.rs:256
 msgctxt "tag"
 msgid "manette partielle"
 msgstr "partial controller support"

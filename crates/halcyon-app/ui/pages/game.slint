@@ -979,6 +979,41 @@ component ModsTab inherits VerticalLayout {
         warning: true;
         text: @tr("Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer.");
     }
+    if DetailUi.workshop.length > 0: VerticalLayout {
+        spacing: 8px;
+        Text {
+            text: @tr("Steam Workshop : {n} objet installé" | "Steam Workshop : {n} objets installés" % DetailUi.workshop.length);
+            color: Theme.text;
+            font-size: Theme.t-body;
+            font-weight: 600;
+        }
+        Text {
+            text: @tr("Gérés par Steam : abonnez-vous ou désabonnez-vous dans le Workshop, Steam les installe et les met à jour.");
+            color: Theme.text-dim;
+            font-size: Theme.t-caption;
+            wrap: word-wrap;
+        }
+        for w in DetailUi.workshop: Rectangle {
+            height: 46px;
+            border-radius: Theme.radius-sm + 2px;
+            background: Theme.surface;
+            HorizontalLayout {
+                padding-left: 14px;
+                padding-right: 6px;
+                spacing: 12px;
+                VerticalLayout {
+                    alignment: center;
+                    Text { text: w.title; color: Theme.text; font-size: Theme.t-small; overflow: elide; }
+                    Text { text: w.detail; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                }
+                TextButton {
+                    y: (parent.height - self.height) / 2;
+                    text: @tr("Page du Workshop");
+                    clicked => { Actions.open-url(w.url); }
+                }
+            }
+        }
+    }
     if !DetailUi.mod-available: Text { text: @tr("Dossier d'installation introuvable : les mods sont indisponibles pour ce jeu."); color: Theme.text-dim; font-size: Theme.t-small; }
 
     if DetailUi.mod-available: VerticalLayout {

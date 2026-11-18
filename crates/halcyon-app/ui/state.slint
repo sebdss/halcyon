@@ -5,7 +5,7 @@
 import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
-    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, ThemeRow, ToggleRow,
+    UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, ThemeRow, ToggleRow,
     PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
@@ -248,6 +248,8 @@ export global DetailUi {
 
     // Mods
     in property <[ModRow]> mods;
+    /// Steam Workshop : objets installés (lecture seule, gérés par Steam).
+    in property <[WorkshopRow]> workshop;
     in-out property <int> mod-adapter;
     in-out property <string> mod-target;
     in property <string> mod-hint;

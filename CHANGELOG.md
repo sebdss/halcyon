@@ -13,6 +13,17 @@
   des collections intelligentes étendue.
 - Un visuel dont l'adresse ne répond plus est cherché ailleurs (boutique Steam, SteamGridDB).
 
+### Steam hors ligne : fiches, collections, Workshop
+
+- **Fiches lues dans le cache du client** (`appinfo.vdf`, versions 27 à 29) : studio, éditeur,
+  date de sortie, solo / multijoueur / coop / manette, sans requête. Genres tirés des
+  étiquettes de la boutique (« Rogue-like », « Monde ouvert »…), dans la langue de Halcyon
+  (liste publique, sans clé, renouvelée une fois par mois).
+- **Collections Steam** reprises sous le nom « Steam · <nom> », tenues à jour à chaque analyse ;
+  les autres collections ne sont jamais touchées. Collections dynamiques ignorées.
+- **Steam Workshop** : onglet Mods, objets installés (titre, taille, date), lien vers leur
+  page ; ils restent gérés par Steam.
+
 ### Sauvegardes reconnues par la base Ludusavi
 
 - Emplacements **exacts** de plus de 20 000 jeux (base communautaire Ludusavi, licence MIT),
