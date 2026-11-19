@@ -353,6 +353,7 @@ export component ShelfView inherits Rectangle {
 
     // Plaque nominative, posée sur l'arête de la planche.
     Rectangle {
+        visible: ShelfUi.shelf-count > 0;
         x: root.side;
         y: root.board-y + 8 * root.u;
         width: plate.preferred-width;
@@ -400,6 +401,7 @@ export component ShelfView inherits Rectangle {
         if ShelfUi.prev-name != "": Text { text: "▲  " + ShelfUi.prev-name; color: #ffffffaa; font-size: 18 * root.u * Theme.text-scale; vertical-alignment: center; }
         if ShelfUi.next-name != "": Text { text: "▼  " + ShelfUi.next-name; color: #ffffffaa; font-size: 18 * root.u * Theme.text-scale; vertical-alignment: center; }
         Text {
+            visible: ShelfUi.shelf-count > 0;
             text: ShelfUi.shelf-index + 1 + " / " + ShelfUi.shelf-count;
             color: #ffffff80;
             font-family: Theme.display;

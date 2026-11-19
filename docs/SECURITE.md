@@ -64,6 +64,7 @@ humaine) : [`HUS.md`](HUS.md), sections 4 à 6.
 | `update.verified`, `update.rejected` | version, paquet, niveau de vérification ou motif |
 | `minecraft.login`, `minecraft.logout` | nom du profil Minecraft |
 | `minecraft.official_profile.write` / `.remove` | profil « Halcyon · … » du launcher officiel |
+| `game.uninstall` | jeu, voie (`steam`, `legendary`, `launcher`, `trash`, `remove`, `hide`), issue (`ok`, `delegated:<launcher>`, `failed`), chemin |
 
 Un détail contenant un retour à la ligne est échappé : une entrée ne peut pas en imiter une
 autre.
@@ -78,12 +79,29 @@ autre.
 - Sauvegardes et mods : jamais d'écrasement sans copie préalable.
 - Aucune injection dans les jeux (anti-triche, stabilité).
 
+## 4 bis. Désinstallation des jeux (1.0.0-alpha.6)
+
+Halcyon ne supprime lui-même que le dossier d'un **jeu autonome**, et seulement vers la
+corbeille. Tout le reste passe par la plateforme du jeu ou ne touche aucun fichier.
+
+| Protection | Détail |
+|---|---|
+| Confirmation | Toujours un dialogue (nom, taille, chemin) ; focus initial sur *Annuler*, au clavier comme à la manette et en mode console |
+| Aucun shell | Steam : URI `steam://uninstall/<appid>` (numéro vérifié) ; Legendary : `legendary uninstall <app>` lancé directement, nom d'application limité à `[A-Za-z0-9._-]`, sans tiret initial ; réponse à la confirmation par l'entrée standard ; délai maximal 15 min |
+| Garde-fous de chemin (`halcyon_core::uninstall::check_deletable`, testés) | chemin absolu sans `..` ; au moins deux niveaux sous la racine ; **sous-dossier direct** d'un dossier de jeux enregistré ; jamais un dossier protégé ni l'un de ses parents (dossier personnel, Documents, Bureau, Téléchargements, dossiers système, données / cache / journaux de Halcyon, Steam) ; jamais un dossier qui contient ou est contenu dans le dossier d'un autre jeu, une bibliothèque de ROM ou un dépôt de sauvegardes ; lien symbolique refusé |
+| Corbeille | Linux : spécification freedesktop (déplacement sur le même disque, `.trashinfo`), sinon refus sans suppression ; Windows : Corbeille par `Microsoft.VisualBasic.FileIO`, chemin passé par variable d'environnement |
+| Sauvegarde | « Sauvegarder avant » fait la copie d'abord ; si elle échoue, rien n'est désinstallé |
+| ROM, jeux ajoutés à la main | jamais supprimés : masqués ou retirés de la bibliothèque |
+| Traçabilité | `game.uninstall` dans `security.log`, entrée du journal d'activité (réussi, annulé, délégué, échec) |
+
 ## 5. Limites connues
 
 - Linux : les fichiers du coffre ne sont pas chiffrés (protection par les droits du compte).
 - Signature : protège à partir de la première version signée installée ; la clé privée est
   un point unique à protéger.
 - Les extensions ne sont pas encore signées par leurs auteurs (prévu).
+- Désinstallation : la mise à la Corbeille Windows et les URI de GOG Galaxy, Battle.net et
+  du launcher Epic n'ont pas été essayées sur un vrai PC Windows (tests Linux seulement).
 
 ## 6. Audit du 18 novembre 2026 (après la 1.0.0-alpha.4)
 

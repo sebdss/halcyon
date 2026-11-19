@@ -1220,11 +1220,6 @@ msgstr "Icon active in the system tray"
 msgid "{e} : la fenêtre sera réduite au lieu d'être masquée"
 msgstr "{e}: the window will be minimized instead of hidden"
 
-#: crates/halcyon-app/src/ctl_system.rs:497
-#, placeholders
-msgid "{source} · non installé"
-msgstr "{source} · not installed"
-
 #: crates/halcyon-app/src/ctl_system.rs:521
 msgid "Page"
 msgstr "Page"
@@ -1672,6 +1667,10 @@ msgstr "{name} session"
 #: crates/halcyon-storage/src/repo.rs:501
 msgid "seuls les jeux ajoutés manuellement peuvent être supprimés"
 msgstr "only manually added games can be deleted"
+
+#: crates/halcyon-storage/src/repo.rs:634
+msgid "une collection porte déjà ce nom"
+msgstr "a collection already has this name"
 
 #: crates/halcyon-storage/src/saves_mods.rs:127
 msgid "le profil de mods doit avoir un nom"

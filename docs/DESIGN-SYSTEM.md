@@ -92,7 +92,31 @@ police d'affichage (« Outils 4 »), jamais des pastilles.
 | Activité | Succès : complétion en chiffre-titre, rubriques par plateforme et par mois. Statistiques : temps total en chiffre-titre, relevé, graphiques en rubriques. Journal : chronologie avec heure, repère de catégorie et fil. Que jouer ? : suggestions avec leur raison. |
 | Outils | Téléchargements et mises à jour en rangées à perche (actif) ; sauvegardes, émulateurs, manettes, jeu à distance et extensions en rangées et groupes. |
 | Système | Performances en instruments (filet épais, valeur en grand, courbe sur une ligne de base). Apparence : thèmes en miniatures de l'interface. Paramètres : index des catégories, colonne de lecture. |
-| Console | Mise à l'échelle de la hauteur d'écran (`u = height / 1080`), rayons réduits, Jouer orange ; le focus télé reste blanc. |
+| Console | Mise à l'échelle de la hauteur d'écran (`u = height / 1080`), rayons réduits, Jouer orange ; le focus télé reste blanc. Deux vues dans *Jouer* : rangée de jaquettes, ou **étagère** (ci-dessous). |
+| Collections | Index des collections à gauche (pastille de couleur, nom, nombre), séries détectées en dessous ; à droite une planche (bannière nette, ou bande de la couleur de la collection), nom, couleurs, visuels, puis les jeux en rangées numérotées (↑ ↓ ×). Le jeu « pris » au clavier ou à la manette prend une teinte d'accent. |
+| Sélection multiple | Jaquette cochée : voile et contour d'accent, coche carrée dans le coin supérieur gauche ; rangée cochée : perche et teinte d'accent. Une barre « *n* jeux cochés » (perche, actions) s'insère sous la barre d'outils. |
+| Désinstallation | Dialogue à filet rouge (`danger`), méthode en clair, taille et emplacement, case « Sauvegarder avant » ; focus initial sur **Annuler** ; bouton rouge quand Halcyon touche aux fichiers, bleu quand il délègue. En mode console, le même dialogue à l'échelle de l'écran avec le focus blanc. |
+
+### Étagère (mode console)
+
+- **Boîtier** (`ShelfCase`) : face avant 200 × 300 `u`, épaisseur 38 `u`. La tranche porte la
+  couleur du jeu, une bande de 54 `u` de la couleur de la plateforme émulée ou de la source, la
+  source en toutes lettres (aucun logo de marque embarqué) et le titre le long de la tranche.
+  Au repos, le boîtier est vu de côté (θ = 64°) : face = 200 · cos θ, tranche = 38 · sin θ.
+- **Sélection** : le boîtier avance (× 1,12, + 18 `u`) avec une ombre portée (`fast`), se
+  tourne de face (θ → 0, `normal`, après `fast`), puis les voisins s'écartent (la position de
+  la rangée suit avec le même retard). Cadre blanc de 4 `u`, comme tout focus télé.
+- **Planche** : dessus éclairé avec un liseré de la couleur de la collection, chant avant sur
+  lequel est posée la **plaque** (fond de la couleur de la collection, nom en Archivo Expanded,
+  nombre de jeux, logo de la collection s'il existe). Étagères voisines nommées à côté
+  (▲ ▼), position « 2 / 5 ». L'étagère suivante est aperçue en bas, à 35 % d'opacité.
+- **Fond** : bannière du jeu choisi (sinon son ambiance floutée), voile noir à 50 % et fondus
+  gauche / bas vers `bp-bg` ; deux calques en fondu enchaîné (`slow` × 1,5).
+- **Couleurs des collections** : dix teintes moyennes (`halcyon_core::collections::PALETTE`),
+  texte blanc lisible dessus ; sans choix, une teinte stable dérivée du nom.
+- **Mode Performance** : jaquettes à plat (62 % au repos), ni tranche, ni ombre, ni reflet.
+  **Rendu logiciel** : il ne sait pas tourner un texte ; la tranche montre alors les
+  initiales empilées.
 
 ## États
 
@@ -118,6 +142,10 @@ police d'affichage (« Outils 4 »), jamais des pastilles.
 
 Rien ne flotte ni ne rebondit : les tuiles ne se soulèvent plus au survol (léger éclaircissement
 et bouton Jouer). Le mode Performance force « aucun » et coupe les ombres.
+
+Exception mesurée : le boîtier choisi de l'étagère avance et se tourne (`fast` puis `normal`).
+La rotation n'est pas calculée image par image : seules deux largeurs (cos et sin d'un angle
+animé par Slint) changent. Avec le mouvement « aucun », le boîtier est directement de face.
 
 Règle d'implémentation : un composant réutilisé garde une racine « propre » (pas d'`animate`,
 d'`opacity`, d'ombre ni de `visible` sur la racine) ; les effets vont sur un enfant. Sinon le

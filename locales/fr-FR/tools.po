@@ -358,11 +358,6 @@ msgstr "Inutilisable"
 msgid "Page de l'extension"
 msgstr "Page de l'extension"
 
-#: crates/halcyon-app/ui/pages/plugins.slint:91 crates/halcyon-installer/ui/setup.slint:386 crates/halcyon-installer/ui/setup.slint:567
-#: crates/halcyon-app/src/ctl_plugins.rs:256
-msgid "Désinstaller"
-msgstr "Désinstaller"
-
 #: crates/halcyon-app/ui/pages/remote.slint:19
 msgid "Détecté"
 msgstr "Détecté"

@@ -53,10 +53,6 @@ msgstr "Carpeta del ejecutable"
 msgid "Enregistrer le lancement"
 msgstr "Guardar el inicio"
 
-#: crates/halcyon-app/ui/pages/game.slint:149
-msgid "Renommer"
-msgstr "Cambiar nombre"
-
 #: crates/halcyon-app/ui/pages/game.slint:157
 msgid "« Par défaut » utilise l'émulateur choisi pour la plateforme dans la page Émulateurs."
 msgstr "«Predeterminado» usa el emulador elegido para la plataforma en la página Emuladores."
@@ -145,7 +141,7 @@ msgstr "Archivo de imagen (.jpg, .png, .webp)"
 msgid "Bannière (paysage)"
 msgstr "Banner (horizontal)"
 
-#: crates/halcyon-app/ui/pages/game.slint:245
+#: crates/halcyon-app/ui/pages/game.slint:245 crates/halcyon-app/src/ctl_uninstall.rs:157
 msgid "Retirer de la bibliothèque"
 msgstr "Quitar de la biblioteca"
 
@@ -578,10 +574,6 @@ msgstr "Perfil:"
 msgid "Nouveau profil (ex. Vanilla+)"
 msgstr "Nuevo perfil (p. ej., Vanilla+)"
 
-#: crates/halcyon-app/ui/pages/game.slint:1058
-msgid "Créer"
-msgstr "Crear"
-
 #: crates/halcyon-app/ui/pages/game.slint:1062
 msgid "Aucun mod dans la bibliothèque de ce jeu : importez une archive .zip ou un dossier."
 msgstr "No hay mods en la biblioteca de este juego: importa un archivo .zip o una carpeta."
@@ -683,10 +675,6 @@ msgstr "Este PC"
 msgid "Actualités"
 msgstr "Noticias"
 
-#: crates/halcyon-app/ui/pages/game.slint:1272
-msgid "Aucune collection pour l'instant."
-msgstr "Aún no hay colecciones."
-
 #: crates/halcyon-app/ui/pages/game.slint:1283
 msgid "Nouvelle collection (ex. Coop, À finir)"
 msgstr "Nueva colección (p. ej., Coop, Por terminar)"
@@ -765,7 +753,7 @@ msgstr "Instalación"
 msgid "Plateforme"
 msgstr "Plataforma"
 
-#: crates/halcyon-app/ui/pages/game.slint:1651
+#: crates/halcyon-app/ui/pages/game.slint:1651 crates/halcyon-app/ui/uninstall_state.slint:115
 msgid "Taille"
 msgstr "Tamaño"
 
@@ -792,6 +780,23 @@ msgstr "Crear un acceso directo en el escritorio"
 #: crates/halcyon-app/ui/pages/game.slint:1681
 msgid "Publier dans Sunshine…"
 msgstr "Publicar en Sunshine…"
+
+#: crates/halcyon-app/ui/uninstall_state.slint:101
+#, placeholders
+msgid "Désinstaller « {} » ?"
+msgstr "¿Desinstalar «{}»?"
+
+#: crates/halcyon-app/ui/uninstall_state.slint:120
+msgid "Emplacement"
+msgstr "Ubicación"
+
+#: crates/halcyon-app/ui/uninstall_state.slint:164
+msgid "Sauvegarder avant"
+msgstr "Guardar las partidas antes"
+
+#: crates/halcyon-app/ui/uninstall_state.slint:178
+msgid "Désinstallation en cours…"
+msgstr "Desinstalando…"
 
 #: crates/halcyon-app/src/ctl_achievements.rs:176
 msgid "Hors ligne : les succès seront synchronisés au retour de la connexion"
@@ -1108,7 +1113,7 @@ msgstr "Instalación de «{name}» solicitada a Steam"
 msgid "Steam n'a pas pu être appelé : {e}"
 msgstr "No se pudo llamar a Steam: {e}"
 
-#: crates/halcyon-app/src/ctl_profiles.rs:131
+#: crates/halcyon-app/src/ctl_profiles.rs:131 crates/halcyon-app/src/ctl_uninstall.rs:124
 #, placeholders
 msgid "« {name} » n'est pas installé"
 msgstr "«{name}» no está instalado"
@@ -1366,11 +1371,6 @@ msgstr "¿Eliminar la colección inteligente?"
 msgid "« {name} » sera supprimée. Aucun jeu n'est retiré de la bibliothèque."
 msgstr "Se eliminará «{name}». No se quita ningún juego de la biblioteca."
 
-#: crates/halcyon-app/src/ctl_tracking.rs:735
-#, placeholders
-msgid "Collection « {name} » supprimée"
-msgstr "Colección «{name}» eliminada"
-
 #: crates/halcyon-app/src/ctl_tracking.rs:765
 msgid "Ouvrir Steam"
 msgstr "Abrir Steam"
@@ -1396,6 +1396,162 @@ msgstr "No se pueden leer las sesiones: {e}"
 #, placeholders
 msgid "Statistiques exportées : {path}"
 msgstr "Estadísticas exportadas: {path}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:115
+msgid "Fermez le jeu avant de le désinstaller"
+msgstr "Cierra el juego antes de desinstalarlo"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:127
+msgid "Les installations de Minecraft se gèrent dans l'onglet Minecraft"
+msgstr "Las instalaciones de Minecraft se gestionan en la pestaña Minecraft"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:130
+#, placeholders
+msgid "Dossier d'installation inconnu : désinstallez « {name} » à la main"
+msgstr "Carpeta de instalación desconocida: desinstala «{name}» a mano"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:132
+msgid "Steam s'ouvre et vous demande confirmation : c'est Steam qui désinstalle le jeu."
+msgstr "Steam se abre y te pide confirmación: es Steam quien desinstala el juego."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:132
+msgid "Désinstaller avec Steam"
+msgstr "Desinstalar con Steam"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:133
+msgid "Legendary désinstalle le jeu (commande « legendary uninstall »)."
+msgstr "Legendary desinstala el juego (comando «legendary uninstall»)."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:136
+#, placeholders
+msgid "La désinstallation se fait dans {launcher} : Halcyon ouvre sa page, terminez-y l'opération."
+msgstr "La desinstalación se hace en {launcher}: Halcyon abre su página, termina allí."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:138
+#, placeholders
+msgid "La désinstallation se fait dans {launcher} : ouvrez-le pour terminer l'opération."
+msgstr "La desinstalación se hace en {launcher}: ábrelo para terminar."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:140
+#, placeholders
+msgid "Ouvrir {launcher}"
+msgstr "Abrir {launcher}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:147
+#, placeholders
+msgid "Suppression refusée : {reason}."
+msgstr "Eliminación rechazada: {reason}."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:149
+msgid "Suppression refusée : le dossier est un lien symbolique."
+msgstr "Eliminación rechazada: la carpeta es un enlace simbólico."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:151
+msgid "Dossier introuvable : le jeu a peut-être déjà été supprimé."
+msgstr "Carpeta no encontrada: quizá el juego ya se eliminó."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:153
+msgid "Le dossier du jeu est envoyé à la corbeille : vous pourrez le récupérer tant qu'elle n'est pas vidée."
+msgstr "La carpeta del juego va a la papelera: podrás recuperarla mientras no la vacíes."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:153
+msgid "Mettre à la corbeille"
+msgstr "Mover a la papelera"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:156
+msgid "Jeu ajouté à la main : il est seulement retiré de la bibliothèque. Aucun fichier n'est supprimé."
+msgstr "Juego añadido a mano: solo se quita de la biblioteca. No se elimina ningún archivo."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:161
+msgid "ROM : elle est seulement masquée de la bibliothèque (« Jeux masqués » pour la retrouver). Le fichier n'est jamais supprimé."
+msgstr "ROM: solo se oculta de la biblioteca («Juegos ocultos» para volver a verla). El archivo nunca se elimina."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:175
+msgid "Copie des sauvegardes du jeu dans le dépôt de Halcyon, avant tout le reste"
+msgstr "Copia las partidas del juego en el depósito de Halcyon antes que nada"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:177
+msgid "Aucun emplacement de sauvegarde associé à ce jeu"
+msgstr "No hay ninguna ubicación de partidas asociada a este juego"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:245
+#, placeholders
+msgid "Désinstallation de « {name} » annulée"
+msgstr "Desinstalación de «{name}» cancelada"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:295
+msgid "Avant la désinstallation"
+msgstr "Antes de la desinstalación"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:297
+#, placeholders
+msgid "Sauvegarde impossible ({e}) : désinstallation annulée, rien n'a été supprimé."
+msgstr "No se pudo guardar ({e}): desinstalación cancelada, no se ha eliminado nada."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:335
+#, placeholders
+msgid "« {name} » désinstallé"
+msgstr "«{name}» desinstalado"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:339
+#, placeholders
+msgid "« {name} » a été retiré de la bibliothèque. Aucun fichier n'a été supprimé."
+msgstr "«{name}» se ha quitado de la biblioteca. No se ha eliminado ningún archivo."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:340
+#, placeholders
+msgid "« {name} » est masqué de la bibliothèque. La ROM est intacte."
+msgstr "«{name}» está oculto en la biblioteca. La ROM está intacta."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:341
+#, placeholders
+msgid "« {name} » est désinstallé. Il reste dans la bibliothèque comme « Non installé » : favoris, temps de jeu et collections sont conservés."
+msgstr "«{name}» está desinstalado. Sigue en la biblioteca como «No instalado»: se conservan favoritos, tiempo de juego y colecciones."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:350
+#, placeholders
+msgid "Désinstallation de « {name} » confiée à {launcher}"
+msgstr "Desinstalación de «{name}» delegada en {launcher}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:355
+#, placeholders
+msgid "Désinstallation confiée à {launcher} : terminez-la là-bas. Halcyon verra le jeu « Non installé » à la prochaine analyse."
+msgstr "Desinstalación delegada en {launcher}: termínala allí. Halcyon verá el juego como «No instalado» en el próximo análisis."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:360
+#, placeholders
+msgid "Désinstallation de « {name} » impossible"
+msgstr "No se pudo desinstalar «{name}»"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:395
+#, placeholders
+msgid "Steam n'a pas pu être ouvert : {e}"
+msgstr "No se pudo abrir Steam: {e}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:400
+#, placeholders
+msgid "{launcher} n'a pas pu être ouvert : {e}"
+msgstr "No se pudo abrir {launcher}: {e}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:407
+#, placeholders
+msgid "Le dossier n'a pas été supprimé : {e}."
+msgstr "La carpeta no se ha eliminado: {e}."
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:425
+#, placeholders
+msgid "{program} introuvable : {e}"
+msgstr "No se encuentra {program}: {e}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:439
+#, placeholders
+msgid "{program} a échoué : {detail}"
+msgstr "{program} ha fallado: {detail}"
+
+#: crates/halcyon-app/src/ctl_uninstall.rs:445
+#, placeholders
+msgid "{program} ne répond plus : opération interrompue"
+msgstr "{program} no responde: operación interrumpida"
 
 #: crates/halcyon-core/src/profiles.rs:142
 msgid "moteur non reconnu"
@@ -1442,6 +1598,28 @@ msgstr "Prioridad: solo para juegos iniciados directamente por Halcyon."
 #: crates/halcyon-core/src/profiles.rs:310
 msgid "Répertoire de travail : géré par le client de la plateforme."
 msgstr "Directorio de trabajo: lo gestiona el cliente de la plataforma."
+
+#: crates/halcyon-core/src/uninstall.rs:114
+msgid "chemin incomplet"
+msgstr "ruta incompleta"
+
+#: crates/halcyon-core/src/uninstall.rs:115
+msgid "dossier trop proche de la racine du disque"
+msgstr "carpeta demasiado cerca de la raíz del disco"
+
+#: crates/halcyon-core/src/uninstall.rs:116
+msgid "ce dossier n'est pas un dossier de jeu détecté dans vos dossiers de jeux"
+msgstr "esta carpeta no es una carpeta de juego detectada en tus carpetas de juegos"
+
+#: crates/halcyon-core/src/uninstall.rs:117
+#, placeholders
+msgid "dossier protégé : {path}"
+msgstr "carpeta protegida: {path}"
+
+#: crates/halcyon-core/src/uninstall.rs:118
+#, placeholders
+msgid "le dossier contient aussi : {path}"
+msgstr "la carpeta también contiene: {path}"
 
 #: crates/halcyon-integrations/src/launcher.rs:23
 #, placeholders
@@ -1584,3 +1762,15 @@ msgstr "ruta rechazada: {target}"
 #: crates/halcyon-integrations/src/mods.rs:432
 msgid "réponse inattendue de Nexus Mods"
 msgstr "respuesta inesperada de Nexus Mods"
+
+#: crates/halcyon-integrations/src/trash.rs:24
+msgid "la corbeille n'est pas disponible pour ce disque"
+msgstr "la papelera no está disponible para este disco"
+
+#: crates/halcyon-integrations/src/trash.rs:25
+msgid "dossier introuvable"
+msgstr "carpeta no encontrada"
+
+#: crates/halcyon-integrations/src/trash.rs:72
+msgid "trop d'éléments du même nom dans la corbeille"
+msgstr "demasiados elementos con el mismo nombre en la papelera"

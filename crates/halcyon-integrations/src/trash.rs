@@ -53,7 +53,7 @@ pub fn move_to_trash_in(dir: &Path, trash: &Path, deleted_at: String) -> Result<
     let files = trash.join("files");
     let info = trash.join("info");
     std::fs::create_dir_all(&files).and_then(|_| std::fs::create_dir_all(&info)).map_err(|e| TrashError::Failed(e.to_string()))?;
-    let base = dir.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "jeu".into());
+    let base = dir.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "game".into());
     // Nom libre dans la corbeille (« Jeu », « Jeu.2 »…) ; le .trashinfo est réservé d'abord.
     let mut n = 1;
     let (name, info_path) = loop {
@@ -69,7 +69,7 @@ pub fn move_to_trash_in(dir: &Path, trash: &Path, deleted_at: String) -> Result<
         }
         n += 1;
         if n > 10_000 {
-            return Err(TrashError::Failed("corbeille saturée".into()));
+            return Err(TrashError::Failed(tr!("trop d'éléments du même nom dans la corbeille")));
         }
     };
     match std::fs::rename(dir, files.join(&name)) {

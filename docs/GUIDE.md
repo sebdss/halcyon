@@ -83,14 +83,83 @@ temps de jeu et personnalisations sont conservés.
   `Espace` (ou `Ctrl+Entrée`) lance le jeu, la touche `Menu` ouvre le menu du jeu. La sélection
   et la position de défilement sont conservées.
 - **Menu d'un jeu** : clic droit sur une jaquette ou une ligne, bouton `…`, touche `Menu` ou
-  bouton Select de la manette : jouer, fiche, favori, succès, sauvegardes, dossier, raccourci
-  sur le bureau, masquer, retirer (jeux ajoutés à la main, après confirmation).
+  bouton Select de la manette : jouer, fiche, favori, ajouter à une collection, succès,
+  sauvegardes, dossier, raccourci sur le bureau, masquer, désinstaller (section 3 ter),
+  retirer (jeux ajoutés à la main, après confirmation).
 - **Recherche** : `Ctrl+F`, insensible aux accents et à l'ordre des mots.
 - **Filtres** : plateforme (Steam, Epic, Émulation, Autres), installés, favoris, masqués,
   collection, genre. **Tri** : nom, dernier lancement, ajout récent, temps de jeu.
 - Double-clic sur une jaquette pour jouer.
-- **Collections** : depuis la fiche d'un jeu (onglet *Aperçu*), créez une collection
-  ou ajoutez le jeu à une collection existante.
+- **Collections** : voir la section 3 bis (sélection multiple, création guidée, séries,
+  page de collection). La fiche d'un jeu (onglet *Aperçu*) permet toujours de l'ajouter à une
+  collection ou d'en créer une.
+
+### 3 bis. Collections (1.0.0-alpha.6)
+
+Une collection réunit des jeux de **toutes les sources** (Steam, GOG, Epic, ROM émulées, jeux
+autonomes…). Trois façons d'en remplir une :
+
+- **Cocher des jeux** dans la bibliothèque : `Ctrl`-clic (ou `Cmd`-clic) coche une jaquette ou
+  une ligne, `Maj`-clic coche toute la plage depuis le dernier jeu coché. Au clavier :
+  `Ctrl+Espace` coche le jeu sélectionné, `Maj+Espace` la plage ; `Échap` décoche tout. À la
+  manette : bouton **R3** (clic du stick droit, modifiable dans *Outils › Manettes*). Une barre
+  « *n* jeux cochés » propose **Ajouter à une collection…** (aussi dans le menu du jeu) : une
+  collection existante, ou une nouvelle en tapant son nom. `Espace` seul lance toujours le jeu.
+- **Création guidée** : *Bibliothèque › Collections › Nouvelle collection…*. Tapez « sonic » :
+  la recherche de la bibliothèque (fautes et sigles tolérés, filtres `source:`… acceptés) liste
+  les jeux correspondants, **tous cochés**. Décochez ceux à exclure, renommez si besoin, puis
+  *Créer la collection*. Au clavier : flèches, `Espace` pour cocher, `Échap` pour fermer.
+- **Séries détectées** : la page Collections propose les titres au début commun (« Resident
+  Evil 2 », « Resident Evil Village » → *Resident Evil* ; *Sonic Mania*, *Sonic Frontiers* →
+  *Sonic*). Rien n'est créé sans clic sur **Créer la collection** ; **Ignorer** est retenu et la
+  série n'est plus proposée. Une série déjà rangée dans une collection n'est pas reproposée.
+
+**Page Collections** (*Bibliothèque › Collections › Gérer les collections*) : à gauche les
+collections, à droite la collection choisie :
+
+- **nom**, **couleur** (dix teintes ou *Automatique*), **logo** et **bannière** (copiés dans
+  les données de Halcyon) ;
+- **ordre des jeux** : boutons ↑ ↓ de chaque ligne ; au clavier et à la manette, haut / bas
+  choisissent un jeu, `Entrée` / A le **prend**, haut / bas le déplacent, `Entrée` / A le
+  **pose** ; `Ctrl`+haut / bas déplace directement ; gauche / droite changent de collection ;
+  `Suppr` retire le jeu de la collection ;
+- **place de l'étagère** (‹ ›) : l'ordre des collections dans le mode console.
+
+Les collections reprises de Steam (« Steam · … ») suivent Steam : leurs jeux ne se modifient
+pas ici, mais couleur, visuels, ordre et place oui.
+
+### 3 ter. Désinstaller un jeu (1.0.0-alpha.6)
+
+**Désinstaller…** dans le menu d'un jeu (bibliothèque, mode console, étagère) ou dans
+*Outils › Stockage* (jeux non lancés depuis six mois). Halcyon ne remplace jamais les
+plateformes :
+
+| Jeu | Ce qui se passe |
+|---|---|
+| Steam | Steam s'ouvre (`steam://uninstall/…`) et demande lui-même confirmation |
+| Epic via Legendary | `legendary uninstall` (sans shell, arguments séparés) |
+| Epic ou GOG via Heroic | Heroic s'ouvre (il n'a pas de commande de désinstallation) : terminez-y |
+| Launcher Epic, GOG Galaxy, Battle.net | la page du jeu dans le launcher |
+| Ubisoft, EA, Xbox, Riot, Amazon, itch.io | Windows : *Applications* du système ; ailleurs : ouvrez le launcher |
+| Jeu autonome (dossier de jeux) | son dossier part à la **corbeille** (récupérable) |
+| ROM | jamais supprimée : **masquée** de la bibliothèque (« Jeux masqués » pour la revoir) |
+| Jeu ajouté à la main | jamais supprimé : **retiré** de la bibliothèque |
+
+Rien ne se fait sans la **confirmation** : nom, taille, emplacement, et **Sauvegarder avant**
+(coché si le jeu a des emplacements de sauvegarde associés : la sauvegarde est faite d'abord,
+et si elle échoue rien n'est désinstallé). Le bouton actif au départ est **Annuler** : une
+pression sur A n'efface rien. Le résultat s'affiche dans la fenêtre (réussi, annulé, confié au
+launcher) et est inscrit au **journal d'activité** et au journal de sécurité.
+
+Un dossier de jeu autonome n'est mis à la corbeille que s'il est un sous-dossier direct d'un
+dossier de jeux enregistré (*Paramètres › Dossiers*), et jamais s'il s'agit d'une racine, d'un
+dossier personnel ou système, d'un lien symbolique, ou d'un dossier qui contient un autre jeu,
+une bibliothèque de ROM ou des sauvegardes. Sur un autre disque que la corbeille (Linux), il
+n'est pas supprimé : le message le dit.
+
+Après désinstallation, le jeu **reste dans la bibliothèque** comme « Non installé » : favoris,
+temps de jeu, succès, collections et sauvegardes Halcyon sont conservés. Une désinstallation
+confiée à un launcher apparaît à la prochaine analyse.
 
 ### Fiche d'un jeu
 Le bandeau affiche l'état d'installation, le temps de jeu, la dernière session et la
@@ -195,8 +264,30 @@ de la manette. Option « Démarrer en mode Big Picture » dans les paramètres.
 | Retour | B | Échap |
 | Rechercher | Y | Tab (puis taper directement) |
 | Favori | X | — |
-| Réglages | Select | Menu ou Ctrl+, |
-| Quitter Big Picture | Start | F11 |
+| Réglages | Start | Menu ou Ctrl+, |
+| Menu du jeu | Select | Ctrl+O |
+| Étagère / rangée | R3 | V |
+| Quitter Big Picture | Start (dans le centre de contrôle) | F11 |
+
+### Étagère (1.0.0-alpha.6)
+
+La section **Jouer** a deux vues : le jeu en plein écran avec sa rangée de jaquettes, et
+l'**étagère**. Bascule : bouton **R3** (modifiable dans *Outils › Manettes*) ou touche `V` ;
+la vue choisie est retenue.
+
+- Une étagère par collection (dans l'ordre et aux couleurs de la page Collections), plus
+  **Récents**, **Favoris** et **Tous** ; la plaque de chaque étagère porte son nom, sa couleur
+  et le nombre de jeux.
+- Gauche / droite : jeux ; haut / bas : étagère précédente ou suivante (haut depuis la première
+  revient aux sections) ; **A** : jouer (un jeu non installé ouvre sa fiche) ; **X** : favori ;
+  **Select** : menu du jeu ; souris : survol pour choisir, clic pour la fiche, double-clic pour
+  jouer.
+- Chaque jeu est un **boîtier** : tranche avec le titre, une bande de la couleur de la
+  plateforme (jeux émulés) ou de la source, et la source en toutes lettres ; face avant avec la
+  jaquette (ou la jaquette générée). Le jeu choisi avance, se tourne de face, puis ses voisins
+  s'écartent ; au fond, sa bannière (ou l'ambiance floutée de sa jaquette) en fondu enchaîné.
+- *Mouvement réduit ou aucun* raccourcit ou supprime les animations ; le **mode Performance**
+  dessine des jaquettes à plat, sans tranche, ombre ni reflet.
 
 **Réglages en Big Picture** : mode Performance, mouvement, taille du texte, thème, mode du
 bureau, analyse des sources, synchronisation des succès, accès aux paramètres complets (sur le
@@ -371,9 +462,9 @@ enregistrées en images).
 - **Jeux offerts** : les jeux gratuits de la semaine sur l'Epic Games Store sont signalés au
   démarrage, une fois chacun, et listés dans *Outils › Stockage*.
 - **Outils › Stockage** : espace libre de chaque disque, place prise par les jeux de la
-  bibliothèque, et jeux installés non lancés depuis six mois (les plus gros d'abord). Ouvrez un
-  jeu pour le désinstaller depuis sa plateforme ; vos sauvegardes Halcyon et votre temps de
-  jeu restent.
+  bibliothèque, et jeux installés non lancés depuis six mois (les plus gros d'abord), chacun
+  avec **Désinstaller…** (section 3 ter) ; vos sauvegardes Halcyon et votre temps de jeu
+  restent.
 - **Disque presque plein** : moins de 10 % ou de 10 Go libres → une alerte, au plus une fois
   par jour (désactivable).
 
@@ -468,11 +559,13 @@ l'éditeur.
 déplacent la sélection dans la bibliothèque et les menus, et le focus ailleurs (comme `Tab`) ;
 A valide, B revient en arrière ou ferme, Y ouvre la recherche universelle, X ajoute aux
 favoris, **Select** ouvre le menu contextuel, **LB / RB** changent de vue (bibliothèque) ou
-d'onglet (fiche). Start entre en Big Picture.
+d'onglet (fiche), **R3** coche le jeu sélectionné (sélection multiple, section 3 bis). Start
+entre en Big Picture, où R3 bascule entre la rangée et l'étagère.
 
 Page **Manettes** : manettes connectées (marque Xbox, PlayStation, Nintendo, Valve…,
 batterie, dernière utilisée). Un **profil de manette** modifie les touches de navigation de
-Halcyon (Valider, Retour, Recherche, Favori, Big Picture). Pour en changer une : *Changer*,
+Halcyon (Valider, Retour, Recherche, Favori, Big Picture, menu contextuel, LB / RB, et
+« Cocher un jeu · étagère », R3 par défaut). Pour en changer une : *Changer*,
 puis appuyez sur le bouton voulu. Le profil ajoute aussi des **options par émulateur** à la
 ligne de commande, par exemple `--appendconfig=…` pour RetroArch. Le profil actif s'applique
 partout. Un profil de lancement d'un jeu émulé peut en imposer un autre. Pendant un jeu PC,

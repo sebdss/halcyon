@@ -333,7 +333,7 @@ impl Controller {
                     }
                 }
                 let _ = self.db().log_activity(ActivityKind::Uninstalled, Some(id), &tr_later!("« {name} » désinstallé", name = name), &path);
-                audit::event("game.uninstall", &format!("{name} · {how} · réussi · {path}"));
+                audit::event("game.uninstall", &format!("{name} | {how} | ok | {path}"));
                 (
                     match plan {
                         UninstallPlan::RemoveFromLibrary => tr!("« {name} » a été retiré de la bibliothèque. Aucun fichier n'a été supprimé.", name = name),
@@ -350,7 +350,7 @@ impl Controller {
                     &tr_later!("Désinstallation de « {name} » confiée à {launcher}", name = name, launcher = launcher),
                     &path,
                 );
-                audit::event("game.uninstall", &format!("{name} · {how} · délégué à {launcher} · {path}"));
+                audit::event("game.uninstall", &format!("{name} | {how} | delegated:{launcher} | {path}"));
                 (
                     tr!("Désinstallation confiée à {launcher} : terminez-la là-bas. Halcyon verra le jeu « Non installé » à la prochaine analyse.", launcher = launcher),
                     false,
@@ -358,7 +358,7 @@ impl Controller {
             }
             Outcome::Failed(e) => {
                 let _ = self.db().log_activity(ActivityKind::Error, Some(id), &tr_later!("Désinstallation de « {name} » impossible", name = name), e);
-                audit::event("game.uninstall", &format!("{name} · {how} · échec : {e}"));
+                audit::event("game.uninstall", &format!("{name} | {how} | failed | {e}"));
                 (e.clone(), true)
             }
         };

@@ -33,11 +33,12 @@ entièrement utilisable hors ligne.
 | **Sources** | Steam (toutes bibliothèques, temps de jeu local, jeux possédés non installés via l'API Web), Epic (launcher Epic sous Windows, Heroic/Legendary sous Windows et Linux), dossiers de jeux (exécutables Windows et Linux natifs), ajout manuel (`.exe`, `.bat`, `.lnk`, `.url`, `.sh`, AppImage) |
 | **Interface (0.4)** | Design system « Nocturne », barre latérale repliable, précédent / suivant, centre de commandes, modes standard / minimaliste / cinéma, mode Performance (manuel ou automatique en jeu), mouvement complet / réduit / aucun, texte de 90 à 130 % |
 | **Accueil** | Tableau de bord de 14 widgets à déplacer, redimensionner ou masquer (un widget masqué ne calcule rien) |
-| **Bibliothèque** | 5 vues (grille, liste, carrousel, immersive, compacte), jaquettes S/M/L, sélection clavier/manette conservée, menu contextuel commun, recherche instantanée (`Ctrl+F`), filtres plateforme / état / collection / genre, 4 tris, favoris, jeux masqués, collections personnalisées |
+| **Bibliothèque** | 5 vues (grille, liste, carrousel, immersive, compacte), jaquettes S/M/L, sélection clavier/manette conservée, menu contextuel commun, recherche instantanée (`Ctrl+F`), filtres plateforme / état / collection / genre, 4 tris, favoris, jeux masqués ; **collections** de toutes sources (sélection multiple, création guidée par la recherche, séries détectées, couleur, logo, bannière, ordre manuel) |
 | **Fiche jeu** | Bandeau cinématographique, chiffres réels (temps, dernière session, succès), onglets Aperçu, Succès, Statistiques, Captures (Steam F12), Sauvegardes, Mods, Paramètres de lancement ; métadonnées et visuels modifiables (jamais écrasés par une synchronisation) |
 | **Émulateurs** | Définitions JSON extensibles sans code ; RetroArch, RPCS3, PCSX2, Dolphin, Cemu, Ryujinx, DuckStation, PPSSPP, melonDS, mGBA ; détection (dossiers, PATH, Flatpak) ; ROM par plateforme, multi-disques, PS3 en dossier ; émulateur par défaut et par jeu ; profils (arguments, plein écran) |
 | **Succès** | Steam (déblocages, rareté), RetroAchievements (identification des ROM par empreinte, modes normal/Hardcore, points), succès personnalisés marqués « non vérifiés » ; statistiques, chronologie, plus rares, 100 % ; synchronisation incrémentale ; surveillance pendant la partie et notifications système |
-| **Big Picture** | Plein écran façon console, carrousels, fiche avec succès, recherche à clavier virtuel, réglages à la manette ; manette (XInput / evdev) ou clavier |
+| **Big Picture** | Plein écran façon console, carrousels, fiche avec succès, recherche à clavier virtuel, réglages à la manette ; **étagère** (une par collection, boîtiers épais qui se tournent, bannière en fond) ; manette (XInput / evdev) ou clavier |
+| **Désinstallation** | Toujours par la plateforme (Steam, Legendary, launcher) ; jeux autonomes vers la corbeille avec garde-fous ; ROM jamais supprimées ; confirmation avec « Sauvegarder avant » |
 | **Manette sur le bureau** | Toute l'interface hors Big Picture : flèches, focus, A/B/X/Y, Select (menu contextuel), LB/RB (vue ou onglet) |
 | **Recherche** | Tolérante aux fautes et aux sigles ; filtres `dev:`, `genre:`, `tag:`, `statut:`, `temps:>10h`, `succes:manquants`, `maj:oui`, négation ; collections intelligentes à règles |
 | **Suivi** | Statut (à jouer, en cours, terminé, abandonné), notes, temps de jeu avec provenance (plateforme / mesuré / corrigé), historique des versions, statistiques par semaine et par mois, journal d'activité filtrable |
@@ -76,7 +77,7 @@ Slint demande environ 5 Go par compilation). Sous Linux :
 
 ```bash
 cargo run --release -p halcyon-app      # lancer
-cargo test --workspace -j 1             # 139 tests
+cargo test --workspace -j 1             # 283 tests (Linux)
 cargo build --release -p halcyon-app -p halcyon-installer
 sh tools/package_linux.sh               # .deb, programme d'installation, archive, SHA256SUMS
 ```

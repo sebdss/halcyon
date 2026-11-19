@@ -244,23 +244,27 @@ msgstr "Layout della home ripristinato"
 msgid "Ouvrir la fiche"
 msgstr "Apri scheda"
 
-#: crates/halcyon-app/src/ctl_home.rs:655
+#: crates/halcyon-app/src/ctl_home.rs:654
+msgid "Ajouter la sélection à une collection…"
+msgstr "Aggiungi la selezione a una raccolta…"
+
+#: crates/halcyon-app/src/ctl_home.rs:662
 msgid "Créer un raccourci sur le bureau"
 msgstr "Crea un collegamento sul desktop"
 
-#: crates/halcyon-app/src/ctl_home.rs:656
+#: crates/halcyon-app/src/ctl_home.rs:663
 msgid "Afficher dans la bibliothèque"
 msgstr "Mostra nella libreria"
 
-#: crates/halcyon-app/src/ctl_home.rs:658
+#: crates/halcyon-app/src/ctl_home.rs:669
 msgid "Retirer de Halcyon…"
 msgstr "Rimuovi da Halcyon…"
 
-#: crates/halcyon-app/src/ctl_home.rs:700
+#: crates/halcyon-app/src/ctl_home.rs:713
 msgid "Retirer ce jeu ?"
 msgstr "Rimuovere questo gioco?"
 
-#: crates/halcyon-app/src/ctl_home.rs:701
+#: crates/halcyon-app/src/ctl_home.rs:714
 #, placeholders
 msgid "« {name} » sera retiré de Halcyon. Les fichiers du jeu ne sont pas supprimés."
 msgstr "«{name}» verrà rimosso da Halcyon. I file del gioco non vengono eliminati."

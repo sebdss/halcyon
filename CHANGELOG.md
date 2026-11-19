@@ -1,5 +1,53 @@
 # Journal des modifications
 
+## 1.0.0-alpha.6 — Collections, étagère, désinstallation
+
+Ranger ses jeux en collections en quelques gestes, les retrouver sur une étagère en mode
+console, et faire de la place sans quitter Halcyon. Rien n'est retiré ; la base passe en v7
+par ajout de colonnes (une base v7 reste lisible par la 1.0.0-alpha.5).
+
+### Collections faciles à créer
+
+- **Sélection multiple** dans la bibliothèque : `Ctrl`-clic, `Maj`-clic (plage),
+  `Ctrl+Espace` / `Maj+Espace`, bouton **R3** de la manette (configurable) ; barre
+  « *n* jeux cochés » et **Ajouter à une collection…** (aussi dans le menu du jeu).
+- **Création guidée** : on tape « sonic », la recherche de la bibliothèque liste les jeux
+  correspondants, tous cochés ; on décoche, on valide.
+- **Séries détectées** (Resident Evil 2 / 3 / 4 / Village, Sonic…) proposées d'un clic,
+  jamais créées sans accord ; un refus est retenu.
+- **Collections mixtes** : Steam, GOG, Epic, ROM émulées, jeux autonomes dans la même
+  collection.
+- **Page Collections** : nom, couleur, logo, bannière, ordre manuel des jeux (boutons ↑ ↓,
+  clavier, manette : prendre, déplacer, poser) et place de chaque étagère.
+
+### Étagère : seconde vue du mode console
+
+- Bascule par **R3** ou la touche **V**, vue retenue. Une étagère par collection, plus
+  Récents, Favoris et Tous, avec une plaque aux couleurs de la collection.
+- Gauche / droite : jeux ; haut / bas : étagères ; A : jouer ; X : favori ; Select : menu.
+- **Boîtiers épais** : tranche (titre, bande de la plateforme ou de la source, source en
+  toutes lettres) et jaquette ; le jeu choisi avance, se tourne de face, ses voisins
+  s'écartent ; sa bannière (ou l'ambiance de sa jaquette) en fond, en fondu enchaîné.
+- Léger : 21 boîtiers au plus à l'écran, rotation simulée sans calcul par image, jaquette du
+  boîtier choisi décodée en grand et mise en cache. Mode Performance : rendu à plat.
+
+### Désinstaller des jeux
+
+- **Désinstaller…** dans le menu du jeu (bibliothèque, console, étagère) et dans
+  *Outils › Stockage*. Toujours par la plateforme : Steam (`steam://uninstall`), Legendary
+  (`legendary uninstall`), page du launcher (Heroic, Epic, GOG Galaxy, Battle.net),
+  *Applications* de Windows pour les autres.
+- Jeux autonomes : dossier envoyé à la **corbeille**, seulement s'il est un dossier de jeu
+  détecté dans vos dossiers de jeux (jamais une racine, un dossier personnel ou partagé).
+  ROM et jeux ajoutés à la main : jamais supprimés (masqués ou retirés de la bibliothèque).
+- Confirmation explicite (nom, taille, emplacement, **Sauvegarder avant**), focus sur
+  *Annuler*, aussi à la manette ; résultat affiché, journal d'activité et `security.log`.
+  Le jeu reste « Non installé » avec ses favoris, son temps de jeu et ses collections.
+
+### Traductions
+
+- 109 nouveaux textes traduits dans les six langues (fr, en, de, es, it, pt-PT).
+
 ## 1.0.0-alpha.5 — Le launcher le plus complet
 
 Sept launchers de plus, sauvegardes Ludusavi, récap et story, statut Discord,
