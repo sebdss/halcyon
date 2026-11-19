@@ -1,4 +1,4 @@
-# Halcyon 1.0.0-alpha.7 — Étagère coverflow, musée, dos de boîtiers
+# Halcyon 1.0.0-alpha.7 — Boîtiers en 3D, musée, dos de boîtiers
 
 Rien n'est retiré : toutes les fonctions de la 1.0.0-alpha.6 restent. Aucune migration de
 base ; trois réglages s'ajoutent (`museum_lighting`, `museum_seen`, `launchbox_art`), avec
@@ -9,6 +9,18 @@ sécurité : [`SECURITE.md`](SECURITE.md) (§ 4 ter) · mesures :
 [`PERFORMANCES.md`](PERFORMANCES.md) · tests : [`TESTS-1.0.0-alpha.7.md`](TESTS-1.0.0-alpha.7.md).
 
 ## Ce qui change pour vous
+
+### De vrais boîtiers en 3D
+- L'étagère, le musée et la nouvelle vue **Inspecter** sont dessinés en **vraie 3D** :
+  perspective, lumière, plastique qui brille, reflets des boîtiers sur la planche, vraie
+  rotation quand un boîtier se tourne ou se retourne.
+- **Inspecter** (bouton **L3** ou touche `I`) : le boîtier choisi seul, en grand. Les flèches
+  le tournent (ou la souris en glissant), **A** l'ouvre — le couvercle pivote sur sa charnière
+  et le disque apparaît —, **Y** le retourne, **LB / RB** (ou la molette) zooment, **B** ferme.
+- Tout passe par OpenGL, déjà utilisé par Halcyon pour son affichage : aucune bibliothèque
+  lourde ajoutée. Sans OpenGL 3 (rendu logiciel), en mode Performance ou si vous coupez
+  *Paramètres › Comportement › Boîtiers en 3D*, l'affichage 2,5D décrit ci-dessous prend le
+  relais, à l'identique.
 
 ### Une étagère façon coverflow
 - Le jeu choisi trône au centre, presque de face, dans un halo de la couleur de l'étagère ;
@@ -45,8 +57,7 @@ sécurité : [`SECURITE.md`](SECURITE.md) (§ 4 ter) · mesures :
 - Idées reprises de [Boxshelf](https://github.com/sassiestrhihno/boxshelf-source) (étagère
   avec halo et reflets, boîtier retourné, musée) ; aucun code n'en vient : Boxshelf est sous
   GPL-3.0 et utilise un moteur web et WebGL, Halcyon reste en Slint natif, sous licence MIT.
-  Pas de vue « Inspecter » en 3D ni de musée en 3D réelle : il faudrait un moteur 3D, trop
-  lourd pour Halcyon.
+  La 3D est dessinée par Halcyon lui-même (OpenGL, `glow`), sans moteur de jeu ni WebGL.
 
 ## Essayé sur la vraie base LaunchBox
 - Téléchargement et index en une vingtaine de secondes (35 357 jeux avec dos ou tranche, index

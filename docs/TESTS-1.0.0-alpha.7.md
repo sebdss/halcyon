@@ -37,6 +37,18 @@ Vérifié aussi sur la vraie base : 497 Mo de XML, 190 844 jeux, 1 361 862 image
 « Box - Back » et « Box - Spine » présents ; 158 218 noms de dos et tranches acceptés par le
 contrôle, 1 refusé (un `.webp`, format non pris en charge).
 
+## Vraie 3D (OpenGL émulé par llvmpipe, sans carte graphique)
+
+| Scénario | Vérifié |
+|---|---|
+| Étagère 3D | pile en perspective, reflets sur la planche (pochoir), liseré du boîtier choisi, plaque Slint sur le bord de la planche, vraies tranches LaunchBox |
+| Retourner en 3D | vraie rotation de 180°, dos réel de Sonic Frontiers |
+| Musée 3D | trois rangées, plaques alignées sur les planches, boîtier sorti et tourné, carte dessous, 1920 × 1080 et 1280 × 720 |
+| Inspecter | rotation aux flèches, ouverture (couvercle sur charnière, disque) ; corrigé : précision de profondeur (couvercle et disque scintillaient) |
+| Repli 2,5D | rendu logiciel (`SLINT_BACKEND=winit-software`) et mode Performance : affichage 2,5D, pas d'aide « Inspecter » |
+| Repos | la scène n'est redessinée que si elle change ; 2 images en 10 s au repos (horloge) |
+
 ## Non testé
 
-- Windows, carte graphique réelle, manette réelle (bouton Y) : chemins vérifiés au clavier.
+- Windows, carte graphique réelle (fluidité de la 3D), manette réelle (Y, L3) : chemins vérifiés
+  au clavier.

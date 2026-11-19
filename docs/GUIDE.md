@@ -268,6 +268,7 @@ de la manette. Option « Démarrer en mode Big Picture » dans les paramètres.
 | Menu du jeu | Select | Ctrl+O |
 | Vue suivante : rangée → étagère → musée | R3 | V |
 | Retourner un boîtier (étagère, musée) | Y | F |
+| Inspecter le boîtier en 3D (étagère, musée) | L3 | I |
 | Éclairage du musée | — | L |
 | Quitter Big Picture | Start (dans le centre de contrôle) | F11 |
 
@@ -305,6 +306,13 @@ garde qu'un petit index, puis récupère le dos et la tranche du jeu choisi à l
 « Récupérer pour toute la bibliothèque » fait les autres, un jeu à la fois. Surtout utile pour
 les jeux console et les éditions en boîte ; les jeux sans scan gardent leur dos et leur tranche
 composés. Rien n'est téléchargé hors ligne ni sans avoir activé l'option.
+
+**Vraie 3D** — avec une carte graphique (OpenGL 3), l'étagère et le musée sont dessinés en
+vraie 3D : perspective, lumière, reflets des boîtiers sur la planche. **Inspecter** (L3 ou `I`)
+montre le boîtier choisi seul : flèches ou souris pour le tourner, **A** pour l'ouvrir (le disque
+apparaît), **Y** pour le retourner, **LB / RB** ou la molette pour zoomer, **B** pour revenir.
+Sans OpenGL 3, en mode Performance ou avec *Paramètres › Comportement › Boîtiers en 3D* coupé,
+l'affichage 2,5D décrit plus haut prend le relais.
 
 *Mouvement réduit ou aucun* raccourcit ou supprime les animations (le halo ne respire plus) ; le
 **mode Performance** dessine des jaquettes à plat, sans tranche, halo ni reflet.
