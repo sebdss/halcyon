@@ -115,9 +115,8 @@ Option **désactivée par défaut**, jamais utilisée hors ligne ni en mode hors
 - Signature : protège à partir de la première version signée installée ; la clé privée est
   un point unique à protéger.
 - Les extensions ne sont pas encore signées par leurs auteurs (prévu).
-- LaunchBox : le téléchargement réel de la base et des images n'a pas pu être essayé depuis
-  l'environnement de développement (réseau limité) ; lecture de l'archive, index et contrôles
-  testés sur des données de test.
+- LaunchBox : les images viennent d'un service tiers ; Halcyon vérifie leur nom, leur taille
+  et leur format, pas leur contenu visuel.
 - Désinstallation : la mise à la Corbeille Windows et les URI de GOG Galaxy, Battle.net et
   du launcher Epic n'ont pas été essayées sur un vrai PC Windows (tests Linux seulement).
 

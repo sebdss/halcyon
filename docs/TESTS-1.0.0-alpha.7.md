@@ -2,7 +2,7 @@
 
 Linux (conteneur 2 cœurs, sans GPU), serveur X virtuel, binaire release. Bibliothèques
 générées par `tools/make_shelf_fixture.py` : 53 jeux, 513 jeux, vide ; scans de test (tranches
-et dos dessinés) placés dans `cache/case-art/` pour simuler une récupération LaunchBox.
+et dos dessinés) placés dans `cache/case-art/`, puis la vraie base LaunchBox.
 
 ## Automatiques
 
@@ -30,8 +30,13 @@ et dos dessinés) placés dans `cache/case-art/` pour simuler une récupération
 | Musée vide | message « Le musée est vide… » |
 | Musée en 800 × 560 | trois rangées lisibles, aides tronquées à droite comme ailleurs en petite fenêtre |
 | Repos | processeur à 0,1 % (étagère) et 0,4 % (musée) 12 s après la dernière touche |
+| **LaunchBox, vraie base** | Paramètres › Comportement › *Télécharger la base* : 110 Mo téléchargés et indexés en 21 s en tout (35 357 jeux avec dos ou tranche, index de 5,8 Mo), `launchbox.download` et `launchbox.index` dans `security.log` ; *Récupérer pour toute la bibliothèque* : vrais dos et tranches pour les 8 jeux de la bibliothèque de test qui portent un vrai titre (Resident Evil 2, 3, 4, Village, Sonic Mania, Frontiers, Generations, Celeste) ; les 45 titres inventés notés introuvables |
+| Étagère avec vrais scans | tranche réelle (Sonic Mania) dans la pile, dos réel de Sonic Frontiers au retournement |
+
+Vérifié aussi sur la vraie base : 497 Mo de XML, 190 844 jeux, 1 361 862 images ; types
+« Box - Back » et « Box - Spine » présents ; 158 218 noms de dos et tranches acceptés par le
+contrôle, 1 refusé (un `.webp`, format non pris en charge).
 
 ## Non testé
 
-- Téléchargement réel de `Metadata.zip` et des images LaunchBox (réseau limité).
 - Windows, carte graphique réelle, manette réelle (bouton Y) : chemins vérifiés au clavier.

@@ -48,9 +48,10 @@ sécurité : [`SECURITE.md`](SECURITE.md) (§ 4 ter) · mesures :
   Pas de vue « Inspecter » en 3D ni de musée en 3D réelle : il faudrait un moteur 3D, trop
   lourd pour Halcyon.
 
-## Non vérifié faute de matériel ou de réseau
-- Le téléchargement réel de la base LaunchBox et de ses images (réseau limité dans
-  l'environnement de développement) : lecture de l'archive, index et contrôles sont testés sur
-  des données de test, l'affichage sur des scans de test.
+## Essayé sur la vraie base LaunchBox
+- Téléchargement et index en une vingtaine de secondes (35 357 jeux avec dos ou tranche, index
+  de 5,8 Mo) ; vrais dos et tranches récupérés pour les jeux de test qui portent un vrai titre.
+
+## Non vérifié faute de matériel
 - Fluidité avec une vraie carte graphique, sous Windows, et à la manette réelle (les mêmes
   chemins ont été vérifiés au clavier).

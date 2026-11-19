@@ -214,5 +214,7 @@ repos mesuré pendant 10 s, 12 s après le dernier cran.
 | Taille de l'index (82 000 jeux avec dos ou tranche) | 10 Mo |
 | 1 000 recherches | 16 ms (16 µs par jeu) |
 
-La vraie base fait environ deux fois plus de XML : compter de l'ordre de 45 s une seule fois,
-sans gêner l'interface.
+**Vraie base** (110 Mo, 497 Mo de XML, 190 844 jeux) : 19,5 s de lecture et d'index
+(21 s depuis l'application, téléchargement compris sur cette connexion), index de **5,8 Mo**
+pour 35 357 jeux avec dos ou tranche, 14 µs par recherche ; dans un fil de fond, l'interface
+reste utilisable.
