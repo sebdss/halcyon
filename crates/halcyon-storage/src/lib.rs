@@ -10,6 +10,7 @@ pub mod achievements;
 pub mod activity;
 pub mod audit;
 pub mod db;
+pub mod lbindex;
 pub mod logging;
 mod migrations;
 pub mod paths;

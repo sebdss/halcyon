@@ -823,6 +823,31 @@ export component SettingsPage inherits Rectangle {
                                 toggled(v) => { SettingsUi.set-option("online_artwork", v); }
                             }
                         }
+                        SettingRow {
+                            title: @tr("Dos et tranches de boîtiers (LaunchBox)");
+                            description: @tr("Mode console : les vrais dos et tranches des boîtiers quand ils existent (surtout jeux console et éditions en boîte). Télécharge une fois la base LaunchBox (environ 110 Mo) et n'en garde qu'un petit index ; les images viennent de images.launchbox-app.com.");
+                            Badge { y: (parent.height - self.height) / 2; text: @tr("En ligne"); tint: Theme.warm; solid: true; }
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.launchbox-art;
+                                toggled(v) => { SettingsUi.launchbox(v ? "on" : "off"); }
+                            }
+                        }
+                        if SettingsUi.launchbox-art || SettingsUi.launchbox-busy: HorizontalLayout {
+                            spacing: 12px;
+                            alignment: start;
+                            Text {
+                                text: SettingsUi.launchbox-status;
+                                color: Theme.text-dim;
+                                font-size: Theme.t-caption;
+                                vertical-alignment: center;
+                                wrap: word-wrap;
+                                horizontal-stretch: 1;
+                            }
+                            if SettingsUi.launchbox-ready && !SettingsUi.launchbox-busy: SecondaryButton { text: @tr("Récupérer pour toute la bibliothèque"); clicked => { SettingsUi.launchbox("fetch-all"); } }
+                            if !SettingsUi.launchbox-busy: SecondaryButton { text: SettingsUi.launchbox-ready ? @tr("Mettre à jour l'index") : @tr("Télécharger la base"); clicked => { SettingsUi.launchbox("build"); } }
+                            if SettingsUi.launchbox-busy: SecondaryButton { text: @tr("Annuler"); clicked => { SettingsUi.launchbox("cancel"); } }
+                        }
                     }
                 }
             }

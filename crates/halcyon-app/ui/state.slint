@@ -690,6 +690,13 @@ export global SettingsUi {
     in property <string> data-dir;
     in property <string> log-dir;
     in property <string> version;
+    /// Dos et tranches de boîtiers (base LaunchBox, 1.0.0-alpha.7).
+    in property <bool> launchbox-art;
+    in property <bool> launchbox-busy;
+    in property <bool> launchbox-ready;
+    in property <string> launchbox-status;
+    /// « on », « off », « build », « fetch-all », « cancel ».
+    callback launchbox(string);
     callback set-source-enabled(string, bool);
     callback set-source-path(string, string);
     callback add-folder(string);

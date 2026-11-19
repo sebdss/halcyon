@@ -1,133 +1,255 @@
-// Étagère : seconde vue du mode console (1.0.0-alpha.6).
+// Étagère : seconde vue du mode console (1.0.0-alpha.6, coverflow en 1.0.0-alpha.7).
 //
-// Chaque jeu est un boîtier épais : tranche (titre, bande de couleur, source) et face avant
-// (jaquette). Au repos, les boîtiers sont rangés vus de côté ; le boîtier sélectionné avance,
-// porte une ombre, se tourne pour montrer sa jaquette, puis ses voisins s'écartent.
+// Chaque jeu est un boîtier épais : face avant (jaquette), tranche (titre, bande de couleur,
+// source), chant opposé et dos. Le boîtier sélectionné est au centre, avancé, presque de face
+// (on voit encore sa tranche) ; ses voisins reculent en pile serrée, tournés de 60° vers le
+// centre : à gauche on lit leurs tranches, à droite on voit leurs chants. Un reflet de
+// plastique glisse sur les faces selon leur place, les voisins sont voilés, un halo de la
+// couleur de l'étagère entoure la sélection. Y (F au clavier) retourne le boîtier : son dos.
 //
-// La rotation est simulée sans calcul par image : la largeur de la face avant suit cos(θ) et
-// celle de la tranche sin(θ), côte à côte ; seule la valeur θ est animée par Slint. Le mode
-// Performance dessine des jaquettes à plat, sans tranche, ombre ni reflet. Toutes les tailles
-// suivent la hauteur de l'écran (`u` = 1 px en 1080p), de 800 × 560 à 3840 × 2160.
+// La rotation est simulée sans calcul par image : la largeur de la face suit |cos θ| et celle
+// du côté visible |sin θ|, côte à côte ; seule θ est animée par Slint. Le mode Performance
+// dessine des jaquettes à plat, sans côté, halo ni reflet. Toutes les tailles suivent la hauteur
+// de l'écran (`u` = 1 px en 1080p), de 800 × 560 à 3840 × 2160.
 
 import { Theme, Icons, Art } from "../theme.slint";
 import { BpUi } from "../state.slint";
 import { ShelfUi, ShelfBox } from "../console_state.slint";
 import { GameCover, Icon } from "../components.slint";
 
-/// Un boîtier. `pick` : 0 au repos, 1 sélectionné (avance) ; `turn` suit avec un léger
-/// retard (se tourne de face).
+/// Dos généré d'un boîtier (quand aucun scan n'existe) : image du jeu, titre, résumé, fiche.
+/// Toujours celui du jeu sélectionné (seul boîtier qu'on peut retourner).
+export component BackCover inherits Rectangle {
+    in property <length> u;
+    in property <color> color-a;
+    in property <color> color-b;
+    in property <color> band;
+    in property <string> mark;
+    property <length> pad: 12 * root.u;
+    clip: true;
+    background: root.color-b.mix(#0d0f12, 0.25);
+    // Image en tête (bannière, sinon jaquette), fondue dans le fond.
+    Rectangle {
+        y: 0;
+        height: root.height * 0.36;
+        clip: true;
+        if BpUi.focused.has-banner || BpUi.focused.has-cover: Image {
+            width: parent.width;
+            height: parent.height;
+            source: BpUi.focused.has-banner ? BpUi.focused.banner : BpUi.focused.cover;
+            image-fit: cover;
+        }
+        Rectangle { background: @linear-gradient(180deg, #00000000 45%, root.color-b.mix(#0d0f12, 0.25) 100%); }
+    }
+    VerticalLayout {
+        y: root.height * 0.3;
+        height: root.height * 0.7 - 30 * root.u;
+        padding-left: root.pad;
+        padding-right: root.pad;
+        spacing: 6 * root.u;
+        Text {
+            text: BpUi.focused.title;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: 15 * root.u * Theme.text-scale;
+            font-weight: 800;
+            wrap: word-wrap;
+            overflow: elide;
+            max-height: 40 * root.u * Theme.text-scale;
+        }
+        Text {
+            text: BpUi.focused.description != "" ? BpUi.focused.description : @tr("Aucun résumé pour ce jeu.");
+            color: #ffffffcc;
+            font-size: 10.5 * root.u * Theme.text-scale;
+            wrap: word-wrap;
+            overflow: elide;
+            vertical-stretch: 1;
+        }
+        Rectangle { height: 1px; background: #ffffff26; }
+        Text {
+            text: BpUi.focused.genres;
+            visible: BpUi.focused.genres != "";
+            color: #ffffffb3;
+            font-size: 10 * root.u * Theme.text-scale;
+            overflow: elide;
+        }
+        Text {
+            text: BpUi.focused.developer != "" && BpUi.focused.release != "" ? BpUi.focused.developer + " · " + BpUi.focused.release : BpUi.focused.developer + BpUi.focused.release;
+            visible: BpUi.focused.developer != "" || BpUi.focused.release != "";
+            color: #ffffffb3;
+            font-size: 10 * root.u * Theme.text-scale;
+            overflow: elide;
+        }
+        Text {
+            text: BpUi.focused.playtime != "" ? @tr("Temps de jeu : {}", BpUi.focused.playtime) : BpUi.focused.install-state;
+            color: #ffffff99;
+            font-size: 10 * root.u * Theme.text-scale;
+            overflow: elide;
+        }
+    }
+    // Bandeau du bas : source ou plateforme, comme une mention d'éditeur.
+    Rectangle {
+        y: root.height - self.height;
+        height: 30 * root.u;
+        background: root.band;
+        Text {
+            text: root.mark;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: 12 * root.u * Theme.text-scale;
+            font-weight: 800;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}
+
+/// Tranche d'un boîtier : scan réel s'il existe, sinon bande de la source en haut, titre
+/// tourné d'un quart de tour (lettres empilées avec le rendu logiciel). `depth` : épaisseur à
+/// l'échelle 1 ; la tranche peut être dessinée plus étroite (boîtier vu de biais).
+export component CaseSpine inherits Rectangle {
+    in property <ShelfBox> item;
+    in property <length> u;
+    in property <float> scale: 1;
+    in property <length> depth;
+    property <length> band-h: 56 * root.u * root.scale;
+    clip: true;
+    background: root.item.color-b.mix(root.item.color-a, 0.55);
+    if root.item.has-spine: Image {
+        width: parent.width;
+        height: parent.height;
+        source: root.item.spine;
+        image-fit: fill;
+    }
+    if !root.item.has-spine: Rectangle {
+        y: 0;
+        height: root.band-h;
+        background: root.item.band;
+    }
+    if !root.item.has-spine && ShelfUi.rotate-text: Text {
+        width: 52 * root.u * root.scale;
+        height: root.depth * root.scale;
+        x: (root.width - self.width) / 2;
+        y: 2 * root.u + (root.band-h - self.height) / 2;
+        transform-rotation: -90deg;
+        text: root.item.mark;
+        color: #ffffff;
+        font-size: 13 * root.u * root.scale * Theme.text-scale;
+        font-weight: 800;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    if !root.item.has-spine && ShelfUi.rotate-text: Text {
+        width: root.height - root.band-h - 22 * root.u * root.scale;
+        height: root.depth * root.scale;
+        x: (root.width - self.width) / 2;
+        y: root.band-h + (root.height - root.band-h - self.height) / 2;
+        transform-rotation: -90deg;
+        text: root.item.title;
+        color: #ffffffe8;
+        font-family: Theme.display;
+        font-size: 15 * root.u * root.scale * Theme.text-scale;
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    if !root.item.has-spine && !ShelfUi.rotate-text: Text {
+        x: 0;
+        y: root.band-h + 6 * root.u * root.scale;
+        width: root.width;
+        height: root.height - root.band-h - 12 * root.u * root.scale;
+        text: root.item.initials;
+        color: #ffffffe8;
+        font-family: Theme.display;
+        font-size: 14 * root.u * root.scale * Theme.text-scale;
+        font-weight: 800;
+        horizontal-alignment: center;
+        wrap: char-wrap;
+        overflow: elide;
+    }
+}
+
+/// Un boîtier. `k` : position par rapport à la sélection (0 sélectionné, négatif à gauche),
+/// animée ; `flip` : 1 retourné (dos visible).
 component ShelfCase inherits Rectangle {
     in property <ShelfBox> item;
+    in property <float> k;
     in property <bool> selected;
     in property <length> u;
     in property <bool> flat;
     in property <bool> large-cover;
+    in property <color> glow;
     callback hovered();
     callback clicked();
     callback double-clicked();
 
-    // Dimensions de référence (1080p) : face 200 × 300, épaisseur 38.
-    property <length> face-w: 200 * root.u;
-    property <length> face-h: 300 * root.u;
-    property <length> depth: 38 * root.u;
-    property <angle> rest: 64deg;
-    property <float> pick: root.selected ? 1 : 0;
-    property <float> turn: root.selected ? 1 : 0;
-    animate pick { duration: Theme.fast; easing: ease-out; }
-    animate turn { duration: Theme.normal; delay: Theme.fast; easing: ease-in-out; }
-    property <angle> theta: root.flat ? 0deg : root.rest * (1 - root.turn);
-    property <float> scale: 1 + 0.12 * root.pick;
-    out property <length> front-w: (root.flat ? root.face-w * (0.62 + 0.38 * root.pick) : root.face-w * cos(root.theta)) * root.scale;
-    out property <length> spine-w: (root.flat ? 0px : root.depth * sin(root.theta)) * root.scale;
-    out property <length> case-h: root.face-h * (root.flat ? (0.62 + 0.38 * root.pick) : 1) * root.scale;
-    width: root.spine-w + root.front-w;
-    height: root.case-h;
+    // Dimensions de référence (1080p) : face 214 × 320, épaisseur 40.
+    out property <length> face-w: 214 * root.u;
+    property <length> face-h: 320 * root.u;
+    property <length> depth: 40 * root.u;
+    property <float> t: min(1, abs(root.k));
+    property <float> flip: root.selected && ShelfUi.flipped ? 1 : 0;
+    animate flip { duration: Theme.slow * 2; easing: ease-in-out; }
+    // Sélectionné : 22° (on voit sa tranche) ; voisins : ±60° vers le centre ; retourné : 158°.
+    property <angle> theta: root.flat ? (root.flip > 0.5 ? 180deg : 0deg) : 22deg * (1 - root.t) + (root.k < 0 ? 60deg : -60deg) * root.t + 136deg * root.flip;
+    property <float> c: cos(root.theta);
+    property <float> sn: sin(root.theta);
+    property <bool> back: root.c < 0;
+    // Les voisins reculent ; le boîtier retourné s'approche un peu (dos lisible).
+    property <float> scale: (1 - 0.26 * root.t) * (1 + 0.16 * root.flip) * (root.flat ? (0.66 + 0.34 * (1 - root.t)) / (1 - 0.26 * root.t) : 1);
+    out property <length> face-vw: root.face-w * abs(root.c) * root.scale;
+    out property <length> side-vw: root.flat ? 0px : root.depth * abs(root.sn) * root.scale;
+    // Côté visible : la tranche (sin > 0) ou le chant opposé ; à gauche de la face avant, à
+    // droite du dos.
+    property <bool> spine-side: root.sn > 0;
+    property <bool> side-left: (root.c >= 0) == (root.sn > 0);
+    width: root.side-vw + root.face-vw;
+    height: root.face-h * root.scale;
 
-    // Ombre portée du boîtier sélectionné (posée sur la planche).
-    if !root.flat && Theme.effects && root.pick > 0.01: Rectangle {
-        x: 6 * root.u;
-        y: 10 * root.u;
-        width: root.width;
+    // Lueur de la sélection (couleur de l'étagère) : ombre colorée derrière la face.
+    if !root.flat && Theme.effects && root.t < 0.99: Rectangle {
+        x: root.side-left ? root.side-vw : 0px;
+        width: root.face-vw;
         height: root.height;
         border-radius: 4 * root.u;
-        background: #00000000;
-        drop-shadow-blur: 36 * root.u * root.pick;
-        drop-shadow-offset-y: 14 * root.u * root.pick;
-        drop-shadow-color: rgba(0, 0, 0, 0.65 * root.pick);
+        background: #00000001;
+        drop-shadow-blur: 42 * root.u * (1 - root.t);
+        drop-shadow-offset-y: 10 * root.u * (1 - root.t);
+        drop-shadow-color: root.glow.with-alpha(0.55 * (1 - root.t));
     }
 
-    // Tranche : couleur du jeu, bande de la source, titre.
-    if root.spine-w > 0.5px: spine := Rectangle {
-        x: 0;
-        width: root.spine-w;
+    // Côté visible (tranche ou chant).
+    if root.side-vw > 0.5px: side := Rectangle {
+        x: root.side-left ? 0px : root.face-vw;
+        width: root.side-vw;
         height: root.height;
         clip: true;
-        background: root.item.color-b.mix(root.item.color-a, 0.55);
         border-radius: 2 * root.u;
-        // Bande de couleur (plateforme ou source) en haut de la tranche.
-        Rectangle {
-            y: 0;
-            height: 54 * root.u * root.scale;
-            background: root.item.band;
+        background: root.item.color-b.mix(#101215, 0.35);
+        if root.spine-side: CaseSpine {
+            width: parent.width;
+            height: parent.height;
+            item: root.item;
+            u: root.u;
+            scale: root.scale;
+            depth: root.depth;
         }
-        // Repère clair en bas : la marque de la source, en texte.
-        if ShelfUi.rotate-text: Text {
-            width: 50 * root.u * root.scale;
-            height: root.depth * root.scale;
-            x: (spine.width - self.width) / 2;
-            y: 2 * root.u + (54 * root.u * root.scale - self.height) / 2;
-            transform-rotation: -90deg;
-            text: root.item.mark;
-            color: #ffffff;
-            font-size: 13 * root.u * root.scale * Theme.text-scale;
-            font-weight: 800;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-            overflow: elide;
+        // Le côté est dans l'ombre de la face (plus sombre vers l'arête intérieure).
+        if Theme.effects: Rectangle {
+            background: root.side-left ? @linear-gradient(90deg, #00000026 0%, #00000066 100%) : @linear-gradient(90deg, #00000066 0%, #00000026 100%);
         }
-        // Titre le long de la tranche (lecture de bas en haut).
-        if ShelfUi.rotate-text: Text {
-            width: (root.face-h - 74 * root.u) * root.scale;
-            height: root.depth * root.scale;
-            x: (spine.width - self.width) / 2;
-            y: 54 * root.u * root.scale + (spine.height - 54 * root.u * root.scale - self.height) / 2;
-            transform-rotation: -90deg;
-            text: root.item.title;
-            color: #ffffffe8;
-            font-family: Theme.display;
-            font-size: 15 * root.u * root.scale * Theme.text-scale;
-            font-weight: 700;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-            overflow: elide;
-        }
-        // Rendu logiciel (sans rotation) : lettres du titre empilées.
-        if !ShelfUi.rotate-text: Text {
-            x: 0;
-            y: 60 * root.u * root.scale;
-            width: spine.width;
-            height: spine.height - 66 * root.u * root.scale;
-            text: root.item.initials;
-            color: #ffffffe8;
-            font-family: Theme.display;
-            font-size: 14 * root.u * root.scale * Theme.text-scale;
-            font-weight: 800;
-            horizontal-alignment: center;
-            wrap: char-wrap;
-            overflow: elide;
-        }
-        // Ombre propre de la tranche (elle est dans l'ombre de la face).
-        if Theme.effects: Rectangle { background: @linear-gradient(90deg, #00000000 0%, #00000059 100%); }
     }
 
-    // Face avant : jaquette (ou jaquette générée), étirée selon l'angle de vue.
-    front := Rectangle {
-        x: root.spine-w;
-        width: root.front-w;
+    // Face : jaquette (ou jaquette générée), ou dos quand le boîtier est retourné.
+    face := Rectangle {
+        x: root.side-left ? root.side-vw : 0px;
+        width: root.face-vw;
         height: root.height;
         clip: true;
         border-radius: 3 * root.u;
-        GameCover {
+        if !root.back: GameCover {
             width: parent.width;
             height: parent.height;
             source: root.large-cover ? ShelfUi.focus-cover : root.item.cover;
@@ -136,40 +258,69 @@ component ShelfCase inherits Rectangle {
             color-b: root.item.color-b;
             initials: root.item.initials;
             title: root.item.title;
-            show-title: !root.item.has-cover && root.front-w > 90 * root.u;
+            show-title: !root.item.has-cover && root.face-vw > 90 * root.u;
             corner: 3 * root.u;
         }
-        // Face qui s'éloigne : plus sombre vers son bord lointain.
-        if !root.flat && root.turn < 0.99: Rectangle {
-            background: @linear-gradient(90deg, #00000000 0%, rgba(0, 0, 0, 0.55 * (1 - root.turn)) 100%);
+        if root.back && ShelfUi.has-focus-back: Image {
+            width: parent.width;
+            height: parent.height;
+            source: ShelfUi.focus-back;
+            image-fit: fill;
         }
-        // Reflet : brillance d'un boîtier en plastique (absent en mode Performance).
+        // Dos généré, dessiné à sa taille réelle puis compressé avec la face (rotation).
+        if root.back && !ShelfUi.has-focus-back: BackCover {
+            x: 0;
+            width: parent.width;
+            height: parent.height;
+            u: root.u * root.scale;
+            color-a: root.item.color-a;
+            color-b: root.item.color-b;
+            band: root.item.band;
+            mark: root.item.mark;
+        }
+        // Face qui s'éloigne : plus sombre vers son arête lointaine.
+        if !root.flat && abs(root.c) < 0.99: Rectangle {
+            background: root.side-left
+                ? @linear-gradient(90deg, rgba(0, 0, 0, 0.5 * (1 - abs(root.c))) 0%, #00000000 100%)
+                : @linear-gradient(90deg, #00000000 0%, rgba(0, 0, 0, 0.5 * (1 - abs(root.c))) 100%);
+        }
+        // Plastique : liseré clair en haut, bords légèrement plus sombres (fixe).
         if Theme.effects && !root.flat: Rectangle {
-            background: @linear-gradient(115deg, rgba(255, 255, 255, 0.05 + 0.13 * root.pick) 0%, #ffffff00 38%, #ffffff00 70%, rgba(255, 255, 255, 0.05 * root.pick) 100%);
+            background: @linear-gradient(180deg, #ffffff29 0%, #ffffff0a 18%, #ffffff00 34%);
         }
+        // Reflet : une bande claire qui glisse avec la place du boîtier dans la pile (sur les
+        // boîtiers proches seulement : au-delà, la face est trop étroite pour qu'il se voie).
+        if Theme.effects && !root.flat && abs(root.k) < 3: Rectangle {
+            x: parent.width * (-0.1 + 0.42 * max(-1, min(1, root.k)) - 0.3 * root.flip);
+            width: parent.width * 1.2;
+            background: @linear-gradient(104deg, #ffffff00 38%, #ffffff12 45%, #ffffff57 49.5%, #ffffff4d 50.5%, #ffffff0f 55%, #ffffff00 62%);
+            opacity: root.selected ? 1 : 0.55;
+        }
+        // Voisins voilés (même noirceur, quelle que soit la distance).
+        if root.t > 0.01: Rectangle { background: rgba(0, 0, 0, 0.34 * root.t); }
         // Jeu non installé : voile.
-        if !root.item.installed: Rectangle { background: #00000059; }
-        if root.item.favorite: Rectangle {
+        if !root.item.installed && !root.back: Rectangle { background: #00000059; }
+        if root.item.favorite && !root.back: Rectangle {
             x: parent.width - self.width - 8 * root.u;
             y: 8 * root.u;
             width: 30 * root.u;
             height: 30 * root.u;
             border-radius: 4 * root.u;
             background: #000000a0;
-            visible: root.front-w > 80 * root.u;
+            visible: root.face-vw > 80 * root.u;
             Icon { source: Icons.star-filled; size: 18 * root.u; tint: Theme.warm; }
         }
     }
 
-    // Sélection console : cadre blanc épais, lisible à 3 mètres.
+    // Sélection : liseré clair autour de la face (lisible à 3 mètres, même sans effets).
     if root.selected: Rectangle {
-        x: -6 * root.u;
-        y: -6 * root.u;
-        width: root.width + 12 * root.u;
-        height: root.height + 12 * root.u;
-        border-radius: 8 * root.u;
-        border-width: 4 * root.u;
-        border-color: rgba(255, 255, 255, root.pick);
+        x: face.x - 3 * root.u;
+        y: -3 * root.u;
+        width: face.width + 6 * root.u;
+        height: root.height + 6 * root.u;
+        border-radius: 6 * root.u;
+        border-width: (root.flat ? 4 : 2) * root.u;
+        border-color: root.flat ? #ffffff : #ffffffb3;
     }
 
     // Survol : seul un vrai mouvement de la souris sélectionne (les boîtiers qui glissent
@@ -239,24 +390,24 @@ export component ShelfView inherits Rectangle {
     in property <length> u;
     in property <length> side;
     property <bool> flat: !Theme.effects;
-    // Rangée : le boîtier sélectionné est au tiers gauche de l'écran.
-    property <length> anchor: max(root.side + 150 * root.u, root.width * 0.3);
-    property <length> board-y: 772 * root.u;
-    property <length> rest-w: root.flat ? 124 * root.u : 122 * root.u;
-    property <length> stride: root.rest-w + 12 * root.u;
-    // Écart supplémentaire de part et d'autre du boîtier sélectionné.
-    property <length> spread: (root.flat ? 200 * 1.12 * root.u - root.rest-w : 224 * root.u - root.rest-w) / 2 + 26 * root.u;
-    // Position animée (avec un léger retard) : les voisins s'écartent après le boîtier choisi.
+    // La sélection est au centre de l'écran.
+    property <length> mid-x: root.width / 2;
+    property <length> board-y: 790 * root.u;
+    // Écart du premier voisin (espace dégagé autour de la sélection), puis pas de la pile.
+    property <length> first: root.flat ? 200 * root.u : 252 * root.u;
+    property <length> step: root.flat ? 150 * root.u : 84 * root.u;
+    // Position animée : toute la pile glisse ensemble.
     property <float> pos: ShelfUi.focus;
-    animate pos { duration: Theme.normal; delay: Theme.fast; easing: ease-out; }
+    animate pos { duration: Theme.normal * 1.5; easing: ease-out; }
     property <float> next-pos: ShelfUi.next-focus;
     animate next-pos { duration: Theme.normal; easing: ease-out; }
+    property <length> anchor: root.mid-x;
 
     // ------------------------------------------------------------------ jeu sélectionné
     if BpUi.has-focused: VerticalLayout {
         x: root.side;
-        y: 128 * root.u;
-        width: root.width * 0.55;
+        y: 118 * root.u;
+        width: min(root.width * 0.42, root.mid-x - 150 * root.u - root.side);
         height: 250 * root.u;
         spacing: 12 * root.u;
         alignment: start;
@@ -301,8 +452,8 @@ export component ShelfView inherits Rectangle {
     if ShelfUi.next-boxes.length > 0: Rectangle {
         for b in ShelfUi.next-boxes: Rectangle {
             visible: b.index >= 0 && self.x + self.width > -40 * root.u && self.x < root.width + 40 * root.u;
-            x: root.anchor + (b.index - root.next-pos) * root.stride * 0.62 - 60 * root.u;
-            y: root.board-y + 96 * root.u;
+            x: root.mid-x + (b.index - root.next-pos) * 84 * root.u - 60 * root.u;
+            y: root.board-y + 80 * root.u;
             width: 100 * root.u * (root.flat ? 1 : 0.62) + (root.flat ? 0px : 20 * root.u);
             height: 150 * root.u;
             opacity: 0.35;
@@ -326,25 +477,41 @@ export component ShelfView inherits Rectangle {
                 corner: 2 * root.u;
             }
         }
-        Board { u: root.u; x: 0; y: root.board-y + 246 * root.u; width: root.width; tint: ShelfUi.next-color; peek: true; }
+        Board { u: root.u; x: 0; y: root.board-y + 230 * root.u; width: root.width; tint: ShelfUi.next-color; peek: true; }
     }
 
     // ------------------------------------------------------------------ étagère courante
     Board { u: root.u; x: 0; y: root.board-y; width: root.width; tint: ShelfUi.color; }
 
+    // Halo de la sélection (couleur de l'étagère), derrière la pile ; il « respire » quelques
+    // fois après un déplacement (mouvement complet seulement), puis s'immobilise.
+    if Theme.effects && ShelfUi.shelf-count > 0: Rectangle {
+        x: root.mid-x - self.width / 2;
+        y: root.board-y - 200 * root.u - self.height / 2;
+        width: 520 * root.u;
+        height: 560 * root.u;
+        background: @radial-gradient(circle, ShelfUi.color.with-alpha(0.42) 0%, ShelfUi.color.with-alpha(0.12) 45%, #00000000 72%);
+        opacity: ShelfUi.breathe && Theme.motion == 0 ? 0.55 : 1;
+        animate opacity { duration: Theme.motion == 0 ? 1700ms : 0ms; easing: ease-in-out; }
+    }
+
     for b in ShelfUi.boxes: case := ShelfCase {
-        property <float> k: b.index - root.pos;
-        property <float> near: min(1, abs(self.k));
+        k: b.index - root.pos;
+        property <float> ak: abs(self.k);
+        property <float> sg: self.k < 0 ? -1 : 1;
         u: root.u;
         flat: root.flat;
         item: b;
+        glow: ShelfUi.color;
         selected: b.index == ShelfUi.focus;
         large-cover: self.selected && ShelfUi.has-focus-cover;
+        // Devant : le plus proche de la sélection (la pile se recouvre).
+        z: 100 - self.ak;
         visible: b.index >= 0 && self.x + self.width > -80 * root.u && self.x < root.width + 80 * root.u;
-        // Centre : pas régulier, plus l'écart autour de la sélection ; posé sur la planche,
-        // le boîtier sélectionné avance (légèrement plus haut).
-        x: root.anchor + self.k * root.stride + (self.k < 0 ? -1 : 1) * self.near * root.spread - self.width / 2;
-        y: root.board-y - self.height - (self.selected ? 18 * root.u : 0px);
+        opacity: self.ak > 9 ? max(0, 10 - self.ak) : 1;
+        // Centre du boîtier : dégagement autour de la sélection, puis pile serrée.
+        x: root.mid-x + self.sg * (self.ak < 1 ? self.ak * root.first : root.first + (self.ak - 1) * root.step) - self.width / 2;
+        y: root.board-y - self.height - (self.selected ? 16 * root.u : 0px);
         animate y { duration: Theme.fast; easing: ease-out; }
         hovered => { BpUi.input("shelf-hover:" + b.index); }
         clicked => { BpUi.input("shelf-click:" + b.index); }

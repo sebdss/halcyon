@@ -97,26 +97,59 @@ police d'affichage (« Outils 4 »), jamais des pastilles.
 | Sélection multiple | Jaquette cochée : voile et contour d'accent, coche carrée dans le coin supérieur gauche ; rangée cochée : perche et teinte d'accent. Une barre « *n* jeux cochés » (perche, actions) s'insère sous la barre d'outils. |
 | Désinstallation | Dialogue à filet rouge (`danger`), méthode en clair, taille et emplacement, case « Sauvegarder avant » ; focus initial sur **Annuler** ; bouton rouge quand Halcyon touche aux fichiers, bleu quand il délègue. En mode console, le même dialogue à l'échelle de l'écran avec le focus blanc. |
 
-### Étagère (mode console)
+### Étagère (mode console, coverflow en 1.0.0-alpha.7)
 
-- **Boîtier** (`ShelfCase`) : face avant 200 × 300 `u`, épaisseur 38 `u`. La tranche porte la
-  couleur du jeu, une bande de 54 `u` de la couleur de la plateforme émulée ou de la source, la
-  source en toutes lettres (aucun logo de marque embarqué) et le titre le long de la tranche.
-  Au repos, le boîtier est vu de côté (θ = 64°) : face = 200 · cos θ, tranche = 38 · sin θ.
-- **Sélection** : le boîtier avance (× 1,12, + 18 `u`) avec une ombre portée (`fast`), se
-  tourne de face (θ → 0, `normal`, après `fast`), puis les voisins s'écartent (la position de
-  la rangée suit avec le même retard). Cadre blanc de 4 `u`, comme tout focus télé.
-- **Planche** : dessus éclairé avec un liseré de la couleur de la collection, chant avant sur
-  lequel est posée la **plaque** (fond de la couleur de la collection, nom en Archivo Expanded,
-  nombre de jeux, logo de la collection s'il existe). Étagères voisines nommées à côté
-  (▲ ▼), position « 2 / 5 ». L'étagère suivante est aperçue en bas, à 35 % d'opacité.
-- **Fond** : bannière du jeu choisi (sinon son ambiance floutée), voile noir à 50 % et fondus
-  gauche / bas vers `bp-bg` ; deux calques en fondu enchaîné (`slow` × 1,5).
-- **Couleurs des collections** : dix teintes moyennes (`halcyon_core::collections::PALETTE`),
-  texte blanc lisible dessus ; sans choix, une teinte stable dérivée du nom.
-- **Mode Performance** : jaquettes à plat (62 % au repos), ni tranche, ni ombre, ni reflet.
-  **Rendu logiciel** : il ne sait pas tourner un texte ; la tranche montre alors les
-  initiales empilées.
+- **Boîtier** (`ShelfCase`) : face 214 × 320 `u`, épaisseur 40 `u`. Une seule valeur animée,
+  l'angle θ ; la face mesure 214 · |cos θ|, le côté visible 40 · |sin θ|, côte à côte. Côté
+  visible : la **tranche** quand sin θ > 0 (à gauche de la face avant, à droite du dos), sinon le
+  **chant** opposé, plus sombre.
+- **Pile** : le boîtier choisi est **au centre**, presque de face (θ = 22°, on lit encore sa
+  tranche), légèrement levé (16 `u`). Les voisins reculent (× 0,74) et se tournent de ± 60° vers
+  le centre : à gauche on lit leurs tranches, à droite on voit leurs chants. Premier voisin à
+  252 `u` du centre, puis un pas de 84 `u` (ils se recouvrent ; `z` : le plus proche devant).
+  Toute la pile glisse ensemble (`normal` × 1,5). Au-delà de 9 boîtiers, fondu.
+- **Lumière** : lueur de la couleur de l'étagère derrière la face choisie (ombre colorée de
+  42 `u`) et **halo** radial (520 × 560 `u`) derrière la pile. Le halo « respire » (opacité
+  1 ↔ 0,55, 1,7 s) **six fois** après un déplacement, puis s'immobilise : aucune image n'est
+  redessinée au repos. Mouvement réduit ou aucun : halo fixe.
+- **Plastique** : liseré clair en haut de chaque face, **reflet** (bande claire à 104°) qui
+  glisse selon la place du boîtier dans la pile (55 % sur les voisins), voile noir de 34 % sur
+  les voisins, voile de 35 % sur un jeu non installé.
+- **Retourner** (Y à la manette, F au clavier) : θ passe de 22° à 158° (`slow` × 2) ; au-delà
+  de 90°, la face montre le **dos** et le boîtier s'approche (× 1,16). Dos réel (scan LaunchBox)
+  s'il existe, sinon **dos généré** (`BackCover`) : bannière ou jaquette en tête fondue dans la
+  couleur du jeu, titre en Archivo Expanded, résumé, genres, développeur et date, temps de jeu,
+  bandeau du bas à la couleur de la source avec son nom. Tout déplacement remet de face ; B
+  aussi, avant de quitter.
+- **Tranche** (`CaseSpine`, partagée avec le musée) : scan réel étiré s'il existe ; sinon bande
+  de 56 `u` de la couleur de la plateforme ou de la source, nom de la source, titre le long de la
+  tranche (lettres empilées avec le rendu logiciel, qui ne sait pas tourner un texte).
+- **Sélection** : liseré blanc de 2 `u` (4 `u`, opaque, en mode Performance), en plus de la
+  lueur.
+- **Planche**, **plaque**, **étagère suivante** et **fond** : inchangés (voir 1.0.0-alpha.6) ;
+  la planche est à 790 `u`, le bloc du jeu choisi en haut à gauche ne dépasse pas le bord gauche
+  du boîtier central.
+- **Mode Performance** : jaquettes à plat (66 % pour les voisins), ni côté, halo, lueur ni
+  reflet ; Retourner montre le dos d'un coup.
+
+### Musée (mode console, 1.0.0-alpha.7)
+
+- **Mur** : une rangée par plateforme (chaque source PC, chaque système émulé), rangées par nom ;
+  trois rangées de 298 `u` à l'écran, celle choisie en deuxième position quand c'est possible.
+- **Boîtiers** debout, **tranche vers l'avant** : 30 × 196 `u`, pas de 34 `u`. Le boîtier
+  choisi sort de la rangée et se tourne de face (largeur 30 → 131 `u`, `normal`), monte de
+  10 `u`, porte une ombre ; ses voisins de droite s'écartent. Les autres rangées restent tranche
+  vers l'avant.
+- **Plaque** au début de chaque rangée (232 `u`) : couleur de la plateforme (plus vive pour la
+  rangée choisie), nom, nombre de jeux, temps de jeu cumulé. **Carte** sous le boîtier choisi :
+  titre, temps de jeu (ou « Non installé »), étoile des favoris.
+- **Éclairage** (touche L, retenu) : *galerie* (pièce sombre, projecteur chaud sur le boîtier
+  choisi, liseré chaud des planches), *jour* (mur gris clair, lumière égale), *néon* (pièce
+  noire, projecteur et liseré lumineux de la couleur de la rangée). Les boîtiers loin du
+  projecteur restent dans une légère pénombre (18 %).
+- **Nouveautés** : un jeu ajouté depuis la visite précédente porte un liseré `warm` lumineux.
+- **Entrée** : les rangées montent de 46 `u` en fondu (`slow` × 2) ; rien en mouvement aucun.
+- **Mode Performance** : ni ombre, projecteur, néon ni pénombre ; liseré de sélection opaque.
 
 ## États
 
@@ -143,9 +176,11 @@ police d'affichage (« Outils 4 »), jamais des pastilles.
 Rien ne flotte ni ne rebondit : les tuiles ne se soulèvent plus au survol (léger éclaircissement
 et bouton Jouer). Le mode Performance force « aucun » et coupe les ombres.
 
-Exception mesurée : le boîtier choisi de l'étagère avance et se tourne (`fast` puis `normal`).
-La rotation n'est pas calculée image par image : seules deux largeurs (cos et sin d'un angle
-animé par Slint) changent. Avec le mouvement « aucun », le boîtier est directement de face.
+Exceptions mesurées : le boîtier choisi de l'étagère se tourne et la pile glisse (`normal`
+× 1,5), un boîtier se retourne (`slow` × 2), le halo respire six fois puis s'arrête, le boîtier
+choisi du musée sort de sa rangée (`normal`). La rotation n'est pas calculée image par image :
+seules deux largeurs (cos et sin d'un angle animé par Slint) changent. Avec le mouvement
+« aucun », tout est directement à sa place.
 
 Règle d'implémentation : un composant réutilisé garde une racine « propre » (pas d'`animate`,
 d'`opacity`, d'ombre ni de `visible` sur la racine) ; les effets vont sur un enfant. Sinon le

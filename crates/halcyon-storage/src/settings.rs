@@ -105,8 +105,16 @@ pub struct Settings {
     /// Dernière recherche de mise à jour (horodatage Unix).
     pub update_last_check: i64,
     pub start_in_big_picture: bool,
-    /// Vue du mode console : 0 jeu plein écran et rangée de jaquettes, 1 étagère (1.0.0-alpha.6).
+    /// Vue du mode console : 0 jeu plein écran et rangée de jaquettes, 1 étagère (1.0.0-alpha.6),
+    /// 2 musée (1.0.0-alpha.7).
     pub console_view: u8,
+    /// Musée : éclairage (0 galerie, 1 jour, 2 néon) et dernière visite (horodatage Unix) — les
+    /// jeux ajoutés depuis brillent.
+    pub museum_lighting: u8,
+    pub museum_seen: i64,
+    /// Dos et tranches de boîtiers depuis la base LaunchBox (téléchargement d'environ 110 Mo,
+    /// désactivé par défaut).
+    pub launchbox_art: bool,
     /// Suggestions de séries refusées (clés normalisées) : jamais reproposées.
     pub series_dismissed: Vec<String>,
     /// Notification système quand une mise à jour de jeu est détectée.
@@ -495,6 +503,9 @@ impl Default for Settings {
             update_last_check: 0,
             start_in_big_picture: false,
             console_view: 0,
+            museum_lighting: 0,
+            museum_seen: 0,
+            launchbox_art: false,
             series_dismissed: Vec::new(),
             update_notifications: true,
             recap_announced: 0,

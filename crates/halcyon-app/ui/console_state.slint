@@ -18,10 +18,42 @@ export struct ShelfBox {
     mark: string,
     installed: bool,
     favorite: bool,
+    /// Tranche réelle (scan LaunchBox ou image locale) ; sinon tranche générée.
+    spine: image,
+    has-spine: bool,
+    /// Musée : jeu ajouté depuis la dernière visite (il brille).
+    fresh: bool,
+}
+
+/// Une rangée du musée : une plateforme (source ou système émulé), tranches vers l'avant.
+export struct MuseumRow {
+    /// Indice absolu de la rangée ; négatif : emplacement vide.
+    index: int,
+    name: string,
+    color: color,
+    count: int,
+    /// Temps de jeu cumulé de la rangée, déjà formaté.
+    info: string,
+    /// Boîtier sélectionné de la rangée (position absolue).
+    focus: int,
+    /// Fenêtre glissante de boîtiers (emplacements fixes, comme l'étagère).
+    cases: [ShelfBox],
+}
+
+export global MuseumUi {
+    in property <[MuseumRow]> rows;
+    in property <int> row-focus;
+    in property <int> row-count;
+    /// Boîtier sélectionné retourné (dos visible).
+    in property <bool> flipped;
+    /// Éclairage : 0 galerie (projecteur chaud), 1 jour (lumière égale), 2 néon (couleur de la rangée).
+    in property <int> lighting;
+    /// Faux à l'entrée, vrai juste après : les rangées se mettent en place (mouvement complet).
+    in property <bool> settled: true;
 }
 
 export global ShelfUi {
-    /// Vue du mode console : 0 jeu plein écran et rangée de jaquettes, 1 étagère.
+    /// Vue du mode console : 0 jeu plein écran et rangée de jaquettes, 1 étagère, 2 musée.
     in property <int> view;
     // Étagère affichée : plaque (nom, couleur, logo), boîtiers, sélection.
     in property <string> name;
@@ -50,6 +82,14 @@ export global ShelfUi {
     /// Jaquette du boîtier sélectionné, décodée à la taille d'affichage (net en 4K).
     in property <image> focus-cover;
     in property <bool> has-focus-cover;
+    /// Boîtier sélectionné retourné (Y / F) : on voit son dos.
+    in property <bool> flipped;
+    /// Dos réel du boîtier sélectionné (scan LaunchBox ou image locale) ; sinon dos généré.
+    in property <image> focus-back;
+    in property <bool> has-focus-back;
+    /// Halo du boîtier sélectionné : alterne quelques fois après un déplacement (« respire »),
+    /// puis reste immobile — aucune image n'est redessinée au repos.
+    in property <bool> breathe;
     /// Titres des tranches tournés d'un quart de tour (impossible avec le rendu logiciel :
     /// lettres empilées à la place).
     in property <bool> rotate-text: true;

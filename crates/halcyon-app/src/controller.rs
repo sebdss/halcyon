@@ -86,6 +86,7 @@ pub struct Controller {
     pub(crate) collections: RefCell<Vec<Collection>>,
     pub(crate) coll: RefCell<crate::ctl_collections::CollState>,
     pub(crate) uninstall: RefCell<crate::ctl_uninstall::UninstallState>,
+    pub(crate) lb: RefCell<crate::ctl_launchbox::LbState>,
     pub(crate) genres: RefCell<Vec<String>>,
     /// Sources supplémentaires de l'index de la bibliothèque (autres launchers présents).
     pub(crate) extra_sources: RefCell<Vec<GameSource>>,
@@ -184,6 +185,7 @@ impl Controller {
             collections: RefCell::new(Vec::new()),
             coll: RefCell::new(Default::default()),
             uninstall: RefCell::new(Default::default()),
+            lb: RefCell::new(Default::default()),
             genres: RefCell::new(Vec::new()),
             extra_sources: RefCell::new(Vec::new()),
             progress: RefCell::new(HashMap::new()),
@@ -514,6 +516,13 @@ impl Controller {
         sui.on_add_folder(with!(|c, path| c.add_folder(&path)));
         sui.on_remove_folder(with!(|c, i| c.remove_folder(i as usize)));
         sui.on_set_option(with!(|c, name, v| c.set_option(&name, v)));
+        sui.on_launchbox(with!(|c, action| match action.as_str() {
+            "on" => c.lb_set_enabled(true),
+            "off" => c.lb_set_enabled(false),
+            "build" => c.lb_build(),
+            "fetch-all" => c.lb_fetch_all(),
+            _ => c.lb_cancel(),
+        }));
         sui.on_set_break_reminder(with!(|c, i| {
             c.settings.borrow_mut().break_reminder_hours = i.clamp(0, 3) as u32;
             c.save_settings();
@@ -970,7 +979,7 @@ impl Controller {
                     }
                 }
                 Kind::Icon | Kind::Shot | Kind::Slide => self.refresh_remote_views(),
-                Kind::CoverLarge => {
+                Kind::CoverLarge | Kind::Spine => {
                     if self.bp.borrow().active {
                         self.refresh_bp();
                     }
@@ -1983,6 +1992,9 @@ impl Controller {
         let folders: Vec<SharedString> = s.scan_folders.iter().map(|p| p.display().to_string().into()).collect();
         sui.set_folders(ModelRc::new(VecModel::from(folders)));
         sui.set_online_artwork(s.online_artwork);
+        drop(s);
+        self.lb_publish();
+        let s = self.settings.borrow();
         sui.set_scan_on_startup(s.scan_on_startup);
         sui.set_minimize_on_launch(s.minimize_on_launch);
         sui.set_launch_screen(s.launch_screen);

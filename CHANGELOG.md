@@ -1,5 +1,49 @@
 # Journal des modifications
 
+## 1.0.0-alpha.7 — Étagère coverflow, musée, dos de boîtiers
+
+Le mode console prend l'allure d'une vraie collection de boîtes, en gardant le rendu natif
+Slint et sans nouvelle dépendance. Rien n'est retiré ; aucune migration de base.
+
+### Étagère, version coverflow
+
+- Le jeu choisi est **au centre**, presque de face (sa tranche reste visible), entouré d'un
+  **halo** de la couleur de l'étagère qui respire quelques fois puis s'immobilise ; ses
+  voisins reculent en **pile serrée**, tournés vers lui (tranches lisibles à gauche, chants à
+  droite).
+- **Plastique** : liseré clair, **reflet** qui glisse selon la place du boîtier, voisins
+  voilés.
+- **Y** (manette) ou **F** (clavier) **retourne** le boîtier : son vrai dos s'il a été
+  récupéré, sinon un **dos composé** (image du jeu, titre, résumé, genres, développeur, date,
+  temps de jeu). B ou un déplacement le remet de face. Dans l'étagère et le musée, la
+  recherche reste accessible depuis la barre des sections (et `Tab` au clavier).
+
+### Musée : troisième vue du mode console
+
+- **R3 / V** passe de la rangée à l'étagère, puis au **musée**.
+- Toute la collection en **mur d'étagères** : une rangée par plateforme (Steam, Epic, GOG…,
+  chaque console émulée), boîtiers **tranche vers l'avant**, **plaque** au début de chaque
+  rangée (nom, nombre de jeux, temps de jeu).
+- Le boîtier choisi **sort de la rangée et se tourne de face**, une carte s'affiche dessous ;
+  les jeux ajoutés depuis la dernière visite brillent.
+- **Éclairage** (touche `L`, retenu) : galerie, jour, néon.
+
+### Dos et tranches réels (option, désactivée par défaut)
+
+- *Paramètres › Comportement* : « Dos et tranches de boîtiers (LaunchBox) ». Halcyon
+  télécharge une fois la base publique LaunchBox (environ 110 Mo), la lit en flux sans la
+  décompresser, n'en garde qu'un petit index, puis récupère le dos et la tranche du jeu choisi
+  à la volée ; « Récupérer pour toute la bibliothèque » fait les autres, un jeu à la fois.
+- Noms de fichiers, tailles et contenu des images contrôlés ; une seule adresse d'images ;
+  rien hors ligne. Détails : `SECURITE.md`, § 4 ter.
+
+### Sous le capot
+
+- `halcyon-core::launchbox`, `halcyon-storage::lbindex`, `halcyon-integrations::launchbox`,
+  `ctl_museum.rs`, `ctl_launchbox.rs`, `ui/pages/museum.slint` ; composants `CaseSpine` et
+  `BackCover` partagés ; visuel `Kind::Spine`.
+- Mesures : `PERFORMANCES.md` (section 1.0.0-alpha.7).
+
 ## 1.0.0-alpha.6 — Collections, étagère, désinstallation
 
 Ranger ses jeux en collections en quelques gestes, les retrouver sur une étagère en mode

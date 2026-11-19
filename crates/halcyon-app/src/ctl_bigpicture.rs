@@ -79,6 +79,7 @@ pub struct BigPicture {
     result_col: usize,
     /// Étagère (seconde vue de la section Jouer).
     pub(crate) shelf: crate::ctl_shelf::ShelfState,
+    pub(crate) museum: crate::ctl_museum::MuseumState,
 }
 
 /// Première rangée affichée de la grille (fenêtre glissante autour de la sélection).
@@ -106,13 +107,16 @@ impl Controller {
         {
             // Vue mémorisée ; emplacements de l'étagère neufs (fenêtre glissante).
             let shelf = app.global::<crate::ShelfUi>();
-            shelf.set_view(i32::from(self.settings.borrow().console_view.min(1)));
+            shelf.set_view(i32::from(self.settings.borrow().console_view.min(2)));
             let bp = self.bp.borrow();
             shelf.set_boxes(ModelRc::from(bp.shelf.boxes.clone()));
             shelf.set_next_boxes(ModelRc::from(bp.shelf.next.clone()));
             // Le rendu logiciel ne sait pas tourner un texte : titres des tranches empilés.
             let software = std::env::var("SLINT_BACKEND").map(|b| b.to_ascii_lowercase().contains("software")).unwrap_or(false);
             shelf.set_rotate_text(!software);
+        }
+        if self.settings.borrow().console_view == 2 {
+            self.museum_enter();
         }
         app.window().set_fullscreen(true);
         app.global::<BpUi>().set_active(true);
@@ -192,6 +196,13 @@ impl Controller {
             bp.grid_index = bp.grid_index.min(len.saturating_sub(1));
         }
         self.rebuild_shelves();
+        self.rebuild_museum();
+    }
+
+    /// Étagère ou musée au premier plan, sans menu ni fiche ouverts.
+    pub(crate) fn case_view_focused(&self) -> bool {
+        let bp = self.bp.borrow();
+        bp.section == 0 && bp.zone == 1 && self.settings.borrow().console_view >= 1 && !bp.menu_open && bp.options.is_none() && bp.sheet.is_none()
     }
 
     /// Vue étagère de la section Jouer affichée ?
@@ -230,6 +241,10 @@ impl Controller {
         if bp.section == 0 && self.settings.borrow().console_view == 1 {
             drop(bp);
             return self.shelf_focused();
+        }
+        if bp.section == 0 && self.settings.borrow().console_view == 2 {
+            drop(bp);
+            return self.museum_focused();
         }
         match bp.section {
             0 => bp.strip.get(bp.strip_index).copied(),
@@ -300,6 +315,8 @@ impl Controller {
         };
         if section == 0 && self.shelf_view() {
             self.refresh_shelf();
+        } else if section == 0 && self.settings.borrow().console_view == 2 {
+            self.refresh_museum();
         } else if section == 0 {
             ui.set_strip(ModelRc::new(VecModel::from(self.bp_cards(&strip))));
             ui.set_strip_index(strip_index as i32);
@@ -653,6 +670,13 @@ impl Controller {
         if on_shelf && self.shelf_input(action) {
             return;
         }
+        let in_museum = {
+            let bp = self.bp.borrow();
+            bp.section == 0 && bp.zone == 1 && self.settings.borrow().console_view == 2
+        };
+        if in_museum && self.museum_input(action) {
+            return;
+        }
 
         let mut play: Option<GameId> = None;
         let mut favorite: Option<GameId> = None;
@@ -910,6 +934,8 @@ impl Controller {
             (true, PadAction::Prev) => self.bp_input("prev"),
             (true, PadAction::Next) => self.bp_input("next"),
             (true, PadAction::Toggle) => self.bp_input("view"),
+            // Étagère et musée : Y retourne le boîtier (la recherche reste dans la barre des sections).
+            (true, PadAction::Search) if self.case_view_focused() => self.bp_input("flip"),
             (true, a) => {
                 if let Some(input) = a.as_input() {
                     self.bp_input(input);

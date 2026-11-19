@@ -19,6 +19,7 @@ pub mod epic;
 pub mod epic_free;
 pub mod gog;
 pub mod gpu;
+pub mod launchbox;
 pub mod launcher;
 pub mod launchers;
 pub mod libretro;

@@ -172,3 +172,49 @@ optimisation à mener pour garder Halcyon compilable sur une machine de 8 Go.
 | Code Slint généré (`app.rs`) | 46,7 Mo |
 | Binaire Linux release | 67 Mo (non réduit) |
 | Compilation sur 8 Go | réussit avec 10 Go d'espace d'échange (`-j1`) ; échoue sans |
+
+## 1.0.0-alpha.7 — étagère coverflow et musée
+
+### Méthode
+
+Même machine et même bibliothèque que pour la 1.0.0-alpha.6 (513 jeux, 1920 × 1080, 2 cœurs
+sans GPU, binaire release, `-j2`, 14 min 30 de compilation). Un cran toutes les 150 ms
+(40 crans) sur l'étagère « Tous » et sur la rangée Steam du musée (500 jeux) ; images par
+seconde données par Slint, processeur lu dans `/proc` (100 % = un cœur), mémoire résidente ;
+repos mesuré pendant 10 s, 12 s après le dernier cran.
+
+### Résultats
+
+| Rendu logiciel, 1920 × 1080 | Étagère (coverflow) | Musée |
+|---|---|---|
+| Images / s pendant le défilement (médiane) | 36 | 62 |
+| Processeur pendant le défilement | ≈ 96 % | ≈ 32 % |
+| Processeur au repos | 0,1 % | 0,4 % |
+| Mémoire après 40 crans | 168–170 Mo | 167 Mo |
+
+- **Étagère** : un peu plus lente que celle de la 1.0.0-alpha.6 (40 à 52 images / s) à cause
+  des côtés visibles, du halo et des reflets ; le reflet n'est plus dessiné au-delà des
+  trois boîtiers voisins. Le **mode Performance** (à plat) reste la solution pour un PC sans
+  carte graphique.
+- **Halo** : il respire six demi-cycles de 1,7 s après un déplacement puis s'arrête. Mesuré :
+  8 s de processeur pendant les 12 s qui suivent la dernière touche, puis 0,1 % ; c'est ce qui
+  évite un rendu permanent au repos.
+- **Musée** : 4 rangées et 56 boîtiers par rangée au plus dans l'interface (224 éléments) ;
+  la mémoire ne dépend pas du nombre de jeux.
+- **Index LaunchBox** (données de test : 150 000 jeux, 600 000 images, XML de 234 Mo dans
+  une archive de 16 Mo) : voir le tableau ci-dessous ; aucune donnée de l'archive n'est gardée
+  en mémoire au-delà des plateformes des jeux (une table de quelques Mo pendant la lecture).
+- **OpenGL émulé** (llvmpipe) : 6 à 9 images / s, 6 % de processeur au repos, pilote compris
+  (≈ 370 Mo) ; non représentatif d'un PC avec carte graphique — **à mesurer sur votre PC**.
+
+| Index LaunchBox (données de test, binaire release) | Mesure |
+|---|---|
+| Lecture en flux de l'archive et construction de l'index (XML de 234 Mo) | 22 s, dans un fil de fond |
+| Mémoire maximale pendant la construction | 16 Mo |
+| Taille de l'index (82 000 jeux avec dos ou tranche) | 10 Mo |
+| 1 000 recherches | 16 ms (16 µs par jeu) |
+
+**Vraie base** (110 Mo, 497 Mo de XML, 190 844 jeux) : 19,5 s de lecture et d'index
+(21 s depuis l'application, téléchargement compris sur cette connexion), index de **5,8 Mo**
+pour 35 357 jeux avec dos ou tranche, 14 µs par recherche ; dans un fil de fond, l'interface
+reste utilisable.
