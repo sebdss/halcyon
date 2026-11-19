@@ -64,6 +64,7 @@ humaine) : [`HUS.md`](HUS.md), sections 4 à 6.
 | `update.verified`, `update.rejected` | version, paquet, niveau de vérification ou motif |
 | `minecraft.login`, `minecraft.logout` | nom du profil Minecraft |
 | `minecraft.official_profile.write` / `.remove` | profil « Halcyon · … » du launcher officiel |
+| `launchbox.download`, `launchbox.index` | adresse de la base LaunchBox ; nombre de jeux indexés |
 | `game.uninstall` | jeu, voie (`steam`, `legendary`, `launcher`, `trash`, `remove`, `hide`), issue (`ok`, `delegated:<launcher>`, `failed`), chemin |
 
 Un détail contenant un retour à la ligne est échappé : une entrée ne peut pas en imiter une
@@ -94,12 +95,29 @@ corbeille. Tout le reste passe par la plateforme du jeu ou ne touche aucun fichi
 | ROM, jeux ajoutés à la main | jamais supprimés : masqués ou retirés de la bibliothèque |
 | Traçabilité | `game.uninstall` dans `security.log`, entrée du journal d'activité (réussi, annulé, délégué, échec) |
 
+## 4 ter. Dos et tranches LaunchBox (1.0.0-alpha.7)
+
+Option **désactivée par défaut**, jamais utilisée hors ligne ni en mode hors ligne forcé.
+
+| Protection | Détail |
+|---|---|
+| Destinations | `gamesdb.launchbox-app.com/Metadata.zip` (une fois, à la demande) et `images.launchbox-app.com/<fichier>` ; aucune autre adresse, HTTPS (rustls) |
+| Tailles | archive ≤ 400 Mio ; image ≤ 15 Mio ; délai global par requête |
+| Lecture de l'archive | `Metadata.xml` lu en flux depuis le ZIP (rien n'est extrait sur le disque, aucun chemin de l'archive n'est utilisé) ; seules les plateformes connues de Halcyon sont gardées ; archive supprimée après lecture |
+| Noms de fichiers reçus (`halcyon_core::launchbox::valid_image_file`, testé) | lettres, chiffres, `-`, `_`, `.`, au plus un `/`, extension PNG ou JPEG, jamais `..` ni chemin absolu ; tout autre nom est ignoré à la construction de l'index |
+| Images | contenu vérifié (signature PNG ou JPEG) avant écriture ; enregistrées sous un nom choisi par Halcyon (`<id>-back.jpg`, `<id>-spine.png`) dans le cache, jamais sous le nom reçu |
+| Index | fichier SQLite à part, construit dans un fichier temporaire puis renommé (un index interrompu n'est jamais lu), ouvert en lecture seule |
+| Débit | une image à la fois ; récupération groupée espacée de 150 ms, annulable |
+
 ## 5. Limites connues
 
 - Linux : les fichiers du coffre ne sont pas chiffrés (protection par les droits du compte).
 - Signature : protège à partir de la première version signée installée ; la clé privée est
   un point unique à protéger.
 - Les extensions ne sont pas encore signées par leurs auteurs (prévu).
+- LaunchBox : le téléchargement réel de la base et des images n'a pas pu être essayé depuis
+  l'environnement de développement (réseau limité) ; lecture de l'archive, index et contrôles
+  testés sur des données de test.
 - Désinstallation : la mise à la Corbeille Windows et les URI de GOG Galaxy, Battle.net et
   du launcher Epic n'ont pas été essayées sur un vrai PC Windows (tests Linux seulement).
 

@@ -398,6 +398,32 @@ testé), `halcyon-integrations::trash` (corbeille freedesktop / Windows, taille 
 **Manette** : nouvelle action configurable `toggle` (R3 par défaut) : cocher un jeu sur le
 bureau, changer de vue en mode console.
 
+## 5 septies. Version 1.0.0-alpha.7 — étagère coverflow, musée, dos LaunchBox
+
+**Étagère** : même contrôleur et mêmes 21 emplacements ; `ShelfCase` ne dépend plus que de
+`k` (place par rapport à la sélection, animée) et d'un angle θ par boîtier, dont dérivent la
+largeur de la face (|cos θ|), celle du côté visible (|sin θ|) et quel côté est visible (tranche
+ou chant, face avant ou dos). Retourner un boîtier : état `ShelfState::flipped`, remis à zéro
+au moindre déplacement. Le halo « respire » sous la commande d'un minuteur Rust limité à six
+demi-respirations : aucune animation ne tourne au repos. `CaseSpine` et `BackCover` sont
+partagés avec le musée.
+
+**Musée** : `src/ctl_museum.rs`, `ui/pages/museum.slint`, `MuseumUi` / `MuseumRow`. Rangées
+par plateforme (`group_rows`, testé). **4 rangées** au plus dans l'interface (emplacement
+`r % 4`), chacune avec une fenêtre de **56 boîtiers** (emplacement `i % 56`) : au plus 224
+boîtiers existent, quelle que soit la taille de la bibliothèque. Le remplissage des
+emplacements est commun avec l'étagère (`fill_slots_n`). Dernière visite et éclairage dans
+`Settings` (`museum_seen`, `museum_lighting`).
+
+**Dos et tranches LaunchBox** (option en ligne, désactivée par défaut) :
+`halcyon-core::launchbox` (pur, testé : titre normalisé, plateforme LaunchBox d'un jeu, rang
+d'une image, contrôle des noms de fichiers), `halcyon-integrations::launchbox` (téléchargement
+de `Metadata.zip`, lecture en flux du XML par blocs, sans dépendance nouvelle ; image unique
+vérifiée), `halcyon-storage::lbindex` (index SQLite à part : `names(key, platform, id)` et
+`images(id, part, rank, file)`, une recherche = une requête indexée), `src/ctl_launchbox.rs`
+(fils de fond, dossier `case-art/` lu une fois puis tenu en mémoire). Nouveau visuel
+`images::Kind::Spine` (60 × 480). Le dos réel passe par `Kind::CoverLarge`.
+
 ## 6. Arborescence
 
 ```

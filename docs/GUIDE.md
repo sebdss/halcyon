@@ -262,32 +262,52 @@ de la manette. Option « Démarrer en mode Big Picture » dans les paramètres.
 | Naviguer | Croix / stick gauche | Flèches |
 | Valider | A | Entrée |
 | Retour | B | Échap |
-| Rechercher | Y | Tab (puis taper directement) |
+| Rechercher | Y (Retourner le boîtier dans l'étagère et le musée) | Tab (puis taper directement) |
 | Favori | X | — |
 | Réglages | Start | Menu ou Ctrl+, |
 | Menu du jeu | Select | Ctrl+O |
-| Étagère / rangée | R3 | V |
+| Vue suivante : rangée → étagère → musée | R3 | V |
+| Retourner un boîtier (étagère, musée) | Y | F |
+| Éclairage du musée | — | L |
 | Quitter Big Picture | Start (dans le centre de contrôle) | F11 |
 
-### Étagère (1.0.0-alpha.6)
+### Étagère et musée (1.0.0-alpha.6, refaits en 1.0.0-alpha.7)
 
-La section **Jouer** a deux vues : le jeu en plein écran avec sa rangée de jaquettes, et
-l'**étagère**. Bascule : bouton **R3** (modifiable dans *Outils › Manettes*) ou touche `V` ;
-la vue choisie est retenue.
+La section **Jouer** a trois vues : le jeu en plein écran avec sa rangée de jaquettes,
+l'**étagère** et le **musée**. Bascule : bouton **R3** (modifiable dans *Outils › Manettes*) ou
+touche `V`, dans cet ordre ; la vue choisie est retenue.
 
-- Une étagère par collection (dans l'ordre et aux couleurs de la page Collections), plus
-  **Récents**, **Favoris** et **Tous** ; la plaque de chaque étagère porte son nom, sa couleur
-  et le nombre de jeux.
+**Étagère** — une étagère par collection (dans l'ordre et aux couleurs de la page Collections),
+plus **Récents**, **Favoris** et **Tous**.
+
+- Le jeu choisi est au centre, presque de face, entouré d'un halo de la couleur de l'étagère ;
+  ses voisins reculent en pile, tournés vers lui : à gauche on lit leurs tranches.
 - Gauche / droite : jeux ; haut / bas : étagère précédente ou suivante (haut depuis la première
   revient aux sections) ; **A** : jouer (un jeu non installé ouvre sa fiche) ; **X** : favori ;
-  **Select** : menu du jeu ; souris : survol pour choisir, clic pour la fiche, double-clic pour
-  jouer.
-- Chaque jeu est un **boîtier** : tranche avec le titre, une bande de la couleur de la
-  plateforme (jeux émulés) ou de la source, et la source en toutes lettres ; face avant avec la
-  jaquette (ou la jaquette générée). Le jeu choisi avance, se tourne de face, puis ses voisins
-  s'écartent ; au fond, sa bannière (ou l'ambiance floutée de sa jaquette) en fondu enchaîné.
-- *Mouvement réduit ou aucun* raccourcit ou supprime les animations ; le **mode Performance**
-  dessine des jaquettes à plat, sans tranche, ombre ni reflet.
+  **Select** : menu du jeu ; **Y** (ou `F`) : **retourner** le boîtier pour voir son dos (B ou
+  un déplacement le remet de face) ; souris : survol pour choisir, clic pour la fiche,
+  double-clic pour jouer.
+- Le **dos** est le vrai scan du boîtier s'il a été récupéré (voir plus bas), sinon un dos
+  composé par Halcyon : image du jeu, titre, résumé, genres, développeur, date, temps de jeu.
+
+**Musée** — toute la collection comme un mur d'étagères : une rangée par plateforme (Steam,
+Epic, GOG…, chaque console émulée), les boîtiers rangés tranche vers l'avant, une plaque au début
+de chaque rangée (nom, nombre de jeux, temps de jeu).
+
+- Haut / bas : rangée ; gauche / droite : boîtier (il sort de la rangée et se tourne de face,
+  une carte s'affiche dessous) ; A, X, Y, Select comme sur l'étagère ; `L` : éclairage
+  (galerie, jour, néon).
+- Les jeux ajoutés depuis votre dernière visite brillent.
+
+**Dos et tranches réels** (facultatif, *Paramètres › Comportement*, « Dos et tranches de boîtiers
+(LaunchBox) ») : Halcyon télécharge une fois la base publique LaunchBox (environ 110 Mo), n'en
+garde qu'un petit index, puis récupère le dos et la tranche du jeu choisi à la volée ;
+« Récupérer pour toute la bibliothèque » fait les autres, un jeu à la fois. Surtout utile pour
+les jeux console et les éditions en boîte ; les jeux sans scan gardent leur dos et leur tranche
+composés. Rien n'est téléchargé hors ligne ni sans avoir activé l'option.
+
+*Mouvement réduit ou aucun* raccourcit ou supprime les animations (le halo ne respire plus) ; le
+**mode Performance** dessine des jaquettes à plat, sans tranche, halo ni reflet.
 
 **Réglages en Big Picture** : mode Performance, mouvement, taille du texte, thème, mode du
 bureau, analyse des sources, synchronisation des succès, accès aux paramètres complets (sur le
@@ -560,7 +580,7 @@ déplacent la sélection dans la bibliothèque et les menus, et le focus ailleur
 A valide, B revient en arrière ou ferme, Y ouvre la recherche universelle, X ajoute aux
 favoris, **Select** ouvre le menu contextuel, **LB / RB** changent de vue (bibliothèque) ou
 d'onglet (fiche), **R3** coche le jeu sélectionné (sélection multiple, section 3 bis). Start
-entre en Big Picture, où R3 bascule entre la rangée et l'étagère.
+entre en Big Picture, où R3 passe de la rangée à l'étagère, puis au musée.
 
 Page **Manettes** : manettes connectées (marque Xbox, PlayStation, Nintendo, Valve…,
 batterie, dernière utilisée). Un **profil de manette** modifie les touches de navigation de
