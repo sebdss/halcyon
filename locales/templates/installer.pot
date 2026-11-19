@@ -23,12 +23,12 @@ msgstr ""
 #: crates/halcyon-app/ui/app.slint:247 crates/halcyon-app/ui/app.slint:283 crates/halcyon-app/ui/pages/collections.slint:702
 #: crates/halcyon-app/ui/pages/controllers.slint:116 crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225
 #: crates/halcyon-app/ui/pages/game.slint:741 crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258
-#: crates/halcyon-app/ui/pages/settings.slint:272 crates/halcyon-app/ui/pages/smart.slint:190 crates/halcyon-app/ui/uninstall_state.slint:201
-#: crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
+#: crates/halcyon-app/ui/pages/settings.slint:272 crates/halcyon-app/ui/pages/settings.slint:849 crates/halcyon-app/ui/pages/smart.slint:190
+#: crates/halcyon-app/ui/uninstall_state.slint:201 crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
 msgid "Annuler"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:616 crates/halcyon-installer/ui/setup.slint:459 crates/halcyon-installer/ui/setup.slint:505
+#: crates/halcyon-app/ui/pages/bigpicture.slint:625 crates/halcyon-installer/ui/setup.slint:459 crates/halcyon-installer/ui/setup.slint:505
 #: crates/halcyon-installer/ui/setup.slint:638 crates/halcyon-app/src/gamepad.rs:54
 msgid "Retour"
 msgstr ""
@@ -36,7 +36,7 @@ msgstr ""
 #: crates/halcyon-app/ui/pages/collections.slint:523 crates/halcyon-app/ui/pages/collections.slint:597 crates/halcyon-app/ui/pages/emulators.slint:143
 #: crates/halcyon-app/ui/pages/recap.slint:157 crates/halcyon-app/ui/pages/smart.slint:106 crates/halcyon-app/ui/uninstall_state.slint:216
 #: crates/halcyon-installer/ui/setup.slint:639 crates/halcyon-installer/ui/setup.slint:681 crates/halcyon-installer/ui/setup.slint:693
-#: crates/halcyon-app/src/ctl_bigpicture.rs:372
+#: crates/halcyon-app/src/ctl_bigpicture.rs:389
 msgid "Fermer"
 msgstr ""
 
@@ -71,7 +71,7 @@ msgid "Analyse en cours…"
 msgstr ""
 
 #: crates/halcyon-app/ui/pages/minecraft.slint:104 crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-app/ui/pages/minecraft.slint:445
-#: crates/halcyon-app/ui/pages/settings.slint:1063 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
+#: crates/halcyon-app/ui/pages/settings.slint:1088 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
 #: crates/halcyon-installer/src/main.rs:339
 msgid "Installer"
 msgstr ""
@@ -89,7 +89,7 @@ msgstr ""
 msgid "Désinstaller"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:945
+#: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:970
 #: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_extras.rs:395
 #: crates/halcyon-app/src/ctl_palette.rs:20 crates/halcyon-installer/src/engine.rs:333 crates/halcyon-installer/src/engine.rs:335
 #: crates/halcyon-storage/src/activity.rs:40
@@ -106,7 +106,7 @@ msgstr ""
 msgid "Langue"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/settings.slint:951 crates/halcyon-installer/ui/setup.slint:446
+#: crates/halcyon-app/ui/pages/settings.slint:976 crates/halcyon-installer/ui/setup.slint:446
 msgid "Démarrer avec la session"
 msgstr ""
 
@@ -966,7 +966,8 @@ msgstr ""
 msgid "chemin refusé dans la charge utile : {path}"
 msgstr ""
 
-#: crates/halcyon-installer/src/payload.rs:185 crates/halcyon-minecraft/src/modpack.rs:103 crates/halcyon-minecraft/src/modpack.rs:280
+#: crates/halcyon-installer/src/payload.rs:185 crates/halcyon-integrations/src/launchbox.rs:190 crates/halcyon-minecraft/src/modpack.rs:103
+#: crates/halcyon-minecraft/src/modpack.rs:280
 #, placeholders
 msgid "archive illisible : {e}"
 msgstr ""

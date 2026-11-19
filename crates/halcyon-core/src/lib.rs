@@ -12,6 +12,7 @@ pub mod collections;
 pub mod desktop;
 pub mod export;
 pub mod launch_args;
+pub mod launchbox;
 pub mod model;
 pub mod profiles;
 pub mod query;

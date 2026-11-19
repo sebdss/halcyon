@@ -58,7 +58,17 @@ pub struct ShelfState {
     /// coûteux à redessiner en rendu logiciel) ne change qu'une fois la sélection posée.
     pub bg_timer: slint::Timer,
     pub bg_pending: Option<GameId>,
+    /// Boîtier sélectionné retourné (dos visible) ; remis de face au moindre déplacement.
+    pub flipped: bool,
+    /// Halo : quelques respirations après un déplacement, puis immobile (aucun dessin au repos).
+    pub breath_timer: slint::Timer,
+    pub breaths: u8,
+    pub breath_game: Option<GameId>,
 }
+
+/// Durée d'une demi-respiration du halo et nombre de demi-respirations après un déplacement.
+const BREATH: std::time::Duration = std::time::Duration::from_millis(1700);
+const BREATHS: u8 = 6;
 
 /// Délai avant de changer l'arrière-plan après un déplacement.
 const BG_DELAY: std::time::Duration = std::time::Duration::from_millis(220);
@@ -164,9 +174,10 @@ impl Controller {
         st.shelves.get(st.shelf).and_then(|s| s.games.get(st.pos.get(st.shelf).copied().unwrap_or(0))).copied()
     }
 
-    fn shelf_box(&self, g: &Game, index: usize) -> ShelfBox {
+    pub(crate) fn shelf_box(&self, g: &Game, index: usize) -> ShelfBox {
         let cover = self.images.get(ImageKey { game: g.id, kind: Kind::Cover }, g.artwork.cover.as_deref());
         let (a, b) = placeholder_colors(&g.name);
+        let spine = self.case_spine(g);
         let mark = match &g.platform {
             Some(p) => platform_names(p).0,
             None => g.source.label().to_string(),
@@ -184,22 +195,33 @@ impl Controller {
             mark: mark.into(),
             installed: g.installed,
             favorite: g.favorite,
+            has_spine: spine.is_some(),
+            spine: spine.unwrap_or_default(),
+            fresh: false,
         }
     }
 
     /// Remplit les emplacements fixes : seuls ceux dont le contenu change sont mis à jour.
     fn fill_slots(&self, model: &VecModel<ShelfBox>, games: &[GameId], focus: usize) {
-        let range = window(focus, games.len(), SLOTS);
-        let mut wanted: Vec<ShelfBox> = vec![ShelfBox { index: -1, ..Default::default() }; SLOTS];
+        self.fill_slots_n(model, games, focus, SLOTS, None);
+    }
+
+    /// Variante à `slots` emplacements ; `fresh_after` : jeux ajoutés après cet horodatage
+    /// marqués nouveaux (musée).
+    pub(crate) fn fill_slots_n(&self, model: &VecModel<ShelfBox>, games: &[GameId], focus: usize, slots: usize, fresh_after: Option<i64>) {
+        let range = window(focus, games.len(), slots);
+        let mut wanted: Vec<ShelfBox> = vec![ShelfBox { index: -1, ..Default::default() }; slots];
         {
             let lib = self.lib.borrow();
             for i in range {
                 if let Some(g) = games.get(i).and_then(|id| lib.get(*id)) {
-                    wanted[i % SLOTS] = self.shelf_box(g, i);
+                    let mut b = self.shelf_box(g, i);
+                    b.fresh = fresh_after.is_some_and(|t| g.added_at > t);
+                    wanted[i % slots] = b;
                 }
             }
         }
-        if model.row_count() != SLOTS {
+        if model.row_count() != slots {
             model.set_vec(wanted);
             return;
         }
@@ -254,6 +276,7 @@ impl Controller {
         ui.set_next_name(next.as_ref().map(|s| s.name.clone()).unwrap_or_default().into());
         self.fill_slots(&boxes, &shelf.games, focus);
         ui.set_focus(focus as i32);
+        ui.set_flipped(self.bp.borrow().shelf.flipped);
         match &next {
             Some(n) => {
                 self.fill_slots(&next_model, &n.games, next_focus);
@@ -269,6 +292,10 @@ impl Controller {
         let large = self.images.get(ImageKey { game: g.id, kind: Kind::CoverLarge }, g.artwork.cover.as_deref());
         ui.set_has_focus_cover(large.is_some());
         ui.set_focus_cover(large.unwrap_or_default());
+        let back = self.case_back(&g);
+        ui.set_has_focus_back(back.is_some());
+        ui.set_focus_back(back.unwrap_or_default());
+        self.shelf_breathe_start(g.id);
         let (bg, ambient) = match &g.artwork.banner {
             Some(p) => (self.images.get(ImageKey { game: g.id, kind: Kind::Banner }, Some(p)), false),
             None => (self.images.get(ImageKey { game: g.id, kind: Kind::Ambient }, g.artwork.cover.as_deref()), true),
@@ -302,6 +329,46 @@ impl Controller {
             ui.set_bg_b_ambient(ambient);
         }
         ui.set_bg_a_front(front);
+    }
+
+    /// Le halo respire quelques fois quand la sélection change (mouvement complet et effets
+    /// seulement), puis reste immobile.
+    fn shelf_breathe_start(&self, id: GameId) {
+        let full = self.app().is_some_and(|a| {
+            let t = a.global::<crate::Theme>();
+            t.get_motion() == 0 && t.get_effects()
+        });
+        let mut bp = self.bp.borrow_mut();
+        let st = &mut bp.shelf;
+        if st.breath_game == Some(id) {
+            return;
+        }
+        st.breath_game = Some(id);
+        st.breaths = 0;
+        if !full {
+            st.breath_timer.stop();
+            return;
+        }
+        st.breath_timer.start(slint::TimerMode::Repeated, BREATH, || {
+            crate::controller::post(|c| c.shelf_breathe_tick());
+        });
+    }
+
+    pub(crate) fn shelf_breathe_tick(&self) {
+        let Some(app) = self.app() else { return };
+        let on = {
+            let mut bp = self.bp.borrow_mut();
+            let active = bp.active;
+            let st = &mut bp.shelf;
+            st.breaths += 1;
+            if st.breaths >= BREATHS || !active {
+                st.breath_timer.stop();
+                false
+            } else {
+                st.breaths % 2 == 1
+            }
+        };
+        app.global::<ShelfUi>().set_breathe(on);
     }
 
     /// Fin du délai : le fond passe au jeu sélectionné s'il l'est toujours (fondu enchaîné).
@@ -342,7 +409,14 @@ impl Controller {
             let len = st.shelves[st.shelf].games.len();
             let cur = st.pos[st.shelf].min(len.saturating_sub(1));
             let focused = st.shelves[st.shelf].games.get(cur).copied();
+            let was_flipped = st.flipped;
+            if action != "flip" && action != "context" {
+                st.flipped = false;
+            }
             match action {
+                "flip" => st.flipped = !st.flipped,
+                // B remet d'abord le boîtier de face.
+                "back" if was_flipped => {}
                 "left" => st.pos[st.shelf] = cur.saturating_sub(1),
                 "right" => st.pos[st.shelf] = (cur + 1).min(len.saturating_sub(1)),
                 "up" if st.shelf == 0 => to_bar = true,
@@ -398,16 +472,20 @@ impl Controller {
         true
     }
 
-    /// Bascule entre la rangée de jaquettes et l'étagère ; choix mémorisé.
+    /// Vue suivante du mode console : rangée → étagère → musée → rangée ; choix mémorisé.
     pub(crate) fn toggle_console_view(&self) {
         let view = {
             let mut s = self.settings.borrow_mut();
-            s.console_view = if s.console_view == 1 { 0 } else { 1 };
+            s.console_view = (s.console_view + 1) % 3;
             s.console_view
         };
+        self.bp.borrow_mut().shelf.flipped = false;
         self.save_settings();
         if let Some(app) = self.app() {
             app.global::<ShelfUi>().set_view(i32::from(view));
+        }
+        if view == 2 {
+            self.museum_enter();
         }
         self.sound(halcyon_audio::Cue::Mode);
     }

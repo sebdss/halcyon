@@ -682,10 +682,6 @@ msgstr "modpack sans version publiée"
 msgid "l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge"
 msgstr "l'auteur de ce modpack n'autorise pas son téléchargement hors de CurseForge"
 
-#: crates/halcyon-app/src/ctl_minecraft.rs:874
-msgid "nom de fichier refusé"
-msgstr "nom de fichier refusé"
-
 #: crates/halcyon-app/src/ctl_minecraft.rs:877
 #, placeholders
 msgid "Téléchargement de {filename}"
@@ -803,11 +799,6 @@ msgid "Modpack {name} installé ; {n} fichier que son auteur n'autorise pas à t
 msgid_plural "Modpack {name} installé ; {n} fichiers que leurs auteurs n'autorisent pas à télécharger hors de CurseForge sont à déposer dans le dossier mods : {join}"
 msgstr[0] "Modpack {name} installé ; {n} fichier que son auteur n'autorise pas à télécharger hors de CurseForge est à déposer dans le dossier mods : {join}"
 msgstr[1] "Modpack {name} installé ; {n} fichiers que leurs auteurs n'autorisent pas à télécharger hors de CurseForge sont à déposer dans le dossier mods : {join}"
-
-#: crates/halcyon-installer/src/payload.rs:185 crates/halcyon-minecraft/src/modpack.rs:103 crates/halcyon-minecraft/src/modpack.rs:280
-#, placeholders
-msgid "archive illisible : {e}"
-msgstr "archive illisible : {e}"
 
 #: crates/halcyon-minecraft/src/auth.rs:57
 msgid "ce compte Microsoft n'a pas de profil Xbox : créez-le sur xbox.com, puis réessayez"

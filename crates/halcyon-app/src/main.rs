@@ -12,6 +12,8 @@ mod ctl_assistant;
 mod ctl_backup;
 mod ctl_bigpicture;
 mod ctl_collections;
+mod ctl_launchbox;
+mod ctl_museum;
 mod ctl_shelf;
 mod ctl_downloads;
 mod ctl_emulators;

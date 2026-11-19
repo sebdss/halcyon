@@ -1,0 +1,279 @@
+// Musée : troisième vue du mode console (1.0.0-alpha.7).
+//
+// Toute la collection comme un mur d'étagères : une rangée par plateforme (Steam, Epic, GOG…,
+// chaque système émulé), chaque boîtier debout, tranche vers l'avant, et une plaque au début de
+// la rangée (nom, nombre de jeux, temps de jeu). Haut / bas changent de rangée, gauche / droite
+// de boîtier : le boîtier choisi sort de la rangée et se tourne de face, ses voisins s'écartent,
+// une petite carte s'affiche dessous. Y (F) le retourne, A joue, X favori, Select menu du jeu.
+//
+// Légèreté : quatre rangées au plus sont transmises (emplacements fixes), chacune avec une
+// fenêtre glissante de boîtiers ; tout le reste n'existe pas dans l'interface. Les jeux ajoutés
+// depuis la dernière visite brillent. L'éclairage (galerie, jour, néon) change avec L.
+
+import { Theme, Icons } from "../theme.slint";
+import { BpUi } from "../state.slint";
+import { ShelfUi, ShelfBox, MuseumUi, MuseumRow } from "../console_state.slint";
+import { GameCover, Icon } from "../components.slint";
+import { CaseSpine, BackCover } from "shelf.slint";
+
+component MuseumCase inherits Rectangle {
+    in property <ShelfBox> item;
+    in property <bool> out;
+    in property <length> u;
+    in property <length> spine-w;
+    in property <length> face-w;
+    in property <color> light;
+    callback clicked();
+    callback double-clicked();
+    property <float> pick: root.out ? 1 : 0;
+    animate pick { duration: Theme.normal; easing: ease-in-out; }
+    property <float> flip: root.out && MuseumUi.flipped ? 1 : 0;
+    animate flip { duration: Theme.slow * 2; easing: ease-in-out; }
+    // Pendant qu'il se tourne : tranche qui se rétrécit, face qui s'élargit.
+    property <length> sp: root.spine-w * (1 - root.pick);
+    property <length> fc: root.face-w * root.pick * abs(cos(180deg * root.flip));
+    property <bool> back: root.flip > 0.5;
+    width: root.sp + root.face-w * root.pick;
+
+    if Theme.effects && root.pick > 0.01: Rectangle {
+        x: root.width - root.fc - root.sp;
+        width: root.fc + root.sp;
+        border-radius: 3 * root.u;
+        background: #00000001;
+        drop-shadow-blur: 30 * root.u * root.pick;
+        drop-shadow-offset-y: 12 * root.u * root.pick;
+        drop-shadow-color: rgba(0, 0, 0, 0.7 * root.pick);
+    }
+    if root.sp > 0.5px: CaseSpine {
+        x: (root.width - root.sp - root.fc) / 2;
+        width: root.sp;
+        height: root.height;
+        item: root.item;
+        u: root.u * 0.75;
+        depth: root.spine-w;
+        border-radius: 2 * root.u;
+    }
+    if root.fc > 0.5px: Rectangle {
+        x: (root.width - root.sp - root.fc) / 2 + root.sp;
+        width: root.fc;
+        height: root.height;
+        clip: true;
+        border-radius: 3 * root.u;
+        if !root.back: GameCover {
+            width: parent.width;
+            height: parent.height;
+            source: root.item.cover;
+            has-image: root.item.has-cover;
+            color-a: root.item.color-a;
+            color-b: root.item.color-b;
+            initials: root.item.initials;
+            title: root.item.title;
+            show-title: !root.item.has-cover;
+            corner: 3 * root.u;
+        }
+        if root.back && ShelfUi.has-focus-back: Image { width: parent.width; height: parent.height; source: ShelfUi.focus-back; image-fit: fill; }
+        if root.back && !ShelfUi.has-focus-back: BackCover {
+            width: parent.width;
+            height: parent.height;
+            u: root.u * 0.64;
+            color-a: root.item.color-a;
+            color-b: root.item.color-b;
+            band: root.item.band;
+            mark: root.item.mark;
+        }
+        if Theme.effects: Rectangle { background: @linear-gradient(115deg, #ffffff2e 0%, #ffffff00 40%); }
+        if !root.item.installed && !root.back: Rectangle { background: #00000059; }
+    }
+    // Éclairage de la pièce : les boîtiers loin du projecteur restent dans la pénombre.
+    if Theme.effects && MuseumUi.lighting != 1: Rectangle { background: rgba(0, 0, 0, 0.18 * (1 - root.pick)); }
+    // Jeu nouveau depuis la dernière visite : liseré lumineux.
+    if root.item.fresh: Rectangle {
+        border-radius: 3 * root.u;
+        border-width: 2 * root.u;
+        border-color: Theme.warm;
+        drop-shadow-blur: Theme.effects ? 10 * root.u : 0px;
+        drop-shadow-color: Theme.warm.with-alpha(0.6);
+    }
+    if root.out: Rectangle {
+        x: -3 * root.u;
+        y: -3 * root.u;
+        width: root.width + 6 * root.u;
+        height: root.height + 6 * root.u;
+        border-radius: 5 * root.u;
+        border-width: (Theme.effects ? 2 : 4) * root.u;
+        border-color: Theme.effects ? #ffffffb3 : #ffffff;
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+        double-clicked => { root.double-clicked(); }
+    }
+}
+
+export component MuseumView inherits Rectangle {
+    in property <length> u;
+    in property <length> side;
+    property <length> top: 112 * root.u;
+    property <length> row-h: 298 * root.u;
+    property <length> plaque-w: 232 * root.u;
+    property <length> case-h: 196 * root.u;
+    property <length> spine-w: 30 * root.u;
+    property <length> face-w: 131 * root.u;
+    property <length> pitch: root.spine-w + 4 * root.u;
+    property <length> x0: root.side + root.plaque-w + 22 * root.u;
+    property <length> avail: root.width - root.x0 - root.side;
+    property <float> per-row: max(1, (root.avail - root.face-w - 14 * root.u) / root.pitch);
+    // Défilement vertical : la rangée choisie reste en deuxième position quand c'est possible.
+    property <float> vscroll: max(0, min(MuseumUi.row-focus - 1, MuseumUi.row-count - 3));
+    animate vscroll { duration: Theme.normal * 1.5; easing: ease-out; }
+
+    // Fond de la pièce selon l'éclairage.
+    background: MuseumUi.lighting == 1 ? #2b2e34 : MuseumUi.lighting == 2 ? #07080c : #0f0d0c;
+    if Theme.effects && MuseumUi.lighting == 1: Rectangle {
+        background: @linear-gradient(180deg, #3a3e46 0%, #24272c 100%);
+    }
+
+    for row in MuseumUi.rows: rw := Rectangle {
+        property <bool> active: row.index == MuseumUi.row-focus;
+        // Défilement horizontal : le boîtier choisi reste vers la gauche du milieu.
+        property <float> hoff: max(0, min(row.count - root.per-row, row.focus - root.per-row * 0.45));
+        animate hoff { duration: Theme.normal * 1.5; easing: ease-out; }
+        // Trois rangées à l'écran : celles qui sortent (au-dessus des sections, sous les aides)
+        // ne sont pas dessinées.
+        property <float> place: row.index - root.vscroll;
+        visible: row.index >= 0 && self.place > -0.6 && self.place < 2.6;
+        x: 0;
+        y: root.top + (row.index - root.vscroll) * root.row-h + (MuseumUi.settled ? 0px : 46 * root.u);
+        animate y { duration: Theme.slow * 2; easing: ease-out; }
+        width: root.width;
+        height: root.row-h;
+        opacity: MuseumUi.settled ? (self.active ? 1 : 0.72) : 0;
+        animate opacity { duration: Theme.slow * 2; easing: ease-out; }
+
+        // Projecteur sur le boîtier choisi (galerie : chaud ; néon : couleur de la rangée).
+        if Theme.effects && self.active && MuseumUi.lighting != 1: Rectangle {
+            x: root.x0 + (row.focus - rw.hoff) * root.pitch + root.face-w / 2 - self.width / 2;
+            y: -30 * root.u;
+            width: 420 * root.u;
+            height: root.case-h + 120 * root.u;
+            background: @radial-gradient(circle, (MuseumUi.lighting == 2 ? row.color : #ffd6a0).with-alpha(0.3) 0%, #00000000 70%);
+        }
+        // Néon : liseré de la couleur de la rangée sous la planche.
+        if Theme.effects && MuseumUi.lighting == 2: Rectangle {
+            y: 26 * root.u + root.case-h + 18 * root.u;
+            height: 3 * root.u;
+            background: row.color;
+            drop-shadow-blur: 14 * root.u;
+            drop-shadow-color: row.color;
+        }
+
+        // Planche.
+        Rectangle {
+            x: root.x0 - 12 * root.u;
+            y: 26 * root.u + root.case-h;
+            width: root.width - self.x;
+            height: 18 * root.u;
+            background: MuseumUi.lighting == 1 ? #4a4f58 : #2a2520;
+            Rectangle { y: 0; height: 2 * root.u; background: MuseumUi.lighting == 0 ? #ffd6a066 : #ffffff22; }
+        }
+
+        // Boîtiers (zone découpée : rien ne déborde sur la plaque).
+        Rectangle {
+            x: root.x0;
+            y: 0;
+            width: root.avail + root.side;
+            height: root.row-h;
+            clip: true;
+            for b in row.cases: MuseumCase {
+                visible: b.index >= 0 && self.x + self.width > -20 * root.u && self.x < parent.width + 20 * root.u;
+                x: (b.index - rw.hoff) * root.pitch + (rw.active && b.index > row.focus ? root.face-w - root.spine-w + 14 * root.u : 0px) + (self.out ? 6 * root.u : 0px);
+                animate x { duration: Theme.normal; easing: ease-out; }
+                y: 26 * root.u + (self.out ? -10 * root.u : 0px);
+                animate y { duration: Theme.fast; easing: ease-out; }
+                height: root.case-h;
+                u: root.u;
+                spine-w: root.spine-w;
+                face-w: root.face-w;
+                item: b;
+                out: rw.active && b.index == row.focus;
+                clicked => { BpUi.input("museum-click:" + row.index + ":" + b.index); }
+                double-clicked => { BpUi.input("museum-play:" + row.index + ":" + b.index); }
+            }
+        }
+
+        // Carte sous le boîtier choisi.
+        if self.active && BpUi.has-focused: Rectangle {
+            x: max(root.x0, min(root.width - root.side - self.width, root.x0 + (row.focus - rw.hoff) * root.pitch + 6 * root.u + root.face-w / 2 - self.width / 2));
+            y: 26 * root.u + root.case-h + 26 * root.u;
+            width: 360 * root.u;
+            height: 44 * root.u;
+            border-radius: 4 * root.u;
+            background: #000000b3;
+            HorizontalLayout {
+                padding-left: 12 * root.u;
+                padding-right: 12 * root.u;
+                spacing: 10 * root.u;
+                Text {
+                    text: BpUi.focused.title;
+                    color: #ffffff;
+                    font-family: Theme.display;
+                    font-size: 15 * root.u * Theme.text-scale;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: BpUi.focused.installed ? BpUi.focused.playtime : @tr("Non installé");
+                    color: #ffffffaa;
+                    font-size: 13 * root.u * Theme.text-scale;
+                    vertical-alignment: center;
+                }
+                if BpUi.focused.favorite: Icon { y: (parent.height - 18 * root.u) / 2; source: Icons.star-filled; size: 18 * root.u; tint: Theme.warm; }
+            }
+        }
+
+        // Plaque de la rangée.
+        Rectangle {
+            x: root.side;
+            y: 26 * root.u + root.case-h - self.height;
+            width: root.plaque-w;
+            height: plq.preferred-height;
+            border-radius: 5 * root.u;
+            background: row.color.mix(#14161a, rw.active ? 0.85 : 0.55);
+            drop-shadow-blur: Theme.effects ? 16 * root.u : 0px;
+            drop-shadow-color: #00000099;
+            plq := VerticalLayout {
+                padding: 16 * root.u;
+                spacing: 6 * root.u;
+                Rectangle { height: 4 * root.u; width: 40 * root.u; border-radius: 2 * root.u; background: #ffffffcc; }
+                Text {
+                    text: row.name;
+                    color: #ffffff;
+                    font-family: Theme.display;
+                    font-size: 22 * root.u * Theme.text-scale;
+                    font-weight: 800;
+                    wrap: word-wrap;
+                    overflow: elide;
+                    max-height: 60 * root.u * Theme.text-scale;
+                }
+                Text {
+                    text: row.info;
+                    color: #ffffffcc;
+                    font-size: 14 * root.u * Theme.text-scale;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+
+    if MuseumUi.row-count == 0: Text {
+        x: root.side;
+        y: 300 * root.u;
+        width: root.width * 0.5;
+        text: @tr("Le musée est vide. Ajoutez des jeux ou analysez vos sources depuis le centre de contrôle.");
+        color: #ffffffcc;
+        font-size: 26 * root.u * Theme.text-scale;
+        wrap: word-wrap;
+    }
+}

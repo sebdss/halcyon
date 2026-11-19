@@ -167,7 +167,9 @@ msgstr ""
 
 #: crates/halcyon-integrations/src/artwork.rs:87 crates/halcyon-integrations/src/artwork.rs:88 crates/halcyon-integrations/src/artwork.rs:105
 #: crates/halcyon-integrations/src/artwork.rs:108 crates/halcyon-integrations/src/artwork.rs:109 crates/halcyon-integrations/src/artwork.rs:148
-#: crates/halcyon-update/src/download.rs:220
+#: crates/halcyon-integrations/src/launchbox.rs:50 crates/halcyon-integrations/src/launchbox.rs:53 crates/halcyon-integrations/src/launchbox.rs:67
+#: crates/halcyon-integrations/src/launchbox.rs:71 crates/halcyon-integrations/src/launchbox.rs:73 crates/halcyon-integrations/src/launchbox.rs:216
+#: crates/halcyon-integrations/src/launchbox.rs:219 crates/halcyon-integrations/src/launchbox.rs:220 crates/halcyon-update/src/download.rs:220
 #, placeholders
 msgid "écriture : {e}"
 msgstr ""
