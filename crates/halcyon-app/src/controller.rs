@@ -85,6 +85,7 @@ pub struct Controller {
     pub(crate) detected: RefCell<HashMap<String, Detected>>,
     pub(crate) collections: RefCell<Vec<Collection>>,
     pub(crate) coll: RefCell<crate::ctl_collections::CollState>,
+    pub(crate) uninstall: RefCell<crate::ctl_uninstall::UninstallState>,
     pub(crate) genres: RefCell<Vec<String>>,
     /// Sources supplémentaires de l'index de la bibliothèque (autres launchers présents).
     pub(crate) extra_sources: RefCell<Vec<GameSource>>,
@@ -182,6 +183,7 @@ impl Controller {
             detected: RefCell::new(HashMap::new()),
             collections: RefCell::new(Vec::new()),
             coll: RefCell::new(Default::default()),
+            uninstall: RefCell::new(Default::default()),
             genres: RefCell::new(Vec::new()),
             extra_sources: RefCell::new(Vec::new()),
             progress: RefCell::new(HashMap::new()),
@@ -613,6 +615,7 @@ impl Controller {
         self.wire_sound(app);
         self.wire_minecraft(app);
         self.wire_collections(app);
+        self.wire_uninstall(app);
     }
 
     // ------------------------------------------------------------------ rafraîchissements

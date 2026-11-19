@@ -34,6 +34,7 @@ mod ctl_sound;
 mod ctl_system;
 mod ctl_themes;
 mod ctl_tracking;
+mod ctl_uninstall;
 mod ctl_update;
 mod desktop;
 mod dialogs;

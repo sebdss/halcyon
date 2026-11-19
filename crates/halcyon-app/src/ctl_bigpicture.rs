@@ -46,6 +46,7 @@ enum Opt {
     Favorite,
     Hide,
     Desktop,
+    Uninstall,
     Close,
 }
 
@@ -250,7 +251,11 @@ impl Controller {
         if installed {
             v.push(Opt::Play);
         }
-        v.extend([Opt::Sheet, Opt::Favorite, Opt::Hide, Opt::Desktop, Opt::Close]);
+        v.extend([Opt::Sheet, Opt::Favorite, Opt::Hide, Opt::Desktop]);
+        if self.lib.borrow().get(id).is_some_and(crate::ctl_uninstall::can_uninstall) {
+            v.push(Opt::Uninstall);
+        }
+        v.push(Opt::Close);
         v
     }
 
@@ -361,6 +366,9 @@ impl Controller {
                     Opt::Favorite => tr!("Ajouter aux favoris").into(),
                     Opt::Hide => tr!("Masquer de la bibliothèque").into(),
                     Opt::Desktop => tr!("Ouvrir sur le bureau").into(),
+                    Opt::Uninstall if g.source == GameSource::Emulated => tr!("Masquer la ROM…").into(),
+                    Opt::Uninstall if g.source == GameSource::Manual => tr!("Retirer de la bibliothèque…").into(),
+                    Opt::Uninstall => tr!("Désinstaller…").into(),
                     Opt::Close => tr!("Fermer").into(),
                 })
                 .collect();
@@ -475,6 +483,7 @@ impl Controller {
                 self.open_game(id);
                 return;
             }
+            Opt::Uninstall => self.uninstall_request(id),
             Opt::Sheet | Opt::Close => {}
         }
         self.refresh_bp();
@@ -509,6 +518,21 @@ impl Controller {
         };
         if let Some(cue) = cue {
             self.sound(cue);
+        }
+
+        // Désinstallation en cours de confirmation : la manette pilote le dialogue.
+        if self.uninstall_open() {
+            let key = match action {
+                "up" | "left" => "prev",
+                "down" | "right" => "next",
+                "accept" => "accept",
+                "back" | "exit" => "back",
+                _ => "",
+            };
+            if !key.is_empty() {
+                self.uninstall_key(key);
+            }
+            return;
         }
 
         // Changement de vue (étagère / rangée), sans menu ouvert : section Jouer.

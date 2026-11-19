@@ -12,6 +12,7 @@ import { BpUi } from "../state.slint";
 import { GameCover, Icon } from "../components.slint";
 import { ShelfUi } from "../console_state.slint";
 import { ShelfView, ShelfBackdrop } from "shelf.slint";
+import { UninstallUi } from "../uninstall_state.slint";
 
 /// Anneau de sélection console : épais, clair, lisible à 3 mètres.
 component FocusFrame inherits Rectangle {
@@ -124,6 +125,13 @@ export component BigPicturePage inherits Rectangle {
     property <bool> shelf: BpUi.section == 0 && ShelfUi.view == 1 && !BpUi.sheet-open;
 
     init => { scope.focus(); }
+    // Fermeture de la confirmation de désinstallation : le clavier revient au mode console.
+    property <bool> dialog: UninstallUi.open;
+    changed dialog => {
+        if (!self.dialog) {
+            scope.focus();
+        }
+    }
 
     scope := FocusScope {
         key-pressed(event) => {

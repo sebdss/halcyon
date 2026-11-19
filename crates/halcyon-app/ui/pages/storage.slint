@@ -4,10 +4,13 @@ import { ScrollView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { Actions, StorageUi, LaunchUi } from "../state.slint";
 import { StorageGame } from "../types.slint";
-import { GameCover, Rubric, Notice, MeterRow, PageHeader, Icon } from "../components.slint";
+import { GameCover, Rubric, Notice, MeterRow, PageHeader, Icon, SecondaryButton } from "../components.slint";
+import { UninstallUi } from "../uninstall_state.slint";
 
 component StorageGameRow inherits Rectangle {
     in property <StorageGame> game;
+    /// Bouton « Désinstaller… » (jeux non lancés depuis six mois).
+    in property <bool> uninstall;
     height: 58px;
     border-radius: Theme.radius-sm;
     background: ta.has-hover ? Theme.surface : transparent;
@@ -44,6 +47,12 @@ component StorageGameRow inherits Rectangle {
             Text { text: root.game.detail; color: Theme.text-muted; font-size: Theme.t-caption; overflow: elide; }
         }
         Text { text: root.game.size; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 700; vertical-alignment: center; }
+        if root.uninstall && root.game.id >= 0: SecondaryButton {
+            y: (parent.height - self.height) / 2;
+            h: 32px;
+            text: @tr("Désinstaller…");
+            clicked => { UninstallUi.request(root.game.id); }
+        }
     }
 }
 
@@ -83,9 +92,9 @@ export component StoragePage inherits Rectangle {
                 if StorageUi.idle.length == 0: Notice {
                     text: @tr("Aucun jeu installé délaissé : tous ceux dont la taille est connue ont été lancés ces six derniers mois.");
                 }
-                for g in StorageUi.idle: StorageGameRow { game: g; }
+                for g in StorageUi.idle: StorageGameRow { game: g; uninstall: true; }
                 if StorageUi.idle.length > 0: Text {
-                    text: @tr("Ouvrez un jeu pour le désinstaller depuis sa plateforme : vos sauvegardes Halcyon et votre temps de jeu sont conservés.");
+                    text: @tr("« Désinstaller… » passe par la plateforme du jeu (Steam, Legendary, son launcher) ; un jeu autonome part à la corbeille. Après confirmation seulement : favoris, temps de jeu, collections et sauvegardes Halcyon sont conservés.");
                     color: Theme.text-dim;
                     font-size: Theme.t-caption;
                     wrap: word-wrap;

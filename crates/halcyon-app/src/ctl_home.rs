@@ -661,6 +661,10 @@ impl Controller {
         add("folder", tr_noop!("Ouvrir le dossier du jeu"), icons.get_folder(), has_dir, false, true);
         add("shortcut", tr_noop!("Créer un raccourci sur le bureau"), icons.get_external(), g.installed, false, false);
         add("hide", if g.hidden { tr_noop!("Afficher dans la bibliothèque") } else { tr_noop!("Masquer de la bibliothèque") }, icons.get_eye_off(), true, false, true);
+        if crate::ctl_uninstall::can_uninstall(&g) && g.source != GameSource::Manual {
+            let label = if g.source == GameSource::Emulated { tr_noop!("Masquer la ROM…") } else { tr_noop!("Désinstaller…") };
+            add("uninstall", label, icons.get_trash(), true, true, false);
+        }
         if g.source == GameSource::Manual {
             add("remove", tr_noop!("Retirer de Halcyon…"), icons.get_trash(), true, true, false);
         }
@@ -701,6 +705,7 @@ impl Controller {
                 }
             }
             "shortcut" => self.create_game_shortcut(id),
+            "uninstall" => self.uninstall_request(id),
             "hide" => self.toggle_hidden(id),
             "remove" => {
                 let name = self.lib.borrow().get(id).map(|g| g.name.clone()).unwrap_or_default();

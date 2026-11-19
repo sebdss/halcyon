@@ -1,0 +1,224 @@
+// Désinstallation d'un jeu (1.0.0-alpha.6) : données publiées par `src/ctl_uninstall.rs`.
+
+import { Theme, Icons } from "theme.slint";
+import { Icon, ModalPanel, Spinner } from "components.slint";
+
+export global UninstallUi {
+    in-out property <bool> open;
+    /// 0 confirmation, 1 en cours, 2 résultat.
+    in property <int> phase;
+    in property <string> title;
+    /// Comment la désinstallation se fera (Steam, Legendary, corbeille…).
+    in property <string> method;
+    in property <string> size;
+    in property <string> path;
+    /// Sauvegarde possible avant (emplacements associés au jeu).
+    in property <bool> can-backup;
+    in-out property <bool> backup;
+    in property <string> backup-note;
+    in property <string> confirm-label;
+    /// Fichiers supprimés par Halcyon (vers la corbeille) : bouton rouge.
+    in property <bool> danger;
+    /// Refus (garde-fou) : la désinstallation ne peut pas être lancée.
+    in property <string> refusal;
+    in property <string> result;
+    in property <bool> result-error;
+    /// Élément actif au clavier ou à la manette : 0 « Sauvegarder avant », 1 Annuler,
+    /// 2 Confirmer. Par défaut sur Annuler : une pression sur A n'efface rien.
+    in-out property <int> focus: 1;
+    /// Affichage console (mode Big Picture) : tout est plus grand.
+    in property <bool> console;
+    /// Demande de désinstallation d'un jeu (page Stockage…) : ouvre la confirmation.
+    callback request(int);
+    callback confirm();
+    callback cancel();
+    callback key(string);
+}
+
+/// Bouton du dialogue, avec un état « actif » visible (clavier, manette).
+component DialogButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> active;
+    in property <bool> primary;
+    in property <bool> danger;
+    in property <bool> enabled: true;
+    in property <float> k: 1;
+    callback clicked;
+    height: 40px * root.k;
+    width: max(110px * root.k, label.preferred-width + 36px * root.k);
+    border-radius: Theme.radius;
+    background: !root.enabled ? Theme.surface : root.danger ? Theme.danger : root.primary ? Theme.accent : (ta.has-hover ? Theme.surface-hover : Theme.surface-active);
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
+    label := Text {
+        text: root.text;
+        color: !root.enabled ? Theme.text-dim : root.danger || root.primary ? #ffffff : Theme.text;
+        font-size: Theme.t-small * root.k;
+        font-weight: 650;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    if root.active: Rectangle {
+        x: -4px * root.k;
+        y: -4px * root.k;
+        width: root.width + 8px * root.k;
+        height: root.height + 8px * root.k;
+        border-radius: Theme.radius + 3px;
+        border-width: 2px * root.k;
+        border-color: UninstallUi.console ? #ffffff : Theme.focus;
+    }
+    ta := TouchArea { enabled: root.enabled; mouse-cursor: pointer; clicked => { root.clicked(); } }
+}
+
+/// Confirmation explicite : nom, taille, chemin, « Sauvegarder avant ». Aucune
+/// désinstallation sans ce dialogue, y compris à la manette.
+export component UninstallDialog inherits Rectangle {
+    property <float> k: UninstallUi.console ? max(1.4, root.height / 760px) : 1;
+    background: #000000b8;
+    init => { scope.focus(); }
+    TouchArea { }
+    scope := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Escape) { UninstallUi.key("back"); return accept; }
+            if (event.text == Key.LeftArrow || event.text == Key.UpArrow || event.text == Key.Backtab) { UninstallUi.key("prev"); return accept; }
+            if (event.text == Key.RightArrow || event.text == Key.DownArrow || event.text == Key.Tab) { UninstallUi.key("next"); return accept; }
+            if (event.text == Key.Return || event.text == " ") { UninstallUi.key("accept"); return accept; }
+            accept
+        }
+    }
+    ModalPanel {
+        width: min(560px * root.k, root.width - 48px);
+        height: box.preferred-height;
+        Rectangle { y: 0; height: 3px * root.k; background: Theme.danger; }
+        box := VerticalLayout {
+            padding: 26px * root.k;
+            spacing: 12px * root.k;
+            HorizontalLayout {
+                spacing: 12px * root.k;
+                Icon { source: Icons.trash; size: 22px * root.k; tint: Theme.danger; }
+                Text {
+                    text: UninstallUi.phase == 0 ? @tr("Désinstaller « {} » ?", UninstallUi.title) : UninstallUi.title;
+                    color: Theme.text;
+                    font-family: Theme.display;
+                    font-size: (Theme.t-subheading + 2px) * root.k;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                    horizontal-stretch: 1;
+                }
+            }
+            Text { text: UninstallUi.method; color: Theme.text-muted; font-size: Theme.t-small * root.k; wrap: word-wrap; }
+            if UninstallUi.size != "" || UninstallUi.path != "": VerticalLayout {
+                spacing: 4px * root.k;
+                if UninstallUi.size != "": HorizontalLayout {
+                    spacing: 10px * root.k;
+                    Text { width: 120px * root.k; text: @tr("Taille"); color: Theme.text-dim; font-size: Theme.t-small * root.k; }
+                    Text { text: UninstallUi.size; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small * root.k; font-weight: 600; }
+                }
+                if UninstallUi.path != "": HorizontalLayout {
+                    spacing: 10px * root.k;
+                    Text { width: 120px * root.k; text: @tr("Emplacement"); color: Theme.text-dim; font-size: Theme.t-small * root.k; }
+                    Text { text: UninstallUi.path; color: Theme.text; font-size: Theme.t-small * root.k; wrap: word-wrap; horizontal-stretch: 1; }
+                }
+            }
+            if UninstallUi.phase == 0 && UninstallUi.refusal != "": Rectangle {
+                height: rt.preferred-height + 20px * root.k;
+                border-radius: Theme.radius;
+                background: Theme.danger.with-alpha(0.12);
+                Rectangle { x: 0; width: Theme.perch; background: Theme.danger; }
+                rt := Text {
+                    x: 14px * root.k;
+                    width: parent.width - 24px * root.k;
+                    text: UninstallUi.refusal;
+                    color: Theme.text;
+                    font-size: Theme.t-small * root.k;
+                    wrap: word-wrap;
+                    vertical-alignment: center;
+                }
+            }
+            // « Sauvegarder avant » : reprend les sauvegardes de Halcyon.
+            if UninstallUi.phase == 0 && UninstallUi.refusal == "": Rectangle {
+                height: 52px * root.k;
+                border-radius: Theme.radius;
+                background: UninstallUi.focus == 0 ? Theme.surface-active : Theme.surface-hover;
+                opacity: UninstallUi.can-backup ? 1 : 0.6;
+                HorizontalLayout {
+                    padding-left: 14px * root.k;
+                    padding-right: 14px * root.k;
+                    spacing: 12px * root.k;
+                    Rectangle {
+                        width: 18px * root.k;
+                        Rectangle {
+                            y: (parent.height - self.height) / 2;
+                            height: 18px * root.k;
+                            border-radius: 3px;
+                            background: UninstallUi.backup && UninstallUi.can-backup ? Theme.accent : transparent;
+                            border-width: UninstallUi.backup && UninstallUi.can-backup ? 0px : 1px;
+                            border-color: Theme.text-dim;
+                            if UninstallUi.backup && UninstallUi.can-backup: Icon { source: Icons.check; size: 13px * root.k; tint: Theme.on-accent; }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 1;
+                        Text { text: @tr("Sauvegarder avant"); color: Theme.text; font-size: Theme.t-small * root.k; font-weight: 600; }
+                        Text { text: UninstallUi.backup-note; color: Theme.text-dim; font-size: Theme.t-caption * root.k; overflow: elide; }
+                    }
+                }
+                if UninstallUi.focus == 0: Rectangle { border-radius: Theme.radius; border-width: 2px * root.k; border-color: UninstallUi.console ? #ffffff : Theme.focus; }
+                TouchArea {
+                    enabled: UninstallUi.can-backup;
+                    mouse-cursor: pointer;
+                    clicked => { UninstallUi.focus = 0; UninstallUi.backup = !UninstallUi.backup; }
+                }
+            }
+            if UninstallUi.phase == 1: HorizontalLayout {
+                spacing: 12px * root.k;
+                Spinner { }
+                Text { text: @tr("Désinstallation en cours…"); color: Theme.text-muted; font-size: Theme.t-small * root.k; vertical-alignment: center; }
+            }
+            if UninstallUi.phase == 2: Rectangle {
+                height: res.preferred-height + 20px * root.k;
+                border-radius: Theme.radius;
+                background: (UninstallUi.result-error ? Theme.danger : Theme.success).with-alpha(0.12);
+                Rectangle { x: 0; width: Theme.perch; background: UninstallUi.result-error ? Theme.danger : Theme.success; }
+                res := Text {
+                    x: 14px * root.k;
+                    width: parent.width - 24px * root.k;
+                    text: UninstallUi.result;
+                    color: Theme.text;
+                    font-size: Theme.t-small * root.k;
+                    wrap: word-wrap;
+                    vertical-alignment: center;
+                }
+            }
+            HorizontalLayout {
+                padding-top: 6px * root.k;
+                spacing: 12px * root.k;
+                alignment: end;
+                if UninstallUi.phase == 0: DialogButton {
+                    k: root.k;
+                    text: @tr("Annuler");
+                    active: UninstallUi.focus == 1;
+                    clicked => { UninstallUi.cancel(); }
+                }
+                if UninstallUi.phase == 0: DialogButton {
+                    k: root.k;
+                    text: UninstallUi.confirm-label;
+                    danger: UninstallUi.danger;
+                    primary: !UninstallUi.danger;
+                    enabled: UninstallUi.refusal == "";
+                    active: UninstallUi.focus == 2;
+                    clicked => { UninstallUi.confirm(); }
+                }
+                if UninstallUi.phase == 2: DialogButton {
+                    k: root.k;
+                    text: @tr("Fermer");
+                    primary: true;
+                    active: true;
+                    clicked => { UninstallUi.cancel(); }
+                }
+            }
+        }
+    }
+}

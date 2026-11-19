@@ -22,6 +22,7 @@ pub mod scanner;
 pub mod search;
 pub mod stats;
 pub mod transfer;
+pub mod uninstall;
 pub mod util;
 
 pub use model::*;
