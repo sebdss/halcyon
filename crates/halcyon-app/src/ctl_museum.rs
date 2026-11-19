@@ -137,6 +137,7 @@ impl Controller {
 
     /// Publie les rangées visibles et leurs boîtiers.
     pub(crate) fn refresh_museum(&self) {
+        self.gl3d_redraw();
         let Some(app) = self.app() else { return };
         let ui = app.global::<MuseumUi>();
         let (rows, row, pos, slots, model, flipped, fresh) = {

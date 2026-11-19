@@ -54,7 +54,7 @@ enum Opt {
 pub struct BigPicture {
     pub active: bool,
     /// 0 Jouer, 1 Bibliothèque, 2 Recherche.
-    section: usize,
+    pub(crate) section: usize,
     /// Zone de focus : 0 barre des sections, 1 première zone (tuiles, filtres, clavier),
     /// 2 deuxième zone (actions, grille, résultats).
     zone: u8,
@@ -65,7 +65,7 @@ pub struct BigPicture {
     filter: usize,
     grid_index: usize,
     /// Fiche ouverte (jeu) ; bouton actif 0 Jouer, 1 Favori, 2 Succès.
-    sheet: Option<GameId>,
+    pub(crate) sheet: Option<GameId>,
     sheet_button: usize,
     ach_index: usize,
     ach_count: usize,
@@ -101,6 +101,12 @@ impl Controller {
                 return;
             }
             *bp = BigPicture { active: true, zone: 1, ..Default::default() };
+        }
+        {
+            let mut v = self.view3d.borrow_mut();
+            v.inspect = None;
+            v.museum_seen = false;
+            v.shelf_index = None;
         }
         self.sound(halcyon_audio::Cue::Mode);
         self.rebuild_bp_rows();
@@ -548,6 +554,31 @@ impl Controller {
             };
             if !key.is_empty() {
                 self.uninstall_key(key);
+            }
+            return;
+        }
+
+        // Inspecter (3D) : prioritaire tant qu'il est ouvert.
+        if self.inspect_is_open() {
+            if action == "settings" {
+                self.inspect_input("back");
+            } else {
+                return self.inspect_input(action);
+            }
+        }
+        if action == "inspect" {
+            if self.case_view_focused() && self.app().is_some_and(|a| a.global::<crate::ShelfUi>().get_gl3d()) {
+                if let Some(id) = self.bp_focused() {
+                    self.inspect_open(id);
+                }
+            }
+            return;
+        }
+        // Clic, double-clic ou survol sur la scène 3D : « p3d:<move|click|play>:<x>:<y> ».
+        if let Some(rest) = action.strip_prefix("p3d:") {
+            let mut it = rest.split(':');
+            if let (Some(kind), Some(x), Some(y)) = (it.next(), it.next().and_then(|v| v.parse::<f32>().ok()), it.next().and_then(|v| v.parse::<f32>().ok())) {
+                self.gl3d_pointer(kind, x, y);
             }
             return;
         }

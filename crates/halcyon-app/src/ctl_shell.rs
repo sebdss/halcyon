@@ -97,6 +97,7 @@ impl Controller {
         theme.set_motion(i32::from(motion));
         theme.set_animations(motion < 2);
         theme.set_effects(!performance);
+        self.gl3d_redraw();
         theme.set_text_scale(a.text_scale.clamp(0.9, 1.3));
         if performance {
             theme.set_animated_background(false);
@@ -207,6 +208,7 @@ impl Controller {
             PadAction::Accept => self.send_key(Key::Return, false),
             PadAction::Back => self.send_key(Key::Escape, false),
             PadAction::Context => self.send_key(Key::Menu, false),
+            PadAction::Inspect => {}
             PadAction::Search => {
                 let q = app.global::<QuickUi>();
                 q.set_query("".into());

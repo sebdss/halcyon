@@ -824,6 +824,15 @@ export component SettingsPage inherits Rectangle {
                             }
                         }
                         SettingRow {
+                            title: @tr("Boîtiers en 3D (mode console)");
+                            description: @tr("Étagère, musée et Inspecter en vraie 3D : perspective, lumière, reflets, boîtiers qui se tournent et s'ouvrent. Sans carte graphique compatible (OpenGL 3), en rendu logiciel ou en mode Performance, Halcyon garde l'affichage 2,5D.");
+                            Toggle {
+                                y: (parent.height - self.height) / 2;
+                                checked: SettingsUi.console-3d;
+                                toggled(v) => { SettingsUi.set-option("console_3d", v); }
+                            }
+                        }
+                        SettingRow {
                             title: @tr("Dos et tranches de boîtiers (LaunchBox)");
                             description: @tr("Mode console : les vrais dos et tranches des boîtiers quand ils existent (surtout jeux console et éditions en boîte). Télécharge une fois la base LaunchBox (environ 110 Mo) et n'en garde qu'un petit index ; les images viennent de images.launchbox-app.com.");
                             Badge { y: (parent.height - self.height) / 2; text: @tr("En ligne"); tint: Theme.warm; solid: true; }

@@ -121,6 +121,7 @@ impl Controller {
             lb.fetching.remove(&id);
             lb.art.insert(id, art);
         }
+        self.gl3d_forget(id);
         if self.bp.borrow().active {
             self.refresh_bp();
         }

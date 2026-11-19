@@ -55,3 +55,5 @@ crates/halcyon-app/ui/pages/settings.slint:wine
 crates/halcyon-integrations/src/saves.rs:ce-pc
 # Mots génériques (français, anglais…) écartés de la détection des séries : données, pas des textes affichés.
 crates/halcyon-core/src/collections.rs:*
+crates/halcyon-app/src/gl3d/renderer.rs:*
+crates/halcyon-app/src/ctl_gl3d.rs:pas d'OpenGL
