@@ -10,6 +10,8 @@ import { Theme, Icons, Art } from "../theme.slint";
 import { GameCard } from "../types.slint";
 import { BpUi } from "../state.slint";
 import { GameCover, Icon } from "../components.slint";
+import { ShelfUi } from "../console_state.slint";
+import { ShelfView, ShelfBackdrop } from "shelf.slint";
 
 /// Anneau de sélection console : épais, clair, lisible à 3 mètres.
 component FocusFrame inherits Rectangle {
@@ -118,6 +120,8 @@ export component BigPicturePage inherits Rectangle {
     background: Theme.bp-bg;
     property <length> u: root.height / 1080;
     property <length> side: 96 * u;
+    /// Étagère : seconde vue de la section Jouer.
+    property <bool> shelf: BpUi.section == 0 && ShelfUi.view == 1 && !BpUi.sheet-open;
 
     init => { scope.focus(); }
 
@@ -136,6 +140,8 @@ export component BigPicturePage inherits Rectangle {
             if (event.text == Key.PageDown) { BpUi.input("next"); return accept; }
             if (event.text == Key.Menu || (event.text == "," && event.modifiers.control)) { BpUi.input("settings"); return accept; }
             if (event.text == "o" && event.modifiers.control) { BpUi.input("context"); return accept; }
+            // V : étagère / rangée (hors saisie de recherche).
+            if ((event.text == "v" || event.text == "V") && BpUi.section != 2 && !event.modifiers.control) { BpUi.input("view"); return accept; }
             if (BpUi.section == 2 && !BpUi.sheet-open && !BpUi.options-open && !BpUi.menu-open && event.text != "" && !event.modifiers.control) {
                 BpUi.input("char:" + event.text);
                 return accept;
@@ -145,13 +151,14 @@ export component BigPicturePage inherits Rectangle {
     }
 
     // ------------------------------------------------------------------ arrière-plan du jeu
-    if BpUi.has-focused && BpUi.focused.has-banner: Image {
+    if root.shelf: ShelfBackdrop { u: root.u; }
+    if !root.shelf && BpUi.has-focused && BpUi.focused.has-banner: Image {
         width: root.width;
         height: root.height;
         source: BpUi.focused.banner;
         image-fit: cover;
     }
-    if BpUi.has-focused && !BpUi.focused.has-banner: Rectangle {
+    if !root.shelf && BpUi.has-focused && !BpUi.focused.has-banner: Rectangle {
         background: BpUi.focused.color-a.mix(Theme.bp-bg, 0.3);
         if BpUi.focused.has-cover: Image {
             x: 0;
@@ -165,8 +172,8 @@ export component BigPicturePage inherits Rectangle {
     }
     // Voiles : lisibilité du texte à gauche et en bas, image visible à droite.
     // Voiles (masques teintés) : lisibilité à gauche, en bas et sous la barre du haut.
-    Image { x: 0; y: 0; width: root.width * 0.8; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bp-bg; }
-    Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bp-bg; }
+    if !root.shelf: Image { x: 0; y: 0; width: root.width * 0.8; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bp-bg; }
+    if !root.shelf: Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bp-bg; }
     Image { x: 0; y: 0; width: root.width; height: 220 * root.u; source: Art.fade-top; image-fit: fill; colorize: Theme.bp-bg; }
 
     // ------------------------------------------------------------------ barre supérieure
@@ -207,8 +214,16 @@ export component BigPicturePage inherits Rectangle {
         Text { text: BpUi.clock; color: #ffffff; font-family: Theme.display; font-size: 30 * root.u; font-weight: 600; vertical-alignment: center; }
     }
 
-    // ------------------------------------------------------------------ Jouer
-    if BpUi.section == 0 && !BpUi.sheet-open: play := Rectangle {
+    // ------------------------------------------------------------------ Jouer : étagère
+    if root.shelf: ShelfView {
+        width: root.width;
+        height: root.height;
+        u: root.u;
+        side: root.side;
+    }
+
+    // ------------------------------------------------------------------ Jouer : rangée
+    if BpUi.section == 0 && !BpUi.sheet-open && !root.shelf: play := Rectangle {
         property <length> tile: 136 * root.u;
         property <length> big: 184 * root.u;
         property <length> gap: 22 * root.u;
@@ -589,12 +604,14 @@ export component BigPicturePage inherits Rectangle {
         height: 40 * u;
         spacing: 34 * u;
         alignment: start;
-        Hint { u: root.u; key: @tr("A"); label: BpUi.section == 0 && BpUi.zone == 2 && BpUi.button == 0 ? @tr("Jouer") : @tr("Valider"); }
+        Hint { u: root.u; key: @tr("A"); label: (BpUi.section == 0 && BpUi.zone == 2 && BpUi.button == 0) || (root.shelf && BpUi.zone == 1 && !BpUi.menu-open && !BpUi.options-open) ? @tr("Jouer") : @tr("Valider"); }
         Hint { u: root.u; key: @tr("B"); label: @tr("Retour"); }
         if !BpUi.menu-open && !BpUi.options-open && BpUi.has-focused: Hint { u: root.u; key: @tr("X"); label: @tr("Favori"); }
-        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open && BpUi.has-focused: Hint { u: root.u; key: @tr("Select"); label: @tr("Options du jeu"); }
+        if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open && BpUi.has-focused: Hint { u: root.u; key: @tr("Select"); label: root.shelf ? @tr("Menu du jeu") : @tr("Options du jeu"); }
+        if root.shelf && !BpUi.menu-open && !BpUi.options-open && ShelfUi.shelf-count > 1: Hint { u: root.u; key: "↑ ↓"; label: @tr("Étagère"); }
         Hint { u: root.u; key: @tr("Start"); label: @tr("Centre de contrôle"); }
         if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open: Hint { u: root.u; key: @tr("LB  RB"); label: BpUi.section == 1 && BpUi.zone == 2 ? @tr("Filtre") : @tr("Section"); }
+        if BpUi.section == 0 && !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open: Hint { u: root.u; key: @tr("R3 · V"); label: root.shelf ? @tr("Rangée") : @tr("Étagère"); }
     }
 
     // ------------------------------------------------------------------ menu d'options

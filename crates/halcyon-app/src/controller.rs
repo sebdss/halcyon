@@ -967,7 +967,15 @@ impl Controller {
                     }
                 }
                 Kind::Icon | Kind::Shot | Kind::Slide => self.refresh_remote_views(),
+                Kind::CoverLarge => {
+                    if self.bp.borrow().active {
+                        self.refresh_bp();
+                    }
+                }
                 Kind::Ambient => {
+                    if self.bp.borrow().active {
+                        self.refresh_bp();
+                    }
                     self.strip_game_changed(key.game);
                     if self.detail_id.get() == Some(key.game) {
                         self.refresh_detail();
