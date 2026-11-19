@@ -54,7 +54,14 @@ pub struct ShelfState {
     /// Jeu affiché en arrière-plan et calque au premier plan (fondu enchaîné).
     pub bg_game: Option<GameId>,
     pub bg_a_front: bool,
+    /// Changement d'arrière-plan différé : pendant un défilement rapide, le fond (plein écran,
+    /// coûteux à redessiner en rendu logiciel) ne change qu'une fois la sélection posée.
+    pub bg_timer: slint::Timer,
+    pub bg_pending: Option<GameId>,
 }
+
+/// Délai avant de changer l'arrière-plan après un déplacement.
+const BG_DELAY: std::time::Duration = std::time::Duration::from_millis(220);
 
 /// Fenêtre de `slots` indices autour de `focus` dans une liste de `len` éléments.
 pub fn window(focus: usize, len: usize, slots: usize) -> std::ops::Range<usize> {
@@ -268,11 +275,23 @@ impl Controller {
         };
         let front = {
             let mut bp = self.bp.borrow_mut();
-            if bp.shelf.bg_game != Some(g.id) {
-                bp.shelf.bg_game = Some(g.id);
-                bp.shelf.bg_a_front = !bp.shelf.bg_a_front;
+            let st = &mut bp.shelf;
+            if st.bg_game != Some(g.id) {
+                // Premier fond : tout de suite ; ensuite, une fois la sélection posée.
+                if st.bg_game.is_some() {
+                    let id = g.id;
+                    if st.bg_pending != Some(id) || !st.bg_timer.running() {
+                        st.bg_pending = Some(id);
+                        st.bg_timer.start(slint::TimerMode::SingleShot, BG_DELAY, move || {
+                            crate::controller::post(move |c| c.shelf_bg_commit(id));
+                        });
+                    }
+                    return;
+                }
+                st.bg_game = Some(g.id);
+                st.bg_a_front = !st.bg_a_front;
             }
-            bp.shelf.bg_a_front
+            st.bg_a_front
         };
         let img = bg.unwrap_or_default();
         if front {
@@ -283,6 +302,22 @@ impl Controller {
             ui.set_bg_b_ambient(ambient);
         }
         ui.set_bg_a_front(front);
+    }
+
+    /// Fin du délai : le fond passe au jeu sélectionné s'il l'est toujours (fondu enchaîné).
+    pub(crate) fn shelf_bg_commit(&self, id: GameId) {
+        if !self.bp.borrow().active || self.shelf_focused() != Some(id) {
+            return;
+        }
+        {
+            let mut bp = self.bp.borrow_mut();
+            if bp.shelf.bg_game == Some(id) {
+                return;
+            }
+            bp.shelf.bg_game = Some(id);
+            bp.shelf.bg_a_front = !bp.shelf.bg_a_front;
+        }
+        self.refresh_shelf();
     }
 
     /// Navigation sur l'étagère. Renvoie `true` si l'action a été traitée.
