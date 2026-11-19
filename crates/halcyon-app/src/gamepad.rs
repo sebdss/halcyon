@@ -30,6 +30,8 @@ pub enum PadAction {
     Next,
     /// Bibliothèque : cocher le jeu sélectionné ; mode console : changer de vue (étagère).
     Toggle,
+    /// Mode console : inspecter le boîtier choisi en 3D (1.0.0-alpha.7).
+    Inspect,
 }
 
 impl PadAction {
@@ -43,13 +45,14 @@ impl PadAction {
             Self::Back => "back",
             Self::Search => "search",
             Self::Favorite => "fav",
+            Self::Inspect => "inspect",
             Self::Menu | Self::Context | Self::Prev | Self::Next | Self::Toggle => return None,
         })
     }
 }
 
 /// Actions configurables (les directions restent sur la croix et le stick gauche).
-pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 9] = [
+pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 10] = [
     ("accept", tr_noop!("Valider / lancer"), PadAction::Accept, Button::South),
     ("back", tr_noop!("Retour"), PadAction::Back, Button::East),
     ("search", tr_noop!("Recherche"), PadAction::Search, Button::North),
@@ -59,6 +62,7 @@ pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 9] = [
     ("prev", tr_noop!("Onglet ou vue précédente"), PadAction::Prev, Button::LeftTrigger),
     ("next", tr_noop!("Onglet ou vue suivante"), PadAction::Next, Button::RightTrigger),
     ("toggle", tr_noop!("Cocher un jeu (bibliothèque) · étagère (console)"), PadAction::Toggle, Button::RightThumb),
+    ("inspect", tr_noop!("Inspecter le boîtier en 3D (console)"), PadAction::Inspect, Button::LeftThumb),
 ];
 
 /// Boutons proposés à l'association (noms stables, enregistrés dans les paramètres).

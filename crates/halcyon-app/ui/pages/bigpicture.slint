@@ -152,6 +152,10 @@ export component BigPicturePage inherits Rectangle {
             if (event.text == Key.PageDown) { BpUi.input("next"); return accept; }
             if (event.text == Key.Menu || (event.text == "," && event.modifiers.control)) { BpUi.input("settings"); return accept; }
             if (event.text == "o" && event.modifiers.control) { BpUi.input("context"); return accept; }
+            // I : inspecter le boîtier en 3D (étagère, musée) ; dans Inspecter : fermer.
+            if ((event.text == "i" || event.text == "I") && BpUi.section == 0 && (ShelfUi.view >= 1 || ShelfUi.inspect) && !event.modifiers.control) { BpUi.input("inspect"); return accept; }
+            if (ShelfUi.inspect && (event.text == "+" || event.text == "=")) { BpUi.input("next"); return accept; }
+            if (ShelfUi.inspect && event.text == "-") { BpUi.input("prev"); return accept; }
             // F : retourner le boîtier (étagère, musée).
             if ((event.text == "f" || event.text == "F") && BpUi.section == 0 && ShelfUi.view >= 1 && !event.modifiers.control) { BpUi.input("flip"); return accept; }
             // L : éclairage du musée.
@@ -627,6 +631,7 @@ export component BigPicturePage inherits Rectangle {
         if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open && BpUi.has-focused: Hint { u: root.u; key: @tr("Select"); label: root.cases ? @tr("Menu du jeu") : @tr("Options du jeu"); }
         if root.cases && BpUi.zone == 1 && !BpUi.menu-open && !BpUi.options-open && BpUi.has-focused: Hint { u: root.u; key: @tr("Y · F"); label: ShelfUi.flipped || MuseumUi.flipped ? @tr("Face avant") : @tr("Retourner"); }
         if root.shelf && !BpUi.menu-open && !BpUi.options-open && ShelfUi.shelf-count > 1: Hint { u: root.u; key: "↑ ↓"; label: @tr("Étagère"); }
+        if root.cases && ShelfUi.gl3d && BpUi.zone == 1 && !BpUi.menu-open && !BpUi.options-open && BpUi.has-focused: Hint { u: root.u; key: @tr("L3 · I"); label: @tr("Inspecter"); }
         if root.museum && !BpUi.menu-open && !BpUi.options-open && MuseumUi.row-count > 0: Hint { u: root.u; key: @tr("L"); label: MuseumUi.lighting == 0 ? @tr("Éclairage : galerie") : MuseumUi.lighting == 1 ? @tr("Éclairage : jour") : @tr("Éclairage : néon"); }
         Hint { u: root.u; key: @tr("Start"); label: @tr("Centre de contrôle"); }
         if !BpUi.menu-open && !BpUi.options-open && !BpUi.sheet-open: Hint { u: root.u; key: @tr("LB  RB"); label: BpUi.section == 1 && BpUi.zone == 2 ? @tr("Filtre") : @tr("Section"); }
@@ -711,6 +716,55 @@ export component BigPicturePage inherits Rectangle {
                 }
                 TouchArea { mouse-cursor: pointer; clicked => { BpUi.input("menu:" + i); } }
             }
+        }
+    }
+
+    // ------------------------------------------------------------------ Inspecter (3D)
+    if ShelfUi.inspect && ShelfUi.gl3d: Rectangle {
+        background: @radial-gradient(circle, #23272e 0%, #0b0c0f 75%);
+        Image {
+            width: root.width;
+            height: root.height;
+            source: ShelfUi.scene;
+            image-fit: fill;
+        }
+        TouchArea {
+            mouse-cursor: self.pressed ? MouseCursor.grabbing : MouseCursor.grab;
+            pointer-event(e) => {
+                if (e.kind == PointerEventKind.down) {
+                    BpUi.input("inspect-press:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px));
+                } else if (e.kind == PointerEventKind.up) {
+                    BpUi.input("inspect-release");
+                } else if (e.kind == PointerEventKind.move && self.pressed) {
+                    BpUi.input("inspect-drag:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px));
+                }
+            }
+            double-clicked => { BpUi.input("accept"); }
+            scroll-event(e) => {
+                BpUi.input("inspect-zoom:" + (e.delta-y > 0 ? 1 : -1));
+                return accept;
+            }
+        }
+        if BpUi.has-focused: Text {
+            x: root.side;
+            y: 48 * root.u;
+            text: BpUi.focused.title;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: 40 * root.u * Theme.text-scale;
+            font-weight: 800;
+        }
+        HorizontalLayout {
+            x: root.side;
+            y: root.height - 76 * root.u;
+            height: 40 * root.u;
+            spacing: 30 * root.u;
+            alignment: start;
+            Hint { u: root.u; key: "← → ↑ ↓"; label: @tr("Tourner"); }
+            Hint { u: root.u; key: @tr("A"); label: ShelfUi.inspect-open-lid ? @tr("Fermer le boîtier") : @tr("Ouvrir le boîtier"); }
+            Hint { u: root.u; key: @tr("Y · F"); label: @tr("Retourner"); }
+            Hint { u: root.u; key: @tr("LB  RB"); label: @tr("Zoom"); }
+            Hint { u: root.u; key: @tr("B"); label: @tr("Fermer"); }
         }
     }
 }

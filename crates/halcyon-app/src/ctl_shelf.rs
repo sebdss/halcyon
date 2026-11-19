@@ -234,6 +234,7 @@ impl Controller {
 
     /// Publie l'étagère : plaque, boîtiers, aperçu de l'étagère suivante, arrière-plan.
     pub(crate) fn refresh_shelf(&self) {
+        self.gl3d_redraw();
         let Some(app) = self.app() else { return };
         let ui = app.global::<ShelfUi>();
         let (shelf, next, index, count, focus, next_focus, boxes, next_model) = {

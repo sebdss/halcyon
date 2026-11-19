@@ -115,6 +115,8 @@ pub struct Settings {
     /// Dos et tranches de boîtiers depuis la base LaunchBox (téléchargement d'environ 110 Mo,
     /// désactivé par défaut).
     pub launchbox_art: bool,
+    /// Mode console : boîtiers en vraie 3D (OpenGL) quand c'est possible (1.0.0-alpha.7).
+    pub console_3d: bool,
     /// Suggestions de séries refusées (clés normalisées) : jamais reproposées.
     pub series_dismissed: Vec<String>,
     /// Notification système quand une mise à jour de jeu est détectée.
@@ -506,6 +508,7 @@ impl Default for Settings {
             museum_lighting: 0,
             museum_seen: 0,
             launchbox_art: false,
+            console_3d: true,
             series_dismissed: Vec::new(),
             update_notifications: true,
             recap_announced: 0,

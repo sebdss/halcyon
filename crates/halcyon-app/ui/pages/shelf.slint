@@ -481,7 +481,7 @@ export component ShelfView inherits Rectangle {
     }
 
     // ------------------------------------------------------------------ étagère courante
-    Board { u: root.u; x: 0; y: root.board-y; width: root.width; tint: ShelfUi.color; }
+    if !ShelfUi.gl3d: Board { u: root.u; x: 0; y: root.board-y; width: root.width; tint: ShelfUi.color; }
 
     // Halo de la sélection (couleur de l'étagère), derrière la pile ; il « respire » quelques
     // fois après un déplacement (mouvement complet seulement), puis s'immobilise.
@@ -495,34 +495,55 @@ export component ShelfView inherits Rectangle {
         animate opacity { duration: Theme.motion == 0 ? 1700ms : 0ms; easing: ease-in-out; }
     }
 
-    for b in ShelfUi.boxes: case := ShelfCase {
-        k: b.index - root.pos;
-        property <float> ak: abs(self.k);
-        property <float> sg: self.k < 0 ? -1 : 1;
-        u: root.u;
-        flat: root.flat;
-        item: b;
-        glow: ShelfUi.color;
-        selected: b.index == ShelfUi.focus;
-        large-cover: self.selected && ShelfUi.has-focus-cover;
-        // Devant : le plus proche de la sélection (la pile se recouvre).
-        z: 100 - self.ak;
-        visible: b.index >= 0 && self.x + self.width > -80 * root.u && self.x < root.width + 80 * root.u;
-        opacity: self.ak > 9 ? max(0, 10 - self.ak) : 1;
-        // Centre du boîtier : dégagement autour de la sélection, puis pile serrée.
-        x: root.mid-x + self.sg * (self.ak < 1 ? self.ak * root.first : root.first + (self.ak - 1) * root.step) - self.width / 2;
-        y: root.board-y - self.height - (self.selected ? 16 * root.u : 0px);
-        animate y { duration: Theme.fast; easing: ease-out; }
-        hovered => { BpUi.input("shelf-hover:" + b.index); }
-        clicked => { BpUi.input("shelf-click:" + b.index); }
-        double-clicked => { BpUi.input("shelf-play:" + b.index); }
+    // Vraie 3D : la scène OpenGL (boîtiers, planche, reflets), sous la plaque et les aides.
+    if ShelfUi.gl3d: Image {
+        width: root.width;
+        height: root.height;
+        source: ShelfUi.scene;
+        image-fit: fill;
+        TouchArea {
+            mouse-cursor: pointer;
+            pointer-event(e) => {
+                if (e.kind == PointerEventKind.move) {
+                    BpUi.input("p3d:move:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px));
+                }
+            }
+            clicked => { BpUi.input("p3d:click:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px)); }
+            double-clicked => { BpUi.input("p3d:play:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px)); }
+        }
+    }
+
+    // 2,5D (sans OpenGL, mode Performance, option coupée).
+    if !ShelfUi.gl3d: Rectangle {
+        for b in ShelfUi.boxes: case := ShelfCase {
+            k: b.index - root.pos;
+            property <float> ak: abs(self.k);
+            property <float> sg: self.k < 0 ? -1 : 1;
+            u: root.u;
+            flat: root.flat;
+            item: b;
+            glow: ShelfUi.color;
+            selected: b.index == ShelfUi.focus;
+            large-cover: self.selected && ShelfUi.has-focus-cover;
+            // Devant : le plus proche de la sélection (la pile se recouvre).
+            z: 100 - self.ak;
+            visible: b.index >= 0 && self.x + self.width > -80 * root.u && self.x < root.width + 80 * root.u;
+            opacity: self.ak > 9 ? max(0, 10 - self.ak) : 1;
+            // Centre du boîtier : dégagement autour de la sélection, puis pile serrée.
+            x: root.mid-x + self.sg * (self.ak < 1 ? self.ak * root.first : root.first + (self.ak - 1) * root.step) - self.width / 2;
+            y: root.board-y - self.height - (self.selected ? 16 * root.u : 0px);
+            animate y { duration: Theme.fast; easing: ease-out; }
+            hovered => { BpUi.input("shelf-hover:" + b.index); }
+            clicked => { BpUi.input("shelf-click:" + b.index); }
+            double-clicked => { BpUi.input("shelf-play:" + b.index); }
+        }
     }
 
     // Plaque nominative, posée sur l'arête de la planche.
     Rectangle {
         visible: ShelfUi.shelf-count > 0;
         x: root.side;
-        y: root.board-y + 8 * root.u;
+        y: ShelfUi.gl3d ? ShelfUi.plank-y + 6 * root.u : root.board-y + 8 * root.u;
         width: plate.preferred-width;
         height: 44 * root.u;
         border-radius: 4 * root.u;
@@ -561,7 +582,7 @@ export component ShelfView inherits Rectangle {
     // Étagères voisines et position.
     HorizontalLayout {
         x: root.side + plate.preferred-width + 24 * root.u;
-        y: root.board-y + 8 * root.u;
+        y: ShelfUi.gl3d ? ShelfUi.plank-y + 6 * root.u : root.board-y + 8 * root.u;
         height: 44 * root.u;
         spacing: 26 * root.u;
         alignment: start;
