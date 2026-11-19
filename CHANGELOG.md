@@ -1,9 +1,22 @@
 # Journal des modifications
 
-## 1.0.0-alpha.7 — Étagère coverflow, musée, dos de boîtiers
+## 1.0.0-alpha.7 — Boîtiers en 3D, musée, dos de boîtiers
 
 Le mode console prend l'allure d'une vraie collection de boîtes, en gardant le rendu natif
-Slint et sans nouvelle dépendance. Rien n'est retiré ; aucune migration de base.
+Slint et sans dépendance lourde. Rien n'est retiré ; aucune migration de base.
+
+### Vraie 3D
+
+- Étagère, musée et nouvelle vue **Inspecter** en **vraie 3D** (OpenGL, dans le contexte
+  qu'utilise déjà l'affichage de Halcyon ; `glow` et `ab_glyph`, déjà embarqués par Slint) :
+  perspective, lumière, plastique brillant, reflets sur la planche (pochoir), anticrénelage
+  MSAA, rotations réelles.
+- **Inspecter** (L3 / `I`) : tourner le boîtier (flèches, souris), l'ouvrir (A : couvercle sur
+  charnière, disque), le retourner (Y), zoomer (LB / RB, molette).
+- Faces générées (jaquette de repli, tranche, dos) composées une fois par jeu, au plus six par
+  image ; aucune image n'est redessinée au repos.
+- Repli automatique et à l'identique sur la 2,5D : rendu logiciel, OpenGL < 3, mode
+  Performance, option *Boîtiers en 3D* coupée, ou toute erreur OpenGL.
 
 ### Étagère, version coverflow
 
