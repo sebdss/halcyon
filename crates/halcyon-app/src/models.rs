@@ -53,6 +53,9 @@ pub struct LibraryData {
     pub columns: usize,
     /// Données des filtres avancés (progression des succès, noms de plateformes).
     pub ctx: QueryContext,
+    /// Jeux cochés (sélection multiple) et dernier jeu coché (plage avec Maj).
+    pub marked: std::collections::HashSet<GameId>,
+    pub mark_anchor: Option<GameId>,
 }
 
 impl LibraryData {
@@ -92,6 +95,7 @@ impl LibraryData {
     }
 
     pub fn remove(&mut self, id: GameId) {
+        self.marked.remove(&id);
         self.games.retain(|g| g.id != id);
         self.reindex();
     }
@@ -150,7 +154,15 @@ pub fn card_for(g: &Game, images: &ImageCache, now: i64) -> GameCard {
         playtime: util::format_playtime(g.effective_playtime()).into(),
         last_played: g.last_played.map(|t| util::format_relative(t, now)).unwrap_or_else(|| "—".into()).into(),
         badge: g.platform.as_deref().map(|p| platform_names(p).0).unwrap_or_default().into(),
+        marked: false,
     }
+}
+
+/// Carte d'un jeu de la bibliothèque, avec son état coché (sélection multiple).
+fn library_card(lib: &LibraryData, g: &Game, images: &ImageCache, now: i64) -> GameCard {
+    let mut c = card_for(g, images, now);
+    c.marked = lib.marked.contains(&g.id);
+    c
 }
 
 fn s(v: &Option<String>) -> SharedString {
@@ -316,7 +328,7 @@ impl Model for GridModel {
         let end = (start + cols).min(lib.filtered.len());
         let now = halcyon_storage::now_unix();
         let cards: Vec<GameCard> =
-            lib.filtered[start..end].iter().map(|&i| card_for(&lib.games[i], &self.images, now)).collect();
+            lib.filtered[start..end].iter().map(|&i| library_card(&lib, &lib.games[i], &self.images, now)).collect();
         Some(GridRow { cards: ModelRc::new(VecModel::from(cards)) })
     }
 
@@ -359,7 +371,7 @@ impl Model for ListModel {
     fn row_data(&self, row: usize) -> Option<GameCard> {
         let lib = self.lib.borrow();
         let &i = lib.filtered.get(row)?;
-        Some(card_for(&lib.games[i], &self.images, halcyon_storage::now_unix()))
+        Some(library_card(&lib, &lib.games[i], &self.images, halcyon_storage::now_unix()))
     }
 
     fn model_tracker(&self) -> &dyn ModelTracker {

@@ -1,0 +1,56 @@
+// Étagère du mode console (1.0.0-alpha.6) : données publiées par `src/ctl_shelf.rs`.
+// Fichier séparé de `state.slint` pour ne pas alourdir le code généré des autres pages.
+
+/// Boîtier d'un jeu : face avant (jaquette) et tranche (titre, bande de couleur, source).
+export struct ShelfBox {
+    /// Position absolue dans l'étagère ; négative : emplacement vide (rien n'est dessiné).
+    index: int,
+    id: int,
+    title: string,
+    cover: image,
+    has-cover: bool,
+    color-a: color,
+    color-b: color,
+    initials: string,
+    /// Couleur de la bande de la tranche : plateforme émulée, sinon source.
+    band: color,
+    /// Marque de la source sur la tranche (« Steam », « SNES »…), en texte.
+    mark: string,
+    installed: bool,
+    favorite: bool,
+}
+
+export global ShelfUi {
+    /// Vue du mode console : 0 jeu plein écran et rangée de jaquettes, 1 étagère.
+    in property <int> view;
+    // Étagère affichée : plaque (nom, couleur, logo), boîtiers, sélection.
+    in property <string> name;
+    in property <color> color: #3d7fc4;
+    in property <int> count;
+    in property <bool> has-logo;
+    in property <image> logo;
+    /// Emplacements fixes (fenêtre glissante d'environ 21 boîtiers) : un boîtier garde son
+    /// emplacement tant qu'il reste dans la fenêtre, ses animations ne repartent pas de zéro.
+    in property <[ShelfBox]> boxes;
+    in property <int> focus;
+    in property <int> shelf-index;
+    in property <int> shelf-count;
+    in property <string> prev-name;
+    in property <string> next-name;
+    // Étagère suivante, aperçue en bas de l'écran (au repos).
+    in property <[ShelfBox]> next-boxes;
+    in property <int> next-focus;
+    in property <color> next-color: #5c6b7a;
+    // Arrière-plan : deux calques en fondu enchaîné (bannière, sinon ambiance floutée).
+    in property <image> bg-a;
+    in property <image> bg-b;
+    in property <bool> bg-a-front: true;
+    in property <bool> bg-a-ambient;
+    in property <bool> bg-b-ambient;
+    /// Jaquette du boîtier sélectionné, décodée à la taille d'affichage (net en 4K).
+    in property <image> focus-cover;
+    in property <bool> has-focus-cover;
+    /// Titres des tranches tournés d'un quart de tour (impossible avec le rendu logiciel :
+    /// lettres empilées à la place).
+    in property <bool> rotate-text: true;
+}

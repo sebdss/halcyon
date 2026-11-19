@@ -39,6 +39,7 @@ pub mod steam_appinfo;
 pub mod steam_requirements;
 pub mod steam_stats;
 pub mod steam_web;
+pub mod trash;
 pub mod steamgriddb;
 pub mod sysmon;
 pub mod vdf;

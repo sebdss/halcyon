@@ -244,23 +244,27 @@ msgstr "Disposition de l'accueil réinitialisée"
 msgid "Ouvrir la fiche"
 msgstr "Ouvrir la fiche"
 
-#: crates/halcyon-app/src/ctl_home.rs:655
+#: crates/halcyon-app/src/ctl_home.rs:654
+msgid "Ajouter la sélection à une collection…"
+msgstr "Ajouter la sélection à une collection…"
+
+#: crates/halcyon-app/src/ctl_home.rs:662
 msgid "Créer un raccourci sur le bureau"
 msgstr "Créer un raccourci sur le bureau"
 
-#: crates/halcyon-app/src/ctl_home.rs:656
+#: crates/halcyon-app/src/ctl_home.rs:663
 msgid "Afficher dans la bibliothèque"
 msgstr "Afficher dans la bibliothèque"
 
-#: crates/halcyon-app/src/ctl_home.rs:658
+#: crates/halcyon-app/src/ctl_home.rs:669
 msgid "Retirer de Halcyon…"
 msgstr "Retirer de Halcyon…"
 
-#: crates/halcyon-app/src/ctl_home.rs:700
+#: crates/halcyon-app/src/ctl_home.rs:713
 msgid "Retirer ce jeu ?"
 msgstr "Retirer ce jeu ?"
 
-#: crates/halcyon-app/src/ctl_home.rs:701
+#: crates/halcyon-app/src/ctl_home.rs:714
 #, placeholders
 msgid "« {name} » sera retiré de Halcyon. Les fichiers du jeu ne sont pas supprimés."
 msgstr "« {name} » sera retiré de Halcyon. Les fichiers du jeu ne sont pas supprimés."

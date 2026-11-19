@@ -28,6 +28,8 @@ pub enum PadAction {
     /// Onglet ou vue précédente / suivante (bureau).
     Prev,
     Next,
+    /// Bibliothèque : cocher le jeu sélectionné ; mode console : changer de vue (étagère).
+    Toggle,
 }
 
 impl PadAction {
@@ -41,13 +43,13 @@ impl PadAction {
             Self::Back => "back",
             Self::Search => "search",
             Self::Favorite => "fav",
-            Self::Menu | Self::Context | Self::Prev | Self::Next => return None,
+            Self::Menu | Self::Context | Self::Prev | Self::Next | Self::Toggle => return None,
         })
     }
 }
 
 /// Actions configurables (les directions restent sur la croix et le stick gauche).
-pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 8] = [
+pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 9] = [
     ("accept", tr_noop!("Valider / lancer"), PadAction::Accept, Button::South),
     ("back", tr_noop!("Retour"), PadAction::Back, Button::East),
     ("search", tr_noop!("Recherche"), PadAction::Search, Button::North),
@@ -56,6 +58,7 @@ pub const CONFIGURABLE: [(&str, &str, PadAction, Button); 8] = [
     ("context", tr_noop!("Menu contextuel"), PadAction::Context, Button::Select),
     ("prev", tr_noop!("Onglet ou vue précédente"), PadAction::Prev, Button::LeftTrigger),
     ("next", tr_noop!("Onglet ou vue suivante"), PadAction::Next, Button::RightTrigger),
+    ("toggle", tr_noop!("Cocher un jeu (bibliothèque) · étagère (console)"), PadAction::Toggle, Button::RightThumb),
 ];
 
 /// Boutons proposés à l'association (noms stables, enregistrés dans les paramètres).
@@ -342,6 +345,10 @@ mod tests {
         assert_eq!(m.get(&Button::East), Some(&PadAction::Accept));
         assert_eq!(m.get(&Button::South), Some(&PadAction::Back));
         assert_eq!(m.get(&Button::Mode), Some(&PadAction::Menu));
+        // Bouton dédié à l'étagère / à la sélection : distinct de tous les autres par défaut.
+        assert_eq!(m.get(&Button::RightThumb), Some(&PadAction::Toggle));
+        let defaults: std::collections::HashSet<Button> = CONFIGURABLE.iter().map(|c| c.3).collect();
+        assert_eq!(defaults.len(), CONFIGURABLE.len(), "aucun bouton partagé par défaut");
         set_mapping(&Default::default());
     }
 }

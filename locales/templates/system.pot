@@ -1219,11 +1219,6 @@ msgstr ""
 msgid "{e} : la fenêtre sera réduite au lieu d'être masquée"
 msgstr ""
 
-#: crates/halcyon-app/src/ctl_system.rs:497
-#, placeholders
-msgid "{source} · non installé"
-msgstr ""
-
 #: crates/halcyon-app/src/ctl_system.rs:521
 msgid "Page"
 msgstr ""
@@ -1670,6 +1665,10 @@ msgstr ""
 
 #: crates/halcyon-storage/src/repo.rs:501
 msgid "seuls les jeux ajoutés manuellement peuvent être supprimés"
+msgstr ""
+
+#: crates/halcyon-storage/src/repo.rs:634
+msgid "une collection porte déjà ce nom"
 msgstr ""
 
 #: crates/halcyon-storage/src/saves_mods.rs:127

@@ -12,160 +12,318 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: library\n"
 
-#: crates/halcyon-app/ui/pages/library.slint:112 crates/halcyon-app/ui/pages/library.slint:210
+#: crates/halcyon-app/ui/pages/collections.slint:151
+msgid "Retirer de la collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:259
+msgid "Séries détectées"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:263
+msgid "Titres au début commun. Rien n'est créé sans votre accord."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:286
+msgid "Créer la collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:287
+msgid "Ignorer"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:304
+msgid "Rangez vos jeux comme sur une étagère"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:305
+msgid "Une collection réunit des jeux de toutes les sources : Steam, GOG, jeux émulés, jeux autonomes… Créez-en une par recherche, depuis les jeux cochés de la bibliothèque ou à partir d'une série détectée."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:367 crates/halcyon-app/ui/pages/collections.slint:613 crates/halcyon-app/ui/pages/smart.slint:160
+msgid "Nom de la collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:376
+msgid "Placer l'étagère plus haut (avant)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:377
+msgid "Placer l'étagère plus bas (après)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:378
+msgid "Supprimer la collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:383
+msgid "Couleur"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:391
+msgid "Automatique"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:399
+msgid "Visuels"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:402
+msgid "Changer le logo"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:402
+msgid "Logo…"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:409
+msgid "Retirer le logo"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:412
+msgid "Changer la bannière"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:412
+msgid "Bannière…"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:419
+msgid "Retirer la bannière"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:422
+msgid "Collection reprise de Steam : ses jeux suivent Steam. Couleur, visuels, ordre et place restent modifiables ici."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:442
+msgid "Haut / bas : déplacer le jeu · Entrée ou A : poser"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:443
+msgid "Haut / bas : choisir · Entrée ou A : prendre pour déplacer · Ctrl+haut / bas : déplacer · Gauche / droite : autre collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:459
+msgid "Cette collection est vide. Cochez des jeux dans la bibliothèque (Ctrl-clic), puis « Ajouter à une collection… »."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:520
+msgid "Ajouter à une collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:550
+msgid "Aucune collection : nommez la première ci-dessous."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:560
+msgid "Nouvelle collection (ex. Sonic, Coop, À finir)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:589 crates/halcyon-app/ui/pages/smart.slint:151
+msgid "Nouvelle collection"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:591
+msgid "Tapez un nom ou une série : les jeux correspondants sont cochés. Décochez ceux à exclure, puis validez."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:601
+msgid "Rechercher des jeux (ex. sonic, resident evil, source:gog)"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:620
+msgid "Aucune recherche"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:620 crates/halcyon-app/ui/pages/library.slint:759
+msgid "Aucun jeu ne correspond"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:621
+#, placeholders
+msgid "{} cochés sur {}"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:627
+msgid "Tout cocher"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:628 crates/halcyon-app/ui/pages/library.slint:741
+msgid "Tout décocher"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:695
+#, placeholders
+msgid "{} autres jeux correspondent : précisez la recherche pour les voir."
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/collections.slint:704
+#, placeholders
+msgid "Créer la collection ({})"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:140 crates/halcyon-app/ui/pages/library.slint:238
 msgid "Plus d'actions (touche Menu)"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:249
+#: crates/halcyon-app/ui/pages/library.slint:277
 msgid "Grille"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:250
+#: crates/halcyon-app/ui/pages/library.slint:278
 msgid "Liste"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:251
+#: crates/halcyon-app/ui/pages/library.slint:279
 msgid "Carrousel"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:252
+#: crates/halcyon-app/ui/pages/library.slint:280
 msgid "Immersive"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:259
+#: crates/halcyon-app/ui/pages/library.slint:287
 #, placeholders
 msgid "Vue : {}"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:351
+#: crates/halcyon-app/ui/pages/library.slint:379
 msgid "Tous les jeux"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:363
+#: crates/halcyon-app/ui/pages/library.slint:391
 msgid "Sources"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:375
+#: crates/halcyon-app/ui/pages/library.slint:403
 msgid "Afficher"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:377
+#: crates/halcyon-app/ui/pages/library.slint:405
 msgid "Installés seulement"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:382
+#: crates/halcyon-app/ui/pages/library.slint:410
 msgid "Favoris seulement"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:387
+#: crates/halcyon-app/ui/pages/library.slint:415
 msgid "Jeux masqués"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:401 crates/halcyon-app/ui/pages/library.slint:635 crates/halcyon-app/ui/pages/smart.slint:94
+#: crates/halcyon-app/ui/pages/library.slint:433 crates/halcyon-app/ui/pages/library.slint:673 crates/halcyon-app/ui/pages/smart.slint:94
 msgid "Collections intelligentes"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:404 crates/halcyon-core/src/rules.rs:66
+#: crates/halcyon-app/ui/pages/library.slint:436 crates/halcyon-core/src/rules.rs:66
 msgid "Genre"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:533
+#: crates/halcyon-app/ui/pages/library.slint:571
 msgid "Rechercher dans la bibliothèque  (Ctrl+F)"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:543
+#: crates/halcyon-app/ui/pages/library.slint:581
 msgid "Syntaxe de recherche"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:561 crates/halcyon-core/src/rules.rs:73
+#: crates/halcyon-app/ui/pages/library.slint:599 crates/halcyon-core/src/rules.rs:73
 msgid "Recherche avancée"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:562
+#: crates/halcyon-app/ui/pages/library.slint:600
 msgid "Les fautes de frappe et les sigles sont tolérés (« witchr », « gta »). Combinez des filtres :"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:564
+#: crates/halcyon-app/ui/pages/library.slint:602
 msgid "dev:valve   éditeur:\"bandai namco\"   genre:rpg"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:565
+#: crates/halcyon-app/ui/pages/library.slint:603
 msgid "plateforme:snes   source:steam   tag:multijoueur"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:566
+#: crates/halcyon-app/ui/pages/library.slint:604
 msgid "installé:non   favori:oui   maj:oui"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:567
+#: crates/halcyon-app/ui/pages/library.slint:605
 msgid "statut:terminé   statut:\"en cours\"   statut:abandonné"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:568
+#: crates/halcyon-app/ui/pages/library.slint:606
 msgid "temps:>10h   temps:<30m   temps:0"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:569
+#: crates/halcyon-app/ui/pages/library.slint:607
 msgid "succès:complet   succès:manquants   succès:>80"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:570
+#: crates/halcyon-app/ui/pages/library.slint:608
 msgid "-filtre:valeur  exclut (ex. -installé:oui)"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:572
+#: crates/halcyon-app/ui/pages/library.slint:610
 msgid "Flèches : sélection. Entrée : fiche. Espace : jouer. Menu : actions."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:578
+#: crates/halcyon-app/ui/pages/library.slint:616
 msgid "Trier par"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:598
+#: crates/halcyon-app/ui/pages/library.slint:636
 msgid "Ému."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:620
+#: crates/halcyon-app/ui/pages/library.slint:658
 msgid "Masqués"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:667
+#: crates/halcyon-app/ui/pages/library.slint:715
+#, placeholders
+msgid "{n} jeu coché"
+msgid_plural "{n} jeux cochés"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/ui/pages/library.slint:723
+msgid "Ctrl-clic ou Ctrl+Espace : cocher · Maj : plage · Échap : tout décocher"
+msgstr ""
+
+#: crates/halcyon-app/ui/pages/library.slint:759
 msgid "Votre bibliothèque est vide"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:667
-msgid "Aucun jeu ne correspond"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/library.slint:675
+#: crates/halcyon-app/ui/pages/library.slint:767
 msgid "Lancez une analyse ou ajoutez un dossier de jeux dans les paramètres."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:676
+#: crates/halcyon-app/ui/pages/library.slint:768
 msgid "Essayez un autre terme ou retirez des filtres. Champs de recherche : dev:, éditeur:, genre:, plateforme:, tag:, statut:, installé:, temps:, succès:, maj:"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:727
+#: crates/halcyon-app/ui/pages/library.slint:821
 msgid "Titre"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:787
+#: crates/halcyon-app/ui/pages/library.slint:881
 msgid "Parcourir"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:788
+#: crates/halcyon-app/ui/pages/library.slint:882
 msgid "Entrée"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:789
+#: crates/halcyon-app/ui/pages/library.slint:883
 msgid "Espace"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:790
+#: crates/halcyon-app/ui/pages/library.slint:884
 msgid "Menu"
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/library.slint:790
+#: crates/halcyon-app/ui/pages/library.slint:884
 msgid "Actions"
 msgstr ""
 
@@ -201,14 +359,6 @@ msgstr ""
 msgid "Aucune collection intelligente."
 msgstr ""
 
-#: crates/halcyon-app/ui/pages/smart.slint:151
-msgid "Nouvelle collection"
-msgstr ""
-
-#: crates/halcyon-app/ui/pages/smart.slint:160
-msgid "Nom de la collection"
-msgstr ""
-
 #: crates/halcyon-app/ui/pages/smart.slint:162
 msgid "Toutes les règles"
 msgstr ""
@@ -227,6 +377,67 @@ msgid "{n} jeu correspond"
 msgid_plural "{n} jeux correspondent"
 msgstr[0] ""
 msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:194
+#, placeholders
+msgid "{n} jeu sélectionné"
+msgid_plural "{n} jeux sélectionnés"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:222 crates/halcyon-app/src/ctl_collections.rs:380 crates/halcyon-app/src/ctl_collections.rs:589
+msgid "Ce nom est réservé aux collections reprises de Steam."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:236
+#, placeholders
+msgid "{n} jeu ajouté à « {name} »"
+msgid_plural "{n} jeux ajoutés à « {name} »"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:238
+#, placeholders
+msgid "{added} ajoutés à « {name} » ({already} y étaient déjà)"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:243
+#, placeholders
+msgid "{n} jeu ajouté à la collection « {name} »"
+msgid_plural "{n} jeux ajoutés à la collection « {name} »"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:376
+msgid "Donnez un nom à la collection."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:391 crates/halcyon-app/src/ctl_collections.rs:394 crates/halcyon-app/src/ctl_collections.rs:423
+#: crates/halcyon-app/src/ctl_collections.rs:426
+#, placeholders
+msgid "Collection « {name} » créée ({n} jeu)"
+msgid_plural "Collection « {name} » créée ({n} jeux)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:596
+#, placeholders
+msgid "Collection renommée en « {name} »"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:676
+msgid "Supprimer la collection ?"
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:677
+#, placeholders
+msgid "La collection « {name} » sera supprimée. Les jeux restent dans la bibliothèque."
+msgstr ""
+
+#: crates/halcyon-app/src/ctl_collections.rs:735
+#, placeholders
+msgid "« {game} » retiré de « {name} »"
+msgstr ""
 
 #: crates/halcyon-core/src/model.rs:93
 msgid "Standalone"

@@ -1,0 +1,95 @@
+// Collections manuelles (1.0.0-alpha.6) : page de collection, création guidée, ajout de
+// plusieurs jeux, suggestions de séries. Données publiées par `src/ctl_collections.rs`.
+// Fichier séparé de `state.slint` pour ne pas alourdir le code généré des autres pages.
+
+import { GameCard } from "types.slint";
+
+export struct CollRow {
+    id: int,
+    name: string,
+    count: int,
+    color: color,
+    /// Collection reprise de Steam : son contenu suit Steam.
+    synced: bool,
+}
+
+export struct CollGame {
+    id: int,
+    title: string,
+    detail: string,
+    checked: bool,
+    card: GameCard,
+}
+
+export struct SeriesRow {
+    key: string,
+    name: string,
+    count: int,
+    /// Quelques titres de la série, pour juger d'un coup d'œil.
+    sample: string,
+}
+
+export global CollUi {
+    // ------------------------------------------------------------ sélection multiple
+    /// Jeux cochés dans la bibliothèque (Ctrl/Maj-clic, Ctrl+Espace, bouton de la manette).
+    in property <int> marked-count;
+    callback toggle-mark(int, bool);
+    callback clear-marks();
+    /// Ouvre le choix de collection pour les jeux cochés (ou pour `int` seul si aucun).
+    callback collect(int);
+
+    // ------------------------------------------------------------ choix de collection
+    in-out property <bool> picker-open;
+    in property <string> picker-title;
+    in-out property <string> picker-new;
+    in-out property <int> picker-index;
+    callback picker-add(int);
+    callback picker-create(string);
+
+    // ------------------------------------------------------------ création guidée
+    in-out property <bool> create-open;
+    in-out property <string> create-name;
+    in-out property <string> create-query;
+    in property <[CollGame]> create-matches;
+    in property <int> create-checked;
+    /// Correspondances au-delà de la liste affichée (200 au plus).
+    in property <int> create-more;
+    in-out property <int> create-index;
+    callback open-create(string);
+    callback create-search();
+    callback create-toggle(int);
+    callback create-all(bool);
+    callback create-confirm();
+
+    // ------------------------------------------------------------ page Collections
+    in property <[CollRow]> collections;
+    in property <int> current: -1;
+    in-out property <string> name;
+    in property <color> color;
+    in property <string> color-hex;
+    in property <bool> synced;
+    in property <bool> has-logo;
+    in property <image> logo;
+    in property <bool> has-banner;
+    in property <image> banner;
+    in property <[CollGame]> games;
+    in-out property <int> game-index: -1;
+    /// Jeu « pris » au clavier ou à la manette : haut / bas le déplacent.
+    in-out property <bool> grabbing;
+    in property <[color]> palette;
+    in property <[string]> palette-hex;
+    in property <[SeriesRow]> suggestions;
+    callback select(int);
+    /// Collection précédente / suivante (flèches gauche / droite, manette).
+    callback select-delta(int);
+    callback rename(string);
+    callback set-color(string);
+    /// (« logo » ou « banner », chemin ; vide : retirer).
+    callback set-image(string, string);
+    callback move-collection(int);
+    callback delete-current();
+    callback move-game(int, int);
+    callback remove-game(int);
+    callback accept-suggestion(string);
+    callback dismiss-suggestion(string);
+}

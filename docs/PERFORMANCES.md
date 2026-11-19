@@ -127,3 +127,48 @@ Rien ne tourne quand la page est fermée et qu'aucune partie n'est en cours.
 Les runners de la CI (16 Go) et un PC de 16 Go ou plus ne sont pas concernés. Réduire le
 code généré par Slint (découpage des pages, composants moins dupliqués) est la prochaine
 optimisation à mener pour garder Halcyon compilable sur une machine de 8 Go.
+
+## 1.0.0-alpha.6 — étagère
+
+### Méthode
+
+- Binaire **release** (cette fois compilé : 8 Go de RAM **plus 10 Go d'espace d'échange**,
+  `-j1`, 31 min la première fois, 18 min ensuite), bibliothèque générée de **513 jeux**
+  (`tools/make_shelf_fixture.py /tmp/hs500 500`), serveur X virtuel 1920 × 1080, conteneur
+  2 cœurs **sans GPU**.
+- Scénario : accueil (12 s après le lancement), mode console, étagère « Tous », puis un cran
+  à droite toutes les 120 ms (20 crans, puis 300 crans). Images par seconde données par Slint
+  (`SLINT_DEBUG_PERFORMANCE=refresh_lazy,console`, rendu des seules images nécessaires),
+  processeur lu dans `/proc` (100 % = un cœur), mémoire résidente (RSS).
+- Comparaison dans le même binaire : la vue « rangée » (jaquettes du mode console) avec le
+  même nombre de crans.
+
+### Résultats
+
+| Rendu logiciel, 1920 × 1080 | Rangée | Étagère (1er essai) | Étagère (fond différé) |
+|---|---|---|---|
+| Images / s pendant le défilement | 30 à 42 | 14 à 17 | **40 à 52** |
+| Processeur pendant le défilement | 46 % | 100 % | 87 % |
+| Processeur au repos (mode console ouvert) | 0,2 % | 0,0–0,2 % | 0,0–0,2 % |
+| Mémoire : accueil → mode console | 125 → 128 Mo | 125 → 131 Mo | 130 → 136 Mo |
+| Mémoire après 20 crans | 164 Mo | 168 Mo | 172 Mo |
+| Mémoire après 150 / 300 crans | — | 193 / 197 Mo | 180 / 189 Mo |
+
+- **Fond différé** : au premier essai, chaque cran relançait le fondu enchaîné du fond plein
+  écran, coûteux en rendu logiciel. Le fond change maintenant 220 ms après la dernière
+  touche : en défilement rapide, seule la bande de l'étagère est redessinée.
+- **Mémoire bornée** : après 300 crans (300 jaquettes décodées, dont 300 en grand), la
+  mémoire plafonne vers 190 Mo (cache d'images borné à 32 Mo, 21 boîtiers au plus dans
+  l'interface, 42 avec l'aperçu de l'étagère suivante) ; elle ne croît plus.
+- **Rendu OpenGL émulé** (llvmpipe, sans GPU, tout est recalculé à chaque image par le
+  processeur) : 9–10 images / s pour l'étagère contre 9–14 pour la rangée, pilote compris
+  dans la mémoire (≈ 290 Mo). Ce n'est pas représentatif d'un PC avec carte graphique, où la
+  rotation (deux largeurs animées) ne coûte presque rien : **à mesurer sur votre PC**.
+
+### Compilation
+
+| | 1.0.0-alpha.6 |
+|---|---|
+| Code Slint généré (`app.rs`) | 46,7 Mo |
+| Binaire Linux release | 67 Mo (non réduit) |
+| Compilation sur 8 Go | réussit avec 10 Go d'espace d'échange (`-j1`) ; échoue sans |

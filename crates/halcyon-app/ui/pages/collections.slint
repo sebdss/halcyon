@@ -1,0 +1,711 @@
+// Collections manuelles (1.0.0-alpha.6) : page de collection, choix de collection pour les
+// jeux cochés, création guidée par la recherche.
+//
+// Page : index des collections à gauche (avec les suggestions de séries), collection à droite
+// (planche, nom, couleur, logo, bannière, ordre des jeux). Au clavier et à la manette :
+// gauche / droite changent de collection, haut / bas choisissent un jeu, Entrée (A) le prend
+// et le pose, Ctrl+haut / bas le déplace directement.
+
+import { ListView, ScrollView } from "std-widgets.slint";
+import { Theme, Icons, Art } from "../theme.slint";
+import { Actions, DetailUi } from "../state.slint";
+import { CollUi, CollRow, CollGame } from "../collections_state.slint";
+import {
+    PrimaryButton, SecondaryButton, TextButton, IconButton, TextField, Icon, Overline, GameCover, Modal, ModalPanel,
+    Badge, EmptyState, Notice
+} from "../components.slint";
+
+/// Pastille de couleur choisie.
+component Swatch inherits Rectangle {
+    in property <color> swatch;
+    in property <bool> active;
+    in property <string> label;
+    callback clicked;
+    width: 26px;
+    height: 26px;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
+    Rectangle {
+        x: 3px;
+        y: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: Theme.radius-sm;
+        background: root.swatch;
+    }
+    Rectangle {
+        border-radius: Theme.radius;
+        border-width: root.active ? 2px : ta.has-hover ? 1px : 0px;
+        border-color: root.active ? Theme.text : Theme.border-strong;
+    }
+    ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+}
+
+/// Entrée de l'index : pastille de couleur, nom, nombre de jeux.
+component CollIndexItem inherits Rectangle {
+    in property <CollRow> entry;
+    in property <bool> active;
+    callback clicked;
+    height: 34px;
+    border-radius: Theme.radius-sm;
+    background: ta.has-hover ? Theme.surface : transparent;
+    accessible-role: radio-button;
+    accessible-checked: root.active;
+    accessible-label: root.entry.name;
+    accessible-action-default => { root.clicked(); }
+    if root.active: Rectangle { x: 0; y: 8px; width: Theme.perch; height: parent.height - 16px; background: Theme.accent; }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 8px;
+        spacing: 10px;
+        Rectangle {
+            width: 10px;
+            Rectangle { y: (parent.height - 10px) / 2; height: 10px; border-radius: 2px; background: root.entry.color; }
+        }
+        Text {
+            text: root.entry.name;
+            color: root.active ? Theme.text : Theme.text-muted;
+            font-size: Theme.t-small;
+            font-weight: root.active ? 650 : 500;
+            vertical-alignment: center;
+            overflow: elide;
+            horizontal-stretch: 1;
+        }
+        Text { text: root.entry.count; color: Theme.text-dim; font-family: Theme.display; font-size: Theme.t-caption; vertical-alignment: center; }
+    }
+    ta := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+}
+
+/// Ligne d'un jeu de la collection : rang, jaquette, titre, boutons ↑ ↓ ×.
+component CollGameRow inherits Rectangle {
+    in property <CollGame> game;
+    in property <int> index;
+    in property <int> count;
+    in property <bool> selected;
+    in property <bool> grabbed;
+    in property <bool> editable;
+    height: 56px;
+    background: root.grabbed ? Theme.accent.with-alpha(0.18) : root.selected ? Theme.surface-active : ta.has-hover ? Theme.surface : transparent;
+    Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+    if root.selected: Rectangle { x: 0; width: Theme.perch; background: Theme.accent; }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { CollUi.game-index = root.index; }
+        double-clicked => { Actions.open-game(root.game.id); }
+    }
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 8px;
+        spacing: 14px;
+        Text {
+            width: 34px;
+            text: root.index + 1;
+            color: root.selected ? Theme.text : Theme.text-dim;
+            font-family: Theme.display;
+            font-size: Theme.t-small;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        GameCover {
+            y: 6px;
+            width: 29px;
+            height: 44px;
+            corner: 2px;
+            show-title: false;
+            source: root.game.card.cover;
+            has-image: root.game.card.has-cover;
+            color-a: root.game.card.color-a;
+            color-b: root.game.card.color-b;
+            initials: root.game.card.initials;
+            title: root.game.title;
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 2px;
+            horizontal-stretch: 1;
+            Text { text: root.game.title; color: Theme.text; font-size: Theme.t-body; font-weight: 600; overflow: elide; }
+            Text { text: root.game.detail; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+        }
+        IconButton {
+            y: (parent.height - self.height) / 2;
+            icon: Icons.chevron-up;
+            icon-size: 16px;
+            enabled: root.index > 0;
+            tooltip: @tr("Monter");
+            clicked => { CollUi.move-game(root.index, -1); }
+        }
+        IconButton {
+            y: (parent.height - self.height) / 2;
+            icon: Icons.chevron-down;
+            icon-size: 16px;
+            enabled: root.index < root.count - 1;
+            tooltip: @tr("Descendre");
+            clicked => { CollUi.move-game(root.index, 1); }
+        }
+        if root.editable: IconButton {
+            y: (parent.height - self.height) / 2;
+            icon: Icons.close;
+            icon-size: 16px;
+            active-tint: Theme.danger;
+            tooltip: @tr("Retirer de la collection");
+            clicked => { CollUi.remove-game(root.index); }
+        }
+    }
+}
+
+export component CollectionsPage inherits Rectangle {
+    property <length> index-w: root.width >= 1000px ? 280px : 220px;
+    property <length> pad: root.width >= 1000px ? 36px : 24px;
+    property <bool> has-current: CollUi.current >= 0;
+
+    public function focus-list() {
+        keys.focus();
+    }
+
+    keys := FocusScope {
+        key-pressed(event) => {
+            if (event.modifiers.alt || event.modifiers.meta) {
+                return reject;
+            }
+            if (event.text == Key.UpArrow || event.text == Key.DownArrow) {
+                if (CollUi.games.length == 0) {
+                    return accept;
+                }
+                if (CollUi.game-index < 0) {
+                    CollUi.game-index = 0;
+                } else if (CollUi.grabbing || event.modifiers.control) {
+                    CollUi.move-game(CollUi.game-index, event.text == Key.UpArrow ? -1 : 1);
+                } else {
+                    CollUi.game-index = max(0, min(CollUi.games.length - 1, CollUi.game-index + (event.text == Key.UpArrow ? -1 : 1)));
+                }
+                list.ensure-visible(CollUi.game-index * 56px, 56px);
+                return accept;
+            }
+            if (event.text == Key.LeftArrow || event.text == Key.RightArrow) {
+                if (!CollUi.grabbing) {
+                    CollUi.select-delta(event.text == Key.LeftArrow ? -1 : 1);
+                }
+                return accept;
+            }
+            if (event.text == Key.Return && CollUi.game-index >= 0 && CollUi.games.length > 0) {
+                CollUi.grabbing = !CollUi.grabbing;
+                return accept;
+            }
+            if (event.text == Key.Escape && CollUi.grabbing) {
+                CollUi.grabbing = false;
+                return accept;
+            }
+            if (event.text == Key.Delete && !CollUi.synced && CollUi.game-index >= 0) {
+                CollUi.remove-game(CollUi.game-index);
+                return accept;
+            }
+            reject
+        }
+
+        // ------------------------------------------------------------ index
+        Rectangle {
+            x: 0;
+            width: root.index-w;
+            height: root.height;
+            Rectangle { x: parent.width - 1px; width: 1px; background: Theme.border; }
+            Flickable {
+                width: parent.width - 1px;
+                content-height: col.preferred-height;
+                col := VerticalLayout {
+                    width: parent.width;
+                    padding-left: 20px;
+                    padding-right: 14px;
+                    padding-top: 28px;
+                    padding-bottom: 28px;
+                    spacing: 2px;
+                    alignment: start;
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-bottom: 10px;
+                        Text {
+                            text: @tr("Collections");
+                            color: Theme.text;
+                            font-family: Theme.display;
+                            font-size: Theme.t-heading;
+                            font-weight: 800;
+                        }
+                    }
+                    for c in CollUi.collections: CollIndexItem {
+                        entry: c;
+                        active: c.id == CollUi.current;
+                        clicked => { CollUi.select(c.id); keys.focus(); }
+                    }
+                    if CollUi.collections.length == 0: HorizontalLayout {
+                        padding-left: 12px;
+                        Text {
+                            text: @tr("Aucune collection pour l'instant.");
+                            color: Theme.text-dim;
+                            font-size: Theme.t-caption;
+                            wrap: word-wrap;
+                        }
+                    }
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-top: 10px;
+                        alignment: start;
+                        TextButton { text: @tr("Nouvelle collection…"); clicked => { CollUi.open-create(""); } }
+                    }
+
+                    // Suggestions de séries : jamais créées sans accord, refus mémorisé.
+                    if CollUi.suggestions.length > 0: VerticalLayout {
+                        padding-top: 26px;
+                        spacing: 8px;
+                        HorizontalLayout { padding-left: 12px; Overline { text: @tr("Séries détectées"); } }
+                        HorizontalLayout {
+                            padding-left: 12px;
+                            Text {
+                                text: @tr("Titres au début commun. Rien n'est créé sans votre accord.");
+                                color: Theme.text-dim;
+                                font-size: Theme.t-caption;
+                                wrap: word-wrap;
+                            }
+                        }
+                        for s in CollUi.suggestions: Rectangle {
+                            height: sug.preferred-height;
+                            border-radius: Theme.radius;
+                            background: Theme.surface;
+                            sug := VerticalLayout {
+                                padding: 12px;
+                                spacing: 4px;
+                                HorizontalLayout {
+                                    spacing: 8px;
+                                    Text { text: s.name; color: Theme.text; font-size: Theme.t-small; font-weight: 700; overflow: elide; horizontal-stretch: 1; }
+                                    Text { text: @tr("{n} jeu" | "{n} jeux" % s.count); color: Theme.text-dim; font-size: Theme.t-caption; }
+                                }
+                                Text { text: s.sample; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                                HorizontalLayout {
+                                    padding-top: 4px;
+                                    spacing: 14px;
+                                    alignment: start;
+                                    TextButton { text: @tr("Créer la collection"); clicked => { CollUi.accept-suggestion(s.key); } }
+                                    TextButton { text: @tr("Ignorer"); tint: Theme.text-muted; clicked => { CollUi.dismiss-suggestion(s.key); } }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ------------------------------------------------------------ collection
+        if !root.has-current: VerticalLayout {
+            x: root.index-w + root.pad;
+            width: min(560px, root.width - root.index-w - 2 * root.pad);
+            padding-top: 60px;
+            alignment: start;
+            EmptyState {
+                icon: Icons.layers;
+                title: @tr("Rangez vos jeux comme sur une étagère");
+                text: @tr("Une collection réunit des jeux de toutes les sources : Steam, GOG, jeux émulés, jeux autonomes… Créez-en une par recherche, depuis les jeux cochés de la bibliothèque ou à partir d'une série détectée.");
+                action: @tr("Nouvelle collection…");
+                action-clicked => { CollUi.open-create(""); }
+            }
+        }
+
+        VerticalLayout {
+            visible: root.has-current;
+            x: root.index-w;
+            width: root.width - root.index-w;
+            height: root.height;
+
+            // Planche : bannière nette (ou bande de couleur), logo par-dessus.
+            Rectangle {
+                height: CollUi.has-banner ? min(200px, root.height * 0.26) : 10px;
+                clip: true;
+                background: CollUi.color;
+                if CollUi.has-banner: Image {
+                    width: parent.width;
+                    height: parent.height;
+                    source: CollUi.banner;
+                    image-fit: cover;
+                }
+                if CollUi.has-banner: Image {
+                    x: 0;
+                    y: 0;
+                    width: parent.width;
+                    height: parent.height;
+                    source: Art.fade-bottom;
+                    image-fit: fill;
+                    colorize: Theme.bg;
+                }
+                if CollUi.has-banner && CollUi.has-logo: Image {
+                    x: root.pad;
+                    y: parent.height - self.height - 14px;
+                    height: min(90px, parent.height * 0.5);
+                    source: CollUi.logo;
+                    image-fit: contain;
+                    horizontal-alignment: left;
+                }
+                Rectangle { y: parent.height - 3px; height: 3px; background: CollUi.color; }
+            }
+
+            // En-tête : nom, couleur, visuels, place, suppression.
+            VerticalLayout {
+                padding-left: root.pad;
+                padding-right: root.pad;
+                padding-top: 22px;
+                padding-bottom: 16px;
+                spacing: 14px;
+                HorizontalLayout {
+                    spacing: 12px;
+                    if CollUi.has-logo && !CollUi.has-banner: Image {
+                        width: 54px;
+                        height: 40px;
+                        source: CollUi.logo;
+                        image-fit: contain;
+                    }
+                    name-field := TextField {
+                        horizontal-stretch: 1;
+                        max-width: 460px;
+                        text <=> CollUi.name;
+                        placeholder: @tr("Nom de la collection");
+                        accepted(t) => { CollUi.rename(t); keys.focus(); }
+                    }
+                    SecondaryButton {
+                        text: @tr("Renommer");
+                        enabled: !CollUi.synced;
+                        clicked => { CollUi.rename(name-field.text); }
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                    IconButton { icon: Icons.chevron-left; tooltip: @tr("Placer l'étagère plus haut (avant)"); clicked => { CollUi.move-collection(-1); } }
+                    IconButton { icon: Icons.chevron-right; tooltip: @tr("Placer l'étagère plus bas (après)"); clicked => { CollUi.move-collection(1); } }
+                    IconButton { icon: Icons.trash; active-tint: Theme.danger; tooltip: @tr("Supprimer la collection"); clicked => { CollUi.delete-current(); } }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Text { text: @tr("Couleur"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; width: 76px; }
+                    for c[i] in CollUi.palette: Swatch {
+                        swatch: c;
+                        label: CollUi.palette-hex[i];
+                        active: CollUi.color-hex == CollUi.palette-hex[i];
+                        clicked => { CollUi.set-color(CollUi.palette-hex[i]); }
+                    }
+                    TextButton {
+                        text: @tr("Automatique");
+                        tint: CollUi.color-hex == "" ? Theme.text : Theme.accent;
+                        clicked => { CollUi.set-color(""); }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: start;
+                    Text { text: @tr("Visuels"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; width: 76px; }
+                    SecondaryButton {
+                        h: 30px;
+                        text: CollUi.has-logo ? @tr("Changer le logo") : @tr("Logo…");
+                        icon: Icons.image;
+                        has-icon: true;
+                        clicked => {
+                            CollUi.set-image("logo", DetailUi.browse-image());
+                        }
+                    }
+                    if CollUi.has-logo: IconButton { size: 30px; icon: Icons.close; tooltip: @tr("Retirer le logo"); clicked => { CollUi.set-image("logo", ""); } }
+                    SecondaryButton {
+                        h: 30px;
+                        text: CollUi.has-banner ? @tr("Changer la bannière") : @tr("Bannière…");
+                        icon: Icons.image;
+                        has-icon: true;
+                        clicked => {
+                            CollUi.set-image("banner", DetailUi.browse-image());
+                        }
+                    }
+                    if CollUi.has-banner: IconButton { size: 30px; icon: Icons.close; tooltip: @tr("Retirer la bannière"); clicked => { CollUi.set-image("banner", ""); } }
+                }
+                if CollUi.synced: Notice {
+                    text: @tr("Collection reprise de Steam : ses jeux suivent Steam. Couleur, visuels, ordre et place restent modifiables ici.");
+                }
+            }
+
+            // Jeux, dans l'ordre de l'étagère.
+            HorizontalLayout {
+                padding-left: root.pad;
+                padding-right: root.pad;
+                padding-bottom: 8px;
+                spacing: 12px;
+                Text {
+                    text: @tr("{n} jeu" | "{n} jeux" % CollUi.games.length);
+                    color: Theme.text;
+                    font-family: Theme.display;
+                    font-size: Theme.t-subheading;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: CollUi.grabbing
+                        ? @tr("Haut / bas : déplacer le jeu · Entrée ou A : poser")
+                        : @tr("Haut / bas : choisir · Entrée ou A : prendre pour déplacer · Ctrl+haut / bas : déplacer · Gauche / droite : autre collection");
+                    color: CollUi.grabbing ? Theme.accent : Theme.text-dim;
+                    font-size: Theme.t-caption;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                }
+            }
+            HorizontalLayout {
+                padding-left: root.pad;
+                padding-right: root.pad;
+                Rectangle { height: 1px; background: Theme.border-strong; }
+            }
+            if CollUi.games.length == 0: HorizontalLayout {
+                padding: root.pad;
+                Text {
+                    text: @tr("Cette collection est vide. Cochez des jeux dans la bibliothèque (Ctrl-clic), puis « Ajouter à une collection… ».");
+                    color: Theme.text-dim;
+                    font-size: Theme.t-small;
+                    wrap: word-wrap;
+                }
+            }
+            list := ListView {
+                vertical-stretch: 1;
+                public function ensure-visible(top: length, h: length) {
+                    if (top + self.content-y < 0) {
+                        self.content-y = -top;
+                    } else if (top + h + self.content-y > self.visible-height) {
+                        self.content-y = -(top + h - self.visible-height);
+                    }
+                }
+                for g[i] in CollUi.games: Rectangle {
+                    height: 56px;
+                    CollGameRow {
+                        x: root.pad;
+                        width: parent.width - 2 * root.pad;
+                        game: g;
+                        index: i;
+                        count: CollUi.games.length;
+                        selected: i == CollUi.game-index;
+                        grabbed: CollUi.grabbing && i == CollUi.game-index;
+                        editable: !CollUi.synced;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// « Ajouter à une collection… » : jeux cochés (ou un seul jeu) vers une collection.
+export component CollectionPicker inherits Modal {
+    dismissed => { CollUi.picker-open = false; }
+    init => { scope.focus(); }
+    ModalPanel {
+        width: min(460px, root.width - 48px);
+        height: min(box.preferred-height, root.height - 48px);
+        scope := FocusScope {
+            key-pressed(event) => {
+                if (event.text == Key.Escape) { CollUi.picker-open = false; return accept; }
+                if (event.text == Key.DownArrow) { CollUi.picker-index = min(CollUi.collections.length - 1, CollUi.picker-index + 1); return accept; }
+                if (event.text == Key.UpArrow) { CollUi.picker-index = max(0, CollUi.picker-index - 1); return accept; }
+                if (event.text == Key.Return && CollUi.picker-index >= 0 && CollUi.picker-index < CollUi.collections.length) {
+                    CollUi.picker-add(CollUi.collections[CollUi.picker-index].id);
+                    return accept;
+                }
+                reject
+            }
+        }
+        box := VerticalLayout {
+            padding: 24px;
+            spacing: 12px;
+            HorizontalLayout {
+                spacing: 10px;
+                Icon { source: Icons.layers; size: 20px; tint: Theme.accent; }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 2px;
+                    Text { text: @tr("Ajouter à une collection"); color: Theme.text; font-family: Theme.display; font-size: Theme.t-heading; font-weight: 700; }
+                    Text { text: CollUi.picker-title; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                }
+                IconButton { icon: Icons.close; tooltip: @tr("Fermer"); clicked => { CollUi.picker-open = false; } }
+            }
+            if CollUi.collections.length > 0: ScrollView {
+                height: min(CollUi.collections.length * 40px, 280px);
+                VerticalLayout {
+                    alignment: start;
+                    for c[i] in CollUi.collections: Rectangle {
+                        height: 40px;
+                        border-radius: Theme.radius;
+                        background: i == CollUi.picker-index ? Theme.surface-active : pta.has-hover ? Theme.surface-hover : transparent;
+                        if i == CollUi.picker-index: Rectangle { x: 0; width: Theme.perch; background: Theme.accent; }
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            padding-right: 12px;
+                            spacing: 10px;
+                            Rectangle {
+                                width: 10px;
+                                Rectangle { y: (parent.height - 10px) / 2; height: 10px; border-radius: 2px; background: c.color; }
+                            }
+                            Text { text: c.name; color: Theme.text; font-size: Theme.t-body; font-weight: 600; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                            Text { text: c.count; color: Theme.text-dim; font-family: Theme.display; font-size: Theme.t-caption; vertical-alignment: center; }
+                        }
+                        pta := TouchArea { mouse-cursor: pointer; clicked => { CollUi.picker-add(c.id); } }
+                    }
+                }
+            }
+            if CollUi.collections.length == 0: Text {
+                text: @tr("Aucune collection : nommez la première ci-dessous.");
+                color: Theme.text-dim;
+                font-size: Theme.t-small;
+                wrap: word-wrap;
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                new-name := TextField {
+                    horizontal-stretch: 1;
+                    text <=> CollUi.picker-new;
+                    placeholder: @tr("Nouvelle collection (ex. Sonic, Coop, À finir)");
+                    accepted(t) => { CollUi.picker-create(t); }
+                }
+                PrimaryButton {
+                    text: @tr("Créer");
+                    enabled: CollUi.picker-new != "";
+                    clicked => { CollUi.picker-create(CollUi.picker-new); }
+                }
+            }
+        }
+    }
+}
+
+/// Création guidée : on tape « Sonic », les jeux correspondants sont listés et cochés.
+export component CreateCollectionDialog inherits Modal {
+    dismissed => { CollUi.create-open = false; }
+    init => { query.focus(); }
+    ModalPanel {
+        width: min(640px, root.width - 48px);
+        height: min(640px, root.height - 48px);
+        VerticalLayout {
+            padding: 24px;
+            spacing: 12px;
+            HorizontalLayout {
+                spacing: 10px;
+                Icon { source: Icons.layers; size: 20px; tint: Theme.accent; }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 2px;
+                    Text { text: @tr("Nouvelle collection"); color: Theme.text; font-family: Theme.display; font-size: Theme.t-heading; font-weight: 700; }
+                    Text {
+                        text: @tr("Tapez un nom ou une série : les jeux correspondants sont cochés. Décochez ceux à exclure, puis validez.");
+                        color: Theme.text-dim;
+                        font-size: Theme.t-caption;
+                        wrap: word-wrap;
+                    }
+                }
+                IconButton { icon: Icons.close; tooltip: @tr("Fermer"); clicked => { CollUi.create-open = false; } }
+            }
+            query := TextField {
+                text <=> CollUi.create-query;
+                placeholder: @tr("Rechercher des jeux (ex. sonic, resident evil, source:gog)");
+                icon: Icons.search;
+                has-icon: true;
+                edited => { CollUi.create-search(); }
+                accepted => { list-scope.focus(); }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                Text { text: @tr("Nom"); color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; width: 52px; }
+                TextField {
+                    horizontal-stretch: 1;
+                    text <=> CollUi.create-name;
+                    placeholder: @tr("Nom de la collection");
+                }
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                Text {
+                    text: CollUi.create-matches.length == 0
+                        ? (CollUi.create-query == "" ? @tr("Aucune recherche") : @tr("Aucun jeu ne correspond"))
+                        : @tr("{} cochés sur {}", CollUi.create-checked, CollUi.create-matches.length);
+                    color: Theme.text-muted;
+                    font-size: Theme.t-small;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                }
+                if CollUi.create-matches.length > 0: TextButton { text: @tr("Tout cocher"); clicked => { CollUi.create-all(true); } }
+                if CollUi.create-matches.length > 0: TextButton { text: @tr("Tout décocher"); clicked => { CollUi.create-all(false); } }
+            }
+            list-scope := FocusScope {
+                vertical-stretch: 1;
+                key-pressed(event) => {
+                    if (event.text == Key.DownArrow) { CollUi.create-index = min(CollUi.create-matches.length - 1, CollUi.create-index + 1); matches.ensure-visible(CollUi.create-index * 46px, 46px); return accept; }
+                    if (event.text == Key.UpArrow) { CollUi.create-index = max(0, CollUi.create-index - 1); matches.ensure-visible(CollUi.create-index * 46px, 46px); return accept; }
+                    if (event.text == " " || event.text == Key.Return) {
+                        if (CollUi.create-index >= 0 && CollUi.create-index < CollUi.create-matches.length) { CollUi.create-toggle(CollUi.create-index); }
+                        return accept;
+                    }
+                    if (event.text == Key.Escape) { CollUi.create-open = false; return accept; }
+                    reject
+                }
+                matches := ListView {
+                    public function ensure-visible(top: length, h: length) {
+                        if (top + self.content-y < 0) {
+                            self.content-y = -top;
+                        } else if (top + h + self.content-y > self.visible-height) {
+                            self.content-y = -(top + h - self.visible-height);
+                        }
+                    }
+                    for m[i] in CollUi.create-matches: Rectangle {
+                        height: 46px;
+                        background: i == CollUi.create-index && list-scope.has-focus ? Theme.surface-active : mta.has-hover ? Theme.surface-hover : transparent;
+                        border-radius: Theme.radius-sm;
+                        mta := TouchArea { mouse-cursor: pointer; clicked => { CollUi.create-index = i; CollUi.create-toggle(i); } }
+                        HorizontalLayout {
+                            padding-left: 10px;
+                            padding-right: 10px;
+                            spacing: 12px;
+                            Rectangle {
+                                width: 18px;
+                                Rectangle {
+                                    y: (parent.height - 18px) / 2;
+                                    height: 18px;
+                                    border-radius: 3px;
+                                    background: m.checked ? Theme.accent : transparent;
+                                    border-width: m.checked ? 0px : 1px;
+                                    border-color: Theme.text-dim;
+                                    if m.checked: Icon { source: Icons.check; size: 13px; tint: Theme.on-accent; }
+                                }
+                            }
+                            GameCover {
+                                y: 4px;
+                                width: 25px;
+                                height: 38px;
+                                corner: 2px;
+                                show-title: false;
+                                source: m.card.cover;
+                                has-image: m.card.has-cover;
+                                color-a: m.card.color-a;
+                                color-b: m.card.color-b;
+                                initials: m.card.initials;
+                                title: m.title;
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                horizontal-stretch: 1;
+                                Text { text: m.title; color: m.checked ? Theme.text : Theme.text-muted; font-size: Theme.t-small; font-weight: 600; overflow: elide; }
+                                Text { text: m.detail; color: Theme.text-dim; font-size: Theme.t-caption; overflow: elide; }
+                            }
+                        }
+                    }
+                }
+            }
+            if CollUi.create-more > 0: Text {
+                text: @tr("{} autres jeux correspondent : précisez la recherche pour les voir.", CollUi.create-more);
+                color: Theme.text-dim;
+                font-size: Theme.t-caption;
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                alignment: end;
+                SecondaryButton { text: @tr("Annuler"); clicked => { CollUi.create-open = false; } }
+                PrimaryButton {
+                    text: @tr("Créer la collection ({})", CollUi.create-checked);
+                    enabled: CollUi.create-name != "";
+                    clicked => { CollUi.create-confirm(); }
+                }
+            }
+        }
+    }
+}

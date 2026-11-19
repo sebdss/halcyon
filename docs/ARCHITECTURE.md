@@ -371,6 +371,33 @@ démarrage), `client` (nature de l'installation, lancement de l'updater). Exécu
 runtime asynchrone : un fil de fond par opération, comme le reste de l'application.
 Détails : [`HUS.md`](HUS.md).
 
+## 5 sexies. Version 1.0.0-alpha.6 — collections, étagère, désinstallation
+
+**Collections** : `halcyon-core::collections` (pur, testé : détection des séries par premiers
+mots significatifs et plus long début commun, ordre manuel puis alphabétique, déplacement,
+couleurs). Schéma **v7** : `collections.color / logo_path / banner_path / position` et
+`collection_games.position` (colonnes ajoutées avec valeurs par défaut : rien n'est réécrit,
+une base v7 reste lisible par la 1.0.0-alpha.5). Contrôleur `src/ctl_collections.rs`, état
+`ui/collections_state.slint`, page `ui/pages/collections.slint`. La sélection multiple vit
+dans `LibraryData::marked` : la grille et la liste virtualisées la lisent à la demande.
+
+**Étagère** : `src/ctl_shelf.rs`, `ui/console_state.slint`, `ui/pages/shelf.slint`. Les
+boîtiers occupent **21 emplacements fixes** (le jeu d'indice `i` va dans l'emplacement
+`i % 21`) : en se déplaçant, seul l'emplacement qui entre dans la fenêtre change ; les
+autres gardent leur élément Slint, donc leurs animations. La position de la rangée est une
+valeur animée par Slint (comme la bande du carrousel). La rotation est simulée par deux
+largeurs (`cos`, `sin` d'un angle animé) : aucun calcul par image côté Rust. Nouveau visuel
+`images::Kind::CoverLarge` (480 × 720) pour le seul boîtier sélectionné, en cache disque
+comme l'ambiance.
+
+**Désinstallation** : `halcyon-core::uninstall` (voie par source, garde-fous de chemin, pur et
+testé), `halcyon-integrations::trash` (corbeille freedesktop / Windows, taille d'un dossier),
+`src/ctl_uninstall.rs` (dialogue, sauvegarde préalable, fil de fond, journaux),
+`ui/uninstall_state.slint`. Détails de sécurité : [`SECURITE.md`](SECURITE.md), § 4 bis.
+
+**Manette** : nouvelle action configurable `toggle` (R3 par défaut) : cocher un jeu sur le
+bureau, changer de vue en mode console.
+
 ## 6. Arborescence
 
 ```
@@ -381,7 +408,7 @@ halcyon/
 ├── crates/
 │   ├── halcyon-core/             # modèle, contrats, recherche, règles, profils, stats, suggestions (pur, testé)
 │   │   └── src/{achievements,launch_args,lib,model,profiles,query,recommend,rules,scanner,search,stats,util}.rs
-│   ├── halcyon-storage/          # SQLite (migrations v1→v6), settings, journal, suivi, logs, chemins
+│   ├── halcyon-storage/          # SQLite (migrations v1→v7), settings, journal, suivi, logs, chemins
 │   │   └── src/{achievements,activity,audit,db,lib,logging,migrations,paths,perf,repo,saves_mods,secrets,settings,tracking}.rs
 │   ├── halcyon-integrations/     # plateformes, émulation, succès, lancement, sauvegardes, mods, extensions
 │   │   ├── data/{platforms,emulators}.json
@@ -418,6 +445,7 @@ halcyon/
 | 0.4.1 | Identité sonore originale et moteur audio, programme d'installation Windows/Linux (vérification, progression réelle, mise à jour, réparation, désinstallation) | ✅ Linux · Windows à valider sur machine réelle |
 | 0.5.0 | Minecraft Java Edition : versions, loaders, mods, modpacks, launcher officiel, connexion Microsoft | ✅ Windows · Linux sans réseau |
 | 1.0.0-alpha.1 | Audit 1.0, coffre des secrets, mises à jour signées, journal de sécurité, Performance Center (monitoring, applications, recommandations, historique par partie, FPS par journaux) | ✅ Linux · Windows à valider sur machine réelle |
+| 1.0.0-alpha.6 | Collections faciles à créer (sélection multiple, création guidée, séries, page de collection), étagère du mode console, désinstallation par les plateformes | ✅ Linux · Windows à valider sur machine réelle |
 
 Pistes suivantes : gestionnaire de téléchargements unifié, empreintes RetroAchievements des jeux sur disque, GOG via Heroic,
 validation de bout en bout sous Windows (préférence GPU, `.lnk`, icône de notification,

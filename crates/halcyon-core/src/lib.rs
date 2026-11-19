@@ -8,6 +8,7 @@
 extern crate halcyon_i18n;
 
 pub mod achievements;
+pub mod collections;
 pub mod desktop;
 pub mod export;
 pub mod launch_args;
@@ -21,6 +22,7 @@ pub mod scanner;
 pub mod search;
 pub mod stats;
 pub mod transfer;
+pub mod uninstall;
 pub mod util;
 
 pub use model::*;

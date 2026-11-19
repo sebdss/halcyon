@@ -197,4 +197,16 @@ pub const MIGRATIONS: &[&str] = &[
     );
     CREATE INDEX idx_perf_sessions_game ON perf_sessions(game_id, started_at);
     "#,
+    // v7 (Halcyon 1.0.0-alpha.6) — collections : style (couleur, logo, bannière), ordre des
+    // collections et ordre manuel des jeux. Colonnes ajoutées seulement, avec des valeurs par
+    // défaut : les collections existantes gardent leurs jeux (position 0 = ordre alphabétique)
+    // et une base v7 reste lisible par la 1.0.0-alpha.5.
+    r#"
+    ALTER TABLE collections ADD COLUMN color TEXT;
+    ALTER TABLE collections ADD COLUMN logo_path TEXT;
+    ALTER TABLE collections ADD COLUMN banner_path TEXT;
+    ALTER TABLE collections ADD COLUMN position INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE collection_games ADD COLUMN position INTEGER NOT NULL DEFAULT 0;
+    CREATE INDEX IF NOT EXISTS idx_collection_games_game ON collection_games(game_id);
+    "#,
 ];

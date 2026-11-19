@@ -27,7 +27,7 @@ pub const SETTINGS_SECTIONS: [(&str, &str); 12] = [
 ];
 
 /// Commandes du lancement rapide : (libellé, mots-clés, code).
-const COMMANDS: [(&str, &str, &str); 14] = [
+const COMMANDS: [(&str, &str, &str); 16] = [
     (tr_noop!("Analyser les sources"), trc_noop!("keywords", "scan rescan detecter jeux"), "scan"),
     (tr_noop!("Activer / désactiver le mode Performance"), trc_noop!("keywords", "performance jeu fps"), "perf"),
     (tr_noop!("Mode d'affichage standard"), trc_noop!("keywords", "standard normal interface"), "mode:0"),
@@ -38,6 +38,8 @@ const COMMANDS: [(&str, &str, &str); 14] = [
     (tr_noop!("Centre de commandes"), trc_noop!("keywords", "taches notifications telechargements erreurs"), "center"),
     (tr_noop!("Personnaliser l'accueil"), trc_noop!("keywords", "widgets accueil disposition"), "home-edit"),
     (tr_noop!("Ajouter un jeu"), trc_noop!("keywords", "manuel executable"), "add"),
+    (tr_noop!("Gérer les collections"), trc_noop!("keywords", "collections series etagere ranger ordre couleur"), "collections"),
+    (tr_noop!("Nouvelle collection…"), trc_noop!("keywords", "creer collection serie cocher"), "new-collection"),
     (tr_noop!("Bibliothèque en grille"), trc_noop!("keywords", "vue grille jaquettes"), "view:0"),
     (tr_noop!("Bibliothèque en liste"), trc_noop!("keywords", "vue liste"), "view:1"),
     (tr_noop!("Bibliothèque en carrousel"), trc_noop!("keywords", "vue carrousel"), "view:2"),
@@ -148,6 +150,8 @@ impl Controller {
                         app.global::<HomeUi>().set_editing(true);
                     }
                     "add" => app.global::<AppUi>().set_add_dialog_open(true),
+                    "collections" => self.open_collections_page(None),
+                    "new-collection" => self.open_create_collection(""),
                     c if c.starts_with("mode:") => self.set_ui_mode(c[5..].parse().unwrap_or(0)),
                     c if c.starts_with("view:") => {
                         app.global::<LibraryUi>().set_view_mode(c[5..].parse().unwrap_or(0));

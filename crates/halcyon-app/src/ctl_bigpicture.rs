@@ -46,6 +46,7 @@ enum Opt {
     Favorite,
     Hide,
     Desktop,
+    Uninstall,
     Close,
 }
 
@@ -76,6 +77,8 @@ pub struct BigPicture {
     key: usize,
     results: Vec<GameId>,
     result_col: usize,
+    /// Étagère (seconde vue de la section Jouer).
+    pub(crate) shelf: crate::ctl_shelf::ShelfState,
 }
 
 /// Première rangée affichée de la grille (fenêtre glissante autour de la sélection).
@@ -100,6 +103,17 @@ impl Controller {
         }
         self.sound(halcyon_audio::Cue::Mode);
         self.rebuild_bp_rows();
+        {
+            // Vue mémorisée ; emplacements de l'étagère neufs (fenêtre glissante).
+            let shelf = app.global::<crate::ShelfUi>();
+            shelf.set_view(i32::from(self.settings.borrow().console_view.min(1)));
+            let bp = self.bp.borrow();
+            shelf.set_boxes(ModelRc::from(bp.shelf.boxes.clone()));
+            shelf.set_next_boxes(ModelRc::from(bp.shelf.next.clone()));
+            // Le rendu logiciel ne sait pas tourner un texte : titres des tranches empilés.
+            let software = std::env::var("SLINT_BACKEND").map(|b| b.to_ascii_lowercase().contains("software")).unwrap_or(false);
+            shelf.set_rotate_text(!software);
+        }
         app.window().set_fullscreen(true);
         app.global::<BpUi>().set_active(true);
         app.global::<BpUi>().set_pad_connected(self.pad_connected.get());
@@ -159,22 +173,49 @@ impl Controller {
             (tr!("Émulation"), ids(&visible.iter().copied().filter(|g| g.source == GameSource::Emulated).collect::<Vec<_>>())),
         ];
         drop(lib);
-        for c in self.collections.borrow().iter() {
-            if let Ok(members) = self.db().collection_members(c.id) {
-                let lib = self.lib.borrow();
-                let mut v: Vec<&Game> = members.iter().filter_map(|id| lib.get(*id)).filter(|g| !g.hidden).collect();
-                v.sort_by(|a, b| a.sort_key.cmp(&b.sort_key));
-                filters.push((c.name.clone(), ids(&v)));
-            }
+        // Collections : dans l'ordre choisi sur leur page (ordre manuel des jeux).
+        let cols: Vec<(i64, String)> = self.collections.borrow().iter().map(|c| (c.id, c.name.clone())).collect();
+        for (id, name) in cols {
+            let order = self.ordered_collection(id);
+            let lib = self.lib.borrow();
+            let v: Vec<GameId> = order.into_iter().filter(|g| lib.get(*g).is_some_and(|x| !x.hidden)).collect();
+            filters.push((name, v));
         }
         filters.retain(|(_, l)| !l.is_empty());
+        {
+            let mut bp = self.bp.borrow_mut();
+            bp.strip_index = bp.strip_index.min(strip.len());
+            bp.strip = strip;
+            bp.filter = bp.filter.min(filters.len().saturating_sub(1));
+            bp.filters = filters;
+            let len = bp.filters.get(bp.filter).map(|(_, l)| l.len()).unwrap_or(0);
+            bp.grid_index = bp.grid_index.min(len.saturating_sub(1));
+        }
+        self.rebuild_shelves();
+    }
+
+    /// Vue étagère de la section Jouer affichée ?
+    pub(crate) fn shelf_view(&self) -> bool {
+        self.settings.borrow().console_view == 1 && self.bp.borrow().section == 0
+    }
+
+    pub(crate) fn bp_set_zone(&self, zone: u8) {
+        self.bp.borrow_mut().zone = zone;
+        self.refresh_bp();
+    }
+
+    pub(crate) fn bp_open_options(&self, id: GameId) {
+        let opts = self.bp_options_for(id);
         let mut bp = self.bp.borrow_mut();
-        bp.strip_index = bp.strip_index.min(strip.len());
-        bp.strip = strip;
-        bp.filter = bp.filter.min(filters.len().saturating_sub(1));
-        bp.filters = filters;
-        let len = bp.filters.get(bp.filter).map(|(_, l)| l.len()).unwrap_or(0);
-        bp.grid_index = bp.grid_index.min(len.saturating_sub(1));
+        bp.options = Some((id, opts));
+        bp.option_index = 0;
+    }
+
+    pub(crate) fn bp_open_sheet(&self, id: GameId) {
+        let mut bp = self.bp.borrow_mut();
+        bp.sheet = Some(id);
+        bp.sheet_button = 0;
+        bp.ach_index = 0;
     }
 
     /// Jeu mis en avant (fond d'écran, informations).
@@ -185,6 +226,10 @@ impl Controller {
         }
         if let Some(id) = bp.sheet {
             return Some(id);
+        }
+        if bp.section == 0 && self.settings.borrow().console_view == 1 {
+            drop(bp);
+            return self.shelf_focused();
         }
         match bp.section {
             0 => bp.strip.get(bp.strip_index).copied(),
@@ -206,7 +251,11 @@ impl Controller {
         if installed {
             v.push(Opt::Play);
         }
-        v.extend([Opt::Sheet, Opt::Favorite, Opt::Hide, Opt::Desktop, Opt::Close]);
+        v.extend([Opt::Sheet, Opt::Favorite, Opt::Hide, Opt::Desktop]);
+        if self.lib.borrow().get(id).is_some_and(crate::ctl_uninstall::can_uninstall) {
+            v.push(Opt::Uninstall);
+        }
+        v.push(Opt::Close);
         v
     }
 
@@ -249,7 +298,9 @@ impl Controller {
             let bp = self.bp.borrow();
             (bp.section, bp.strip.clone(), bp.strip_index, bp.button)
         };
-        if section == 0 {
+        if section == 0 && self.shelf_view() {
+            self.refresh_shelf();
+        } else if section == 0 {
             ui.set_strip(ModelRc::new(VecModel::from(self.bp_cards(&strip))));
             ui.set_strip_index(strip_index as i32);
             ui.set_button(button as i32);
@@ -315,6 +366,9 @@ impl Controller {
                     Opt::Favorite => tr!("Ajouter aux favoris").into(),
                     Opt::Hide => tr!("Masquer de la bibliothèque").into(),
                     Opt::Desktop => tr!("Ouvrir sur le bureau").into(),
+                    Opt::Uninstall if g.source == GameSource::Emulated => tr!("Masquer la ROM…").into(),
+                    Opt::Uninstall if g.source == GameSource::Manual => tr!("Retirer de la bibliothèque…").into(),
+                    Opt::Uninstall => tr!("Désinstaller…").into(),
                     Opt::Close => tr!("Fermer").into(),
                 })
                 .collect();
@@ -429,6 +483,7 @@ impl Controller {
                 self.open_game(id);
                 return;
             }
+            Opt::Uninstall => self.uninstall_request(id),
             Opt::Sheet | Opt::Close => {}
         }
         self.refresh_bp();
@@ -463,6 +518,39 @@ impl Controller {
         };
         if let Some(cue) = cue {
             self.sound(cue);
+        }
+
+        // Désinstallation en cours de confirmation : la manette pilote le dialogue.
+        if self.uninstall_open() {
+            let key = match action {
+                "up" | "left" => "prev",
+                "down" | "right" => "next",
+                "accept" => "accept",
+                "back" | "exit" => "back",
+                _ => "",
+            };
+            if !key.is_empty() {
+                self.uninstall_key(key);
+            }
+            return;
+        }
+
+        // Changement de vue (étagère / rangée), sans menu ouvert : section Jouer.
+        if action == "view" {
+            let overlay = {
+                let bp = self.bp.borrow();
+                bp.menu_open || bp.options.is_some() || bp.sheet.is_some()
+            };
+            if !overlay {
+                {
+                    let mut bp = self.bp.borrow_mut();
+                    bp.section = 0;
+                    bp.zone = 1;
+                }
+                self.toggle_console_view();
+                self.refresh_bp();
+            }
+            return;
         }
 
         // Centre de contrôle (Start / Select / Échap depuis l'accueil) : prioritaire.
@@ -554,6 +642,15 @@ impl Controller {
             if play && self.lib.borrow().get(id).is_some_and(|g| g.installed) {
                 self.play(id);
             }
+            return;
+        }
+
+        // Étagère : gauche / droite (jeux), haut / bas (étagères), A, X, Select, souris.
+        let on_shelf = {
+            let bp = self.bp.borrow();
+            bp.section == 0 && bp.zone == 1 && self.settings.borrow().console_view == 1
+        };
+        if on_shelf && self.shelf_input(action) {
             return;
         }
 
@@ -812,6 +909,7 @@ impl Controller {
             (true, PadAction::Context) => self.bp_input("context"),
             (true, PadAction::Prev) => self.bp_input("prev"),
             (true, PadAction::Next) => self.bp_input("next"),
+            (true, PadAction::Toggle) => self.bp_input("view"),
             (true, a) => {
                 if let Some(input) = a.as_input() {
                     self.bp_input(input);

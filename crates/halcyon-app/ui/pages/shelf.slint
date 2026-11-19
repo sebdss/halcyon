@@ -1,0 +1,422 @@
+// Étagère : seconde vue du mode console (1.0.0-alpha.6).
+//
+// Chaque jeu est un boîtier épais : tranche (titre, bande de couleur, source) et face avant
+// (jaquette). Au repos, les boîtiers sont rangés vus de côté ; le boîtier sélectionné avance,
+// porte une ombre, se tourne pour montrer sa jaquette, puis ses voisins s'écartent.
+//
+// La rotation est simulée sans calcul par image : la largeur de la face avant suit cos(θ) et
+// celle de la tranche sin(θ), côte à côte ; seule la valeur θ est animée par Slint. Le mode
+// Performance dessine des jaquettes à plat, sans tranche, ombre ni reflet. Toutes les tailles
+// suivent la hauteur de l'écran (`u` = 1 px en 1080p), de 800 × 560 à 3840 × 2160.
+
+import { Theme, Icons, Art } from "../theme.slint";
+import { BpUi } from "../state.slint";
+import { ShelfUi, ShelfBox } from "../console_state.slint";
+import { GameCover, Icon } from "../components.slint";
+
+/// Un boîtier. `pick` : 0 au repos, 1 sélectionné (avance) ; `turn` suit avec un léger
+/// retard (se tourne de face).
+component ShelfCase inherits Rectangle {
+    in property <ShelfBox> item;
+    in property <bool> selected;
+    in property <length> u;
+    in property <bool> flat;
+    in property <bool> large-cover;
+    callback hovered();
+    callback clicked();
+    callback double-clicked();
+
+    // Dimensions de référence (1080p) : face 200 × 300, épaisseur 38.
+    property <length> face-w: 200 * root.u;
+    property <length> face-h: 300 * root.u;
+    property <length> depth: 38 * root.u;
+    property <angle> rest: 64deg;
+    property <float> pick: root.selected ? 1 : 0;
+    property <float> turn: root.selected ? 1 : 0;
+    animate pick { duration: Theme.fast; easing: ease-out; }
+    animate turn { duration: Theme.normal; delay: Theme.fast; easing: ease-in-out; }
+    property <angle> theta: root.flat ? 0deg : root.rest * (1 - root.turn);
+    property <float> scale: 1 + 0.12 * root.pick;
+    out property <length> front-w: (root.flat ? root.face-w * (0.62 + 0.38 * root.pick) : root.face-w * cos(root.theta)) * root.scale;
+    out property <length> spine-w: (root.flat ? 0px : root.depth * sin(root.theta)) * root.scale;
+    out property <length> case-h: root.face-h * (root.flat ? (0.62 + 0.38 * root.pick) : 1) * root.scale;
+    width: root.spine-w + root.front-w;
+    height: root.case-h;
+
+    // Ombre portée du boîtier sélectionné (posée sur la planche).
+    if !root.flat && Theme.effects && root.pick > 0.01: Rectangle {
+        x: 6 * root.u;
+        y: 10 * root.u;
+        width: root.width;
+        height: root.height;
+        border-radius: 4 * root.u;
+        background: #00000000;
+        drop-shadow-blur: 36 * root.u * root.pick;
+        drop-shadow-offset-y: 14 * root.u * root.pick;
+        drop-shadow-color: rgba(0, 0, 0, 0.65 * root.pick);
+    }
+
+    // Tranche : couleur du jeu, bande de la source, titre.
+    if root.spine-w > 0.5px: spine := Rectangle {
+        x: 0;
+        width: root.spine-w;
+        height: root.height;
+        clip: true;
+        background: root.item.color-b.mix(root.item.color-a, 0.55);
+        border-radius: 2 * root.u;
+        // Bande de couleur (plateforme ou source) en haut de la tranche.
+        Rectangle {
+            y: 0;
+            height: 54 * root.u * root.scale;
+            background: root.item.band;
+        }
+        // Repère clair en bas : la marque de la source, en texte.
+        if ShelfUi.rotate-text: Text {
+            width: 50 * root.u * root.scale;
+            height: root.depth * root.scale;
+            x: (spine.width - self.width) / 2;
+            y: 2 * root.u + (54 * root.u * root.scale - self.height) / 2;
+            transform-rotation: -90deg;
+            text: root.item.mark;
+            color: #ffffff;
+            font-size: 13 * root.u * root.scale * Theme.text-scale;
+            font-weight: 800;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        // Titre le long de la tranche (lecture de bas en haut).
+        if ShelfUi.rotate-text: Text {
+            width: (root.face-h - 74 * root.u) * root.scale;
+            height: root.depth * root.scale;
+            x: (spine.width - self.width) / 2;
+            y: 54 * root.u * root.scale + (spine.height - 54 * root.u * root.scale - self.height) / 2;
+            transform-rotation: -90deg;
+            text: root.item.title;
+            color: #ffffffe8;
+            font-family: Theme.display;
+            font-size: 15 * root.u * root.scale * Theme.text-scale;
+            font-weight: 700;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        // Rendu logiciel (sans rotation) : lettres du titre empilées.
+        if !ShelfUi.rotate-text: Text {
+            x: 0;
+            y: 60 * root.u * root.scale;
+            width: spine.width;
+            height: spine.height - 66 * root.u * root.scale;
+            text: root.item.initials;
+            color: #ffffffe8;
+            font-family: Theme.display;
+            font-size: 14 * root.u * root.scale * Theme.text-scale;
+            font-weight: 800;
+            horizontal-alignment: center;
+            wrap: char-wrap;
+            overflow: elide;
+        }
+        // Ombre propre de la tranche (elle est dans l'ombre de la face).
+        if Theme.effects: Rectangle { background: @linear-gradient(90deg, #00000000 0%, #00000059 100%); }
+    }
+
+    // Face avant : jaquette (ou jaquette générée), étirée selon l'angle de vue.
+    front := Rectangle {
+        x: root.spine-w;
+        width: root.front-w;
+        height: root.height;
+        clip: true;
+        border-radius: 3 * root.u;
+        GameCover {
+            width: parent.width;
+            height: parent.height;
+            source: root.large-cover ? ShelfUi.focus-cover : root.item.cover;
+            has-image: root.large-cover || root.item.has-cover;
+            color-a: root.item.color-a;
+            color-b: root.item.color-b;
+            initials: root.item.initials;
+            title: root.item.title;
+            show-title: !root.item.has-cover && root.front-w > 90 * root.u;
+            corner: 3 * root.u;
+        }
+        // Face qui s'éloigne : plus sombre vers son bord lointain.
+        if !root.flat && root.turn < 0.99: Rectangle {
+            background: @linear-gradient(90deg, #00000000 0%, rgba(0, 0, 0, 0.55 * (1 - root.turn)) 100%);
+        }
+        // Reflet : brillance d'un boîtier en plastique (absent en mode Performance).
+        if Theme.effects && !root.flat: Rectangle {
+            background: @linear-gradient(115deg, rgba(255, 255, 255, 0.05 + 0.13 * root.pick) 0%, #ffffff00 38%, #ffffff00 70%, rgba(255, 255, 255, 0.05 * root.pick) 100%);
+        }
+        // Jeu non installé : voile.
+        if !root.item.installed: Rectangle { background: #00000059; }
+        if root.item.favorite: Rectangle {
+            x: parent.width - self.width - 8 * root.u;
+            y: 8 * root.u;
+            width: 30 * root.u;
+            height: 30 * root.u;
+            border-radius: 4 * root.u;
+            background: #000000a0;
+            visible: root.front-w > 80 * root.u;
+            Icon { source: Icons.star-filled; size: 18 * root.u; tint: Theme.warm; }
+        }
+    }
+
+    // Sélection console : cadre blanc épais, lisible à 3 mètres.
+    if root.selected: Rectangle {
+        x: -6 * root.u;
+        y: -6 * root.u;
+        width: root.width + 12 * root.u;
+        height: root.height + 12 * root.u;
+        border-radius: 8 * root.u;
+        border-width: 4 * root.u;
+        border-color: rgba(255, 255, 255, root.pick);
+    }
+
+    // Survol : seul un vrai mouvement de la souris sélectionne (les boîtiers qui glissent
+    // sous un pointeur immobile ne changent pas la sélection).
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+        double-clicked => { root.double-clicked(); }
+        pointer-event(e) => {
+            if (e.kind == PointerEventKind.move && !root.selected) {
+                root.hovered();
+            }
+        }
+    }
+}
+
+/// Fond : bannière du jeu sélectionné (ou ambiance floutée), assombrie, en fondu enchaîné.
+export component ShelfBackdrop inherits Rectangle {
+    in property <length> u;
+    background: Theme.bp-bg;
+    Image {
+        width: root.width;
+        height: root.height;
+        source: ShelfUi.bg-a;
+        image-fit: cover;
+        opacity: ShelfUi.bg-a-front ? (ShelfUi.bg-a-ambient ? 0.55 : 1) : 0;
+        animate opacity { duration: Theme.slow * 1.5; easing: ease-in-out; }
+    }
+    Image {
+        width: root.width;
+        height: root.height;
+        source: ShelfUi.bg-b;
+        image-fit: cover;
+        opacity: !ShelfUi.bg-a-front ? (ShelfUi.bg-b-ambient ? 0.55 : 1) : 0;
+        animate opacity { duration: Theme.slow * 1.5; easing: ease-in-out; }
+    }
+    // Assombri pour la lisibilité : voile général, puis fondus à gauche et en bas.
+    Rectangle { background: #00000080; }
+    Image { x: 0; y: 0; width: root.width * 0.75; height: root.height; source: Art.fade-left; image-fit: fill; colorize: Theme.bp-bg; }
+    Image { x: 0; y: 0; width: root.width; height: root.height; source: Art.fade-bottom; image-fit: fill; colorize: Theme.bp-bg; }
+}
+
+/// Planche de l'étagère : dessus éclairé (liseré de la couleur de la collection), chant
+/// avant sur lequel est posée la plaque nominative, ombre portée dessous.
+component Board inherits Rectangle {
+    in property <length> u;
+    in property <color> tint;
+    in property <bool> peek;
+    height: 52 * root.u;
+    // Dessus de la planche, vu en légère plongée.
+    Rectangle {
+        y: 0;
+        height: 8 * root.u;
+        background: #3a404a;
+        Rectangle { y: 0; height: 2 * root.u; background: root.tint.with-alpha(root.peek ? 0.5 : 0.95); }
+    }
+    // Chant avant.
+    Rectangle { y: 8 * root.u; height: root.height - 8 * root.u; background: #22262d; }
+    if Theme.effects && !root.peek: Rectangle {
+        y: root.height;
+        height: 30 * root.u;
+        background: @linear-gradient(180deg, #00000099 0%, #00000000 100%);
+    }
+}
+
+export component ShelfView inherits Rectangle {
+    in property <length> u;
+    in property <length> side;
+    property <bool> flat: !Theme.effects;
+    // Rangée : le boîtier sélectionné est au tiers gauche de l'écran.
+    property <length> anchor: max(root.side + 150 * root.u, root.width * 0.3);
+    property <length> board-y: 772 * root.u;
+    property <length> rest-w: root.flat ? 124 * root.u : 122 * root.u;
+    property <length> stride: root.rest-w + 12 * root.u;
+    // Écart supplémentaire de part et d'autre du boîtier sélectionné.
+    property <length> spread: (root.flat ? 200 * 1.12 * root.u - root.rest-w : 224 * root.u - root.rest-w) / 2 + 26 * root.u;
+    // Position animée (avec un léger retard) : les voisins s'écartent après le boîtier choisi.
+    property <float> pos: ShelfUi.focus;
+    animate pos { duration: Theme.normal; delay: Theme.fast; easing: ease-out; }
+    property <float> next-pos: ShelfUi.next-focus;
+    animate next-pos { duration: Theme.normal; easing: ease-out; }
+
+    // ------------------------------------------------------------------ jeu sélectionné
+    if BpUi.has-focused: VerticalLayout {
+        x: root.side;
+        y: 128 * root.u;
+        width: root.width * 0.55;
+        height: 250 * root.u;
+        spacing: 12 * root.u;
+        alignment: start;
+        if BpUi.focused.has-logo: Image {
+            height: 120 * root.u;
+            source: BpUi.focused.logo;
+            image-fit: contain;
+            horizontal-alignment: left;
+        }
+        if !BpUi.focused.has-logo: Text {
+            text: BpUi.focused.title;
+            color: #ffffff;
+            font-family: Theme.display;
+            font-size: 58 * root.u * Theme.text-scale;
+            font-weight: 800;
+            wrap: word-wrap;
+            overflow: elide;
+            max-height: 150 * root.u * Theme.text-scale;
+        }
+        Text { text: BpUi.focused-meta; color: #ffffffcc; font-size: 22 * root.u * Theme.text-scale; overflow: elide; }
+        HorizontalLayout {
+            spacing: 18 * root.u;
+            alignment: start;
+            Rectangle {
+                width: st.preferred-width + 28 * root.u;
+                height: 40 * root.u;
+                border-radius: 5 * root.u;
+                background: BpUi.focused.installed ? Theme.warm : #ffffff26;
+                st := Text {
+                    text: BpUi.focused.installed ? @tr("A  Jouer") : @tr("Non installé");
+                    color: BpUi.focused.installed ? Theme.on-warm : #ffffffcc;
+                    font-family: Theme.display;
+                    font-size: 18 * root.u * Theme.text-scale;
+                    font-weight: 700;
+                }
+            }
+            Text { text: BpUi.focused-state; color: #ffffffaa; font-size: 19 * root.u * Theme.text-scale; vertical-alignment: center; }
+        }
+    }
+
+    // ------------------------------------------------------------------ étagère suivante (aperçu)
+    if ShelfUi.next-boxes.length > 0: Rectangle {
+        for b in ShelfUi.next-boxes: Rectangle {
+            visible: b.index >= 0 && self.x + self.width > -40 * root.u && self.x < root.width + 40 * root.u;
+            x: root.anchor + (b.index - root.next-pos) * root.stride * 0.62 - 60 * root.u;
+            y: root.board-y + 96 * root.u;
+            width: 100 * root.u * (root.flat ? 1 : 0.62) + (root.flat ? 0px : 20 * root.u);
+            height: 150 * root.u;
+            opacity: 0.35;
+            if !root.flat: Rectangle {
+                x: 0;
+                width: 20 * root.u;
+                background: b.color-b.mix(b.color-a, 0.55);
+                Rectangle { y: 0; height: 30 * root.u; background: b.band; }
+            }
+            GameCover {
+                x: root.flat ? 0px : 20 * root.u;
+                width: parent.width - self.x;
+                height: parent.height;
+                source: b.cover;
+                has-image: b.has-cover;
+                color-a: b.color-a;
+                color-b: b.color-b;
+                initials: b.initials;
+                title: b.title;
+                show-title: false;
+                corner: 2 * root.u;
+            }
+        }
+        Board { u: root.u; x: 0; y: root.board-y + 246 * root.u; width: root.width; tint: ShelfUi.next-color; peek: true; }
+    }
+
+    // ------------------------------------------------------------------ étagère courante
+    Board { u: root.u; x: 0; y: root.board-y; width: root.width; tint: ShelfUi.color; }
+
+    for b in ShelfUi.boxes: case := ShelfCase {
+        property <float> k: b.index - root.pos;
+        property <float> near: min(1, abs(self.k));
+        u: root.u;
+        flat: root.flat;
+        item: b;
+        selected: b.index == ShelfUi.focus;
+        large-cover: self.selected && ShelfUi.has-focus-cover;
+        visible: b.index >= 0 && self.x + self.width > -80 * root.u && self.x < root.width + 80 * root.u;
+        // Centre : pas régulier, plus l'écart autour de la sélection ; posé sur la planche,
+        // le boîtier sélectionné avance (légèrement plus haut).
+        x: root.anchor + self.k * root.stride + (self.k < 0 ? -1 : 1) * self.near * root.spread - self.width / 2;
+        y: root.board-y - self.height - (self.selected ? 18 * root.u : 0px);
+        animate y { duration: Theme.fast; easing: ease-out; }
+        hovered => { BpUi.input("shelf-hover:" + b.index); }
+        clicked => { BpUi.input("shelf-click:" + b.index); }
+        double-clicked => { BpUi.input("shelf-play:" + b.index); }
+    }
+
+    // Plaque nominative, posée sur l'arête de la planche.
+    Rectangle {
+        visible: ShelfUi.shelf-count > 0;
+        x: root.side;
+        y: root.board-y + 8 * root.u;
+        width: plate.preferred-width;
+        height: 44 * root.u;
+        border-radius: 4 * root.u;
+        background: ShelfUi.color;
+        drop-shadow-blur: Theme.effects ? 12 * root.u : 0px;
+        drop-shadow-color: #00000080;
+        plate := HorizontalLayout {
+            padding-left: 18 * root.u;
+            padding-right: 18 * root.u;
+            spacing: 12 * root.u;
+            if ShelfUi.has-logo: Image {
+                y: (parent.height - self.height) / 2;
+                height: 30 * root.u;
+                width: 60 * root.u;
+                source: ShelfUi.logo;
+                image-fit: contain;
+            }
+            Text {
+                text: ShelfUi.name;
+                color: #ffffff;
+                font-family: Theme.display;
+                font-size: 21 * root.u * Theme.text-scale;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
+            Text {
+                text: ShelfUi.count;
+                color: #ffffffcc;
+                font-family: Theme.display;
+                font-size: 18 * root.u * Theme.text-scale;
+                font-weight: 600;
+                vertical-alignment: center;
+            }
+        }
+    }
+    // Étagères voisines et position.
+    HorizontalLayout {
+        x: root.side + plate.preferred-width + 24 * root.u;
+        y: root.board-y + 8 * root.u;
+        height: 44 * root.u;
+        spacing: 26 * root.u;
+        alignment: start;
+        if ShelfUi.prev-name != "": Text { text: "▲  " + ShelfUi.prev-name; color: #ffffffaa; font-size: 18 * root.u * Theme.text-scale; vertical-alignment: center; }
+        if ShelfUi.next-name != "": Text { text: "▼  " + ShelfUi.next-name; color: #ffffffaa; font-size: 18 * root.u * Theme.text-scale; vertical-alignment: center; }
+        Text {
+            visible: ShelfUi.shelf-count > 0;
+            text: ShelfUi.shelf-index + 1 + " / " + ShelfUi.shelf-count;
+            color: #ffffff80;
+            font-family: Theme.display;
+            font-size: 18 * root.u * Theme.text-scale;
+            vertical-alignment: center;
+        }
+    }
+
+    if ShelfUi.shelf-count == 0: Text {
+        x: root.side;
+        y: 300 * root.u;
+        width: root.width * 0.5;
+        text: @tr("L'étagère est vide. Ajoutez des jeux ou analysez vos sources depuis le centre de contrôle.");
+        color: #ffffffcc;
+        font-size: 26 * root.u * Theme.text-scale;
+        wrap: word-wrap;
+    }
+}
