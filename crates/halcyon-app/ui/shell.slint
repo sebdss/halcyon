@@ -130,7 +130,7 @@ export global Spaces {
 
     public pure function of(p: Page) -> int {
         if (p == Page.home) { return 0; }
-        if (p == Page.library || p == Page.game) { return 1; }
+        if (p == Page.library || p == Page.game || p == Page.collections) { return 1; }
         if (p == Page.minecraft) { return 2; }
         if (p == Page.assistant || p == Page.achievements || p == Page.stats || p == Page.recap || p == Page.journal) { return 3; }
         if (p == Page.performance || p == Page.appearance || p == Page.settings) { return 5; }

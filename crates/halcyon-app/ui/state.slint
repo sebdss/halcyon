@@ -27,7 +27,7 @@ export struct NavVisibility {
 
 export enum Page {
     home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft, performance, downloads, recap, storage
+    remote, plugins, appearance, minecraft, performance, downloads, recap, storage, collections
 }
 
 export global Nav {
@@ -67,6 +67,8 @@ export global Actions {
     callback enter-big-picture();
     /// Une page devient visible (rafraîchissement des données affichées).
     callback page-shown(Page);
+    /// Page Collections (collection filtrée dans la bibliothèque si c'en est une).
+    callback open-collections();
 }
 
 export global LibraryUi {

@@ -785,9 +785,14 @@ export component GameTile inherits Rectangle {
     in property <bool> show-text: true;
     /// Tuile atteignable par Tab / manette (étagères). La grille gère sa propre sélection.
     in property <bool> focusable: false;
+    /// Bibliothèque : Ctrl-clic coche la tuile, Maj-clic coche une plage (sélection multiple).
+    in property <bool> markable: false;
     callback open(int);
     callback play(int);
     callback context(int, length, length);
+    callback mark(int, bool);
+    property <bool> mod-click;
+    property <bool> mod-range;
 
     width: cover-width;
     height: show-text ? cover-width * 1.5 + 52px : cover-width * 1.5;
@@ -824,9 +829,23 @@ export component GameTile inherits Rectangle {
 
     ta := TouchArea {
         mouse-cursor: pointer;
-        clicked => { root.open(root.game.id); }
-        double-clicked => { root.play(root.game.id); }
+        clicked => {
+            if (root.markable && root.mod-click) {
+                root.mark(root.game.id, root.mod-range);
+            } else {
+                root.open(root.game.id);
+            }
+        }
+        double-clicked => {
+            if (!(root.markable && root.mod-click)) {
+                root.play(root.game.id);
+            }
+        }
         pointer-event(e) => {
+            if (e.button == PointerEventButton.left && e.kind == PointerEventKind.down) {
+                root.mod-click = e.modifiers.control || e.modifiers.shift || e.modifiers.meta;
+                root.mod-range = e.modifiers.shift;
+            }
             if (e.button == PointerEventButton.right && e.kind == PointerEventKind.up) {
                 root.context(root.game.id, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
             }
@@ -892,6 +911,23 @@ export component GameTile inherits Rectangle {
         }
         // Survol : léger éclaircissement.
         Rectangle { background: root.lifted ? #ffffff0f : transparent; animate background { duration: Theme.fast; } }
+        // Coché (sélection multiple) : voile d'accent et coche dans le coin.
+        if root.game.marked: Rectangle {
+            background: Theme.accent.with-alpha(0.22);
+            border-width: 2px;
+            border-color: Theme.accent;
+            border-radius: Theme.radius-cover;
+        }
+        if root.game.marked: Rectangle {
+            x: 6px;
+            // Coin supérieur gauche, sous l'étiquette de plateforme éventuelle.
+            y: root.game.badge != "" ? 36px : 6px;
+            width: 22px;
+            height: 22px;
+            border-radius: Theme.radius-sm;
+            background: Theme.accent;
+            Icon { source: Icons.check; size: 14px; tint: Theme.on-accent; }
+        }
         // « Jouer » au survol, dans le coin : un clic au centre ouvre la fiche, jamais un
         // lancement accidentel.
         play-btn := Rectangle {

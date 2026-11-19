@@ -8,6 +8,7 @@
 extern crate halcyon_i18n;
 
 pub mod achievements;
+pub mod collections;
 pub mod desktop;
 pub mod export;
 pub mod launch_args;

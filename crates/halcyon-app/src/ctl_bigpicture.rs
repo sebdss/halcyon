@@ -159,13 +159,13 @@ impl Controller {
             (tr!("Émulation"), ids(&visible.iter().copied().filter(|g| g.source == GameSource::Emulated).collect::<Vec<_>>())),
         ];
         drop(lib);
-        for c in self.collections.borrow().iter() {
-            if let Ok(members) = self.db().collection_members(c.id) {
-                let lib = self.lib.borrow();
-                let mut v: Vec<&Game> = members.iter().filter_map(|id| lib.get(*id)).filter(|g| !g.hidden).collect();
-                v.sort_by(|a, b| a.sort_key.cmp(&b.sort_key));
-                filters.push((c.name.clone(), ids(&v)));
-            }
+        // Collections : dans l'ordre choisi sur leur page (ordre manuel des jeux).
+        let cols: Vec<(i64, String)> = self.collections.borrow().iter().map(|c| (c.id, c.name.clone())).collect();
+        for (id, name) in cols {
+            let order = self.ordered_collection(id);
+            let lib = self.lib.borrow();
+            let v: Vec<GameId> = order.into_iter().filter(|g| lib.get(*g).is_some_and(|x| !x.hidden)).collect();
+            filters.push((name, v));
         }
         filters.retain(|(_, l)| !l.is_empty());
         let mut bp = self.bp.borrow_mut();
@@ -812,6 +812,7 @@ impl Controller {
             (true, PadAction::Context) => self.bp_input("context"),
             (true, PadAction::Prev) => self.bp_input("prev"),
             (true, PadAction::Next) => self.bp_input("next"),
+            (true, PadAction::Toggle) => self.bp_input("view"),
             (true, a) => {
                 if let Some(input) = a.as_input() {
                     self.bp_input(input);

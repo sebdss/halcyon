@@ -648,6 +648,13 @@ impl Controller {
         }
         add("open", tr_noop!("Ouvrir la fiche"), icons.get_info(), true, false, false);
         add("fav", if g.favorite { tr_noop!("Retirer des favoris") } else { tr_noop!("Ajouter aux favoris") }, icons.get_star(), true, false, true);
+        // Jeux cochés dans la bibliothèque : l'action porte sur toute la sélection.
+        let marked = { self.lib.borrow().marked.len() };
+        if marked > 1 && self.lib.borrow().marked.contains(&id) {
+            add("collect", tr_noop!("Ajouter la sélection à une collection…"), icons.get_layers(), true, false, false);
+        } else {
+            add("collect", tr_noop!("Ajouter à une collection…"), icons.get_layers(), true, false, false);
+        }
         add("achievements", tr_noop!("Succès"), icons.get_trophy(), self.ach_mode(&g) != "unsupported", false, false);
         add("saves", tr_noop!("Sauvegardes"), icons.get_save(), true, false, false);
         let has_dir = g.install_dir.as_ref().is_some_and(|d| d.is_dir());
@@ -684,6 +691,7 @@ impl Controller {
             "play" => self.play(id),
             "open" => self.open_game(id),
             "fav" => self.toggle_favorite(id),
+            "collect" => self.open_collection_picker(id),
             "achievements" => self.open_game_tab(id, tab::ACHIEVEMENTS),
             "saves" => self.open_game_tab(id, tab::SAVES),
             "folder" => {

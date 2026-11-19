@@ -84,6 +84,7 @@ pub struct Controller {
     pub(crate) registry: RefCell<Registry>,
     pub(crate) detected: RefCell<HashMap<String, Detected>>,
     pub(crate) collections: RefCell<Vec<Collection>>,
+    pub(crate) coll: RefCell<crate::ctl_collections::CollState>,
     pub(crate) genres: RefCell<Vec<String>>,
     /// Sources supplémentaires de l'index de la bibliothèque (autres launchers présents).
     pub(crate) extra_sources: RefCell<Vec<GameSource>>,
@@ -180,6 +181,7 @@ impl Controller {
             registry: RefCell::new(Registry::default()),
             detected: RefCell::new(HashMap::new()),
             collections: RefCell::new(Vec::new()),
+            coll: RefCell::new(Default::default()),
             genres: RefCell::new(Vec::new()),
             extra_sources: RefCell::new(Vec::new()),
             progress: RefCell::new(HashMap::new()),
@@ -392,6 +394,7 @@ impl Controller {
         actions.on_open_url(with!(|c, url| c.open_url(&url)));
         actions.on_enter_big_picture(with!(|c| c.enter_big_picture()));
         actions.on_page_shown(with!(|c, page| c.on_page_shown(page)));
+        actions.on_open_collections(with!(|c| c.open_collections_from_library()));
 
         let lui = app.global::<LibraryUi>();
         lui.on_query_changed(with!(|c| c.on_query_changed()));
@@ -609,6 +612,7 @@ impl Controller {
         self.wire_home(app);
         self.wire_sound(app);
         self.wire_minecraft(app);
+        self.wire_collections(app);
     }
 
     // ------------------------------------------------------------------ rafraîchissements
@@ -951,6 +955,10 @@ impl Controller {
             match key.kind {
                 Kind::Cover => self.game_changed(key.game),
                 Kind::Banner | Kind::Logo => {
+                    // Logo ou bannière d'une collection (clé dérivée du chemin).
+                    if key.game >= (1 << 60) {
+                        self.collection_image_loaded();
+                    }
                     if self.detail_id.get() == Some(key.game) {
                         self.refresh_detail();
                     }
@@ -992,6 +1000,7 @@ impl Controller {
             Page::Journal => self.refresh_journal(),
             Page::Recap => self.refresh_recap(),
             Page::Storage => self.refresh_storage(),
+            Page::Collections => self.refresh_collections_page(),
             Page::Updates => self.refresh_updates(),
             Page::Saves => self.refresh_saves_page(),
             Page::Appearance => self.refresh_appearance_ui(),

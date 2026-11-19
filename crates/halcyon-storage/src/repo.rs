@@ -573,13 +573,24 @@ impl Database {
 
     // ---------------------------------------------------------------- collections
 
+    /// Collections manuelles, dans l'ordre choisi (position), puis par nom.
     pub fn collections(&self) -> Result<Vec<Collection>> {
         let mut stmt = self.conn.prepare(
-            "SELECT c.id, c.name, COUNT(cg.game_id) FROM collections c
+            "SELECT c.id, c.name, COUNT(cg.game_id), c.color, c.logo_path, c.banner_path, c.position FROM collections c
              LEFT JOIN collection_games cg ON cg.collection_id = c.id
-             GROUP BY c.id ORDER BY c.name COLLATE NOCASE",
+             GROUP BY c.id ORDER BY CASE WHEN c.position > 0 THEN c.position ELSE 1000000000 END, c.name COLLATE NOCASE",
         )?;
-        let rows = stmt.query_map([], |r| Ok(Collection { id: r.get(0)?, name: r.get(1)?, count: r.get::<_, i64>(2)? as usize }))?;
+        let rows = stmt.query_map([], |r| {
+            Ok(Collection {
+                id: r.get(0)?,
+                name: r.get(1)?,
+                count: r.get::<_, i64>(2)? as usize,
+                color: r.get(3)?,
+                logo: r.get::<_, Option<String>>(4)?.map(PathBuf::from),
+                banner: r.get::<_, Option<String>>(5)?.map(PathBuf::from),
+                position: r.get(6)?,
+            })
+        })?;
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
@@ -593,15 +604,74 @@ impl Database {
         Ok(self.conn.query_row("SELECT id FROM collections WHERE name = ?1", [name], |r| r.get(0))?)
     }
 
+    /// Crée une collection et y range des jeux, en une transaction (tout ou rien).
+    pub fn create_collection_with(&mut self, name: &str, games: &[GameId]) -> Result<i64> {
+        let tx = self.conn.transaction()?;
+        let name = name.trim();
+        if name.is_empty() {
+            return Err(StorageError::Conflict(tr!("le nom de la collection est vide")));
+        }
+        tx.execute("INSERT OR IGNORE INTO collections (name) VALUES (?1)", [name])?;
+        let id: i64 = tx.query_row("SELECT id FROM collections WHERE name = ?1", [name], |r| r.get(0))?;
+        {
+            let mut add = tx.prepare("INSERT OR IGNORE INTO collection_games (collection_id, game_id, position) VALUES (?1, ?2, 0)")?;
+            for g in games {
+                add.execute(params![id, g])?;
+            }
+        }
+        tx.commit()?;
+        Ok(id)
+    }
+
+    pub fn rename_collection(&self, id: i64, name: &str) -> Result<()> {
+        let name = name.trim();
+        if name.is_empty() {
+            return Err(StorageError::Conflict(tr!("le nom de la collection est vide")));
+        }
+        let taken: Option<i64> =
+            self.conn.query_row("SELECT id FROM collections WHERE name = ?1 AND id <> ?2", params![name, id], |r| r.get(0)).optional()?;
+        if taken.is_some() {
+            return Err(StorageError::Conflict(tr!("une collection porte déjà ce nom")));
+        }
+        self.conn.execute("UPDATE collections SET name = ?2 WHERE id = ?1", params![id, name])?;
+        Ok(())
+    }
+
+    /// Couleur, logo et bannière d'une collection (`None` : valeur par défaut).
+    pub fn set_collection_style(&self, id: i64, color: Option<&str>, logo: Option<&Path>, banner: Option<&Path>) -> Result<()> {
+        self.conn.execute(
+            "UPDATE collections SET color = ?2, logo_path = ?3, banner_path = ?4 WHERE id = ?1",
+            params![id, color, logo.map(|p| p.to_string_lossy().into_owned()), banner.map(|p| p.to_string_lossy().into_owned())],
+        )?;
+        Ok(())
+    }
+
+    /// Ordre des collections (étagères) : positions 1, 2, 3… dans l'ordre donné.
+    pub fn set_collections_order(&mut self, ids: &[i64]) -> Result<()> {
+        let tx = self.conn.transaction()?;
+        {
+            let mut up = tx.prepare("UPDATE collections SET position = ?2 WHERE id = ?1")?;
+            for (i, id) in ids.iter().enumerate() {
+                up.execute(params![id, i as i64 + 1])?;
+            }
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
     pub fn delete_collection(&self, id: i64) -> Result<()> {
         self.conn.execute("DELETE FROM collections WHERE id = ?1", [id])?;
         Ok(())
     }
 
+    /// Ajoute ou retire un jeu. Ajouté à une collection déjà ordonnée à la main, il prend
+    /// la dernière place ; sinon il suit l'ordre alphabétique (position 0).
     pub fn set_in_collection(&self, collection: i64, game: GameId, member: bool) -> Result<()> {
         if member {
             self.conn.execute(
-                "INSERT OR IGNORE INTO collection_games (collection_id, game_id) VALUES (?1, ?2)",
+                "INSERT OR IGNORE INTO collection_games (collection_id, game_id, position)
+                 VALUES (?1, ?2, (SELECT CASE WHEN MAX(position) > 0 THEN MAX(position) + 1 ELSE 0 END
+                                  FROM collection_games WHERE collection_id = ?1))",
                 params![collection, game],
             )?;
         } else {
@@ -611,9 +681,54 @@ impl Database {
         Ok(())
     }
 
+    /// Ajoute plusieurs jeux en une transaction ; renvoie le nombre de jeux réellement ajoutés.
+    pub fn add_to_collection(&mut self, collection: i64, games: &[GameId]) -> Result<usize> {
+        let tx = self.conn.transaction()?;
+        let mut added = 0;
+        {
+            let mut add = tx.prepare(
+                "INSERT OR IGNORE INTO collection_games (collection_id, game_id, position)
+                 VALUES (?1, ?2, (SELECT CASE WHEN MAX(position) > 0 THEN MAX(position) + 1 ELSE 0 END
+                                  FROM collection_games WHERE collection_id = ?1))",
+            )?;
+            for g in games {
+                added += add.execute(params![collection, g])?;
+            }
+        }
+        tx.commit()?;
+        Ok(added)
+    }
+
     pub fn collection_members(&self, collection: i64) -> Result<HashSet<GameId>> {
         let mut stmt = self.conn.prepare("SELECT game_id FROM collection_games WHERE collection_id = ?1")?;
         let rows = stmt.query_map([collection], |r| r.get(0))?;
+        Ok(rows.collect::<rusqlite::Result<HashSet<_>>>()?)
+    }
+
+    /// Jeux d'une collection avec leur position (0 : jamais déplacé).
+    pub fn collection_positions(&self, collection: i64) -> Result<Vec<(GameId, i64)>> {
+        let mut stmt = self.conn.prepare("SELECT game_id, position FROM collection_games WHERE collection_id = ?1")?;
+        let rows = stmt.query_map([collection], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
+    /// Ordre manuel des jeux : positions 1, 2, 3… dans l'ordre donné.
+    pub fn set_collection_order(&mut self, collection: i64, games: &[GameId]) -> Result<()> {
+        let tx = self.conn.transaction()?;
+        {
+            let mut up = tx.prepare("UPDATE collection_games SET position = ?3 WHERE collection_id = ?1 AND game_id = ?2")?;
+            for (i, g) in games.iter().enumerate() {
+                up.execute(params![collection, g, i as i64 + 1])?;
+            }
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// Jeux rangés dans au moins une collection manuelle.
+    pub fn games_in_collections(&self) -> Result<HashSet<GameId>> {
+        let mut stmt = self.conn.prepare("SELECT DISTINCT game_id FROM collection_games")?;
+        let rows = stmt.query_map([], |r| r.get(0))?;
         Ok(rows.collect::<rusqlite::Result<HashSet<_>>>()?)
     }
 
@@ -621,6 +736,16 @@ impl Database {
         let mut stmt = self.conn.prepare("SELECT collection_id FROM collection_games WHERE game_id = ?1")?;
         let rows = stmt.query_map([game], |r| r.get(0))?;
         Ok(rows.collect::<rusqlite::Result<HashSet<_>>>()?)
+    }
+
+    /// Marque un jeu comme non installé (désinstallation) : favoris, temps de jeu, collections
+    /// et personnalisations sont conservés.
+    pub fn set_installed(&self, id: GameId, installed: bool) -> Result<()> {
+        self.conn.execute(
+            "UPDATE games SET installed = ?2, update_state = CASE WHEN ?2 THEN update_state ELSE '' END WHERE id = ?1",
+            params![id, installed],
+        )?;
+        Ok(())
     }
 
     /// Nombre de sessions et durée totale enregistrées par Halcyon pour un jeu.

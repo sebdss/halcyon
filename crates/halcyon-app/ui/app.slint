@@ -44,6 +44,8 @@ import { RemotePage } from "pages/remote.slint";
 import { PerformancePage } from "pages/performance.slint";
 import { DownloadsPage } from "pages/downloads.slint";
 import { AssistantPage } from "pages/assistant.slint";
+import { CollectionsPage, CollectionPicker, CreateCollectionDialog } from "pages/collections.slint";
+import { CollUi } from "collections_state.slint";
 import { Sidebar, SpaceBar, Spaces, TopBar, CommandCenter } from "shell.slint";
 import { ScrollView } from "std-widgets.slint";
 
@@ -58,6 +60,7 @@ export { MenuEntry, CaptureItem, NewsRow } from "types.slint";
 export { DownloadsUi } from "downloads_state.slint";
 export { HusUi } from "hus_state.slint";
 export { PerfUi, PerfGpuRow, PerfDiskRow, PerfAppRow, PerfRecoRow, PerfSessionRow } from "perf_state.slint";
+export { CollUi, CollRow, CollGame, SeriesRow } from "collections_state.slint";
 export { Theme, Icons, Sound }
 export {
     Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
@@ -484,7 +487,7 @@ export component AppWindow inherits Window {
         Actions.page-shown(self.current-page);
     }
     // Fermeture de la boîte de dialogue : son champ actif disparaît, on récupère le clavier.
-    property <bool> dialog-open: AppUi.add-dialog-open || SmartUi.open || AppUi.confirm-open || QuickUi.open || GameMenu.open;
+    property <bool> dialog-open: AppUi.add-dialog-open || SmartUi.open || AppUi.confirm-open || QuickUi.open || GameMenu.open || CollUi.picker-open || CollUi.create-open;
     // Demande de focus de la recherche (raccourci) depuis Rust.
     property <int> search-tick: SystemUi.focus-search-tick;
     changed search-tick => {
@@ -511,6 +514,8 @@ export component AppWindow inherits Window {
     function restore-focus() {
         if (Nav.page == Page.library) {
             library.focus-grid();
+        } else if (Nav.page == Page.collections) {
+            collections.focus-list();
         } else {
             keys.focus();
         }
@@ -523,7 +528,7 @@ export component AppWindow inherits Window {
     changed cc-open => { Sound.play(self.cc-open ? "ui.command-center" : "ui.panel-close"); }
     property <bool> menu-open: GameMenu.open;
     changed menu-open => { Sound.play(self.menu-open ? "ui.menu-open" : "ui.menu-close"); }
-    property <bool> confirm-open: AppUi.confirm-open || AppUi.add-dialog-open || SmartUi.open;
+    property <bool> confirm-open: AppUi.confirm-open || AppUi.add-dialog-open || SmartUi.open || CollUi.picker-open || CollUi.create-open;
     changed confirm-open => {
         if (self.confirm-open) {
             Sound.play("ui.window");
@@ -563,6 +568,14 @@ export component AppWindow inherits Window {
                 }
                 if (SmartUi.open) {
                     SmartUi.open = false;
+                    return accept;
+                }
+                if (CollUi.create-open) {
+                    CollUi.create-open = false;
+                    return accept;
+                }
+                if (CollUi.picker-open) {
+                    CollUi.picker-open = false;
                     return accept;
                 }
                 if (Nav.can-back) {
@@ -633,6 +646,10 @@ export component AppWindow inherits Window {
                     library := LibraryPage {
                         visible: Nav.page == Page.library;
                     }
+                    // Page Collections : instanciée en permanence pour reprendre le clavier.
+                    collections := CollectionsPage {
+                        visible: Nav.page == Page.collections;
+                    }
                     if Nav.page == Page.home: HomePage { }
                     if Nav.page == Page.game: GamePage { }
                     if Nav.page == Page.settings: SettingsPage { }
@@ -681,6 +698,8 @@ export component AppWindow inherits Window {
 
     if AppUi.add-dialog-open: AddGameDialog { }
     if SmartUi.open: SmartDialog { }
+    if CollUi.picker-open: CollectionPicker { }
+    if CollUi.create-open: CreateCollectionDialog { }
     if RecapUi.story-open: StoryOverlay { }
     if LaunchUi.open: LaunchOverlay { }
     if QuickUi.open: QuickLaunch { }

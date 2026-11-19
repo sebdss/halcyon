@@ -536,10 +536,17 @@ pub struct OnlineMetadata {
     pub tags: Vec<String>,
 }
 
-/// Collection personnalisée.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// Collection personnalisée (manuelle) : jeux de toutes sources, ordre et style choisis.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Collection {
     pub id: i64,
     pub name: String,
     pub count: usize,
+    /// Couleur `#rrggbb` de la plaque et de la pastille ; `None` : couleur dérivée du nom.
+    pub color: Option<String>,
+    /// Logo et bannière personnalisés (fichiers choisis par l'utilisateur).
+    pub logo: Option<PathBuf>,
+    pub banner: Option<PathBuf>,
+    /// Ordre des collections (étagères) ; 0 : ordre alphabétique.
+    pub position: i64,
 }

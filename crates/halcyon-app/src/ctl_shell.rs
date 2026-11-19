@@ -196,7 +196,7 @@ impl Controller {
         let Some(app) = self.app() else { return };
         let page = app.global::<Nav>().get_page();
         let menu_open = app.global::<GameMenu>().get_open() || app.global::<QuickUi>().get_open();
-        let arrows = menu_open || page == Page::Library;
+        let arrows = menu_open || page == Page::Library || page == Page::Collections;
         match action {
             PadAction::Up if arrows => self.send_key(Key::UpArrow, false),
             PadAction::Down if arrows => self.send_key(Key::DownArrow, false),
@@ -242,7 +242,8 @@ impl Controller {
                     _ => app.global::<Nav>().invoke_history(d),
                 }
             }
-            PadAction::Menu => {}
+            PadAction::Toggle if page == Page::Library && !menu_open => self.toggle_mark_selected(),
+            PadAction::Menu | PadAction::Toggle => {}
         }
     }
 

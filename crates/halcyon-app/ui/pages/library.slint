@@ -12,7 +12,8 @@
 import { ListView, ScrollView } from "std-widgets.slint";
 import { Theme, Icons, Art } from "../theme.slint";
 import { GameCard, StripItem } from "../types.slint";
-import { Actions, LibraryUi, AppUi, SmartUi, GameMenu } from "../state.slint";
+import { Actions, LibraryUi, AppUi, SmartUi, GameMenu, Nav, Page } from "../state.slint";
+import { CollUi } from "../collections_state.slint";
 import {
     GameTile, GameCover, PrimaryButton, PlayButton, SecondaryButton, TextButton, IconButton, Chip, Segmented, TextField,
     Dropdown, Icon, Overline, KeyHint
@@ -22,16 +23,32 @@ import {
 component ListRow inherits Rectangle {
     in property <GameCard> game;
     in property <bool> selected;
+    property <bool> mod-click;
+    property <bool> mod-range;
     height: 60px;
-    background: root.selected ? Theme.surface-active : ta.has-hover ? Theme.surface : transparent;
+    background: root.game.marked ? Theme.accent.with-alpha(0.14) : root.selected ? Theme.surface-active : ta.has-hover ? Theme.surface : transparent;
     Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
-    if root.selected: Rectangle { x: 0; width: Theme.perch; background: Theme.accent; }
+    if root.selected || root.game.marked: Rectangle { x: 0; width: Theme.perch; background: Theme.accent; }
 
     ta := TouchArea {
         mouse-cursor: pointer;
-        clicked => { Actions.open-game(root.game.id); }
-        double-clicked => { Actions.play(root.game.id); }
+        clicked => {
+            if (root.mod-click) {
+                CollUi.toggle-mark(root.game.id, root.mod-range);
+            } else {
+                Actions.open-game(root.game.id);
+            }
+        }
+        double-clicked => {
+            if (!root.mod-click) {
+                Actions.play(root.game.id);
+            }
+        }
         pointer-event(e) => {
+            if (e.button == PointerEventButton.left && e.kind == PointerEventKind.down) {
+                root.mod-click = e.modifiers.control || e.modifiers.shift || e.modifiers.meta;
+                root.mod-range = e.modifiers.shift;
+            }
             if (e.button == PointerEventButton.right && e.kind == PointerEventKind.up) {
                 GameMenu.request(root.game.id, self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
             }
@@ -42,6 +59,17 @@ component ListRow inherits Rectangle {
         padding-left: 14px;
         padding-right: 8px;
         spacing: 16px;
+        if root.game.marked: Rectangle {
+            width: 18px;
+            Rectangle {
+                y: (parent.height - self.height) / 2;
+                width: 18px;
+                height: 18px;
+                border-radius: Theme.radius-sm;
+                background: Theme.accent;
+                Icon { source: Icons.check; size: 12px; tint: Theme.on-accent; }
+            }
+        }
         GameCover {
             y: 6px;
             width: 32px;
@@ -395,10 +423,14 @@ component FilterIndex inherits Rectangle {
                 active: LibraryUi.collection == i;
                 clicked => { LibraryUi.collection = i; LibraryUi.query-changed(); }
             }
-            HorizontalLayout {
+            VerticalLayout {
                 padding-left: 12px;
                 padding-top: 4px;
-                TextButton { text: @tr("Collections intelligentes"); clicked => { SmartUi.editing-id = -1; SmartUi.open = true; } }
+                spacing: 6px;
+                alignment: start;
+                HorizontalLayout { alignment: start; TextButton { text: @tr("Nouvelle collection…"); clicked => { CollUi.open-create(LibraryUi.search); } } }
+                HorizontalLayout { alignment: start; TextButton { text: @tr("Gérer les collections"); clicked => { Actions.open-collections(); } } }
+                HorizontalLayout { alignment: start; TextButton { text: @tr("Collections intelligentes"); clicked => { SmartUi.editing-id = -1; SmartUi.open = true; } } }
             }
             if LibraryUi.genre-labels.length > 1: Rectangle { height: 22px; }
             if LibraryUi.genre-labels.length > 1: Overline { text: @tr("Genre"); height: 26px; x: 12px; vertical-alignment: top; }
@@ -474,6 +506,12 @@ export component LibraryPage inherits Rectangle {
             if (event.text == Key.Home && !event.modifiers.control) { LibraryUi.select-index(0); return accept; }
             if (event.text == Key.End && !event.modifiers.control) { LibraryUi.select-index(LibraryUi.result-count - 1); return accept; }
             if (event.text == Key.Return && LibraryUi.selected >= 0) { LibraryUi.activate-selection(event.modifiers.control); return accept; }
+            // Sélection multiple : Ctrl+Espace coche le jeu, Maj+Espace coche jusqu'au précédent.
+            if (event.text == " " && (event.modifiers.control || event.modifiers.shift) && LibraryUi.selected-id >= 0) {
+                CollUi.toggle-mark(LibraryUi.selected-id, event.modifiers.shift);
+                return accept;
+            }
+            if (event.text == Key.Escape && CollUi.marked-count > 0) { CollUi.clear-marks(); return accept; }
             if (event.text == " " && LibraryUi.selected >= 0) { LibraryUi.activate-selection(true); return accept; }
             if (event.text == Key.Menu && LibraryUi.selected-id >= 0) { GameMenu.request(LibraryUi.selected-id, -1px, -1px); return accept; }
             reject
@@ -638,6 +676,12 @@ export component LibraryPage inherits Rectangle {
                     h: 30px;
                     clicked => { SmartUi.editing-id = -1; SmartUi.open = true; }
                 }
+                IconButton {
+                    size: 30px;
+                    icon: Icons.layers;
+                    tooltip: @tr("Gérer les collections");
+                    clicked => { Actions.open-collections(); }
+                }
                 if LibraryUi.genre-labels.length > 1: Dropdown {
                     prefix: "";
                     options: LibraryUi.genre-labels;
@@ -651,6 +695,54 @@ export component LibraryPage inherits Rectangle {
                 padding-left: root.pad-l;
                 height: 26px;
                 Text { text: LibraryUi.search-warning; color: Theme.warm; font-size: Theme.t-caption; vertical-alignment: top; }
+            }
+
+            // Sélection multiple : barre d'actions tant que des jeux sont cochés.
+            if CollUi.marked-count > 0: HorizontalLayout {
+                padding-left: root.pad-l;
+                padding-right: root.pad-r;
+                padding-bottom: 14px;
+                Rectangle {
+                    height: 44px;
+                    background: Theme.surface;
+                    border-radius: Theme.radius;
+                    Rectangle { x: 0; width: Theme.perch; background: Theme.accent; }
+                    HorizontalLayout {
+                        padding-left: 16px;
+                        padding-right: 8px;
+                        spacing: 10px;
+                        Text {
+                            text: @tr("{n} jeu coché" | "{n} jeux cochés" % CollUi.marked-count);
+                            color: Theme.text;
+                            font-family: Theme.display;
+                            font-size: Theme.t-small;
+                            font-weight: 700;
+                            vertical-alignment: center;
+                        }
+                        Text {
+                            text: root.width > 1180px ? @tr("Ctrl-clic ou Ctrl+Espace : cocher · Maj : plage · Échap : tout décocher") : "";
+                            color: Theme.text-dim;
+                            font-size: Theme.t-caption;
+                            vertical-alignment: center;
+                            horizontal-stretch: 1;
+                            overflow: elide;
+                        }
+                        PrimaryButton {
+                            y: (parent.height - self.height) / 2;
+                            h: 32px;
+                            text: @tr("Ajouter à une collection…");
+                            icon: Icons.layers;
+                            has-icon: true;
+                            clicked => { CollUi.collect(-1); }
+                        }
+                        SecondaryButton {
+                            y: (parent.height - self.height) / 2;
+                            h: 32px;
+                            text: @tr("Tout décocher");
+                            clicked => { CollUi.clear-marks(); }
+                        }
+                    }
+                }
             }
 
             // Contenu
@@ -708,9 +800,11 @@ export component LibraryPage inherits Rectangle {
                             cover-width: root.tile-width;
                             show-text: LibraryUi.view-mode != 4;
                             selected: card.id == LibraryUi.selected-id;
+                            markable: true;
                             open(id) => { Actions.open-game(id); }
                             play(id) => { Actions.play(id); }
                             context(id, x, y) => { GameMenu.request(id, x, y); }
+                            mark(id, range) => { CollUi.toggle-mark(id, range); }
                         }
                     }
                 }
