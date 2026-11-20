@@ -1,4 +1,4 @@
-//! Rendu OpenGL des boîtiers (1.0.0-alpha.7).
+//! Rendu OpenGL des boîtiers (1.0.0-alpha.8).
 //!
 //! Le contexte est celui de Slint (rendu femtovg) : la scène est dessinée dans une texture hors
 //! écran (avec anticrénelage MSAA quand le pilote le permet), que Slint affiche ensuite comme une

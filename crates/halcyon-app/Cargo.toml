@@ -35,7 +35,7 @@ halcyon-audio.workspace = true
 halcyon-minecraft.workspace = true
 halcyon-update.workspace = true
 slint.workspace = true
-# Vraie 3D du mode console (1.0.0-alpha.7) : déjà embarqués par Slint (rendu femtovg) et ses
+# Vraie 3D du mode console (1.0.0-alpha.8) : déjà embarqués par Slint (rendu femtovg) et ses
 # décorations Wayland ; rien de lourd n'est ajouté.
 glow = "0.18"
 ab_glyph = { version = "0.2", default-features = false, features = ["std"] }

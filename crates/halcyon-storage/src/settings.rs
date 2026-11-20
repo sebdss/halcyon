@@ -106,7 +106,7 @@ pub struct Settings {
     pub update_last_check: i64,
     pub start_in_big_picture: bool,
     /// Vue du mode console : 0 jeu plein écran et rangée de jaquettes, 1 étagère (1.0.0-alpha.6),
-    /// 2 musée (1.0.0-alpha.7).
+    /// 2 musée (1.0.0-alpha.8).
     pub console_view: u8,
     /// Musée : éclairage (0 galerie, 1 jour, 2 néon) et dernière visite (horodatage Unix) — les
     /// jeux ajoutés depuis brillent.
@@ -115,7 +115,7 @@ pub struct Settings {
     /// Dos et tranches de boîtiers depuis la base LaunchBox (téléchargement d'environ 110 Mo,
     /// désactivé par défaut).
     pub launchbox_art: bool,
-    /// Mode console : boîtiers en vraie 3D (OpenGL) quand c'est possible (1.0.0-alpha.7).
+    /// Mode console : boîtiers en vraie 3D (OpenGL) quand c'est possible (1.0.0-alpha.8).
     pub console_3d: bool,
     /// Suggestions de séries refusées (clés normalisées) : jamais reproposées.
     pub series_dismissed: Vec<String>,

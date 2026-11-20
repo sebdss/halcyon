@@ -1,4 +1,4 @@
-//! Boîtiers en vraie 3D (1.0.0-alpha.7) : étagère, musée et vue « Inspecter » du mode console.
+//! Boîtiers en vraie 3D (1.0.0-alpha.8) : étagère, musée et vue « Inspecter » du mode console.
 //!
 //! Le rendu passe par le contexte OpenGL que Slint utilise déjà (femtovg) et par `glow`, que
 //! femtovg embarque : aucune dépendance lourde. La scène est dessinée dans une texture que

@@ -132,7 +132,7 @@ police d'affichage (« Outils 4 »), jamais des pastilles.
 - **Mode Performance** : jaquettes à plat (66 % pour les voisins), ni côté, halo, lueur ni
   reflet ; Retourner montre le dos d'un coup.
 
-### Boîtiers en 3D (mode console, 1.0.0-alpha.7)
+### Boîtiers en 3D (mode console, 1.0.0-alpha.8)
 
 - **Boîtier** : pavé 1 × 1,495 × 0,187 (rapport de la 2,5D), six faces : jaquette (grande pour
   le boîtier choisi), dos, tranche (réels LaunchBox, sinon composés), chant, dessus et dessous en

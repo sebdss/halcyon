@@ -30,7 +30,7 @@ pub enum PadAction {
     Next,
     /// Bibliothèque : cocher le jeu sélectionné ; mode console : changer de vue (étagère).
     Toggle,
-    /// Mode console : inspecter le boîtier choisi en 3D (1.0.0-alpha.7).
+    /// Mode console : inspecter le boîtier choisi en 3D (1.0.0-alpha.8).
     Inspect,
 }
 

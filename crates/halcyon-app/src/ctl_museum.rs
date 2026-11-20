@@ -1,4 +1,4 @@
-//! Musée : troisième vue du mode console (1.0.0-alpha.7).
+//! Musée : troisième vue du mode console (1.0.0-alpha.8).
 //!
 //! Un mur d'étagères : une rangée par plateforme (chaque source de jeux PC, chaque système
 //! émulé), les boîtiers tranche vers l'avant. Haut / bas changent de rangée, gauche / droite de

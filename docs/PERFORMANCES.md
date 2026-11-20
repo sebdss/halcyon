@@ -219,7 +219,7 @@ repos mesuré pendant 10 s, 12 s après le dernier cran.
 pour 35 357 jeux avec dos ou tranche, 14 µs par recherche ; dans un fil de fond, l'interface
 reste utilisable.
 
-### Vraie 3D (OpenGL)
+## 1.0.0-alpha.8 — vraie 3D (OpenGL)
 
 Mesurée **sans carte graphique** : OpenGL y est émulé par le processeur (llvmpipe, 2 cœurs),
 donc chaque image 3D (1920 × 1080, anticrénelage 4×) est calculée par le CPU. Ces chiffres

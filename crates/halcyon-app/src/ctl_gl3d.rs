@@ -1,4 +1,4 @@
-//! Mode console en vraie 3D (1.0.0-alpha.7) : relie le moteur `gl3d` à Slint et aux vues.
+//! Mode console en vraie 3D (1.0.0-alpha.8) : relie le moteur `gl3d` à Slint et aux vues.
 //!
 //! - Slint appelle notre fonction avant chaque image (`set_rendering_notifier`) dans son
 //!   contexte OpenGL ; si la vue courante est en 3D, la scène est construite depuis l'état du

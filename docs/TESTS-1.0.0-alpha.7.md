@@ -37,7 +37,7 @@ Vérifié aussi sur la vraie base : 497 Mo de XML, 190 844 jeux, 1 361 862 image
 « Box - Back » et « Box - Spine » présents ; 158 218 noms de dos et tranches acceptés par le
 contrôle, 1 refusé (un `.webp`, format non pris en charge).
 
-## Vraie 3D (OpenGL émulé par llvmpipe, sans carte graphique)
+## Vraie 3D, 1.0.0-alpha.8 (OpenGL émulé par llvmpipe, sans carte graphique)
 
 | Scénario | Vérifié |
 |---|---|

@@ -424,7 +424,7 @@ vérifiée), `halcyon-storage::lbindex` (index SQLite à part : `names(key, plat
 (fils de fond, dossier `case-art/` lu une fois puis tenu en mémoire). Nouveau visuel
 `images::Kind::Spine` (60 × 480). Le dos réel passe par `Kind::CoverLarge`.
 
-**Vraie 3D** : `src/gl3d/` (`math` : matrices 4 × 4 ; `anim` : valeurs animées ; `raster` :
+**Vraie 3D (1.0.0-alpha.8)** : `src/gl3d/` (`math` : matrices 4 × 4 ; `anim` : valeurs animées ; `raster` :
 faces générées avec `ab_glyph` ; `renderer` : OpenGL avec `glow` — pavé et disque, shaders
 GLSL 330 / ES 300, cible hors écran MSAA résolue dans une texture, reflets par pochoir, cache
 de textures borné à 160 Mo avec éviction LRU, sauvegarde et restauration de tout l'état OpenGL
