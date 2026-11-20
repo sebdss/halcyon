@@ -109,6 +109,10 @@ Option **désactivée par défaut**, jamais utilisée hors ligne ni en mode hors
 | Index | fichier SQLite à part, construit dans un fichier temporaire puis renommé (un index interrompu n'est jamais lu), ouvert en lecture seule |
 | Débit | une image à la fois ; récupération groupée espacée de 150 ms, annulable |
 
+**Rendu 3D (1.0.0-alpha.8)** : le seul code `unsafe` ajouté appelle OpenGL (`src/gl3d/renderer.rs`, création
+de la texture montrée par Slint) ; il n'utilise que des tampons et textures créés par Halcyon
+dans le contexte de Slint, dont l'état est sauvegardé puis rétabli à chaque image.
+
 ## 5. Limites connues
 
 - Linux : les fichiers du coffre ne sont pas chiffrés (protection par les droits du compte).

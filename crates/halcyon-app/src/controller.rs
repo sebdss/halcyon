@@ -87,6 +87,7 @@ pub struct Controller {
     pub(crate) coll: RefCell<crate::ctl_collections::CollState>,
     pub(crate) uninstall: RefCell<crate::ctl_uninstall::UninstallState>,
     pub(crate) lb: RefCell<crate::ctl_launchbox::LbState>,
+    pub(crate) view3d: RefCell<crate::ctl_gl3d::View3d>,
     pub(crate) genres: RefCell<Vec<String>>,
     /// Sources supplémentaires de l'index de la bibliothèque (autres launchers présents).
     pub(crate) extra_sources: RefCell<Vec<GameSource>>,
@@ -186,6 +187,7 @@ impl Controller {
             coll: RefCell::new(Default::default()),
             uninstall: RefCell::new(Default::default()),
             lb: RefCell::new(Default::default()),
+            view3d: RefCell::new(Default::default()),
             genres: RefCell::new(Vec::new()),
             extra_sources: RefCell::new(Vec::new()),
             progress: RefCell::new(HashMap::new()),
@@ -625,6 +627,7 @@ impl Controller {
         self.wire_minecraft(app);
         self.wire_collections(app);
         self.wire_uninstall(app);
+        self.gl3d_install(app);
     }
 
     // ------------------------------------------------------------------ rafraîchissements
@@ -964,6 +967,7 @@ impl Controller {
 
     fn on_image_loaded(&self, key: ImageKey, result: LoadResult) {
         if self.images.complete(key, result) {
+            self.gl3d_redraw();
             match key.kind {
                 Kind::Cover => self.game_changed(key.game),
                 Kind::Banner | Kind::Logo => {
@@ -1273,6 +1277,7 @@ impl Controller {
             }
         }
         self.images.invalidate(id);
+        self.gl3d_forget(id);
         self.game_changed(id);
         self.toast(tr!("Visuel mis à jour"), false);
     }
@@ -1478,6 +1483,7 @@ impl Controller {
             for g in &games {
                 if lib.get(g.id).is_some_and(|old| old.artwork != g.artwork) {
                     self.images.invalidate(g.id);
+                    self.gl3d_forget(g.id);
                 }
             }
         }
@@ -1924,6 +1930,7 @@ impl Controller {
             }
         }
         self.images.invalidate(id);
+        self.gl3d_forget(id);
         self.game_changed(id);
     }
 
@@ -1992,6 +1999,7 @@ impl Controller {
         let folders: Vec<SharedString> = s.scan_folders.iter().map(|p| p.display().to_string().into()).collect();
         sui.set_folders(ModelRc::new(VecModel::from(folders)));
         sui.set_online_artwork(s.online_artwork);
+        sui.set_console_3d(s.console_3d);
         drop(s);
         self.lb_publish();
         let s = self.settings.borrow();
@@ -2139,6 +2147,7 @@ impl Controller {
                 "disk_alerts" => s.disk_alerts = value,
                 "discord_presence" => s.discord_presence = value,
                 "animated_banner" => s.animated_banner = value,
+                "console_3d" => s.console_3d = value,
                 _ => return,
             }
         }
@@ -2146,6 +2155,9 @@ impl Controller {
         self.refresh_settings_ui();
         if (name == "online_artwork" || name == "online_metadata") && value {
             self.start_online_jobs();
+        }
+        if name == "console_3d" {
+            self.gl3d_redraw();
         }
         if name == "free_games_notifications" && value {
             self.check_free_games();

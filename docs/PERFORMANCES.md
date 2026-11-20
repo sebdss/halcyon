@@ -218,3 +218,24 @@ repos mesuré pendant 10 s, 12 s après le dernier cran.
 (21 s depuis l'application, téléchargement compris sur cette connexion), index de **5,8 Mo**
 pour 35 357 jeux avec dos ou tranche, 14 µs par recherche ; dans un fil de fond, l'interface
 reste utilisable.
+
+## 1.0.0-alpha.8 — vraie 3D (OpenGL)
+
+Mesurée **sans carte graphique** : OpenGL y est émulé par le processeur (llvmpipe, 2 cœurs),
+donc chaque image 3D (1920 × 1080, anticrénelage 4×) est calculée par le CPU. Ces chiffres
+disent seulement que tout fonctionne et que rien ne tourne au repos ; la fluidité réelle est
+**à mesurer sur un PC avec carte graphique**, où ce rendu (une vingtaine de pavés, quelques
+textures) est très léger.
+
+| llvmpipe, 1920 × 1080, 513 jeux | Étagère 3D | Musée 3D | 2,5D (même pilote) |
+|---|---|---|---|
+| Images / s pendant le défilement (médiane) | 4 | 7 | 6 à 9 |
+| Processeur au repos (12 s après la dernière touche) | 6,6 % | 4,8 % | 6,6 % |
+| Mémoire (pilote OpenGL logiciel compris) | 456 Mo | 470 Mo | 368 Mo |
+
+- **Repos** : la scène n'est redessinée que si quelque chose a changé ou bouge encore ; quand
+  Slint redessine pour autre chose (halo, horloge), la texture précédente est réutilisée. Sur
+  llvmpipe, le reste du processeur au repos vient du pilote lui-même (identique en 2,5D).
+- **Textures** : budget de 160 Mo de mémoire graphique, les moins récemment vues libérées en
+  premier ; faces générées (jaquette de repli, tranche, dos) composées au plus six par image.
+- **Repli** : rendu logiciel de Slint (pas d'OpenGL) → 2,5D, mesures de la section précédente.

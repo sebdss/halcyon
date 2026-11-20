@@ -17,190 +17,210 @@ msgstr ""
 msgid "Non suivis"
 msgstr "Non suivis"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:376
+#: crates/halcyon-app/ui/pages/bigpicture.slint:380
 msgid "Aucun jeu pour l'instant. Ouvrez la bibliothèque, ou analysez vos sources depuis le centre de contrôle."
 msgstr "Aucun jeu pour l'instant. Ouvrez la bibliothèque, ou analysez vos sources depuis le centre de contrôle."
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:447
+#: crates/halcyon-app/ui/pages/bigpicture.slint:451
 msgid "La bibliothèque est vide."
 msgstr "La bibliothèque est vide."
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:469
+#: crates/halcyon-app/ui/pages/bigpicture.slint:473
 msgid "Rechercher un jeu"
 msgstr "Rechercher un jeu"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:587
+#: crates/halcyon-app/ui/pages/bigpicture.slint:591
 msgid "Aucun succès suivi pour ce jeu."
 msgstr "Aucun succès suivi pour ce jeu."
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:624
+#: crates/halcyon-app/ui/pages/bigpicture.slint:628 crates/halcyon-app/ui/pages/bigpicture.slint:764
 msgid "A"
 msgstr "A"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:624
+#: crates/halcyon-app/ui/pages/bigpicture.slint:628
 msgid "Valider"
 msgstr "Valider"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:625
+#: crates/halcyon-app/ui/pages/bigpicture.slint:629 crates/halcyon-app/ui/pages/bigpicture.slint:767
 msgid "B"
 msgstr "B"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:626
+#: crates/halcyon-app/ui/pages/bigpicture.slint:630
 msgid "X"
 msgstr "X"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:627
+#: crates/halcyon-app/ui/pages/bigpicture.slint:631
 msgid "Select"
 msgstr "Select"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:627
+#: crates/halcyon-app/ui/pages/bigpicture.slint:631
 msgid "Menu du jeu"
 msgstr "Menu du jeu"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:627
+#: crates/halcyon-app/ui/pages/bigpicture.slint:631
 msgid "Options du jeu"
 msgstr "Options du jeu"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:628
+#: crates/halcyon-app/ui/pages/bigpicture.slint:632 crates/halcyon-app/ui/pages/bigpicture.slint:765
 msgid "Y · F"
 msgstr "Y · F"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:628
+#: crates/halcyon-app/ui/pages/bigpicture.slint:632
 msgid "Face avant"
 msgstr "Face avant"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:628
+#: crates/halcyon-app/ui/pages/bigpicture.slint:632 crates/halcyon-app/ui/pages/bigpicture.slint:765
 msgid "Retourner"
 msgstr "Retourner"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:629 crates/halcyon-app/ui/pages/bigpicture.slint:633
+#: crates/halcyon-app/ui/pages/bigpicture.slint:633 crates/halcyon-app/ui/pages/bigpicture.slint:638
 msgid "Étagère"
 msgstr "Étagère"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:630
+#: crates/halcyon-app/ui/pages/bigpicture.slint:634
+msgid "L3 · I"
+msgstr "L3 · I"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:634
+msgid "Inspecter"
+msgstr "Inspecter"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:635
 msgid "L"
 msgstr "L"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:630
+#: crates/halcyon-app/ui/pages/bigpicture.slint:635
 msgid "Éclairage : galerie"
 msgstr "Éclairage : galerie"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:630
+#: crates/halcyon-app/ui/pages/bigpicture.slint:635
 msgid "Éclairage : jour"
 msgstr "Éclairage : jour"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:630
+#: crates/halcyon-app/ui/pages/bigpicture.slint:635
 msgid "Éclairage : néon"
 msgstr "Éclairage : néon"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:631
+#: crates/halcyon-app/ui/pages/bigpicture.slint:636
 msgid "Start"
 msgstr "Start"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:631 crates/halcyon-app/ui/pages/bigpicture.slint:681
+#: crates/halcyon-app/ui/pages/bigpicture.slint:636 crates/halcyon-app/ui/pages/bigpicture.slint:686
 msgid "Centre de contrôle"
 msgstr "Centre de contrôle"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:632
+#: crates/halcyon-app/ui/pages/bigpicture.slint:637 crates/halcyon-app/ui/pages/bigpicture.slint:766
 msgid "LB  RB"
 msgstr "LB  RB"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:632
+#: crates/halcyon-app/ui/pages/bigpicture.slint:637
 msgid "Filtre"
 msgstr "Filtre"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:632
+#: crates/halcyon-app/ui/pages/bigpicture.slint:637
 msgid "Section"
 msgstr "Section"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:633
+#: crates/halcyon-app/ui/pages/bigpicture.slint:638
 msgid "R3 · V"
 msgstr "R3 · V"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:633
+#: crates/halcyon-app/ui/pages/bigpicture.slint:638
 msgid "Musée"
 msgstr "Musée"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:633
+#: crates/halcyon-app/ui/pages/bigpicture.slint:638
 msgid "Rangée"
 msgstr "Rangée"
 
-#: crates/halcyon-app/ui/pages/shelf.slint:61
-msgid "Aucun résumé pour ce jeu."
-msgstr "Aucun résumé pour ce jeu."
+#: crates/halcyon-app/ui/pages/bigpicture.slint:763
+msgid "Tourner"
+msgstr "Tourner"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:764
+msgid "Fermer le boîtier"
+msgstr "Fermer le boîtier"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:764
+msgid "Ouvrir le boîtier"
+msgstr "Ouvrir le boîtier"
+
+#: crates/halcyon-app/ui/pages/bigpicture.slint:766
+msgid "Zoom"
+msgstr "Zoom"
 
 #: crates/halcyon-app/ui/pages/shelf.slint:84
 #, placeholders
 msgid "Temps de jeu : {}"
 msgstr "Temps de jeu : {}"
 
-#: crates/halcyon-app/ui/pages/shelf.slint:439
+#: crates/halcyon-app/ui/pages/shelf.slint:440
 msgid "A  Jouer"
 msgstr "A  Jouer"
 
-#: crates/halcyon-app/ui/pages/shelf.slint:583
+#: crates/halcyon-app/ui/pages/shelf.slint:605
 msgid "L'étagère est vide. Ajoutez des jeux ou analysez vos sources depuis le centre de contrôle."
 msgstr "L'étagère est vide. Ajoutez des jeux ou analysez vos sources depuis le centre de contrôle."
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:176 crates/halcyon-app/src/ctl_shelf.rs:127
+#: crates/halcyon-app/src/ctl_bigpicture.rs:182 crates/halcyon-app/src/ctl_shelf.rs:127
 msgid "Récents"
 msgstr "Récents"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:303
+#: crates/halcyon-app/src/ctl_bigpicture.rs:309
 #, placeholders
 msgid "Installé · {b}"
 msgstr "Installé · {b}"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:350
+#: crates/halcyon-app/src/ctl_bigpicture.rs:356
 msgid "Tapez un nom de jeu"
 msgstr "Tapez un nom de jeu"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:381
+#: crates/halcyon-app/src/ctl_bigpicture.rs:387
 msgid "Ouvrir la fiche du jeu"
 msgstr "Ouvrir la fiche du jeu"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:385
+#: crates/halcyon-app/src/ctl_bigpicture.rs:391
 msgid "Ouvrir sur le bureau"
 msgstr "Ouvrir sur le bureau"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:387
+#: crates/halcyon-app/src/ctl_bigpicture.rs:393
 msgid "Retirer de la bibliothèque…"
 msgstr "Retirer de la bibliothèque…"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:412 crates/halcyon-app/src/ctl_bigpicture.rs:423
+#: crates/halcyon-app/src/ctl_bigpicture.rs:418 crates/halcyon-app/src/ctl_bigpicture.rs:429
 msgid "Activé"
 msgstr "Activé"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:418
+#: crates/halcyon-app/src/ctl_bigpicture.rs:424
 #, placeholders
 msgid "{active} en cours"
 msgstr "{active} en cours"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:423
+#: crates/halcyon-app/src/ctl_bigpicture.rs:429
 msgid "Coupé"
 msgstr "Coupé"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:425
+#: crates/halcyon-app/src/ctl_bigpicture.rs:431
 #, placeholders
 msgid "{percent} %"
 msgstr "{percent} %"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:427 crates/halcyon-app/src/ctl_bigpicture.rs:428
+#: crates/halcyon-app/src/ctl_bigpicture.rs:433 crates/halcyon-app/src/ctl_bigpicture.rs:434
 msgid "En cours…"
 msgstr "En cours…"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:428
+#: crates/halcyon-app/src/ctl_bigpicture.rs:434
 msgid "Synchroniser les succès"
 msgstr "Synchroniser les succès"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:429
+#: crates/halcyon-app/src/ctl_bigpicture.rs:435
 msgid "Paramètres complets"
 msgstr "Paramètres complets"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:429
+#: crates/halcyon-app/src/ctl_bigpicture.rs:435
 msgid "Sur le bureau"
 msgstr "Sur le bureau"
 
-#: crates/halcyon-app/src/ctl_bigpicture.rs:430
+#: crates/halcyon-app/src/ctl_bigpicture.rs:436
 msgid "Quitter le mode console"
 msgstr "Quitter le mode console"

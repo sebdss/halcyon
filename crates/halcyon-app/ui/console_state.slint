@@ -50,6 +50,12 @@ export global MuseumUi {
     in property <int> lighting;
     /// Faux à l'entrée, vrai juste après : les rangées se mettent en place (mouvement complet).
     in property <bool> settled: true;
+    /// 3D : dessus de la planche de la rangée 0 à l'écran, écart entre deux rangées, point sous
+    /// le boîtier choisi (pour les plaques et la carte).
+    in property <length> row-top;
+    in property <length> row-step;
+    in property <length> card-x;
+    in property <length> card-y;
 }
 
 export global ShelfUi {
@@ -90,6 +96,16 @@ export global ShelfUi {
     /// Halo du boîtier sélectionné : alterne quelques fois après un déplacement (« respire »),
     /// puis reste immobile — aucune image n'est redessinée au repos.
     in property <bool> breathe;
+    /// Vraie 3D (1.0.0-alpha.8) : la scène est dessinée par OpenGL dans `scene` ; les boîtiers
+    /// 2,5D ne sont plus créés. `gl3d-ok` : la 3D a déjà fonctionné sur cette machine.
+    in property <bool> gl3d;
+    in property <bool> gl3d-ok;
+    in property <image> scene;
+    /// Bord avant de la planche 3D à l'écran (pour la plaque).
+    in property <length> plank-y;
+    /// Inspecter : boîtier seul, tourné à la manette ou à la souris, ouvrable.
+    in property <bool> inspect;
+    in property <bool> inspect-open-lid;
     /// Titres des tranches tournés d'un quart de tour (impossible avec le rendu logiciel :
     /// lettres empilées à la place).
     in property <bool> rotate-text: true;

@@ -1,4 +1,4 @@
-// Musée : troisième vue du mode console (1.0.0-alpha.7).
+// Musée : troisième vue du mode console (1.0.0-alpha.8).
 //
 // Toute la collection comme un mur d'étagères : une rangée par plateforme (Steam, Epic, GOG…,
 // chaque système émulé), chaque boîtier debout, tranche vers l'avant, et une plaque au début de
@@ -133,6 +133,19 @@ export component MuseumView inherits Rectangle {
         background: @linear-gradient(180deg, #3a3e46 0%, #24272c 100%);
     }
 
+    // Vraie 3D : le mur entier (planches, boîtiers, projecteur) dessiné par OpenGL.
+    if ShelfUi.gl3d: Image {
+        width: root.width;
+        height: root.height;
+        source: ShelfUi.scene;
+        image-fit: fill;
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { BpUi.input("p3d:click:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px)); }
+            double-clicked => { BpUi.input("p3d:play:" + (self.mouse-x / 1px) + ":" + (self.mouse-y / 1px)); }
+        }
+    }
+
     for row in MuseumUi.rows: rw := Rectangle {
         property <bool> active: row.index == MuseumUi.row-focus;
         // Défilement horizontal : le boîtier choisi reste vers la gauche du milieu.
@@ -141,17 +154,19 @@ export component MuseumView inherits Rectangle {
         // Trois rangées à l'écran : celles qui sortent (au-dessus des sections, sous les aides)
         // ne sont pas dessinées.
         property <float> place: row.index - root.vscroll;
-        visible: row.index >= 0 && self.place > -0.6 && self.place < 2.6;
+        // 3D : la rangée suit la planche dessinée par OpenGL (plaque posée sur son dessus).
+        property <length> y3d: MuseumUi.row-top + row.index * MuseumUi.row-step - 26 * root.u - root.case-h;
+        visible: row.index >= 0 && (ShelfUi.gl3d ? (self.y3d > 0px && self.y3d < root.height - 160 * root.u) : (self.place > -0.6 && self.place < 2.6));
         x: 0;
-        y: root.top + (row.index - root.vscroll) * root.row-h + (MuseumUi.settled ? 0px : 46 * root.u);
-        animate y { duration: Theme.slow * 2; easing: ease-out; }
+        y: ShelfUi.gl3d ? self.y3d : root.top + (row.index - root.vscroll) * root.row-h + (MuseumUi.settled ? 0px : 46 * root.u);
+        animate y { duration: ShelfUi.gl3d ? 0ms : Theme.slow * 2; easing: ease-out; }
         width: root.width;
         height: root.row-h;
         opacity: MuseumUi.settled ? (self.active ? 1 : 0.72) : 0;
         animate opacity { duration: Theme.slow * 2; easing: ease-out; }
 
         // Projecteur sur le boîtier choisi (galerie : chaud ; néon : couleur de la rangée).
-        if Theme.effects && self.active && MuseumUi.lighting != 1: Rectangle {
+        if !ShelfUi.gl3d && Theme.effects && self.active && MuseumUi.lighting != 1: Rectangle {
             x: root.x0 + (row.focus - rw.hoff) * root.pitch + root.face-w / 2 - self.width / 2;
             y: -30 * root.u;
             width: 420 * root.u;
@@ -159,7 +174,7 @@ export component MuseumView inherits Rectangle {
             background: @radial-gradient(circle, (MuseumUi.lighting == 2 ? row.color : #ffd6a0).with-alpha(0.3) 0%, #00000000 70%);
         }
         // Néon : liseré de la couleur de la rangée sous la planche.
-        if Theme.effects && MuseumUi.lighting == 2: Rectangle {
+        if !ShelfUi.gl3d && Theme.effects && MuseumUi.lighting == 2: Rectangle {
             y: 26 * root.u + root.case-h + 18 * root.u;
             height: 3 * root.u;
             background: row.color;
@@ -168,7 +183,7 @@ export component MuseumView inherits Rectangle {
         }
 
         // Planche.
-        Rectangle {
+        if !ShelfUi.gl3d: Rectangle {
             x: root.x0 - 12 * root.u;
             y: 26 * root.u + root.case-h;
             width: root.width - self.x;
@@ -178,7 +193,7 @@ export component MuseumView inherits Rectangle {
         }
 
         // Boîtiers (zone découpée : rien ne déborde sur la plaque).
-        Rectangle {
+        if !ShelfUi.gl3d: Rectangle {
             x: root.x0;
             y: 0;
             width: root.avail + root.side;
@@ -202,7 +217,7 @@ export component MuseumView inherits Rectangle {
         }
 
         // Carte sous le boîtier choisi.
-        if self.active && BpUi.has-focused: Rectangle {
+        if !ShelfUi.gl3d && self.active && BpUi.has-focused: Rectangle {
             x: max(root.x0, min(root.width - root.side - self.width, root.x0 + (row.focus - rw.hoff) * root.pitch + 6 * root.u + root.face-w / 2 - self.width / 2));
             y: 26 * root.u + root.case-h + 26 * root.u;
             width: 360 * root.u;
@@ -263,6 +278,37 @@ export component MuseumView inherits Rectangle {
                     font-size: 14 * root.u * Theme.text-scale;
                     wrap: word-wrap;
                 }
+            }
+        }
+    }
+
+    // 3D : carte sous le boîtier choisi, à sa place à l'écran.
+    if ShelfUi.gl3d && BpUi.has-focused && MuseumUi.row-count > 0: Rectangle {
+        x: max(root.side + root.plaque-w + 22 * root.u, min(root.width - root.side - self.width, MuseumUi.card-x - self.width / 2));
+        y: MuseumUi.card-y + 12 * root.u;
+        width: 360 * root.u;
+        height: 44 * root.u;
+        border-radius: 4 * root.u;
+        background: #000000b3;
+        HorizontalLayout {
+            padding-left: 12 * root.u;
+            padding-right: 12 * root.u;
+            spacing: 10 * root.u;
+            Text {
+                text: BpUi.focused.title;
+                color: #ffffff;
+                font-family: Theme.display;
+                font-size: 15 * root.u * Theme.text-scale;
+                font-weight: 700;
+                vertical-alignment: center;
+                overflow: elide;
+                horizontal-stretch: 1;
+            }
+            Text {
+                text: BpUi.focused.installed ? BpUi.focused.playtime : @tr("Non installé");
+                color: #ffffffaa;
+                font-size: 13 * root.u * Theme.text-scale;
+                vertical-alignment: center;
             }
         }
     }

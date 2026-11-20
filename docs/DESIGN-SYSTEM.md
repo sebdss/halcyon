@@ -132,6 +132,26 @@ police d'affichage (« Outils 4 »), jamais des pastilles.
 - **Mode Performance** : jaquettes à plat (66 % pour les voisins), ni côté, halo, lueur ni
   reflet ; Retourner montre le dos d'un coup.
 
+### Boîtiers en 3D (mode console, 1.0.0-alpha.8)
+
+- **Boîtier** : pavé 1 × 1,495 × 0,187 (rapport de la 2,5D), six faces : jaquette (grande pour
+  le boîtier choisi), dos, tranche (réels LaunchBox, sinon composés), chant, dessus et dessous en
+  plastique sombre de la couleur du jeu.
+- **Étagère** : même pile que la 2,5D, mais en perspective (champ vertical 31°, caméra
+  légèrement plongeante) ; bord avant de la planche à 73 % de la hauteur, où la plaque Slint
+  est posée. Reflets des boîtiers sur le dessus de la planche (32 %, s'effacent sur 0,75 unité).
+  Projecteur doux de la couleur de l'étagère, halo Slint derrière.
+- **Lumière** : ambiante 0,5, principale venant d'en haut à gauche, reflet spéculaire et frange
+  de Fresnel sur les faces en plastique ; liseré blanc (faces arrière agrandies) autour du
+  boîtier choisi, chaud pour les nouveautés du musée.
+- **Musée** : rangées à 2,2 unités d'écart, tranches au pas de 0,215, caméra (champ 40°) qui
+  suit la rangée et le boîtier choisis ; plaques et carte Slint placées d'après la projection.
+  Éclairages : galerie (projecteur chaud), jour (lumière égale), néon (projecteur de la couleur
+  de la rangée).
+- **Inspecter** : fond radial sombre, boîtier seul (champ 32°), rotations par pas de 35° ou à la
+  souris, couvercle sur charnière côté tranche (115°), disque argenté avec l'image du jeu.
+- **Mouvement** : approche exponentielle (complet 9/s, réduit 18/s, aucun : immédiat).
+
 ### Musée (mode console, 1.0.0-alpha.7)
 
 - **Mur** : une rangée par plateforme (chaque source PC, chaque système émulé), rangées par nom ;
