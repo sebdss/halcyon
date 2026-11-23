@@ -7,6 +7,10 @@ Première version publiée sur le canal **Stable**. Elle réunit tout le travail
 Center, GOG et sept autres launchers, sauvegardes Ludusavi, collections, étagère, musée et
 boîtiers en 3D…), éprouvé sur Windows et Linux. Aucune migration de base.
 
+**Nouvelle clé de signature.** Les préversions 1.0.0-alpha ne reconnaissent pas la clé qui
+signe cette version : installez la 1.0.0 une fois à la main (installateur Windows, AppImage
+ou programme d'installation Linux). Les mises à jour automatiques reprennent ensuite.
+
 ### Retiré
 
 - **Jeu à distance** (Sunshine / Moonlight) : page, bouton *Publier dans Sunshine…* de la fiche

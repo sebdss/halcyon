@@ -33,7 +33,7 @@ détaillé : [`CHANGELOG.md`](../CHANGELOG.md) · notes des préversions :
   de jeu en grand).
 
 ### Mise à jour
-- Les installations du canal **Beta** reçoivent aussi la 1.0.0 : une version finale est
-  plus récente que ses préversions.
-- Sur le canal **Stable**, c'est la première version proposée par la mise à jour
-  automatique.
+- **À installer une fois à la main** depuis une préversion 1.0.0-alpha : la 1.0.0 est signée
+  avec une nouvelle clé, que les préversions ne connaissent pas (elles la signalent sans
+  l'installer). Vos données sont conservées.
+- Ensuite, les mises à jour automatiques reprennent, sur le canal Stable comme sur Beta.
