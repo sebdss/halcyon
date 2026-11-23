@@ -434,28 +434,44 @@ plaques et la carte). Branchement : `Window::set_rendering_notifier` (avant chaq
 le contexte femtovg) ; la texture est montrée par `BorrowedOpenGLTextureBuilder`. Repli 2,5D
 si le rendu logiciel est actif (pas de notificateur), si OpenGL < 3 ou en cas d'erreur.
 
+## 5 octies. Version 1.0.0 — version stable
+
+**Retraits.** Trois fonctions sortent du code : le jeu à distance (`integrations::remote_play`,
+`ctl_remote`, page `remote`), les extensions (`integrations::{plugins, plugin_trust}`,
+`ctl_plugins`, page `plugins`, association `.halcyonplugin`, commande `sign-plugin` de
+`release_sign`) et la page Manettes (`controllers`). Le fil des manettes (`gamepad`) et
+l'application du profil actif restent (`ctl_pads` ne garde que `on_pad_event` et
+`apply_pad_profile`). L'encodage d'URL, partagé par plusieurs intégrations, passe dans
+`integrations::url`. Les champs retirés de `settings.json` (`plugins_enabled`, `remote_hosts`,
+`moonlight_path`) sont simplement ignorés à la lecture : aucune migration.
+
+**Pages refaites** (« Berge ») : `pages/saves.slint` (chiffre-titre, rangées `SaveRow`,
+rubriques de réglages dans une colonne de 880 px), `pages/journal.slint` (index à gauche,
+`IndexEntry` à perche, repli en puces sous 1000 px) et les onglets de `pages/game.slint`
+(`Head` : filet de tête et titre ; rangées ouvertes au lieu de cartes). Aucun global ni
+rappel Slint n'a changé pour ces pages.
+
 ## 6. Arborescence
 
 ```
 halcyon/
 ├── Cargo.toml                    # workspace
-├── docs/                         # ARCHITECTURE, GUIDE, PLUGINS, DESIGN-SYSTEM, PERFORMANCES, SON, INSTALLATEUR, notes et tests 0.4.x
-├── examples/plugins/             # extension d'exemple (liens, thème, sauvegardes)
+├── docs/                         # ARCHITECTURE, GUIDE, DESIGN-SYSTEM, PERFORMANCES, SON, INSTALLATEUR, notes et tests 0.4.x
 ├── crates/
 │   ├── halcyon-core/             # modèle, contrats, recherche, règles, profils, stats, suggestions (pur, testé)
 │   │   └── src/{achievements,launch_args,lib,model,profiles,query,recommend,rules,scanner,search,stats,util}.rs
 │   ├── halcyon-storage/          # SQLite (migrations v1→v7), settings, journal, suivi, logs, chemins
 │   │   └── src/{achievements,activity,audit,db,lib,logging,migrations,paths,perf,repo,saves_mods,secrets,settings,tracking}.rs
-│   ├── halcyon-integrations/     # plateformes, émulation, succès, lancement, sauvegardes, mods, extensions
+│   ├── halcyon-integrations/     # plateformes, émulation, succès, lancement, sauvegardes, mods
 │   │   ├── data/{platforms,emulators}.json
-│   │   └── src/{archive,artwork,config_archive,emulators,engines,epic,frametimes,gpu,launcher,lib,mods,plugins,process,rahash,remote_play,retro,roms,saves,standalone,steam,steam_web,steamgriddb,sysmon,vdf}.rs
+│   │   └── src/{archive,artwork,config_archive,discord,emulators,engines,epic,epic_free,frametimes,gog,gpu,launchbox,launcher,launchers,lib,libretro,ludusavi,mods,news,process,rahash,retro,roms,saves,standalone,steam,steam_appinfo,steam_requirements,steam_stats,steam_web,steamgriddb,sysmon,trash,url,vdf}.rs
 │   ├── halcyon-audio/            # 0.4.1 : catalogue des sons, mélangeur, sortie cpal ; sounds/*.wav
 │   ├── halcyon-installer/        # 0.4.1 : programme d'installation (payload, engine, platform, ui/setup.slint)
 │   ├── halcyon-update/           # 1.0 : HUS (bibliothèque, halcyon-updater, hus-release, keys/release.pub, tests/)
 │   └── halcyon-app/              # binaire : UI Slint + contrôleurs
 │       ├── build.rs              # compilation de l'UI, icône Windows
 │       ├── ui/                   # app, theme, types, state, components, shell, pages/, icons/, fonts/
-│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_emulators,ctl_extras,ctl_home,ctl_library,ctl_mods,ctl_palette,ctl_pads,ctl_perf,ctl_plugins,ctl_profiles,ctl_remote,ctl_saves,ctl_shell,ctl_system,ctl_themes,ctl_tracking,desktop,dialogs,gamepad,images,instance,main,models,nav,notify,perf,remote,tasks,tray}.rs
+│       └── src/{controller,ctl_achievements,ctl_assistant,ctl_backup,ctl_bigpicture,ctl_collections,ctl_downloads,ctl_emulators,ctl_extras,ctl_gl3d,ctl_home,ctl_lang,ctl_launchbox,ctl_library,ctl_minecraft,ctl_mods,ctl_museum,ctl_pads,ctl_palette,ctl_perf,ctl_profiles,ctl_recap,ctl_saves,ctl_shelf,ctl_shell,ctl_sound,ctl_system,ctl_themes,ctl_tracking,ctl_uninstall,ctl_update,desktop,dialogs,gamepad,images,instance,lang,main,models,nav,notify,perf,remote,tasks,tray}.rs + gl3d/
 ├── packaging/                    # windows/ (icône ; halcyon.iss, Inno Setup, hors CI), linux/ (.desktop, MIME, install/uninstall de l'archive)
 ├── tools/                        # make_demo_fixture.py, make_big_library.py, bench.py, package_linux.sh, sound/make_sounds.py
 └── .github/workflows/            # build.yml (tests, compilation), release.yml (publication signée sur tag v*)
@@ -481,7 +497,9 @@ halcyon/
 | 0.4.1 | Identité sonore originale et moteur audio, programme d'installation Windows/Linux (vérification, progression réelle, mise à jour, réparation, désinstallation) | ✅ Linux · Windows à valider sur machine réelle |
 | 0.5.0 | Minecraft Java Edition : versions, loaders, mods, modpacks, launcher officiel, connexion Microsoft | ✅ Windows · Linux sans réseau |
 | 1.0.0-alpha.1 | Audit 1.0, coffre des secrets, mises à jour signées, journal de sécurité, Performance Center (monitoring, applications, recommandations, historique par partie, FPS par journaux) | ✅ Linux · Windows à valider sur machine réelle |
-| 1.0.0-alpha.6 | Collections faciles à créer (sélection multiple, création guidée, séries, page de collection), étagère du mode console, désinstallation par les plateformes | ✅ Linux · Windows à valider sur machine réelle |
+| 1.0.0-alpha.6 | Collections faciles à créer (sélection multiple, création guidée, séries, page de collection), étagère du mode console, désinstallation par les plateformes | ✅ |
+| 1.0.0-alpha.7–8 | Étagère coverflow, musée, dos LaunchBox, boîtiers en vraie 3D | ✅ |
+| 1.0.0 | Version stable : retrait du jeu à distance, des extensions et de la page Manettes ; Sauvegardes, Journal et onglets de la fiche en « Berge » | ✅ Windows et Linux |
 
 Pistes suivantes : gestionnaire de téléchargements unifié, empreintes RetroAchievements des jeux sur disque, GOG via Heroic,
 validation de bout en bout sous Windows (préférence GPU, `.lnk`, icône de notification,

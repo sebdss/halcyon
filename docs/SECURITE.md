@@ -113,12 +113,19 @@ Option **désactivée par défaut**, jamais utilisée hors ligne ni en mode hors
 de la texture montrée par Slint) ; il n'utilise que des tampons et textures créés par Halcyon
 dans le contexte de Slint, dont l'état est sauvegardé puis rétabli à chaque image.
 
+## 4 quater. Retraits de la 1.0.0
+
+Les **extensions** et le **jeu à distance** ont été retirés : plus d'installation de contenu
+tiers, plus d'écriture dans `apps.json` de Sunshine ni de lancement de Moonlight. Surface
+d'attaque réduite d'autant. Les événements `plugin.*` du journal de sécurité ne sont plus
+produits (les anciennes lignes restent lisibles). L'installateur Windows efface l'ancienne
+association `.halcyonplugin` ; un fichier de ce type ouvert avec Halcyon est ignoré.
+
 ## 5. Limites connues
 
 - Linux : les fichiers du coffre ne sont pas chiffrés (protection par les droits du compte).
 - Signature : protège à partir de la première version signée installée ; la clé privée est
   un point unique à protéger.
-- Les extensions ne sont pas encore signées par leurs auteurs (prévu).
 - LaunchBox : les images viennent d'un service tiers ; Halcyon vérifie leur nom, leur taille
   et leur format, pas leur contenu visuel.
 - Désinstallation : la mise à la Corbeille Windows et les URI de GOG Galaxy, Battle.net et

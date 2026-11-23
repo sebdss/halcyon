@@ -2,13 +2,11 @@
 //!
 //! Le thread convertit boutons et stick gauche en actions de navigation, avec
 //! répétition automatique quand une direction est maintenue. Il publie aussi la
-//! liste des manettes (nom, marque, batterie, dernière utilisée) et permet de
-//! capturer un bouton pour la configuration des touches. Les touches ne servent
-//! qu'à naviguer dans Halcyon : rien n'est intercepté pendant une partie.
+//! liste des manettes (nom, marque, batterie, dernière utilisée). Les touches ne
+//! servent qu'à naviguer dans Halcyon : rien n'est intercepté pendant une partie.
 
 use gilrs::{Axis, Button, EventType, GamepadId, Gilrs, PowerInfo};
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 
@@ -85,35 +83,6 @@ pub fn button_from_name(name: &str) -> Option<Button> {
     BUTTONS.iter().find(|(n, _)| *n == name).map(|(_, b)| *b)
 }
 
-pub fn button_name(b: Button) -> Option<&'static str> {
-    BUTTONS.iter().find(|(_, x)| *x == b).map(|(n, _)| *n)
-}
-
-/// Libellé d'un bouton selon la marque de la manette.
-pub fn button_label(name: &str, brand: &str) -> String {
-    let (s, e, n, w, lb, rb, lt, rt, sel, start) = match brand {
-        "PlayStation" => (tr_noop!("Croix"), tr_noop!("Rond"), tr_noop!("Triangle"), tr_noop!("Carré"), "L1", "R1", "L2", "R2", "Create / Select", "Options / Start"),
-        "Nintendo" => ("B", "A", "X", "Y", "L", "R", "ZL", "ZR", "−", "+"),
-        _ => ("A", "B", "Y", "X", "LB", "RB", "LT", "RT", "View / Back", "Menu / Start"),
-    };
-    let label = match name {
-        "South" => s,
-        "East" => e,
-        "North" => n,
-        "West" => w,
-        "LeftTrigger" => lb,
-        "RightTrigger" => rb,
-        "LeftTrigger2" => lt,
-        "RightTrigger2" => rt,
-        "Select" => sel,
-        "Start" => start,
-        "LeftThumb" => tr_noop!("Stick gauche (clic)"),
-        "RightThumb" => tr_noop!("Stick droit (clic)"),
-        other => other,
-    };
-    halcyon_i18n::t(label)
-}
-
 pub fn brand_for(vendor: Option<u16>, name: &str) -> &'static str {
     match vendor {
         Some(0x045e) => "Xbox",
@@ -151,19 +120,16 @@ pub struct PadInfo {
 pub enum PadEvent {
     Action(PadAction),
     Devices(Vec<PadInfo>),
-    /// Bouton pressé pendant une capture (configuration des touches).
-    Captured(String),
 }
 
 /// Réglages partagés avec le thread des manettes.
 struct Shared {
     mapping: Mutex<HashMap<Button, PadAction>>,
-    capture: AtomicBool,
 }
 
 fn shared() -> &'static Shared {
     static SHARED: OnceLock<Shared> = OnceLock::new();
-    SHARED.get_or_init(|| Shared { mapping: Mutex::new(default_mapping()), capture: AtomicBool::new(false) })
+    SHARED.get_or_init(|| Shared { mapping: Mutex::new(default_mapping()) })
 }
 
 fn default_mapping() -> HashMap<Button, PadAction> {
@@ -182,10 +148,6 @@ pub fn set_mapping(overrides: &std::collections::BTreeMap<String, String>) {
     // Le bouton central (Guide/PS/Home) ouvre toujours Big Picture.
     m.entry(Button::Mode).or_insert(PadAction::Menu);
     *shared().mapping.lock().unwrap_or_else(|e| e.into_inner()) = m;
-}
-
-pub fn set_capture(on: bool) {
-    shared().capture.store(on, Ordering::SeqCst);
 }
 
 const FIRST_REPEAT: Duration = Duration::from_millis(380);
@@ -249,13 +211,6 @@ pub fn spawn(send: impl Fn(PadEvent) + Send + 'static) {
                     match ev.event {
                         EventType::Connected | EventType::Disconnected => changed = true,
                         EventType::ButtonPressed(b, _) => {
-                            if shared().capture.load(Ordering::SeqCst) {
-                                if let Some(n) = button_name(b) {
-                                    shared().capture.store(false, Ordering::SeqCst);
-                                    send(PadEvent::Captured(n.to_string()));
-                                }
-                                continue;
-                            }
                             let action = match b {
                                 Button::DPadUp => Some(PadAction::Up),
                                 Button::DPadDown => Some(PadAction::Down),
@@ -330,13 +285,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn brands_and_labels() {
+    fn brands() {
         assert_eq!(brand_for(Some(0x054c), "Wireless Controller"), "PlayStation");
         assert_eq!(brand_for(None, "Xbox Series X Controller"), "Xbox");
         assert_eq!(brand_for(Some(0x1234), "Gamepad"), "Générique");
-        assert_eq!(button_label("South", "PlayStation"), "Croix");
-        assert_eq!(button_label("East", "Nintendo"), "A");
-        assert_eq!(button_label("South", "Xbox"), "A");
     }
 
     #[test]

@@ -151,7 +151,7 @@ impl Controller {
             source: Some(g.source),
             source_key: g.source_key.clone(),
             rom: (g.source == GameSource::Emulated).then(|| g.executable.clone()).flatten(),
-            extra: self.plugin_save_patterns(g),
+            extra: Vec::new(),
             known: self.ludusavi_locations(g),
         }
     }
@@ -224,12 +224,6 @@ impl Controller {
                 }
             })
             .ok();
-    }
-
-    /// Emplacements fournis par les extensions (voir `ctl_plugins`).
-    pub(crate) fn plugin_save_patterns(&self, g: &Game) -> Vec<String> {
-        let key = halcyon_core::util::search_key(&g.name).replace(' ', "");
-        self.plugin_saves.borrow().get(&key).cloned().unwrap_or_default()
     }
 
     fn resolved_locations(&self, g: &Game, c: &SaveConfig, env: &SaveEnv) -> Vec<Location> {

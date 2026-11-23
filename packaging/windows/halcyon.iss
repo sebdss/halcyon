@@ -51,16 +51,12 @@ Name: "{group}\Halcyon"; Filename: "{app}\Halcyon.exe"; AppUserModelID: "Halcyon
 Name: "{autodesktop}\Halcyon"; Filename: "{app}\Halcyon.exe"; Tasks: desktopicon; AppUserModelID: "Halcyon.Launcher"
 
 [Registry]
-; Associations : thèmes (.halcyontheme) et extensions (.halcyonplugin) s'ouvrent dans Halcyon,
+; Association : les thèmes (.halcyontheme) s'ouvrent dans Halcyon,
 ; qui demande confirmation avant toute installation.
 Root: HKA; Subkey: "Software\Classes\.halcyontheme"; ValueType: string; ValueData: "Halcyon.Theme"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\Halcyon.Theme"; ValueType: string; ValueData: "Thème Halcyon"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\Halcyon.Theme\DefaultIcon"; ValueType: string; ValueData: "{app}\Halcyon.exe,0"
 Root: HKA; Subkey: "Software\Classes\Halcyon.Theme\shell\open\command"; ValueType: string; ValueData: """{app}\Halcyon.exe"" ""%1"""
-Root: HKA; Subkey: "Software\Classes\.halcyonplugin"; ValueType: string; ValueData: "Halcyon.Plugin"; Flags: uninsdeletevalue
-Root: HKA; Subkey: "Software\Classes\Halcyon.Plugin"; ValueType: string; ValueData: "Extension Halcyon"; Flags: uninsdeletekey
-Root: HKA; Subkey: "Software\Classes\Halcyon.Plugin\DefaultIcon"; ValueType: string; ValueData: "{app}\Halcyon.exe,0"
-Root: HKA; Subkey: "Software\Classes\Halcyon.Plugin\shell\open\command"; ValueType: string; ValueData: """{app}\Halcyon.exe"" ""%1"""
 ; Démarrage avec la session (activé depuis Halcyon) : retiré à la désinstallation.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "Halcyon"; Flags: uninsdeletevalue dontcreatekey
 

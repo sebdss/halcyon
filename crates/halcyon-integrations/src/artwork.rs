@@ -73,7 +73,7 @@ impl Downloader {
 
     /// POST de formulaire renvoyant du JSON (API publiques de Steam).
     pub fn post_form_json(&self, url: &str, form: &[(String, String)]) -> Result<serde_json::Value, FetchError> {
-        let body = form.iter().map(|(k, v)| format!("{}={}", crate::plugins::encode(k), crate::plugins::encode(v))).collect::<Vec<_>>().join("&");
+        let body = form.iter().map(|(k, v)| format!("{}={}", crate::url::encode(k), crate::url::encode(v))).collect::<Vec<_>>().join("&");
         let mut resp = self.agent.post(url).header("Content-Type", "application/x-www-form-urlencoded").send(body).map_err(classify)?;
         let bytes = resp.body_mut().with_config().limit(MAX_BYTES).read_to_vec().map_err(classify)?;
         serde_json::from_slice(&bytes).map_err(|e| FetchError::Unavailable(tr!("JSON invalide : {e}", e = e)))

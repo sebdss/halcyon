@@ -4,7 +4,7 @@
 
 import { Theme, Icons, Art } from "theme.slint";
 import { TaskRow } from "types.slint";
-import { Nav, Page, Actions, AppUi, LibraryUi, AchUi, EmuUi, UpdatesUi, PadsUi, QuickUi, CommandUi, SystemUi, McUi } from "state.slint";
+import { Nav, Page, Actions, AppUi, LibraryUi, AchUi, EmuUi, UpdatesUi, QuickUi, CommandUi, SystemUi, McUi } from "state.slint";
 import { Icon, IconButton, Overline, ProgressBar, Spinner, SecondaryButton, TextButton } from "components.slint";
 import { DownloadsUi } from "downloads_state.slint";
 
@@ -295,9 +295,6 @@ export component SpaceBar inherits Rectangle {
             if Spaces.current == 4: SpaceTab { text: @tr("Stockage"); active: Nav.page == Page.storage; clicked => { Nav.go(Page.storage); } }
             if Spaces.current == 4 && AppUi.nav.saves: SpaceTab { text: @tr("Sauvegardes"); active: Nav.page == Page.saves; clicked => { Nav.go(Page.saves); } }
             if Spaces.current == 4 && AppUi.nav.emulators: SpaceTab { text: @tr("Émulateurs"); active: Nav.page == Page.emulators; count: EmuUi.rom-count > 0 ? EmuUi.rom-count : ""; clicked => { Nav.go(Page.emulators); } }
-            if Spaces.current == 4 && AppUi.nav.controllers: SpaceTab { text: @tr("Manettes"); active: Nav.page == Page.controllers; count: PadsUi.pads.length > 0 ? PadsUi.pads.length : ""; clicked => { Nav.go(Page.controllers); } }
-            if Spaces.current == 4 && AppUi.nav.remote: SpaceTab { text: @tr("Jeu à distance"); active: Nav.page == Page.remote; clicked => { Nav.go(Page.remote); } }
-            if Spaces.current == 4 && AppUi.nav.plugins: SpaceTab { text: @tr("Extensions"); active: Nav.page == Page.plugins; clicked => { Nav.go(Page.plugins); } }
             if Spaces.current == 5: SpaceTab { text: @tr("Performances"); active: Nav.page == Page.performance; clicked => { Nav.go(Page.performance); } }
             if Spaces.current == 5: SpaceTab { text: @tr("Apparence"); active: Nav.page == Page.appearance; clicked => { Nav.go(Page.appearance); } }
             if Spaces.current == 5: SpaceTab { text: @tr("Paramètres"); active: Nav.page == Page.settings; count: AppUi.update-version != "" ? @tr("nouvelle version") : ""; clicked => { Nav.go(Page.settings); } }

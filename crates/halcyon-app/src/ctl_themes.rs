@@ -175,7 +175,7 @@ fn hex(c: Color) -> String {
 }
 
 /// Entrées masquables de la barre latérale.
-pub const NAV_ITEMS: [(&str, &str); 11] = [
+pub const NAV_ITEMS: [(&str, &str); 8] = [
     ("assistant", tr_noop!("Que jouer ?")),
     ("big-picture", tr_noop!("Console (Big Picture)")),
     ("achievements", tr_noop!("Succès")),
@@ -184,9 +184,6 @@ pub const NAV_ITEMS: [(&str, &str); 11] = [
     ("updates", tr_noop!("Mises à jour")),
     ("saves", tr_noop!("Sauvegardes")),
     ("emulators", tr_noop!("Émulateurs")),
-    ("controllers", tr_noop!("Manettes")),
-    ("remote", tr_noop!("Jeu à distance")),
-    ("plugins", tr_noop!("Extensions")),
 ];
 
 impl Controller {
@@ -210,16 +207,6 @@ impl Controller {
                     Ok(_) => {}
                     Err(e) => log::warn!("thème {} ignoré : {e}", f.display()),
                 }
-            }
-        }
-        for (plugin, value) in self.plugin_themes() {
-            match theme_from_value(&value) {
-                Ok(mut t) if !out.iter().any(|o| o.id == t.id) => {
-                    t.source = plugin;
-                    out.push(t);
-                }
-                Ok(_) => {}
-                Err(e) => log::warn!("thème de l'extension {plugin} ignoré : {e}"),
             }
         }
         out
@@ -302,9 +289,6 @@ impl Controller {
             updates: show("updates"),
             saves: show("saves"),
             emulators: show("emulators"),
-            controllers: show("controllers"),
-            remote: show("remote"),
-            plugins: show("plugins"),
         });
         self.refresh_appearance_ui_with(&themes);
         // Mouvement, effets, taille du texte, modes : appliqués en dernier (le mode

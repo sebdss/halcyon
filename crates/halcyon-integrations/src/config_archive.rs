@@ -14,7 +14,7 @@ pub const FORMAT: u32 = 1;
 pub const MANIFEST: &str = "halcyon-archive.json";
 
 /// Dossiers de données inclus dans l'archive (relatifs au dossier de données).
-pub const DIRS: &[&str] = &["custom-artwork", "emulators", "platforms", "themes", "plugins"];
+pub const DIRS: &[&str] = &["custom-artwork", "emulators", "platforms", "themes"];
 
 /// Champs de `settings.json` contenant des secrets (conservés dans le coffre `secrets/`
 /// depuis la 1.0.0 ; réinjectés dans l'archive seulement sur demande explicite).

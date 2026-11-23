@@ -4,7 +4,6 @@
 //! cargo run -p halcyon-integrations --example release_sign -- keygen <fichier-clé-privée>
 //! cargo run -p halcyon-integrations --example release_sign -- sign <fichier-clé-privée> SHA256SUMS
 //! cargo run -p halcyon-integrations --example release_sign -- verify <clé-publique-base64> SHA256SUMS
-//! cargo run -p halcyon-integrations --example release_sign -- sign-plugin <fichier-clé-privée> <dossier-extension>
 //! ```
 //!
 //! `keygen` écrit la clé privée (base64, droits 0600) et affiche la clé publique à placer
@@ -48,17 +47,12 @@ fn main() -> ExitCode {
             println!("{sums}.sig écrit");
             Ok(())
         }),
-        ["sign-plugin", key, dir] => read_secret(key).and_then(|sk| {
-            let pk = halcyon_integrations::plugin_trust::sign(std::path::Path::new(dir), sk.as_ref())?;
-            println!("{dir}/plugin.sig écrit (clé {})", halcyon_integrations::plugin_trust::fingerprint(&pk));
-            Ok(())
-        }),
         ["verify", pk, sums] => {
             let msg = std::fs::read(sums).map_err(|e| format!("{sums} : {e}"));
             let sig = std::fs::read_to_string(format!("{sums}.sig")).map_err(|e| format!("{sums}.sig : {e}"));
             msg.and_then(|m| sig.and_then(|s| halcyon_update::security::verify_signature_b64(pk, &m, &s))).map(|_| println!("signature valide"))
         }
-        _ => Err("usage : release_sign keygen <clé> | sign <clé|-> <SHA256SUMS> | verify <clé-publique> <SHA256SUMS> | sign-plugin <clé|-> <dossier>".into()),
+        _ => Err("usage : release_sign keygen <clé> | sign <clé|-> <SHA256SUMS> | verify <clé-publique> <SHA256SUMS>".into()),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,

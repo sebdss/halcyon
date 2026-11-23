@@ -46,7 +46,7 @@ pub fn app_entry(exe: &str, icon: &str) -> String {
         "[Desktop Entry]\nType=Application\nName=Halcyon\nGenericName={generic}\n\
          Comment={comment}\nExec={q} %f\nIcon={icon}\n\
          Terminal=false\nCategories=Game;\nKeywords={keywords}\n\
-         MimeType=application/x-halcyon-theme;application/x-halcyon-plugin;\nStartupWMClass=halcyon\n\
+         MimeType=application/x-halcyon-theme;\nStartupWMClass=halcyon\n\
          Actions=quick;bigpicture;\n\n[Desktop Action quick]\nName={quick}\nExec={q} --quick\n\n\
          [Desktop Action bigpicture]\nName={console}\nExec={q} --big-picture\n"
     )

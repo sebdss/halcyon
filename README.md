@@ -8,12 +8,12 @@ standalone, ajoutés à la main et **émulés**, sans compte à connecter. Il ce
 Edition (versions, loaders, mods, modpacks).
 
 Il gère aussi les **sauvegardes** de jeux (versionnées, multi-PC), les **mods** de manière
-réversible, les **profils de lancement**, les **statistiques**, des **extensions**
-déclaratives et le **jeu à distance** via Sunshine/Moonlight. Il est rapide, léger et
+réversible, les **profils de lancement** et les **statistiques**. Il est rapide, léger et
 entièrement utilisable hors ligne.
 
 Écrit en **Rust** avec une interface **Slint** (rendu natif accéléré, aucun navigateur embarqué).
 
+- Nouveautés de la 1.0.0 : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · [`CHANGELOG.md`](CHANGELOG.md)
 - Nouveautés de la 0.5.0 : [`docs/NOTES-0.5.0.md`](docs/NOTES-0.5.0.md) (Minecraft) ·
   [`docs/MINECRAFT.md`](docs/MINECRAFT.md)
 - Nouveautés de la 0.4.1 : [`docs/NOTES-0.4.1.md`](docs/NOTES-0.4.1.md) (son, installateur) ·
@@ -24,7 +24,6 @@ entièrement utilisable hors ligne.
 - Design system : [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md) · performances :
   [`docs/PERFORMANCES.md`](docs/PERFORMANCES.md) · tests : [`docs/TESTS-0.5.0.md`](docs/TESTS-0.5.0.md)
 - Conception et choix techniques : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- Créer une extension : [`docs/PLUGINS.md`](docs/PLUGINS.md)
 
 ## Fonctionnalités
 
@@ -42,15 +41,13 @@ entièrement utilisable hors ligne.
 | **Manette sur le bureau** | Toute l'interface hors Big Picture : flèches, focus, A/B/X/Y, Select (menu contextuel), LB/RB (vue ou onglet) |
 | **Recherche** | Tolérante aux fautes et aux sigles ; filtres `dev:`, `genre:`, `tag:`, `statut:`, `temps:>10h`, `succes:manquants`, `maj:oui`, négation ; collections intelligentes à règles |
 | **Suivi** | Statut (à jouer, en cours, terminé, abandonné), notes, temps de jeu avec provenance (plateforme / mesuré / corrigé), historique des versions, statistiques par semaine et par mois, journal d'activité filtrable |
-| **Profils de lancement** | Arguments, environnement, résolution, affichage, limite d'images (Unity, Unreal, Source, Godot), GPU préféré, priorité, scripts avant/après, programmes associés, profils de mods et de manette |
+| **Profils de lancement** | Arguments, environnement, résolution, affichage, limite d'images (Unity, Unreal, Source, Godot), GPU préféré, priorité, scripts avant/après, programmes associés, profils de mods |
 | **Mises à jour des jeux** | État et progression des téléchargements Steam, versions Heroic/Legendary ; téléchargement laissé aux plateformes |
 | **Sauvegardes** | Détection des emplacements, copies manuelles et automatiques (avant/après session) dédupliquées, comparaison, restauration atomique précédée d'une copie de sécurité, dépôt partagé (NAS, autre disque) avec détection des conflits entre PC |
 | **Mods** | Adaptateurs générique, BepInEx et paks Unreal ; import, ordre, conflits, profils ; déploiement avec copie des originaux et retrait complet ; versions Nexus Mods (clé personnelle) |
 | **Personnalisation** | 5 thèmes, import/export de thèmes, couleur d'accent, densité, mouvement, taille du texte, fond (animé en option), barre latérale et widgets de l'accueil réorganisables |
-| **Extensions** | Émulateurs, plateformes, emplacements de sauvegarde, thèmes, dossiers, sources de métadonnées et liens, **sans code exécuté** ; installation désactivée et activation après lecture des autorisations |
-| **Manettes** | Marque, batterie, dernière utilisée ; profils de touches de navigation et options par émulateur |
+| **Manettes** | Toute l'interface et le mode console à la manette (Xbox, PlayStation, Nintendo, Valve…), disposition standard |
 | **Que jouer ?** | Suggestions locales justifiées (temps disponible, à reprendre, presque terminés, à découvrir) |
-| **Jeu à distance** | Détection de Sunshine et Moonlight, machines, appairage, liste des jeux, diffusion, publication d'un jeu dans Sunshine |
 | **Bureau** | Zone de notification, démarrage avec la session, instance unique, raccourcis personnalisables, raccourci global, recherche universelle (`Ctrl+K` : jeux, pages, réglages, collections, commandes), mode compact au premier plan, fenêtre compagnon de session (sans injection), raccourcis de jeux sur le Bureau, associations de fichiers |
 | **Données** | Export/restauration de la configuration (sans fichiers de jeux, secrets exclus par défaut), mode hors ligne avec reprise automatique, vérification d'intégrité |
 | **Minecraft (0.5.0)** | Versions officielles Mojang et Java adapté, Fabric / Quilt / Forge / NeoForge, mods et modpacks Modrinth (CurseForge avec clé), lancement par le launcher officiel ou connexion Microsoft directe (ID Azure approuvé) |
@@ -127,8 +124,8 @@ HALCYON_DATA_DIR=/tmp/halcyon-demo/data cargo run -p halcyon-app
 - **Raccourci global sous Wayland** : interdit par le protocole. Liez `halcyon --quick` dans
   les réglages du bureau.
 - **Zone de notification sous GNOME** : nécessite l'extension AppIndicator.
-- **Extensions** : déclaratives uniquement. Pas de nouvelles sources de jeux ni de succès
-  fournis par des tiers.
+- **Extensions, jeu à distance, page Manettes** : retirés en 1.0.0 (voir
+  [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md)).
 - **Fonctions propres à Windows** : préférence GPU, raccourcis `.lnk`, clé de démarrage, icône de
   notification `tray-icon`, installateur. Le développement s'est fait sous Linux, sans
   pouvoir compiler ni exécuter ces parties. La CI Windows (`.github/workflows/build.yml`) les

@@ -389,24 +389,6 @@ export struct ToggleRow {
     visible: bool,
 }
 
-export struct PluginRow {
-    id: string,
-    name: string,
-    version: string,
-    author: string,
-    description: string,
-    enabled: bool,
-    usable: bool,
-    errors: string,
-    warnings: string,
-    permissions: [string],
-    update: string,
-    homepage: string,
-    /// « Signée par l'auteur · clé … » ou « Non signée · empreinte … » (1.0.0).
-    trust: string,
-    signed: bool,
-}
-
 /// Actualité d'un jeu (Game Hub, 1.0.0).
 export struct NewsRow {
     title: string,
@@ -415,47 +397,10 @@ export struct NewsRow {
     excerpt: string,
 }
 
-export struct PadRow {
-    name: string,
-    brand: string,
-    power: string,
-    last-used: bool,
-}
-
-export struct PadProfileRow {
-    id: int,
-    name: string,
-    summary: string,
-    active: bool,
-}
-
-export struct MappingRow {
-    action: string,
-    label: string,
-    button: string,
-}
-
-export struct EmuArgRow {
-    id: string,
-    name: string,
-    args: string,
-}
-
-export struct HostRow {
-    name: string,
-    address: string,
-    online: bool,
-}
-
 export struct SuggestRow {
     id: int,
     reason: string,
     card: GameCard,
-}
-
-export struct LinkRow {
-    label: string,
-    url: string,
 }
 
 /// Résultat du lancement rapide : jeu (0) ou page (1).

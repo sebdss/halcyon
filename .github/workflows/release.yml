@@ -80,7 +80,7 @@ jobs:
           New-Item -ItemType Directory -Force dist/payload | Out-Null
           Copy-Item target/release/halcyon.exe dist/payload/Halcyon.exe
           Copy-Item target/release/halcyon-updater.exe dist/payload/halcyon-updater.exe
-          Copy-Item README.md, CHANGELOG.md, docs/GUIDE.md, docs/PLUGINS.md, docs/SON.md, docs/INSTALLATEUR.md, docs/HUS.md, crates/halcyon-app/ui/fonts/LICENSE-Archivo.txt dist/payload/
+          Copy-Item README.md, CHANGELOG.md, docs/GUIDE.md, docs/SON.md, docs/INSTALLATEUR.md, docs/HUS.md, crates/halcyon-app/ui/fonts/LICENSE-Archivo.txt dist/payload/
           & target/release/hus-release.exe zip dist/payload "dist/Halcyon-$v-Windows-x64.zip"
           if ($LASTEXITCODE -ne 0) { throw "zip HUS" }
           & target/release/halcyon-setup.exe --pack dist/payload $v "dist/Halcyon-$v-windows-x86_64-setup.exe"

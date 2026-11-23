@@ -6,7 +6,7 @@
 //! d'afficher les images d'un autre jeu.
 
 use crate::artwork::{Downloader, FetchError};
-use crate::plugins::encode;
+use crate::url::encode;
 use halcyon_core::util::search_key;
 use serde_json::Value;
 

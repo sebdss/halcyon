@@ -176,7 +176,7 @@ pub fn steam_language() -> &'static str {
 /// le nom correspond exactement (sans tenir compte des accents ni de la ponctuation) : mieux
 /// vaut aucune image que celles d'un autre jeu.
 pub fn store_search(dl: &Downloader, name: &str) -> Result<Option<u64>, FetchError> {
-    let v = dl.get_json(&format!("https://store.steampowered.com/api/storesearch/?term={}&l=english&cc=US", crate::plugins::encode(name)))?;
+    let v = dl.get_json(&format!("https://store.steampowered.com/api/storesearch/?term={}&l=english&cc=US", crate::url::encode(name)))?;
     Ok(pick_store_match(&v, name))
 }
 

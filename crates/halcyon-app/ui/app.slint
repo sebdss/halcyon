@@ -14,12 +14,12 @@ import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
     UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow,
-    ThemeRow, ToggleRow, PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow, MiniRow,
+    ThemeRow, ToggleRow, SuggestRow, QuickRow, ShortcutRow, MiniRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue
 } from "types.slint";
 import {
     Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
-    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi, LaunchUi, StorageUi
+    UpdatesUi, SmartUi, SavesUi, ThemeUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi, LaunchUi, StorageUi
 } from "state.slint";
 import { Icon, PrimaryButton, SecondaryButton, TextField, TextArea, Badge, Panel, GameCover, IconButton, ModalPanel, Overline } from "components.slint";
 import { HomePage } from "pages/home.slint";
@@ -38,9 +38,6 @@ import { UpdatesPage } from "pages/updates.slint";
 import { SmartDialog } from "pages/smart.slint";
 import { SavesPage } from "pages/saves.slint";
 import { AppearancePage } from "pages/appearance.slint";
-import { PluginsPage } from "pages/plugins.slint";
-import { ControllersPage } from "pages/controllers.slint";
-import { RemotePage } from "pages/remote.slint";
 import { PerformancePage } from "pages/performance.slint";
 import { DownloadsPage } from "pages/downloads.slint";
 import { AssistantPage } from "pages/assistant.slint";
@@ -54,7 +51,7 @@ export {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
     UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow,
-    ThemeRow, ToggleRow, PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow, MiniRow,
+    ThemeRow, ToggleRow, SuggestRow, QuickRow, ShortcutRow, MiniRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue
 }
 export { MenuEntry, CaptureItem, NewsRow } from "types.slint";
@@ -67,7 +64,7 @@ export { UninstallUi } from "uninstall_state.slint";
 export { Theme, Icons, Sound }
 export {
     Nav, Page, Actions, LibraryUi, HomeUi, DetailUi, SettingsUi, AppUi, AchUi, EmuUi, McUi, BpUi, StatsUi, JournalUi,
-    UpdatesUi, SmartUi, SavesUi, ThemeUi, PluginsUi, PadsUi, RemoteUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi, LaunchUi, StorageUi
+    UpdatesUi, SmartUi, SavesUi, ThemeUi, AssistUi, QuickUi, SystemUi, CommandUi, GameMenu, RecapUi, LaunchUi, StorageUi
 }
 export { StoryPage, WorkshopRow, StorageDisk, StorageGame, ReqRow } from "types.slint";
 
@@ -666,9 +663,6 @@ export component AppWindow inherits Window {
                     if Nav.page == Page.updates: UpdatesPage { }
                     if Nav.page == Page.saves: SavesPage { }
                     if Nav.page == Page.appearance: AppearancePage { }
-                    if Nav.page == Page.plugins: PluginsPage { }
-                    if Nav.page == Page.controllers: ControllersPage { }
-                    if Nav.page == Page.remote: RemotePage { }
                     if Nav.page == Page.performance: PerformancePage { }
                     if Nav.page == Page.downloads: DownloadsPage { }
                     if Nav.page == Page.assistant: AssistantPage { }

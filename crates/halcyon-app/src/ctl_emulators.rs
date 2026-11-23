@@ -10,8 +10,7 @@ use std::path::PathBuf;
 
 impl Controller {
     pub(crate) fn load_registry(&self) {
-        let (mut reg, warnings) = Registry::load(&self.paths.data_dir);
-        self.extend_registry(&mut reg);
+        let (reg, warnings) = Registry::load(&self.paths.data_dir);
         for w in warnings {
             log::warn!("définition d'émulateur ignorée : {w}");
             self.toast(tr!("Définition ignorée : {w}", w = w), true);

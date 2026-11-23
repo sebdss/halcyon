@@ -145,45 +145,45 @@ msgstr "Wiederentdecken"
 msgid "Aucun jeu longuement joué puis délaissé."
 msgstr "Kein lange gespieltes und dann liegengelassenes Spiel."
 
-#: crates/halcyon-app/ui/pages/journal.slint:54
+#: crates/halcyon-app/ui/pages/journal.slint:96
 msgid "Journal d'activité"
 msgstr "Aktivitätsprotokoll"
 
-#: crates/halcyon-app/ui/pages/journal.slint:55
+#: crates/halcyon-app/ui/pages/journal.slint:97
 msgid "Historique lisible de vos sessions, succès, installations et mises à jour. Les journaux techniques restent dans le dossier des journaux."
 msgstr "Lesbarer Verlauf Ihrer Sitzungen, Erfolge, Installationen und Updates. Technische Protokolle bleiben im Protokollordner."
 
-#: crates/halcyon-app/ui/pages/journal.slint:63
+#: crates/halcyon-app/ui/pages/journal.slint:105 crates/halcyon-app/ui/pages/journal.slint:129
 msgid "Rechercher dans le journal"
 msgstr "Protokoll durchsuchen"
 
-#: crates/halcyon-app/ui/pages/journal.slint:75
+#: crates/halcyon-app/ui/pages/journal.slint:144
 #, placeholders
 msgid "{} sur {} entrées"
 msgstr "{} von {} Einträgen"
 
-#: crates/halcyon-app/ui/pages/journal.slint:75
+#: crates/halcyon-app/ui/pages/journal.slint:144
 #, placeholders
 msgid "{n} entrée"
 msgid_plural "{n} entrées"
 msgstr[0] "{n} Eintrag"
 msgstr[1] "{n} Einträge"
 
-#: crates/halcyon-app/ui/pages/journal.slint:87
+#: crates/halcyon-app/ui/pages/journal.slint:151 crates/halcyon-app/ui/pages/journal.slint:179
+msgid "Effacer les filtres"
+msgstr "Filter zurücksetzen"
+
+#: crates/halcyon-app/ui/pages/journal.slint:164
 msgid "Le journal est vide pour l'instant."
 msgstr "Das Protokoll ist noch leer."
 
-#: crates/halcyon-app/ui/pages/journal.slint:87
+#: crates/halcyon-app/ui/pages/journal.slint:164
 msgid "Aucune entrée ne correspond à ces filtres."
 msgstr "Keine Einträge entsprechen diesen Filtern."
 
-#: crates/halcyon-app/ui/pages/journal.slint:95
+#: crates/halcyon-app/ui/pages/journal.slint:172
 msgid "Vos sessions, succès, installations et mises à jour s'y inscriront au fil de l'eau."
 msgstr "Ihre Sitzungen, Erfolge, Installationen und Updates werden hier fortlaufend eingetragen."
-
-#: crates/halcyon-app/ui/pages/journal.slint:102
-msgid "Effacer les filtres"
-msgstr "Filter zurücksetzen"
 
 #: crates/halcyon-app/ui/pages/stats.slint:46
 #, placeholders

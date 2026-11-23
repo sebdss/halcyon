@@ -20,7 +20,6 @@ fn page_from_name(name: &str) -> Option<Page> {
         "settings" => Page::Settings,
         "achievements" => Page::Achievements,
         "journal" => Page::Journal,
-        "plugins" => Page::Plugins,
         "emulators" => Page::Emulators,
         "minecraft" => Page::Minecraft,
         "performance" => Page::Performance,

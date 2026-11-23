@@ -6,7 +6,7 @@
 //! (`Super Mario World (USA)`). Les caractères `&*/:`<>?\|"` y sont remplacés par `_`.
 //! Téléchargement en HTTPS depuis les dépôts GitHub du projet.
 
-use crate::plugins::encode;
+use crate::url::encode;
 use std::path::Path;
 
 const RAW: &str = "https://raw.githubusercontent.com/libretro-thumbnails";

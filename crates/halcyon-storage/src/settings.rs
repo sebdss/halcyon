@@ -169,17 +169,10 @@ pub struct Settings {
     pub frametime_dir: Option<PathBuf>,
 
     pub appearance: Appearance,
-    /// Extensions activées (identifiants). Une extension installée reste inactive tant
-    /// qu'elle n'a pas été activée explicitement.
-    pub plugins_enabled: Vec<String>,
     /// Profils de manette (touches de navigation, options des émulateurs).
     pub pad_profiles: Vec<PadProfile>,
     /// Profil de manette actif (0 : disposition standard).
     pub active_pad_profile: i64,
-    /// Machines Sunshine connues (jeu à distance).
-    pub remote_hosts: Vec<RemoteHost>,
-    /// Exécutable Moonlight forcé (sinon détection automatique).
-    pub moonlight_path: Option<PathBuf>,
 
     /// Lancement à l'ouverture de session (réduit dans la zone de notification).
     pub autostart: bool,
@@ -450,13 +443,6 @@ pub struct PadProfile {
     pub emulator_args: BTreeMap<String, String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct RemoteHost {
-    pub name: String,
-    pub address: String,
-}
-
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum LibraryView {
@@ -529,11 +515,8 @@ impl Default for Settings {
             steamgriddb_api_key: String::new(),
             offline_forced: false,
             appearance: Appearance::default(),
-            plugins_enabled: Vec::new(),
             pad_profiles: Vec::new(),
             active_pad_profile: 0,
-            remote_hosts: Vec::new(),
-            moonlight_path: None,
             autostart: false,
             close_to_tray: false,
             minimize_to_tray: false,

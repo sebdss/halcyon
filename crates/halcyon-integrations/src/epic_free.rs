@@ -6,9 +6,9 @@ use serde_json::Value;
 pub fn url(locale: &str, country: &str) -> String {
     format!(
         "https://store-site-backend-static-ipv4.ak.epicgames.com/freeGamesPromotions?locale={}&country={}&allowCountries={}",
-        crate::plugins::encode(locale),
-        crate::plugins::encode(country),
-        crate::plugins::encode(country)
+        crate::url::encode(locale),
+        crate::url::encode(country),
+        crate::url::encode(country)
     )
 }
 
