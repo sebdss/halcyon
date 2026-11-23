@@ -156,7 +156,8 @@ jobs:
       - run: cargo build --release -p halcyon-update --bin hus-release
       - name: Notes de version (section du CHANGELOG)
         run: |
-          awk -v v="## $VERSION" 'index($0, v) == 1 {on=1; next} /^## / && on {exit} on' CHANGELOG.md > notes.md
+          # Section exacte de la version : « ## 1.0.0 » ne doit pas englober « ## 1.0.0-alpha.8 ».
+          awk -v v="## $VERSION" '/^## / && on {exit} ($0 == v || index($0, v " ") == 1) {on=1; next} on' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "Halcyon $VERSION" > notes.md
           wc -l notes.md
       - name: Manifeste HUS (SHA-256 des paquets)
