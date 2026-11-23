@@ -189,6 +189,10 @@ msgstr "Analyse en cours (quelques secondes de mesures sont nécessaires)…"
 msgid "Rien à signaler : mémoire, processeur et stockage laissent de la marge pour jouer."
 msgstr "Rien à signaler : mémoire, processeur et stockage laissent de la marge pour jouer."
 
+#: crates/halcyon-app/ui/pages/performance.slint:134
+msgid "Activer"
+msgstr "Activer"
+
 #: crates/halcyon-app/ui/pages/performance.slint:148
 msgid "Applications les plus gourmandes"
 msgstr "Applications les plus gourmandes"
@@ -772,6 +776,10 @@ msgid "Appliqué à tous les sons."
 msgstr "Appliqué à tous les sons."
 
 #: crates/halcyon-app/ui/pages/settings.slint:885
+msgid "Navigation"
+msgstr "Navigation"
+
+#: crates/halcyon-app/ui/pages/settings.slint:885
 msgid "Sélection, sections, panneaux, menus, retour."
 msgstr "Sélection, sections, panneaux, menus, retour."
 
@@ -986,7 +994,7 @@ msgstr "Vider"
 msgid "Données de l'application"
 msgstr "Données de l'application"
 
-#: crates/halcyon-app/ui/pages/settings.slint:1150 crates/halcyon-app/src/ctl_system.rs:821
+#: crates/halcyon-app/ui/pages/settings.slint:1150 crates/halcyon-app/src/ctl_system.rs:808
 msgid "Vérification d'intégrité"
 msgstr "Vérification d'intégrité"
 
@@ -1137,210 +1145,190 @@ msgstr "emulation roms retro"
 
 #: crates/halcyon-app/src/ctl_system.rs:44
 msgctxt "keywords"
-msgid "controller gamepad pad"
-msgstr "controller gamepad pad"
-
-#: crates/halcyon-app/src/ctl_system.rs:45
-msgctxt "keywords"
-msgid "streaming sunshine moonlight remote"
-msgstr "streaming sunshine moonlight remote"
-
-#: crates/halcyon-app/src/ctl_system.rs:46
-msgctxt "keywords"
 msgid "performance center fps cpu gpu ram processeur memoire carte graphique monitoring"
 msgstr "performance center fps cpu gpu ram processeur memoire carte graphique monitoring"
 
-#: crates/halcyon-app/src/ctl_system.rs:47
+#: crates/halcyon-app/src/ctl_system.rs:45
 msgid "Minecraft"
 msgstr "Minecraft"
 
-#: crates/halcyon-app/src/ctl_system.rs:47
+#: crates/halcyon-app/src/ctl_system.rs:45
 msgctxt "keywords"
 msgid "java mods modpacks fabric forge neoforge"
 msgstr "java mods modpacks fabric forge neoforge"
 
-#: crates/halcyon-app/src/ctl_system.rs:48
+#: crates/halcyon-app/src/ctl_system.rs:46
 msgctxt "keywords"
 msgid "downloads file attente pause debit vitesse"
 msgstr "downloads file attente pause debit vitesse"
 
-#: crates/halcyon-app/src/ctl_system.rs:49
-msgctxt "keywords"
-msgid "plugins"
-msgstr "plugins"
-
-#: crates/halcyon-app/src/ctl_system.rs:50
+#: crates/halcyon-app/src/ctl_system.rs:47
 msgctxt "keywords"
 msgid "theme couleurs fond"
 msgstr "theme couleurs fond"
 
-#: crates/halcyon-app/src/ctl_system.rs:51
+#: crates/halcyon-app/src/ctl_system.rs:48
 msgctxt "keywords"
 msgid "settings options reglages raccourcis"
 msgstr "settings options reglages raccourcis"
 
-#: crates/halcyon-app/src/ctl_system.rs:52
+#: crates/halcyon-app/src/ctl_system.rs:49
 msgid "Paramètres › Raccourcis"
 msgstr "Paramètres › Raccourcis"
 
-#: crates/halcyon-app/src/ctl_system.rs:52
+#: crates/halcyon-app/src/ctl_system.rs:49
 msgctxt "keywords"
 msgid "clavier hotkey"
 msgstr "clavier hotkey"
 
-#: crates/halcyon-app/src/ctl_system.rs:53
+#: crates/halcyon-app/src/ctl_system.rs:50
 msgid "Paramètres › Exporter la configuration"
 msgstr "Paramètres › Exporter la configuration"
 
-#: crates/halcyon-app/src/ctl_system.rs:53
+#: crates/halcyon-app/src/ctl_system.rs:50
 msgctxt "keywords"
 msgid "backup restauration"
 msgstr "backup restauration"
 
-#: crates/halcyon-app/src/ctl_system.rs:188
+#: crates/halcyon-app/src/ctl_system.rs:185
 #, placeholders
 msgid "Combinaison « {combo} » invalide"
 msgstr "Combinaison « {combo} » invalide"
 
-#: crates/halcyon-app/src/ctl_system.rs:192
+#: crates/halcyon-app/src/ctl_system.rs:189
 #, placeholders
 msgid "{c} est déjà utilisé par « {v} »"
 msgstr "{c} est déjà utilisé par « {v} »"
 
-#: crates/halcyon-app/src/ctl_system.rs:210
+#: crates/halcyon-app/src/ctl_system.rs:207
 msgid "Raccourcis par défaut rétablis"
 msgstr "Raccourcis par défaut rétablis"
 
-#: crates/halcyon-app/src/ctl_system.rs:237
+#: crates/halcyon-app/src/ctl_system.rs:234
 #, placeholders
 msgid "Démarrage automatique : {e}"
 msgstr "Démarrage automatique : {e}"
 
-#: crates/halcyon-app/src/ctl_system.rs:264
+#: crates/halcyon-app/src/ctl_system.rs:261
 msgid "Combinaison invalide (ex. Ctrl+Alt+H)"
 msgstr "Combinaison invalide (ex. Ctrl+Alt+H)"
 
-#: crates/halcyon-app/src/ctl_system.rs:297
+#: crates/halcyon-app/src/ctl_system.rs:294
 #, placeholders
 msgid "Combinaison non reconnue : {e}"
 msgstr "Combinaison non reconnue : {e}"
 
-#: crates/halcyon-app/src/ctl_system.rs:300
+#: crates/halcyon-app/src/ctl_system.rs:297
 msgid "Session Wayland : les raccourcis globaux ne sont pas accessibles aux applications. Associez « halcyon --quick » à un raccourci dans les réglages de votre bureau."
 msgstr "Session Wayland : les raccourcis globaux ne sont pas accessibles aux applications. Associez « halcyon --quick » à un raccourci dans les réglages de votre bureau."
 
-#: crates/halcyon-app/src/ctl_system.rs:307
+#: crates/halcyon-app/src/ctl_system.rs:304
 #, placeholders
 msgid "{combo} ouvre le lancement rapide, même quand Halcyon est en arrière-plan"
 msgstr "{combo} ouvre le lancement rapide, même quand Halcyon est en arrière-plan"
 
-#: crates/halcyon-app/src/ctl_system.rs:309
+#: crates/halcyon-app/src/ctl_system.rs:306
 #, placeholders
 msgid "Raccourci indisponible (déjà utilisé ?) : {e}"
 msgstr "Raccourci indisponible (déjà utilisé ?) : {e}"
 
-#: crates/halcyon-app/src/ctl_system.rs:333
+#: crates/halcyon-app/src/ctl_system.rs:330
 msgid "Icône active dans la zone de notification"
 msgstr "Icône active dans la zone de notification"
 
-#: crates/halcyon-app/src/ctl_system.rs:337
+#: crates/halcyon-app/src/ctl_system.rs:334
 #, placeholders
 msgid "{e} : la fenêtre sera réduite au lieu d'être masquée"
 msgstr "{e} : la fenêtre sera réduite au lieu d'être masquée"
 
-#: crates/halcyon-app/src/ctl_system.rs:521
+#: crates/halcyon-app/src/ctl_system.rs:517
 msgid "Page"
 msgstr "Page"
 
-#: crates/halcyon-app/src/ctl_system.rs:559
+#: crates/halcyon-app/src/ctl_system.rs:555
 #, placeholders
 msgid "Mode compact indisponible : {e}"
 msgstr "Mode compact indisponible : {e}"
 
-#: crates/halcyon-app/src/ctl_system.rs:693
+#: crates/halcyon-app/src/ctl_system.rs:689
 #, placeholders
 msgid "Succès : {unlocked} / {total} (+{new} pendant cette session)"
 msgstr "Succès : {unlocked} / {total} (+{new} pendant cette session)"
 
-#: crates/halcyon-app/src/ctl_system.rs:693
+#: crates/halcyon-app/src/ctl_system.rs:689
 #, placeholders
 msgid "Succès : {unlocked} / {total}"
 msgstr "Succès : {unlocked} / {total}"
 
-#: crates/halcyon-app/src/ctl_system.rs:751
+#: crates/halcyon-app/src/ctl_system.rs:747
 #, placeholders
 msgid "Raccourci créé : {p}"
 msgstr "Raccourci créé : {p}"
 
-#: crates/halcyon-app/src/ctl_system.rs:752
+#: crates/halcyon-app/src/ctl_system.rs:748
 #, placeholders
 msgid "Raccourci impossible : {e}"
 msgstr "Raccourci impossible : {e}"
 
-#: crates/halcyon-app/src/ctl_system.rs:767
+#: crates/halcyon-app/src/ctl_system.rs:763
 msgid "Base de données : intègre"
 msgstr "Base de données : intègre"
 
-#: crates/halcyon-app/src/ctl_system.rs:770
+#: crates/halcyon-app/src/ctl_system.rs:766
 #, placeholders
 msgid "Base de données : problèmes détectés ({e}). Exportez la configuration puis restaurez-la pour reconstruire la base."
 msgstr "Base de données : problèmes détectés ({e}). Exportez la configuration puis restaurez-la pour reconstruire la base."
 
-#: crates/halcyon-app/src/ctl_system.rs:774
+#: crates/halcyon-app/src/ctl_system.rs:770
 #, placeholders
 msgid "Base de données : vérification impossible ({e})"
 msgstr "Base de données : vérification impossible ({e})"
 
-#: crates/halcyon-app/src/ctl_system.rs:778
+#: crates/halcyon-app/src/ctl_system.rs:774
 msgid "Paramètres : lisibles"
 msgstr "Paramètres : lisibles"
 
-#: crates/halcyon-app/src/ctl_system.rs:781
+#: crates/halcyon-app/src/ctl_system.rs:777
 #, placeholders
 msgid "Paramètres : fichier invalide ({e})"
 msgstr "Paramètres : fichier invalide ({e})"
 
-#: crates/halcyon-app/src/ctl_system.rs:783
+#: crates/halcyon-app/src/ctl_system.rs:779
 msgid "Paramètres : valeurs par défaut (aucun fichier)"
 msgstr "Paramètres : valeurs par défaut (aucun fichier)"
 
-#: crates/halcyon-app/src/ctl_system.rs:787
+#: crates/halcyon-app/src/ctl_system.rs:783
 msgid "Dossier des données : accessible en écriture"
 msgstr "Dossier des données : accessible en écriture"
 
-#: crates/halcyon-app/src/ctl_system.rs:790
+#: crates/halcyon-app/src/ctl_system.rs:786
 #, placeholders
 msgid "Dossier des données : écriture impossible ({e})"
 msgstr "Dossier des données : écriture impossible ({e})"
 
-#: crates/halcyon-app/src/ctl_system.rs:800
+#: crates/halcyon-app/src/ctl_system.rs:796
 #, placeholders
 msgid "{n} jeu marqué installé dont le dossier a disparu : relancez une analyse des sources"
 msgid_plural "{n} jeux marqués installés dont le dossier a disparu : relancez une analyse des sources"
 msgstr[0] "{n} jeu marqué installé dont le dossier a disparu : relancez une analyse des sources"
 msgstr[1] "{n} jeux marqués installés dont le dossier a disparu : relancez une analyse des sources"
 
-#: crates/halcyon-app/src/ctl_system.rs:802
+#: crates/halcyon-app/src/ctl_system.rs:798
 msgid "Dossiers des jeux installés : présents"
 msgstr "Dossiers des jeux installés : présents"
 
-#: crates/halcyon-app/src/ctl_system.rs:805
+#: crates/halcyon-app/src/ctl_system.rs:801
 #, placeholders
 msgid "{n} jaquette manquante : elle sera retéléchargée si les visuels en ligne sont activés"
 msgid_plural "{n} jaquettes manquantes : elles seront retéléchargées si les visuels en ligne sont activés"
 msgstr[0] "{n} jaquette manquante : elle sera retéléchargée si les visuels en ligne sont activés"
 msgstr[1] "{n} jaquettes manquantes : elles seront retéléchargées si les visuels en ligne sont activés"
 
-#: crates/halcyon-app/src/ctl_system.rs:814
-#, placeholders
-msgid "Extensions inutilisables : {list}"
-msgstr "Extensions inutilisables : {list}"
-
-#: crates/halcyon-app/src/ctl_system.rs:816 crates/halcyon-app/src/ctl_system.rs:817
+#: crates/halcyon-app/src/ctl_system.rs:803 crates/halcyon-app/src/ctl_system.rs:804
 msgid "Aucun problème détecté"
 msgstr "Aucun problème détecté"
 
-#: crates/halcyon-app/src/ctl_system.rs:816 crates/halcyon-app/src/ctl_system.rs:817
+#: crates/halcyon-app/src/ctl_system.rs:803 crates/halcyon-app/src/ctl_system.rs:804
 #, placeholders
 msgid "{n} problème à corriger"
 msgid_plural "{n} problèmes à corriger"
@@ -1368,6 +1356,11 @@ msgstr "Halcyon est maintenant dans {dest} et dans le menu des applications. Red
 #: crates/halcyon-app/src/ctl_update.rs:146
 msgid "Redémarrer"
 msgstr "Redémarrer"
+
+#: crates/halcyon-app/src/ctl_update.rs:155 crates/halcyon-app/src/ctl_update.rs:533
+#, placeholders
+msgid "Installation impossible : {e}"
+msgstr "Installation impossible : {e}"
 
 #: crates/halcyon-app/src/ctl_update.rs:227
 #, placeholders

@@ -13,69 +13,6 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: tools\n"
 
-#: crates/halcyon-app/ui/pages/controllers.slint:18
-msgid "Manettes connectées, profils de touches pour la navigation (Big Picture) et options transmises aux émulateurs."
-msgstr "Comandos ligados, perfis de botões para a navegação (Big Picture) e opções transmitidas aos emuladores."
-
-#: crates/halcyon-app/ui/pages/controllers.slint:21
-msgid "Connectées"
-msgstr "Ligados"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:21
-#, placeholders
-msgid "{n} manette"
-msgid_plural "{n} manettes"
-msgstr[0] "{n} comando"
-msgstr[1] "{n} comandos"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:22
-msgid "Aucune manette détectée. Branchez-en une ou appairez-la en Bluetooth : elle apparaîtra ici automatiquement."
-msgstr "Nenhum comando detetado. Ligue um ou emparelhe-o por Bluetooth: aparecerá aqui automaticamente."
-
-#: crates/halcyon-app/ui/pages/controllers.slint:39
-msgid "Dernière utilisée"
-msgstr "Último usado"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:47
-msgid "Profils de manette"
-msgstr "Perfis de comando"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:49
-msgid "Un profil change les touches de navigation de Halcyon et peut ajouter des options à la ligne de commande d'un émulateur (ex. RetroArch : --appendconfig=…). Associez-le à un jeu depuis l'onglet Profils de sa fiche. Pour les jeux PC, la configuration des touches reste celle du jeu, de Steam Input ou de votre pilote : Halcyon n'intercepte pas la manette pendant une partie."
-msgstr "Um perfil altera os botões de navegação do Halcyon e pode adicionar opções à linha de comandos de um emulador (p. ex., RetroArch: --appendconfig=…). Associe-o a um jogo no separador Perfis da respetiva página. Nos jogos de PC, a configuração dos botões continua a ser a do jogo, do Steam Input ou do controlador: o Halcyon não interceta o comando durante um jogo."
-
-#: crates/halcyon-app/ui/pages/controllers.slint:55
-msgid "Navigation :"
-msgstr "Navegação:"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:92
-msgid "Modifier le profil"
-msgstr "Editar o perfil"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:93
-msgid "Nom (ex. Disposition Nintendo)"
-msgstr "Nome (p. ex., Disposição Nintendo)"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:94
-msgid "Touches de navigation"
-msgstr "Botões de navegação"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:102
-msgid "Appuyez sur un bouton…"
-msgstr "Prima um botão…"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:102
-msgid "Changer"
-msgstr "Alterar"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:107
-msgid "Options transmises aux émulateurs détectés"
-msgstr "Opções transmitidas aos emuladores detetados"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:111
-msgid "ex. --appendconfig=/chemin/manette.cfg"
-msgstr "p. ex., --appendconfig=/caminho/comando.cfg"
-
 #: crates/halcyon-app/ui/pages/downloads.slint:56
 msgid "Tout ce que Halcyon télécharge lui-même (Minecraft, mods, modpacks, Java, mises à jour de Halcyon) passe par cette file. Les jeux Steam, Epic et GOG sont téléchargés par leur client officiel."
 msgstr "Tudo o que o Halcyon transfere por si (Minecraft, mods, modpacks, Java, atualizações do Halcyon) passa por esta fila. Os jogos Steam, Epic e GOG são transferidos pelo respetivo cliente oficial."
@@ -259,7 +196,7 @@ msgstr "Argumentos de ecrã inteiro (opcional)"
 msgid "Ex. -fullscreen"
 msgstr "P. ex., -fullscreen"
 
-#: crates/halcyon-app/ui/pages/emulators.slint:247 crates/halcyon-app/src/ctl_emulators.rs:327
+#: crates/halcyon-app/ui/pages/emulators.slint:247 crates/halcyon-app/src/ctl_emulators.rs:326
 #, placeholders
 msgid "{n} émulateur détecté"
 msgid_plural "{n} émulateurs détectés"
@@ -298,247 +235,89 @@ msgstr "Plataforma:"
 msgid "Dossier contenant les ROM de cette plateforme"
 msgstr "Pasta com as ROM desta plataforma"
 
-#: crates/halcyon-app/ui/pages/plugins.slint:19
-msgid "Émulateurs, plateformes, emplacements de sauvegarde, thèmes, sources de métadonnées et liens supplémentaires."
-msgstr "Emuladores, plataformas, localizações de gravações, temas, fontes de metadados e ligações adicionais."
+#: crates/halcyon-app/ui/pages/saves.slint:62
+msgid "dernière sauvegarde : autre PC"
+msgstr "última gravação: outro PC"
 
-#: crates/halcyon-app/ui/pages/plugins.slint:20
-msgid "Vérifier les mises à jour"
-msgstr "Procurar atualizações"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:23
-msgid "Les extensions sont déclaratives : elles ne contiennent que des données et Halcyon n'exécute jamais leur contenu. Une extension installée reste désactivée tant que vous ne l'avez pas activée après avoir vu ses autorisations. Les fichiers exécutables sont refusés à l'installation."
-msgstr "As extensões são declarativas: só contêm dados e o Halcyon nunca executa o seu conteúdo. Uma extensão instalada fica desativada até a ativar depois de ver as permissões. Os ficheiros executáveis são recusados na instalação."
-
-#: crates/halcyon-app/ui/pages/plugins.slint:30
-msgid "Installer une extension"
-msgstr "Instalar uma extensão"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:33
-msgid "Dossier, fichier plugin.json ou archive .zip"
-msgstr "Pasta, ficheiro plugin.json ou arquivo .zip"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:35
-msgid "Fichier…"
-msgstr "Ficheiro…"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:43
-msgid "Dossier…"
-msgstr "Pasta…"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:50
-msgid "Installer…"
-msgstr "Instalar…"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:54
+#: crates/halcyon-app/ui/pages/saves.slint:72
 #, placeholders
-msgid "Dossier des extensions : {}"
-msgstr "Pasta das extensões: {}"
+msgid "{n} sauvegarde"
+msgid_plural "{n} sauvegardes"
+msgstr[0] "{n} cópia"
+msgstr[1] "{n} cópias"
 
-#: crates/halcyon-app/ui/pages/plugins.slint:61
-msgid "Installées"
-msgstr "Instaladas"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:61
-#, placeholders
-msgid "{n} extension"
-msgid_plural "{n} extensions"
-msgstr[0] "{n} extensão"
-msgstr[1] "{n} extensões"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:63
-msgid "Aucune extension. La documentation pour en créer se trouve dans docs/PLUGINS.md (un exemple est fourni dans examples/plugins)."
-msgstr "Nenhuma extensão. A documentação para criar uma está em docs/PLUGINS.md (é fornecido um exemplo em examples/plugins)."
-
-#: crates/halcyon-app/ui/pages/plugins.slint:83
-msgid "Inutilisable"
-msgstr "Inutilizável"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:90
-msgid "Page de l'extension"
-msgstr "Página da extensão"
-
-#: crates/halcyon-app/ui/pages/remote.slint:19
-msgid "Détecté"
-msgstr "Detetado"
-
-#: crates/halcyon-app/ui/pages/remote.slint:19
-msgid "Absent"
-msgstr "Ausente"
-
-#: crates/halcyon-app/ui/pages/remote.slint:42
-msgid "Diffusez vos jeux vers un autre appareil avec Sunshine (sur la machine qui exécute le jeu) et Moonlight (sur l'appareil qui affiche)."
-msgstr "Transmita os seus jogos para outro dispositivo com o Sunshine (na máquina que executa o jogo) e o Moonlight (no dispositivo que o apresenta)."
-
-#: crates/halcyon-app/ui/pages/remote.slint:49
-msgid "Sunshine (serveur)"
-msgstr "Sunshine (servidor)"
-
-#: crates/halcyon-app/ui/pages/remote.slint:50
-msgid "Non détecté sur ce PC. Installez Sunshine (LizardByte) pour diffuser les jeux de cette machine."
-msgstr "Não detetado neste PC. Instale o Sunshine (LizardByte) para transmitir os jogos desta máquina."
-
-#: crates/halcyon-app/ui/pages/remote.slint:52
-msgid ", en cours d'exécution"
-msgstr ", em execução"
-
-#: crates/halcyon-app/ui/pages/remote.slint:52
-msgid ", arrêté"
-msgstr ", parado"
-
-#: crates/halcyon-app/ui/pages/remote.slint:55
-msgid "Ouvrir la configuration"
-msgstr "Abrir a configuração"
-
-#: crates/halcyon-app/ui/pages/remote.slint:57
-#, placeholders
-msgid "Jeux publiés : {} — publiez un jeu depuis sa fiche."
-msgstr "Jogos publicados: {} — publique um jogo a partir da respetiva página."
-
-#: crates/halcyon-app/ui/pages/remote.slint:60
-msgid "Moonlight (client)"
-msgstr "Moonlight (cliente)"
-
-#: crates/halcyon-app/ui/pages/remote.slint:61
-msgid "Non détecté. Installez Moonlight, ou indiquez son exécutable ci-dessous."
-msgstr "Não detetado. Instale o Moonlight ou indique o executável abaixo."
-
-#: crates/halcyon-app/ui/pages/remote.slint:66
-msgid "Chemin de Moonlight (facultatif)"
-msgstr "Caminho do Moonlight (opcional)"
-
-#: crates/halcyon-app/ui/pages/remote.slint:67 crates/halcyon-app/ui/pages/saves.slint:61
-msgid "Utiliser"
-msgstr "Usar"
-
-#: crates/halcyon-app/ui/pages/remote.slint:72
-msgid "Machines"
-msgstr "Máquinas"
-
-#: crates/halcyon-app/ui/pages/remote.slint:86
-msgid ", disponible"
-msgstr ", disponível"
-
-#: crates/halcyon-app/ui/pages/remote.slint:86
-msgid ", injoignable"
-msgstr ", inacessível"
-
-#: crates/halcyon-app/ui/pages/remote.slint:88
-msgid "Appairer"
-msgstr "Emparelhar"
-
-#: crates/halcyon-app/ui/pages/remote.slint:89
-msgid "Jeux"
-msgstr "Jogos"
-
-#: crates/halcyon-app/ui/pages/remote.slint:90
-msgid "Arrêter la session"
-msgstr "Terminar a sessão"
-
-#: crates/halcyon-app/ui/pages/remote.slint:96
-msgid "Nom (ex. PC du salon)"
-msgstr "Nome (p. ex., PC da sala)"
-
-#: crates/halcyon-app/ui/pages/remote.slint:97
-msgid "Adresse IP ou nom réseau"
-msgstr "Endereço IP ou nome de rede"
-
-#: crates/halcyon-app/ui/pages/remote.slint:101
-#, placeholders
-msgid "Jeux disponibles sur {}"
-msgstr "Jogos disponíveis em {}"
-
-#: crates/halcyon-app/ui/pages/remote.slint:103
-msgid "Chargement…"
-msgstr "A carregar…"
-
-#: crates/halcyon-app/ui/pages/remote.slint:103
-msgid "Aucun jeu listé : vérifiez que la machine est appairée et que Sunshine est lancé."
-msgstr "Nenhum jogo listado: verifique se a máquina está emparelhada e se o Sunshine está em execução."
-
-#: crates/halcyon-app/ui/pages/remote.slint:113
-msgid "Diffuser"
-msgstr "Transmitir"
-
-#: crates/halcyon-app/ui/pages/remote.slint:117
-msgid "L'appairage affiche un code PIN dans Moonlight : saisissez-le dans l'interface web de Sunshine sur la machine distante. La diffusion utilise le protocole éprouvé de Sunshine/Moonlight ; Halcyon ne fait que les piloter."
-msgstr "O emparelhamento mostra um código PIN no Moonlight: introduza-o na interface web do Sunshine na máquina remota. A transmissão usa o protocolo comprovado do Sunshine/Moonlight; o Halcyon apenas os controla."
-
-#: crates/halcyon-app/ui/pages/saves.slint:36
+#: crates/halcyon-app/ui/pages/saves.slint:90
 msgid "Copies versionnées de vos parties, avant et après chaque session, sur ce PC, un autre disque ou un NAS."
 msgstr "Cópias com versões das suas gravações, antes e depois de cada sessão, neste PC, noutro disco ou num NAS."
 
-#: crates/halcyon-app/ui/pages/saves.slint:39
-msgid "Détecter dans la bibliothèque"
-msgstr "Detetar na biblioteca"
-
-#: crates/halcyon-app/ui/pages/saves.slint:49
+#: crates/halcyon-app/ui/pages/saves.slint:95
 msgid "Le dépôt choisi est inaccessible (NAS éteint, disque débranché ?). Les nouvelles sauvegardes sont conservées sur ce PC et y seront recopiées automatiquement à son retour."
 msgstr "O repositório escolhido está inacessível (NAS desligado, disco desligado?). As novas gravações são guardadas neste PC e copiadas para lá automaticamente quando voltar."
 
-#: crates/halcyon-app/ui/pages/saves.slint:56
+#: crates/halcyon-app/ui/pages/saves.slint:105 crates/halcyon-app/ui/pages/saves.slint:122
+msgid "Jeux suivis"
+msgstr "Jogos registados"
+
+#: crates/halcyon-app/ui/pages/saves.slint:111
+msgid "Détecter dans la bibliothèque"
+msgstr "Detetar na biblioteca"
+
+#: crates/halcyon-app/ui/pages/saves.slint:117
+msgid "Synchroniser les dépôts"
+msgstr "Sincronizar os repositórios"
+
+#: crates/halcyon-app/ui/pages/saves.slint:124
+msgid "Aucun jeu n'a encore d'emplacement de sauvegarde. Lancez la détection, ou ouvrez une fiche de jeu › Sauvegardes."
+msgstr "Nenhum jogo tem ainda localização de gravações. Inicie a deteção ou abra a página de um jogo › Gravações."
+
+#: crates/halcyon-app/ui/pages/saves.slint:143
 msgid "Dépôt principal"
 msgstr "Repositório principal"
 
-#: crates/halcyon-app/ui/pages/saves.slint:57
+#: crates/halcyon-app/ui/pages/saves.slint:144
 #, placeholders
 msgid "Actuellement : {}"
 msgstr "Atualmente: {}"
 
-#: crates/halcyon-app/ui/pages/saves.slint:60
+#: crates/halcyon-app/ui/pages/saves.slint:147
 msgid "Dossier local, autre disque ou partage réseau (vide : données de Halcyon)"
 msgstr "Pasta local, outro disco ou partilha de rede (vazio: dados do Halcyon)"
 
-#: crates/halcyon-app/ui/pages/saves.slint:64
+#: crates/halcyon-app/ui/pages/saves.slint:148
+msgid "Utiliser"
+msgstr "Usar"
+
+#: crates/halcyon-app/ui/pages/saves.slint:151
 msgid "Plusieurs PC peuvent partager le même dépôt (dossier réseau ou synchronisé) : Halcyon détecte les versions plus récentes et les conflits."
 msgstr "Vários PC podem partilhar o mesmo repositório (pasta de rede ou sincronizada): o Halcyon deteta as versões mais recentes e os conflitos."
 
-#: crates/halcyon-app/ui/pages/saves.slint:66
+#: crates/halcyon-app/ui/pages/saves.slint:155
 msgid "Copies supplémentaires"
 msgstr "Cópias adicionais"
 
-#: crates/halcyon-app/ui/pages/saves.slint:71
+#: crates/halcyon-app/ui/pages/saves.slint:165
 msgid "Retirer (les copies existantes sont conservées)"
 msgstr "Remover (as cópias existentes são mantidas)"
 
-#: crates/halcyon-app/ui/pages/saves.slint:73
+#: crates/halcyon-app/ui/pages/saves.slint:169
 msgid "Autre disque où recopier chaque sauvegarde"
 msgstr "Outro disco para onde copiar cada gravação"
 
-#: crates/halcyon-app/ui/pages/saves.slint:79
+#: crates/halcyon-app/ui/pages/saves.slint:173
+msgid "Conservation"
+msgstr "Conservação"
+
+#: crates/halcyon-app/ui/pages/saves.slint:177
 msgid "Sauvegardes automatiques conservées par jeu (0 = toutes)"
 msgstr "Gravações automáticas mantidas por jogo (0 = todas)"
 
-#: crates/halcyon-app/ui/pages/saves.slint:84
-msgid "Nom de ce PC"
-msgstr "Nome deste PC"
-
-#: crates/halcyon-app/ui/pages/saves.slint:92
+#: crates/halcyon-app/ui/pages/saves.slint:178
 msgid "Les sauvegardes manuelles ne sont jamais supprimées automatiquement."
 msgstr "As gravações manuais nunca são eliminadas automaticamente."
 
-#: crates/halcyon-app/ui/pages/saves.slint:97
-msgid "Jeux suivis"
-msgstr "Jogos registados"
-
-#: crates/halcyon-app/ui/pages/saves.slint:99
-msgid "Synchroniser les dépôts"
-msgstr "Sincronizar os repositórios"
-
-#: crates/halcyon-app/ui/pages/saves.slint:102
-msgid "Aucun jeu n'a encore d'emplacement de sauvegarde. Lancez la détection, ou ouvrez une fiche de jeu › Sauvegardes."
-msgstr "Nenhum jogo tem ainda localização de gravações. Inicie a deteção ou abra a página de um jogo › Gravações."
-
-#: crates/halcyon-app/ui/pages/saves.slint:136
-msgid "dernière sauvegarde : autre PC"
-msgstr "última gravação: outro PC"
-
-#: crates/halcyon-app/ui/pages/saves.slint:139
-#, placeholders
-msgid "{n} sauvegarde, {}, dernière : {}"
-msgid_plural "{n} sauvegardes, {}, dernière : {}"
-msgstr[0] "{n} gravação, {}, última: {}"
-msgstr[1] "{n} gravações, {}, última: {}"
+#: crates/halcyon-app/ui/pages/saves.slint:183
+msgid "Nom de ce PC"
+msgstr "Nome deste PC"
 
 #: crates/halcyon-app/ui/pages/updates.slint:18
 msgid "Les mises à jour sont téléchargées et installées par la plateforme d'origine ; Halcyon les détecte et suit leur progression."
@@ -640,7 +419,7 @@ msgstr "exportação de segurança impossível, restauro cancelado: {e}"
 msgid "Restauration annulée : {e}"
 msgstr "Restauro cancelado: {e}"
 
-#: crates/halcyon-app/src/ctl_backup.rs:183 crates/halcyon-app/src/ctl_saves.rs:515
+#: crates/halcyon-app/src/ctl_backup.rs:183 crates/halcyon-app/src/ctl_saves.rs:509
 #, placeholders
 msgid "Restauration impossible : {e}"
 msgstr "Falha no restauro: {e}"
@@ -681,298 +460,89 @@ msgstr "Transferências em pausa"
 msgid "Téléchargements repris"
 msgstr "Transferências retomadas"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:17
+#: crates/halcyon-app/src/ctl_emulators.rs:16
 #, placeholders
 msgid "Définition ignorée : {w}"
 msgstr "Definição ignorada: {w}"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:59
+#: crates/halcyon-app/src/ctl_emulators.rs:58
 msgid "ROM introuvable"
 msgstr "ROM não encontrada"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:62
+#: crates/halcyon-app/src/ctl_emulators.rs:61
 #, placeholders
 msgid "Aucun émulateur détecté pour {name} : installez-en un ou indiquez son chemin dans la page Émulateurs"
 msgstr "Nenhum emulador detetado para {name}: instale um ou indique o caminho na página Emuladores"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:96
+#: crates/halcyon-app/src/ctl_emulators.rs:95
 msgid "aucun détecté"
 msgstr "nenhum detetado"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:101
+#: crates/halcyon-app/src/ctl_emulators.rs:100
 #, placeholders
 msgid "Par défaut ({default_name})"
 msgstr "Predefinido ({default_name})"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:103 crates/halcyon-app/src/ctl_emulators.rs:168
+#: crates/halcyon-app/src/ctl_emulators.rs:102 crates/halcyon-app/src/ctl_emulators.rs:167
 #, placeholders
 msgid "{name} (non détecté)"
 msgstr "{name} (não detetado)"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:224
+#: crates/halcyon-app/src/ctl_emulators.rs:223
 msgid "Définition introuvable ou illisible"
 msgstr "Definição não encontrada ou ilegível"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:275
+#: crates/halcyon-app/src/ctl_emulators.rs:274
 #, placeholders
 msgid "{name} ajouté : importez vos ROM pour ses plateformes"
 msgstr "{name} adicionado: importe as suas ROM para as respetivas plataformas"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:275
+#: crates/halcyon-app/src/ctl_emulators.rs:274
 #, placeholders
 msgid "{name} enregistré, mais son exécutable n'est pas trouvé"
 msgstr "{name} guardado, mas o executável não foi encontrado"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:287
+#: crates/halcyon-app/src/ctl_emulators.rs:286
 #, placeholders
 msgid "Supprimer {name} ?"
 msgstr "Eliminar {name}?"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:288
+#: crates/halcyon-app/src/ctl_emulators.rs:287
 msgid "Sa définition est retirée de Halcyon. L'émulateur lui-même, ses fichiers et vos jeux ne sont pas touchés."
 msgstr "A definição é removida do Halcyon. O emulador, os seus ficheiros e os seus jogos não são alterados."
 
-#: crates/halcyon-app/src/ctl_emulators.rs:298
+#: crates/halcyon-app/src/ctl_emulators.rs:297
 #, placeholders
 msgid "{name} supprimé"
 msgstr "{name} eliminado"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:341
+#: crates/halcyon-app/src/ctl_emulators.rs:340
 #, placeholders
 msgid "Exécutable introuvable : {p}"
 msgstr "Executável não encontrado: {p}"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:348
+#: crates/halcyon-app/src/ctl_emulators.rs:347
 msgid "Émulateur configuré"
 msgstr "Emulador configurado"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:348
+#: crates/halcyon-app/src/ctl_emulators.rs:347
 msgid "Émulateur toujours introuvable"
 msgstr "Emulador continua sem ser encontrado"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:354
+#: crates/halcyon-app/src/ctl_emulators.rs:353
 msgid "Arguments enregistrés"
 msgstr "Argumentos guardados"
 
-#: crates/halcyon-app/src/ctl_emulators.rs:382
+#: crates/halcyon-app/src/ctl_emulators.rs:381
 msgid "Ce dossier est déjà associé à cette plateforme"
 msgstr "Esta pasta já está associada a esta plataforma"
-
-#: crates/halcyon-app/src/ctl_pads.rs:46
-#, placeholders
-msgid "{label} : {button}"
-msgstr "{label}: {button}"
-
-#: crates/halcyon-app/src/ctl_pads.rs:51
-#, placeholders
-msgid "options pour {n} émulateur"
-msgid_plural "options pour {n} émulateurs"
-msgstr[0] "opções para {n} emulador"
-msgstr[1] "opções para {n} emuladores"
-
-#: crates/halcyon-app/src/ctl_pads.rs:53 crates/halcyon-app/src/ctl_pads.rs:78
-msgid "Disposition standard"
-msgstr "Disposição padrão"
-
-#: crates/halcyon-app/src/ctl_pads.rs:150
-msgid "Aucune manette connectée"
-msgstr "Nenhum comando ligado"
-
-#: crates/halcyon-app/src/ctl_pads.rs:213
-msgid "Donnez un nom au profil"
-msgstr "Dê um nome ao perfil"
-
-#: crates/halcyon-app/src/ctl_pads.rs:240
-#, placeholders
-msgid "Supprimer le profil « {name} » ?"
-msgstr "Eliminar o perfil «{name}»?"
-
-#: crates/halcyon-app/src/ctl_pads.rs:241
-msgid "Les profils de lancement qui l'utilisaient reviendront au profil actif."
-msgstr "Os perfis de arranque que o usavam voltarão ao perfil ativo."
-
-#: crates/halcyon-app/src/ctl_plugins.rs:156
-msgid "Chemin introuvable"
-msgstr "Caminho não encontrado"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:164 crates/halcyon-app/src/ctl_plugins.rs:175 crates/halcyon-app/src/ctl_plugins.rs:182
-#, placeholders
-msgid "Extension refusée : {e}"
-msgstr "Extensão recusada: {e}"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:188
-#, placeholders
-msgid "Remplace la version {version} installée.\n{text}"
-msgstr "Substitui a versão {version} instalada.\n{text}"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:190
-msgid "\n\nL'extension sera installée désactivée : vous pourrez l'activer ensuite."
-msgstr "\n\nA extensão será instalada desativada: pode ativá-la depois."
-
-#: crates/halcyon-app/src/ctl_plugins.rs:195
-#, placeholders
-msgid "Installer « {name} » {version} ?"
-msgstr "Instalar «{name}» {version}?"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:204
-#, placeholders
-msgid "Extension « {name} » installée"
-msgstr "Extensão «{name}» instalada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:206
-#, placeholders
-msgid "« {name} » installée"
-msgstr "«{name}» instalada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:219
-#, placeholders
-msgid "Extension « {id} » désactivée"
-msgstr "Extensão «{id}» desativada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:226
-msgid "Extension inutilisable : corrigez les erreurs indiquées"
-msgstr "Extensão inutilizável: corrija os erros indicados"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:233
-#, placeholders
-msgid "Activer « {name} » ?"
-msgstr "Ativar «{name}»?"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:240
-#, placeholders
-msgid "Extension « {name} » activée"
-msgstr "Extensão «{name}» ativada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:242
-#, placeholders
-msgid "« {name} » activée"
-msgstr "«{name}» ativada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:254
-#, placeholders
-msgid "Désinstaller « {id} » ?"
-msgstr "Desinstalar «{id}»?"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:255
-msgid "Le dossier de l'extension est supprimé. Vos jeux, sauvegardes et paramètres ne sont pas modifiés ; un thème fourni par l'extension est remplacé par le thème Halcyon."
-msgstr "A pasta da extensão é eliminada. Os seus jogos, gravações e definições não são alterados; um tema fornecido pela extensão é substituído pelo tema Halcyon."
-
-#: crates/halcyon-app/src/ctl_plugins.rs:262
-#, placeholders
-msgid "Extension « {id} » désinstallée"
-msgstr "Extensão «{id}» desinstalada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:263
-#, placeholders
-msgid "« {id} » désinstallée"
-msgstr "«{id}» desinstalada"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:273
-msgid "Hors ligne : vérification impossible"
-msgstr "Sem ligação: não é possível verificar"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:278
-msgid "Aucune extension n'indique d'adresse de mise à jour"
-msgstr "Nenhuma extensão indica um endereço de atualização"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:300
-msgid "Toutes les extensions sont à jour"
-msgstr "Todas as extensões estão atualizadas"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:300
-#, placeholders
-msgid "{n} mise à jour disponible : téléchargez-la depuis la page de l'extension puis installez-la ici"
-msgid_plural "{n} mises à jour disponibles : téléchargez-les depuis la page de l'extension puis installez-les ici"
-msgstr[0] "{n} atualização disponível: transfira-a a partir da página da extensão e instale-a aqui"
-msgstr[1] "{n} atualizações disponíveis: transfira-as a partir da página da extensão e instale-as aqui"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:302
-#, placeholders
-msgid " — erreurs : {join}"
-msgstr " — erros: {join}"
-
-#: crates/halcyon-app/src/ctl_remote.rs:86
-msgid "Adresse invalide"
-msgstr "Endereço inválido"
-
-#: crates/halcyon-app/src/ctl_remote.rs:94
-msgid "Cette machine est déjà dans la liste"
-msgstr "Esta máquina já está na lista"
-
-#: crates/halcyon-app/src/ctl_remote.rs:121
-msgid "Moonlight n'est pas installé sur ce PC"
-msgstr "O Moonlight não está instalado neste PC"
-
-#: crates/halcyon-app/src/ctl_remote.rs:135
-#, placeholders
-msgid "Liste des jeux de {name}…"
-msgstr "Lista de jogos de {name}…"
-
-#: crates/halcyon-app/src/ctl_remote.rs:149
-#, placeholders
-msgid "{n} jeu publié par {name}"
-msgid_plural "{n} jeux publiés par {name}"
-msgstr[0] "{n} jogo publicado por {name}"
-msgstr[1] "{n} jogos publicados por {name}"
-
-#: crates/halcyon-app/src/ctl_remote.rs:163
-#, placeholders
-msgid "Appairage avec {name} démarré : saisissez le code PIN affiché par Moonlight dans l'interface web de Sunshine de cette machine"
-msgstr "Emparelhamento com {name} iniciado: introduza o código PIN apresentado pelo Moonlight na interface web do Sunshine dessa máquina"
-
-#: crates/halcyon-app/src/ctl_remote.rs:172 crates/halcyon-app/src/ctl_remote.rs:173
-#, placeholders
-msgid "Diffusion de « {app_name} » depuis {name}"
-msgstr "A transmitir «{app_name}» a partir de {name}"
-
-#: crates/halcyon-app/src/ctl_remote.rs:181
-#, placeholders
-msgid "Arrêt de la session sur {name}…"
-msgstr "A terminar a sessão em {name}…"
-
-#: crates/halcyon-app/src/ctl_remote.rs:187
-#, placeholders
-msgid "Session arrêtée sur {name}"
-msgstr "Sessão terminada em {name}"
-
-#: crates/halcyon-app/src/ctl_remote.rs:201
-msgid "Fichier introuvable"
-msgstr "Ficheiro não encontrado"
-
-#: crates/halcyon-app/src/ctl_remote.rs:224
-#, placeholders
-msgid "Chemin de Halcyon introuvable : {e}"
-msgstr "Caminho do Halcyon não encontrado: {e}"
-
-#: crates/halcyon-app/src/ctl_remote.rs:229
-#, placeholders
-msgid "« {name} » sera ajouté à {apps} (commande : {command}). Une copie de sauvegarde du fichier est créée avant modification. Sunshine doit être redémarré pour voir le jeu."
-msgstr "«{name}» será adicionado a {apps} (comando: {command}). É criada uma cópia de segurança do ficheiro antes da alteração. O Sunshine tem de ser reiniciado para ver o jogo."
-
-#: crates/halcyon-app/src/ctl_remote.rs:231
-msgid "Publier dans Sunshine ?"
-msgstr "Publicar no Sunshine?"
-
-#: crates/halcyon-app/src/ctl_remote.rs:231
-msgid "Publier"
-msgstr "Publicar"
-
-#: crates/halcyon-app/src/ctl_remote.rs:234
-#, placeholders
-msgid "« {name} » publié dans Sunshine"
-msgstr "«{name}» publicado no Sunshine"
-
-#: crates/halcyon-app/src/ctl_remote.rs:235
-#, placeholders
-msgid "« {name} » publié dans Sunshine (copie : {backup})"
-msgstr "«{name}» publicado no Sunshine (cópia: {backup})"
 
 #: crates/halcyon-app/src/ctl_saves.rs:50
 #, placeholders
 msgid "dépôt de sauvegardes inaccessible : {root}"
 msgstr "repositório de gravações inacessível: {root}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:62 crates/halcyon-app/src/ctl_saves.rs:497
+#: crates/halcyon-app/src/ctl_saves.rs:62 crates/halcyon-app/src/ctl_saves.rs:491
 msgid "aucun fichier de sauvegarde trouvé dans les emplacements"
 msgstr "nenhum ficheiro de gravação encontrado nas localizações"
 
@@ -988,212 +558,212 @@ msgid_plural "{reason_label} · {n} fichiers · {total_size}"
 msgstr[0] "{reason_label} · {n} ficheiro · {total_size}"
 msgstr[1] "{reason_label} · {n} ficheiros · {total_size}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:281
+#: crates/halcyon-app/src/ctl_saves.rs:275
 msgid "Introuvable sur ce PC"
 msgstr "Não encontrado neste PC"
 
-#: crates/halcyon-app/src/ctl_saves.rs:302
+#: crates/halcyon-app/src/ctl_saves.rs:296
 #, placeholders
 msgid "Dépôt choisi inaccessible : sauvegarde locale ({root}), copiée à son retour"
 msgstr "Repositório escolhido inacessível: gravação local ({root}), copiada quando voltar"
 
-#: crates/halcyon-app/src/ctl_saves.rs:304
+#: crates/halcyon-app/src/ctl_saves.rs:298
 #, placeholders
 msgid "Dépôt : {root}"
 msgstr "Repositório: {root}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:310
+#: crates/halcyon-app/src/ctl_saves.rs:304
 msgid "Aucun emplacement associé : associez un emplacement détecté ou ajoutez un dossier."
 msgstr "Nenhuma localização associada: associe uma localização detetada ou adicione uma pasta."
 
-#: crates/halcyon-app/src/ctl_saves.rs:365
+#: crates/halcyon-app/src/ctl_saves.rs:359
 #, placeholders
 msgid "{n} fichier, {local_size} en local"
 msgid_plural "{n} fichiers, {local_size} en local"
 msgstr[0] "{n} ficheiro, {local_size} localmente"
 msgstr[1] "{n} ficheiros, {local_size} localmente"
 
-#: crates/halcyon-app/src/ctl_saves.rs:367
+#: crates/halcyon-app/src/ctl_saves.rs:361
 #, placeholders
 msgid "Lecture impossible : {e}"
 msgstr "Não é possível ler: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:368
+#: crates/halcyon-app/src/ctl_saves.rs:362
 #, placeholders
 msgid "Aucune sauvegarde pour l'instant · {local}"
 msgstr "Ainda não há gravações · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:369
+#: crates/halcyon-app/src/ctl_saves.rs:363
 #, placeholders
 msgid "À jour : identique à la dernière sauvegarde · {local}"
 msgstr "Atualizado: idêntico à última gravação · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:370
+#: crates/halcyon-app/src/ctl_saves.rs:364
 #, placeholders
 msgid "Identique à la sauvegarde restaurée · {local}"
 msgstr "Idêntico à gravação restaurada · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:371
+#: crates/halcyon-app/src/ctl_saves.rs:365
 #, placeholders
 msgid "Modifié depuis la dernière sauvegarde · {local}"
 msgstr "Alterado desde a última gravação · {local}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:374
+#: crates/halcyon-app/src/ctl_saves.rs:368
 #, placeholders
 msgid "Version plus récente sauvegardée sur « {machine} » le {created_at} : restaurez-la pour continuer sur ce PC."
 msgstr "Foi guardada uma versão mais recente em «{machine}» a {created_at}: restaure-a para continuar neste PC."
 
-#: crates/halcyon-app/src/ctl_saves.rs:378
+#: crates/halcyon-app/src/ctl_saves.rs:372
 #, placeholders
 msgid "Conflit : « {machine} » a sauvegardé une autre progression le {date}, et les fichiers de ce PC ont aussi changé. Choisissez la version à garder (l'autre reste disponible dans l'historique)."
 msgstr "Conflito: «{machine}» gravou outro progresso a {date} e os ficheiros deste PC também mudaram. Escolha a versão a manter (a outra continua disponível no histórico)."
 
-#: crates/halcyon-app/src/ctl_saves.rs:406
+#: crates/halcyon-app/src/ctl_saves.rs:400
 #, placeholders
 msgid "Emplacement introuvable : {p}"
 msgstr "Localização não encontrada: {p}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:414
+#: crates/halcyon-app/src/ctl_saves.rs:408
 #, placeholders
 msgid "Emplacement de sauvegarde ajouté pour {name}"
 msgstr "Localização de gravações adicionada para {name}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:445
+#: crates/halcyon-app/src/ctl_saves.rs:439
 msgid "Associez d'abord un emplacement de sauvegarde"
 msgstr "Associe primeiro uma localização de gravações"
 
-#: crates/halcyon-app/src/ctl_saves.rs:456
+#: crates/halcyon-app/src/ctl_saves.rs:450
 #, placeholders
 msgid "Sauvegarde créée · {n} fichier"
 msgid_plural "Sauvegarde créée · {n} fichiers"
 msgstr[0] "Gravação criada · {n} ficheiro"
 msgstr[1] "Gravação criada · {n} ficheiros"
 
-#: crates/halcyon-app/src/ctl_saves.rs:457
+#: crates/halcyon-app/src/ctl_saves.rs:451
 msgid "Rien n'a changé depuis la dernière sauvegarde"
 msgstr "Nada mudou desde a última gravação"
 
-#: crates/halcyon-app/src/ctl_saves.rs:458 crates/halcyon-app/src/ctl_saves.rs:536
+#: crates/halcyon-app/src/ctl_saves.rs:452 crates/halcyon-app/src/ctl_saves.rs:530
 #, placeholders
 msgid "Sauvegarde impossible : {e}"
 msgstr "Falha na gravação: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:470
+#: crates/halcyon-app/src/ctl_saves.rs:464
 msgid "Sauvegarde introuvable dans le dépôt"
 msgstr "Gravação não encontrada no repositório"
 
-#: crates/halcyon-app/src/ctl_saves.rs:473
+#: crates/halcyon-app/src/ctl_saves.rs:467
 msgid "Fermez le jeu avant de restaurer une sauvegarde"
 msgstr "Feche o jogo antes de restaurar uma gravação"
 
-#: crates/halcyon-app/src/ctl_saves.rs:478
+#: crates/halcyon-app/src/ctl_saves.rs:472
 msgid "Un emplacement de cette sauvegarde n'existe pas sur ce PC"
 msgstr "Uma localização desta gravação não existe neste PC"
 
-#: crates/halcyon-app/src/ctl_saves.rs:480
+#: crates/halcyon-app/src/ctl_saves.rs:474
 #, placeholders
 msgid "Les fichiers actuels de « {name} » seront remplacés par la sauvegarde du {date} ({machine}, {reason}). Une sauvegarde de l'état actuel est créée juste avant : vous pourrez revenir en arrière."
 msgstr "Os ficheiros atuais de «{name}» serão substituídos pela gravação de {date} ({machine}, {reason}). É criada uma gravação do estado atual imediatamente antes: poderá voltar atrás."
 
-#: crates/halcyon-app/src/ctl_saves.rs:488
+#: crates/halcyon-app/src/ctl_saves.rs:482
 msgid "Restaurer cette sauvegarde ?"
 msgstr "Restaurar esta gravação?"
 
-#: crates/halcyon-app/src/ctl_saves.rs:495 crates/halcyon-integrations/src/saves.rs:320
+#: crates/halcyon-app/src/ctl_saves.rs:489 crates/halcyon-integrations/src/saves.rs:320
 msgid "Avant restauration"
 msgstr "Antes do restauro"
 
-#: crates/halcyon-app/src/ctl_saves.rs:498
+#: crates/halcyon-app/src/ctl_saves.rs:492
 #, placeholders
 msgid "sauvegarde de sécurité impossible, restauration annulée : {e}"
 msgstr "gravação de segurança impossível, restauro cancelado: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:507
+#: crates/halcyon-app/src/ctl_saves.rs:501
 #, placeholders
 msgid "Sauvegarde restaurée pour {name}"
 msgstr "Gravação restaurada para {name}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:514
+#: crates/halcyon-app/src/ctl_saves.rs:508
 #, placeholders
 msgid "Sauvegarde restaurée ({n} fichier)"
 msgid_plural "Sauvegarde restaurée ({n} fichiers)"
 msgstr[0] "Gravação restaurada ({n} ficheiro)"
 msgstr[1] "Gravação restaurada ({n} ficheiros)"
 
-#: crates/halcyon-app/src/ctl_saves.rs:532
+#: crates/halcyon-app/src/ctl_saves.rs:526
 #, placeholders
 msgid "Version de {machine} conservée"
 msgstr "Versão de {machine} mantida"
 
-#: crates/halcyon-app/src/ctl_saves.rs:535
+#: crates/halcyon-app/src/ctl_saves.rs:529
 msgid "Version de ce PC enregistrée comme référence"
 msgstr "Versão deste PC guardada como referência"
 
-#: crates/halcyon-app/src/ctl_saves.rs:566
+#: crates/halcyon-app/src/ctl_saves.rs:560
 #, placeholders
 msgid "Sauvegarde du {created_at} → fichiers actuels · modifiés : {modified} · ajoutés : {added} · supprimés : {removed} · identiques : {unchanged}"
 msgstr "Gravação de {created_at} → ficheiros atuais · alterados: {modified} · adicionados: {added} · eliminados: {removed} · idênticos: {unchanged}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:571
+#: crates/halcyon-app/src/ctl_saves.rs:565
 #, placeholders
 msgid "Comparaison impossible : {e}"
 msgstr "Falha na comparação: {e}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:583
+#: crates/halcyon-app/src/ctl_saves.rs:577
 msgid "Supprimer cette sauvegarde ?"
 msgstr "Eliminar esta gravação?"
 
-#: crates/halcyon-app/src/ctl_saves.rs:584
+#: crates/halcyon-app/src/ctl_saves.rs:578
 #, placeholders
 msgid "La sauvegarde du {created_at} ({v}) sera définitivement supprimée du dépôt. Les fichiers actuels du jeu ne sont pas touchés."
 msgstr "A gravação de {created_at} ({v}) será eliminada definitivamente do repositório. Os ficheiros atuais do jogo não são alterados."
 
-#: crates/halcyon-app/src/ctl_saves.rs:588
+#: crates/halcyon-app/src/ctl_saves.rs:582
 msgid "Sauvegarde supprimée"
 msgstr "Gravação eliminada"
 
-#: crates/halcyon-app/src/ctl_saves.rs:635
+#: crates/halcyon-app/src/ctl_saves.rs:629
 #, placeholders
 msgid "Jeux suivis : {rows} · sauvegardes : {count} · {total}"
 msgstr "Jogos registados: {rows} · gravações: {count} · {total}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:697
+#: crates/halcyon-app/src/ctl_saves.rs:691
 #, placeholders
 msgid "Sauvegardes détectées pour {n} jeu"
 msgid_plural "Sauvegardes détectées pour {n} jeux"
 msgstr[0] "Gravações detetadas para {n} jogo"
 msgstr[1] "Gravações detetadas para {n} jogos"
 
-#: crates/halcyon-app/src/ctl_saves.rs:698
+#: crates/halcyon-app/src/ctl_saves.rs:692
 #, placeholders
 msgid "{n} emplacement associé automatiquement"
 msgid_plural "{n} emplacements associés automatiquement"
 msgstr[0] "{n} localização associada automaticamente"
 msgstr[1] "{n} localizações associadas automaticamente"
 
-#: crates/halcyon-app/src/ctl_saves.rs:703
+#: crates/halcyon-app/src/ctl_saves.rs:697
 msgid "Aucun nouvel emplacement certain trouvé (vous pouvez en associer à la main dans chaque fiche)"
 msgstr "Nenhuma nova localização certa encontrada (pode associá-las manualmente em cada página)"
 
-#: crates/halcyon-app/src/ctl_saves.rs:705
+#: crates/halcyon-app/src/ctl_saves.rs:699
 #, placeholders
 msgid "Emplacements associés : {associated} · jeux : {games_done}"
 msgstr "Localizações associadas: {associated} · jogos: {games_done}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:719
+#: crates/halcyon-app/src/ctl_saves.rs:713
 #, placeholders
 msgid "Dossier inaccessible : {r}"
 msgstr "Pasta inacessível: {r}"
 
-#: crates/halcyon-app/src/ctl_saves.rs:731
+#: crates/halcyon-app/src/ctl_saves.rs:725
 msgid "Dossier inaccessible"
 msgstr "Pasta inacessível"
 
-#: crates/halcyon-app/src/ctl_saves.rs:762
+#: crates/halcyon-app/src/ctl_saves.rs:756
 msgid "Nombre entre 0 (illimité) et 1000 attendu"
 msgstr "É esperado um número entre 0 (ilimitado) e 1000"
 
-#: crates/halcyon-app/src/ctl_saves.rs:806
+#: crates/halcyon-app/src/ctl_saves.rs:800
 #, placeholders
 msgid "{n} sauvegarde synchronisée vers les dépôts"
 msgid_plural "{n} sauvegardes synchronisées vers les dépôts"
@@ -1307,164 +877,6 @@ msgstr "indique pelo menos uma extensão de ficheiro (p. ex., iso, chd)"
 #, placeholders
 msgid "plateforme invalide : {err}"
 msgstr "plataforma inválida: {err}"
-
-#: crates/halcyon-integrations/src/plugins.rs:96
-#, placeholders
-msgid "Requêtes réseau vers {d}"
-msgstr "Pedidos de rede para {d}"
-
-#: crates/halcyon-integrations/src/plugins.rs:99
-#, placeholders
-msgid "Analyse de {n} dossier de jeux : {join}"
-msgid_plural "Analyse de {n} dossiers de jeux : {join}"
-msgstr[0] "Análise de {n} pasta de jogos: {join}"
-msgstr[1] "Análise de {n} pastas de jogos: {join}"
-
-#: crates/halcyon-integrations/src/plugins.rs:104
-#, placeholders
-msgid "{n} émulateur"
-msgid_plural "{n} émulateurs"
-msgstr[0] "{n} emulador"
-msgstr[1] "{n} emuladores"
-
-#: crates/halcyon-integrations/src/plugins.rs:107
-#, placeholders
-msgid "{n} plateforme"
-msgid_plural "{n} plateformes"
-msgstr[0] "{n} plataforma"
-msgstr[1] "{n} plataformas"
-
-#: crates/halcyon-integrations/src/plugins.rs:110
-#, placeholders
-msgid "emplacements de sauvegarde pour {n} jeu"
-msgid_plural "emplacements de sauvegarde pour {n} jeux"
-msgstr[0] "localizações de gravações para {n} jogo"
-msgstr[1] "localizações de gravações para {n} jogos"
-
-#: crates/halcyon-integrations/src/plugins.rs:113
-#, placeholders
-msgid "{n} thème"
-msgid_plural "{n} thèmes"
-msgstr[0] "{n} tema"
-msgstr[1] "{n} temas"
-
-#: crates/halcyon-integrations/src/plugins.rs:116
-#, placeholders
-msgid "{n} source de métadonnées"
-msgid_plural "{n} sources de métadonnées"
-msgstr[0] "{n} fonte de metadados"
-msgstr[1] "{n} fontes de metadados"
-
-#: crates/halcyon-integrations/src/plugins.rs:119
-#, placeholders
-msgid "{n} lien dans les fiches"
-msgid_plural "{n} liens dans les fiches"
-msgstr[0] "{n} ligação nas páginas"
-msgstr[1] "{n} ligações nas páginas"
-
-#: crates/halcyon-integrations/src/plugins.rs:122
-#, placeholders
-msgid "Ajoute : {join}"
-msgstr "Adiciona: {join}"
-
-#: crates/halcyon-integrations/src/plugins.rs:136
-#, placeholders
-msgid "Pour jouer, lance ces programmes s'ils sont installés sur ce PC : {join}"
-msgstr "Para jogar, executa estes programas se estiverem instalados neste PC: {join}"
-
-#: crates/halcyon-integrations/src/plugins.rs:138
-msgid "Aucun code n'est exécuté : l'extension ne contient que des données."
-msgstr "Nenhum código é executado: a extensão só contém dados."
-
-#: crates/halcyon-integrations/src/plugins.rs:147
-msgid "identifiant manquant ou invalide (lettres, chiffres, - et _)"
-msgstr "identificador em falta ou inválido (letras, algarismos, - e _)"
-
-#: crates/halcyon-integrations/src/plugins.rs:150
-msgid "nom manquant"
-msgstr "nome em falta"
-
-#: crates/halcyon-integrations/src/plugins.rs:153
-msgid "version manquante"
-msgstr "versão em falta"
-
-#: crates/halcyon-integrations/src/plugins.rs:156
-#, placeholders
-msgid "nécessite Halcyon {min_halcyon} ou plus récent"
-msgstr "requer o Halcyon {min_halcyon} ou mais recente"
-
-#: crates/halcyon-integrations/src/plugins.rs:160
-#, placeholders
-msgid "source « {name} » ignorée : domaine non déclaré dans les permissions (HTTPS requis)"
-msgstr "fonte «{name}» ignorada: domínio não declarado nas permissões (HTTPS obrigatório)"
-
-#: crates/halcyon-integrations/src/plugins.rs:165
-#, placeholders
-msgid "lien « {label} » ignoré : HTTPS requis"
-msgstr "ligação «{label}» ignorada: HTTPS obrigatório"
-
-#: crates/halcyon-integrations/src/plugins.rs:169
-msgid "dossiers de jeux ignorés : permission « folders » absente"
-msgstr "pastas de jogos ignoradas: permissão «folders» em falta"
-
-#: crates/halcyon-integrations/src/plugins.rs:198
-#, placeholders
-msgid "{MANIFEST} illisible : {e}"
-msgstr "{MANIFEST} ilegível: {e}"
-
-#: crates/halcyon-integrations/src/plugins.rs:243
-msgid "choisissez un dossier, un fichier plugin.json ou une archive .zip / .halcyonplugin"
-msgstr "escolha uma pasta, um ficheiro plugin.json ou um arquivo .zip / .halcyonplugin"
-
-#: crates/halcyon-integrations/src/plugins.rs:266
-#, placeholders
-msgid "fichier exécutable refusé dans l'extension : {f}"
-msgstr "ficheiro executável recusado na extensão: {f}"
-
-#: crates/halcyon-integrations/src/plugins.rs:295
-msgid "adresse de mise à jour non sécurisée (HTTPS requis)"
-msgstr "endereço de atualização não seguro (HTTPS obrigatório)"
-
-#: crates/halcyon-integrations/src/plugins.rs:298
-msgid "réponse sans numéro de version"
-msgstr "resposta sem número de versão"
-
-#: crates/halcyon-integrations/src/plugins.rs:328
-msgid "domaine non autorisé"
-msgstr "domínio não autorizado"
-
-#: crates/halcyon-integrations/src/remote_play.rs:61
-msgid "chemin indiqué"
-msgstr "caminho indicado"
-
-#: crates/halcyon-integrations/src/remote_play.rs:112 crates/halcyon-integrations/src/remote_play.rs:156
-#, placeholders
-msgid "Moonlight n'a pas pu être lancé : {e}"
-msgstr "Não foi possível iniciar o Moonlight: {e}"
-
-#: crates/halcyon-integrations/src/remote_play.rs:118
-#, placeholders
-msgid "Moonlight a échoué (code {v})"
-msgstr "O Moonlight falhou (código {v})"
-
-#: crates/halcyon-integrations/src/remote_play.rs:169
-#, placeholders
-msgid "lecture de {apps_file} : {e}"
-msgstr "leitura de {apps_file}: {e}"
-
-#: crates/halcyon-integrations/src/remote_play.rs:172
-#, placeholders
-msgid "copie de sauvegarde impossible : {e}"
-msgstr "cópia de segurança impossível: {e}"
-
-#: crates/halcyon-integrations/src/remote_play.rs:173
-msgid "apps.json : liste « apps » absente"
-msgstr "apps.json: lista «apps» em falta"
-
-#: crates/halcyon-integrations/src/remote_play.rs:184
-#, placeholders
-msgid "écriture de apps.json impossible (droits administrateur nécessaires ?) : {e}"
-msgstr "não é possível escrever o apps.json (são necessários direitos de administrador?): {e}"
 
 #: crates/halcyon-integrations/src/saves.rs:176
 msgid "Base Ludusavi"

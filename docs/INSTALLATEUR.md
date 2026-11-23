@@ -159,7 +159,7 @@ Windows (PowerShell) :
 cargo build --release -p halcyon-app -p halcyon-installer
 New-Item -ItemType Directory dist\payload
 Copy-Item target\release\halcyon.exe dist\payload\Halcyon.exe
-Copy-Item README.md, CHANGELOG.md, docs\GUIDE.md, docs\PLUGINS.md, docs\SON.md, docs\INSTALLATEUR.md dist\payload\
+Copy-Item README.md, CHANGELOG.md, docs\GUIDE.md, docs\SON.md, docs\INSTALLATEUR.md dist\payload\
 target\release\halcyon-setup.exe --pack dist\payload 0.4.1 dist\Halcyon-0.4.1-windows-x86_64-setup.exe
 ```
 

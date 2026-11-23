@@ -156,7 +156,7 @@ pub fn scan_ea(root: &Path) -> Result<Vec<DiscoveredGame>, String> {
         let Some(offer) = files.flatten().find_map(|f| f.file_name().to_str()?.strip_prefix("base-").map(str::to_string)) else { continue };
         let folder = e.file_name().to_string_lossy().into_owned();
         let mut g = DiscoveredGame::new(offer.clone(), split_camel(&folder));
-        g.launch_uri = Some(format!("origin2://game/launch?offerIds={}", crate::plugins::encode(&offer)));
+        g.launch_uri = Some(format!("origin2://game/launch?offerIds={}", crate::url::encode(&offer)));
         out.push(g);
     }
     Ok(out)

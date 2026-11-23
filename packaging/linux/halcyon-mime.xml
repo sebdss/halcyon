@@ -5,9 +5,4 @@
     <sub-class-of type="application/json"/>
     <glob pattern="*.halcyontheme"/>
   </mime-type>
-  <mime-type type="application/x-halcyon-plugin">
-    <comment>Extension Halcyon</comment>
-    <sub-class-of type="application/zip"/>
-    <glob pattern="*.halcyonplugin"/>
-  </mime-type>
 </mime-info>

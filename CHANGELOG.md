@@ -1,5 +1,35 @@
 # Journal des modifications
 
+## 1.0.0 — Version stable
+
+Première version publiée sur le canal **Stable**. Elle réunit tout le travail des préversions
+1.0.0-alpha.1 à alpha.8 (apparence « Berge », mises à jour automatiques signées, Performance
+Center, GOG et sept autres launchers, sauvegardes Ludusavi, collections, étagère, musée et
+boîtiers en 3D…), éprouvé sur Windows et Linux. Aucune migration de base.
+
+### Retiré
+
+- **Jeu à distance** (Sunshine / Moonlight) : page, bouton *Publier dans Sunshine…* de la fiche
+  et réglages associés. Les jeux déjà publiés dans Sunshine y restent.
+- **Extensions** : page, installation, sources de métadonnées, liens, emplacements de
+  sauvegarde, thèmes et dossiers fournis par une extension ; association des fichiers
+  `.halcyonplugin` (effacée par l'installateur Windows, retirée du type MIME Linux). Un dossier
+  `plugins` laissé par une préversion est ignoré.
+- **Page Manettes** : la manette pilote toujours toute l'interface et le mode console, avec la
+  disposition standard ; un profil de touches créé avec une préversion reste appliqué.
+
+### Interface
+
+- **Sauvegardes** refaite en « Berge » : nombre de jeux suivis en chiffre-titre, jeux en
+  rangées ouvertes (perche orange quand la dernière sauvegarde vient d'un autre PC), dépôt,
+  copies et conservation en rubriques dans une colonne de lecture.
+- **Journal** : index à gauche (recherche, catégories retenues marquées d'une perche, nombre
+  d'entrées) ; jours sous un filet de tête. Sous 1000 px, les catégories repassent en ligne.
+- **Onglets de la fiche** (Statistiques, Sauvegardes, Mods, Lancement, Captures) : rubriques
+  à filet de tête au lieu de titres seuls, temps de jeu en chiffre-titre, rangées ouvertes
+  au lieu de cartes (emplacements, historique, profils, Workshop, mods), conflit de mods
+  signalé par une perche orange.
+
 ## 1.0.0-alpha.8 — Boîtiers en vraie 3D
 
 Le mode console passe en vraie 3D, sans dépendance lourde. Rien n'est retiré ; aucune
@@ -264,7 +294,7 @@ inchangée : mêmes six espaces, mêmes onglets, mêmes noms, même ordre, même
 ## 1.0.0-alpha.1 — « Performance First » (première étape de la 1.0)
 
 Évolution de la 0.5.0 : aucune fonction retirée, données de la 0.5.0 reprises (schéma v6 :
-une table ajoutée). Détails : [`docs/NOTES-1.0.0.md`](docs/NOTES-1.0.0.md) · audit :
+une table ajoutée). Détails : [`docs/NOTES-1.0.0-alpha.1.md`](docs/NOTES-1.0.0-alpha.1.md) · audit :
 [`docs/AUDIT-1.0.md`](docs/AUDIT-1.0.md) · sécurité : [`docs/SECURITE.md`](docs/SECURITE.md).
 
 ### Halcyon Update System (nouveau)

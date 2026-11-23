@@ -328,9 +328,13 @@ pub mod windows {
         set(&key, "ModifyPath", &format!("{} --repair", q(&setup)))?;
         key.set_value("EstimatedSize", &(size_kb as u32)).map_err(|e| e.to_string())?;
         key.set_value("NoRepair", &0u32).map_err(|e| e.to_string())?;
-        // Associations des thèmes et extensions (confirmation demandée par Halcyon à l'ouverture).
+        // Association des thèmes (confirmation demandée par Halcyon à l'ouverture). Les
+        // extensions ont été retirées en 1.0.0 : leur ancienne association est effacée.
         let classes = "Software\\Classes";
-        for (ext, prog, label) in [(".halcyontheme", "Halcyon.Theme", tr!("Thème Halcyon")), (".halcyonplugin", "Halcyon.Plugin", tr!("Extension Halcyon"))] {
+        for old in [".halcyonplugin", "Halcyon.Plugin"] {
+            let _ = r.delete_subkey_all(format!("{classes}\\{old}"));
+        }
+        for (ext, prog, label) in [(".halcyontheme", "Halcyon.Theme", tr!("Thème Halcyon"))] {
             let (k, _) = r.create_subkey(format!("{classes}\\{ext}")).map_err(|e| e.to_string())?;
             set(&k, "", prog)?;
             let (k, _) = r.create_subkey(format!("{classes}\\{prog}")).map_err(|e| e.to_string())?;

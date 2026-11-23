@@ -8,6 +8,21 @@ import {
 } from "../components.slint";
 
 /// Onglet de la fiche : texte, compteur discret, perche sous l'onglet actif.
+/// Tête de rubrique des onglets : filet de tête, puis titre (composition « Berge », 1.0.0).
+component Head inherits VerticalLayout {
+    in property <string> text;
+    spacing: 12px;
+    padding-top: 10px;
+    Rectangle { height: 1px; background: Theme.border-strong; }
+    SectionTitle { text: root.text; overflow: elide; }
+}
+
+/// Filet de tête seul, au-dessus d'une ligne de titre qui porte aussi des actions.
+component HeadRule inherits Rectangle {
+    height: 11px;
+    Rectangle { y: 10px; height: 1px; background: Theme.border-strong; }
+}
+
 component Tab inherits Rectangle {
     in property <string> text;
     in property <bool> selected;
@@ -191,7 +206,7 @@ component MetadataSettings inherits VerticalLayout {
     in-out property <string> banner;
     spacing: 18px;
 
-    SectionTitle { text: @tr("Métadonnées"); }
+    Head { text: @tr("Métadonnées"); }
     Field {
         label: @tr("Description");
         TextArea { text <=> root.description; height: 110px; }
@@ -221,7 +236,7 @@ component MetadataSettings inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: @tr("Visuels personnalisés"); }
+    Head { text: @tr("Visuels personnalisés"); }
     Field {
         label: @tr("Jaquette (portrait 2:3)");
         hint: @tr("L'image est copiée dans les données de Halcyon et remplace la jaquette de la plateforme.");
@@ -494,26 +509,34 @@ component TrackingTab inherits VerticalLayout {
     in-out property <string> notes: DetailUi.game.notes;
     in-out property <string> manual;
     spacing: 18px;
+    alignment: start;
 
-    SectionTitle { text: @tr("Statut"); }
+    Head { text: @tr("Statut"); }
     StatusChips { }
 
-    SectionTitle { text: @tr("Temps de jeu"); }
-    Panel {
-        VerticalLayout {
-            padding: 20px;
+    Head { text: @tr("Temps de jeu"); }
+    VerticalLayout {
             spacing: 12px;
+            // Chiffre-titre et provenance.
+            VerticalLayout {
+                spacing: 4px;
+                Text { text: DetailUi.game.playtime; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title + 6px; font-weight: 800; }
+                if DetailUi.game.playtime-origin != "": Text { text: DetailUi.game.playtime-origin; color: DetailUi.game.has-manual ? Theme.warm : Theme.text-muted; font-size: Theme.t-small; }
+            }
+            // Relevé borné à une colonne de lecture.
             HorizontalLayout {
-                spacing: 10px;
-                Text { text: DetailUi.game.playtime; color: Theme.text; font-family: Theme.display; font-size: Theme.t-title - 2px; font-weight: 800; }
-                if DetailUi.game.playtime-origin != "": Badge { y: 8px; text: DetailUi.game.playtime-origin; tint: DetailUi.game.has-manual ? Theme.warm : Theme.accent; }
+                VerticalLayout {
+                    max-width: 560px;
+                    horizontal-stretch: 1;
+                    spacing: 10px;
+                    InfoRow { label: @tr("Rapporté par la plateforme"); value: DetailUi.game.playtime-platform; }
+                    InfoRow { label: @tr("Suivi par Halcyon"); value: DetailUi.game.playtime-local; }
+                    InfoRow { label: @tr("Session moyenne"); value: DetailUi.game.avg-session; }
+                    InfoRow { label: @tr("Première session suivie"); value: DetailUi.game.first-session; }
+                    InfoRow { label: @tr("Correction manuelle"); value: DetailUi.game.has-manual ? DetailUi.game.playtime-manual : @tr("Aucune"); }
+                }
                 Rectangle { horizontal-stretch: 1; }
             }
-            InfoRow { label: @tr("Rapporté par la plateforme"); value: DetailUi.game.playtime-platform; }
-            InfoRow { label: @tr("Suivi par Halcyon"); value: DetailUi.game.playtime-local; }
-            InfoRow { label: @tr("Session moyenne"); value: DetailUi.game.avg-session; }
-            InfoRow { label: @tr("Première session suivie"); value: DetailUi.game.first-session; }
-            InfoRow { label: @tr("Correction manuelle"); value: DetailUi.game.has-manual ? DetailUi.game.playtime-manual : @tr("Aucune"); }
             Rectangle { height: 1px; background: Theme.border; }
             HorizontalLayout {
                 spacing: 8px;
@@ -536,10 +559,9 @@ component TrackingTab inherits VerticalLayout {
                 font-size: Theme.t-caption;
                 wrap: word-wrap;
             }
-        }
     }
 
-    SectionTitle { text: @tr("Notes"); }
+    Head { text: @tr("Notes"); }
     TextArea { text <=> root.notes; height: 120px; }
     HorizontalLayout {
         alignment: start;
@@ -552,13 +574,19 @@ component TrackingTab inherits VerticalLayout {
         }
     }
 
-    SectionTitle { text: @tr("Version"); }
-    Panel {
-        VerticalLayout {
-            padding: 20px;
+    Head { text: @tr("Version"); }
+    VerticalLayout {
             spacing: 10px;
-            InfoRow { label: @tr("Version installée"); value: DetailUi.game.version != "" ? DetailUi.game.version : @tr("Non fournie par la plateforme"); }
-            InfoRow { label: @tr("État"); value: DetailUi.game.update-state; }
+            HorizontalLayout {
+                VerticalLayout {
+                    max-width: 560px;
+                    horizontal-stretch: 1;
+                    spacing: 10px;
+                    InfoRow { label: @tr("Version installée"); value: DetailUi.game.version != "" ? DetailUi.game.version : @tr("Non fournie par la plateforme"); }
+                    InfoRow { label: @tr("État"); value: DetailUi.game.update-state; }
+                }
+                Rectangle { horizontal-stretch: 1; }
+            }
             if DetailUi.game.update-pending && DetailUi.game.update-progress > 0: Rectangle {
                 height: 6px;
                 border-radius: 3px;
@@ -569,11 +597,9 @@ component TrackingTab inherits VerticalLayout {
                 Text { text: v.version; color: Theme.text-muted; font-size: Theme.t-caption; font-family: "monospace"; horizontal-stretch: 1; }
                 Text { text: v.date; color: Theme.text-dim; font-size: Theme.t-caption; }
             }
-        }
     }
-    if DetailUi.prereqs.length > 0: Panel {
-        VerticalLayout {
-            padding: 20px;
+    if DetailUi.prereqs.length > 0: VerticalLayout {
+            padding-top: 8px;
             spacing: 10px;
             HorizontalLayout {
                 Text { text: @tr("Prérequis fournis avec le jeu"); color: Theme.text; font-size: Theme.t-body; font-weight: 650; horizontal-stretch: 1; vertical-alignment: center; }
@@ -585,19 +611,24 @@ component TrackingTab inherits VerticalLayout {
                 alignment: start;
                 for p in DetailUi.prereqs: Badge { text: p; }
             }
-        }
     }
 
-    SectionTitle { text: @tr("Sessions suivies"); }
+    Head { text: @tr("Sessions suivies"); }
     if DetailUi.sessions.length == 0: Text {
         text: @tr("Aucune session suivie par Halcyon pour ce jeu.");
         color: Theme.text-dim;
         font-size: Theme.t-small;
     }
-    for r in DetailUi.sessions: HorizontalLayout {
-        height: 30px;
-        Text { text: r.date; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
-        Text { text: r.duration; color: Theme.text; font-size: Theme.t-small; vertical-alignment: center; }
+    VerticalLayout {
+        spacing: 0px;
+        for r in DetailUi.sessions: Rectangle {
+            height: 38px;
+            Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+            HorizontalLayout {
+                Text { text: r.date; color: Theme.text-muted; font-size: Theme.t-small; vertical-alignment: center; horizontal-stretch: 1; }
+                Text { text: r.duration; color: Theme.text; font-family: Theme.display; font-size: Theme.t-small; font-weight: 600; vertical-alignment: center; }
+            }
+        }
     }
 }
 
@@ -760,6 +791,7 @@ component ProfileEditor inherits Panel {
 
 component ProfilesTab inherits VerticalLayout {
     spacing: 14px;
+    HeadRule { }
     HorizontalLayout {
         SectionTitle { text: @tr("Profils de lancement"); horizontal-stretch: 1; }
         if !DetailUi.editing-open: SecondaryButton {
@@ -790,8 +822,7 @@ component ProfilesTab inherits VerticalLayout {
         spacing: 8px;
         for p in DetailUi.profiles: Rectangle {
             height: 60px;
-            border-radius: Theme.radius;
-            background: Theme.surface;
+            Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
             HorizontalLayout {
                 padding-left: 16px;
                 padding-right: 8px;
@@ -822,6 +853,7 @@ component SavesTab inherits VerticalLayout {
     in-out property <string> note;
     spacing: 16px;
 
+    HeadRule { }
     HorizontalLayout {
         SectionTitle { text: @tr("Sauvegardes"); horizontal-stretch: 1; }
         if DetailUi.save-busy: Text { text: @tr("Analyse…"); color: Theme.text-dim; font-size: Theme.t-caption; vertical-alignment: center; }
@@ -845,11 +877,10 @@ component SavesTab inherits VerticalLayout {
         if DetailUi.save-state == 4: SecondaryButton { text: @tr("Garder la version de ce PC"); clicked => { DetailUi.save-keep-local(DetailUi.game.id); } }
     }
 
-    SectionTitle { text: @tr("Emplacements"); }
+    Head { text: @tr("Emplacements"); }
     for l[i] in DetailUi.save-locs: Rectangle {
         height: 48px;
-        border-radius: Theme.radius;
-        background: Theme.surface;
+        Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
         HorizontalLayout {
             padding-left: 14px;
             padding-right: 6px;
@@ -917,11 +948,10 @@ component SavesTab inherits VerticalLayout {
         }
     }
 
-    if DetailUi.snapshots.length > 0: SectionTitle { text: @tr("Historique ({})", DetailUi.snapshots.length); }
+    if DetailUi.snapshots.length > 0: Head { text: @tr("Historique ({})", DetailUi.snapshots.length); }
     for sn in DetailUi.snapshots: Rectangle {
         height: 58px;
-        border-radius: Theme.radius;
-        background: Theme.surface;
+        Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
         HorizontalLayout {
             padding-left: 14px;
             padding-right: 8px;
@@ -974,7 +1004,7 @@ component ModsTab inherits VerticalLayout {
     in-out property <string> edit-nexus;
     spacing: 16px;
 
-    SectionTitle { text: @tr("Mods"); }
+    Head { text: @tr("Mods"); }
     Notice {
         warning: true;
         text: @tr("Les mods modifient les fichiers du jeu : évitez-les dans les jeux en ligne protégés par un anti-triche. Halcyon met de côté chaque fichier remplacé et peut tout retirer.");
@@ -995,8 +1025,7 @@ component ModsTab inherits VerticalLayout {
         }
         for w in DetailUi.workshop: Rectangle {
             height: 46px;
-            border-radius: Theme.radius-sm + 2px;
-            background: Theme.surface;
+            Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
             HorizontalLayout {
                 padding-left: 14px;
                 padding-right: 6px;
@@ -1064,10 +1093,9 @@ component ModsTab inherits VerticalLayout {
             spacing: 6px;
             Rectangle {
                 height: 54px;
-                border-radius: Theme.radius;
-                background: Theme.surface;
-                border-width: m.conflicts > 0 && m.enabled ? 1px : 0px;
-                border-color: Theme.warm.with-alpha(0.5);
+                Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
+                // Perche orange : conflit avec un autre mod activé.
+                if m.conflicts > 0 && m.enabled: Rectangle { x: 0; y: 12px; width: Theme.perch; height: parent.height - 24px; background: Theme.warm; }
                 HorizontalLayout {
                     padding-left: 12px;
                     padding-right: 6px;
@@ -1305,7 +1333,7 @@ component CapturesTab inherits VerticalLayout {
     spacing: 16px;
     property <int> per-row: max(1, floor((self.width + 12px) / (300px + 12px)));
     property <length> tw: (self.width - (self.per-row - 1) * 12px) / self.per-row;
-    if DetailUi.captures.length > 0: SectionTitle { text: @tr("Vos captures ({})", DetailUi.captures.length); }
+    if DetailUi.captures.length > 0: Head { text: @tr("Vos captures ({})", DetailUi.captures.length); }
     if DetailUi.captures.length > 0: Rectangle {
         height: ceil(DetailUi.captures.length / root.per-row) * (root.tw * 9 / 16 + 12px);
         for c[i] in DetailUi.captures: Rectangle {
@@ -1327,7 +1355,7 @@ component CapturesTab inherits VerticalLayout {
             lc-ta := TouchArea { mouse-cursor: pointer; clicked => { DetailUi.open-capture(i); } }
         }
     }
-    if DetailUi.screenshots.length > 0: SectionTitle { text: @tr("Visuels officiels"); }
+    if DetailUi.screenshots.length > 0: Head { text: @tr("Visuels officiels"); }
     if DetailUi.screenshots.length > 0: Rectangle {
         height: ceil(DetailUi.screenshots.length / root.per-row) * (root.tw * 9 / 16 + 12px);
         for shot[i] in DetailUi.screenshots: Rectangle {
@@ -1662,13 +1690,6 @@ export component GamePage inherits Rectangle {
                         InfoRow { label: @tr("Éditeur"); value: DetailUi.game.publisher; }
                         InfoRow { label: @tr("Sortie"); value: DetailUi.game.release; }
                     }
-                    if DetailUi.links.length > 0: FactGroup {
-                        title: @tr("Liens");
-                        for l in DetailUi.links: HorizontalLayout {
-                            alignment: start;
-                            TextButton { text: l.label + " ↗"; clicked => { Actions.open-url(l.url); } }
-                        }
-                    }
                     VerticalLayout {
                         spacing: 8px;
                         SecondaryButton {
@@ -1676,12 +1697,6 @@ export component GamePage inherits Rectangle {
                             icon: Icons.plus;
                             has-icon: true;
                             clicked => { SystemUi.create-shortcut(DetailUi.game.id); }
-                        }
-                        if DetailUi.can-publish: SecondaryButton {
-                            text: @tr("Publier dans Sunshine…");
-                            icon: Icons.monitor;
-                            has-icon: true;
-                            clicked => { DetailUi.publish-sunshine(DetailUi.game.id); }
                         }
                     }
                 }

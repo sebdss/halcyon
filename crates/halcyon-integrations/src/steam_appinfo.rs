@@ -146,7 +146,7 @@ pub fn parse_tag_list(v: &serde_json::Value) -> HashMap<u64, String> {
 }
 
 pub fn tag_list_url(language: &str) -> String {
-    format!("https://api.steampowered.com/IStoreService/GetTagList/v1/?language={}", crate::plugins::encode(language))
+    format!("https://api.steampowered.com/IStoreService/GetTagList/v1/?language={}", crate::url::encode(language))
 }
 
 #[cfg(test)]

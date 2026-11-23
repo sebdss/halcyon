@@ -8,7 +8,7 @@ les sauvegardes, les mods, les profils de lancement et les statistiques. Il fonc
 Sommaire : 1 Installation · 2 Premier lancement · 3 Bibliothèque · 4 Émulateurs · 5 Succès ·
 6 Big Picture · 7 Recherche avancée et collections intelligentes · 8 Suivi, statistiques et
 journal · 9 Profils de lancement · 10 Mises à jour des jeux · 11 Sauvegardes · 12 Mods ·
-13 Manettes · 14 Apparence · 15 Extensions · 16 Que jouer ? · 17 Jeu à distance ·
+13 Manettes · 14 Apparence · 15 (retiré) · 16 Que jouer ? · 17 (retiré) ·
 18 Raccourcis, lancement rapide et mode compact · 19 Fenêtre compagnon · 20 Système ·
 21 Hors ligne · 22 Exporter et restaurer · 23 Mise à jour de Halcyon · 24 Données,
 confidentialité, dépannage · 25 Désinstallation
@@ -56,8 +56,8 @@ temps de jeu et personnalisations sont conservés.
 ## 2 bis. Se repérer dans l'interface (0.4)
 
 - **Menu (1.0)** : six espaces — Accueil, Bibliothèque, Minecraft, **Activité** (Que jouer ?,
-  Succès, Statistiques, Journal), **Outils** (Téléchargements, Mises à jour, Sauvegardes,
-  Émulateurs, Manettes, Jeu à distance, Extensions) et **Système** (Performances, Apparence,
+  Succès, Statistiques, Journal), **Outils** (Téléchargements, Mises à jour,
+  Stockage, Sauvegardes, Émulateurs) et **Système** (Performances, Apparence,
   Paramètres). Les trois derniers ont des onglets en haut de page ; chaque espace rouvre le
   dernier onglet consulté. En bas du menu : **Console** (mode Big Picture) et **Analyser**.
   *Apparence › Menu : icônes seules* masque les libellés.
@@ -102,7 +102,7 @@ autonomes…). Trois façons d'en remplir une :
 - **Cocher des jeux** dans la bibliothèque : `Ctrl`-clic (ou `Cmd`-clic) coche une jaquette ou
   une ligne, `Maj`-clic coche toute la plage depuis le dernier jeu coché. Au clavier :
   `Ctrl+Espace` coche le jeu sélectionné, `Maj+Espace` la plage ; `Échap` décoche tout. À la
-  manette : bouton **R3** (clic du stick droit, modifiable dans *Outils › Manettes*). Une barre
+  manette : bouton **R3** (clic du stick droit). Une barre
   « *n* jeux cochés » propose **Ajouter à une collection…** (aussi dans le menu du jeu) : une
   collection existante, ou une nouvelle en tapant son nom. `Espace` seul lance toujours le jeu.
 - **Création guidée** : *Bibliothèque › Collections › Nouvelle collection…*. Tapez « sonic » :
@@ -275,7 +275,7 @@ de la manette. Option « Démarrer en mode Big Picture » dans les paramètres.
 ### Étagère et musée (1.0.0-alpha.6, refaits en 1.0.0-alpha.7)
 
 La section **Jouer** a trois vues : le jeu en plein écran avec sa rangée de jaquettes,
-l'**étagère** et le **musée**. Bascule : bouton **R3** (modifiable dans *Outils › Manettes*) ou
+l'**étagère** et le **musée**. Bascule : bouton **R3** ou
 touche `V`, dans cet ordre ; la vue choisie est retenue.
 
 **Étagère** — une étagère par collection (dans l'ordre et aux couleurs de la page Collections),
@@ -322,7 +322,7 @@ bureau, analyse des sources, synchronisation des succès, accès aux paramètres
 bureau, eux aussi pilotables à la manette).
 
 La manette est ignorée quand Halcyon n'a pas le focus ou pendant une partie lancée par Halcyon.
-Les touches se personnalisent dans la page **Manettes** (section 13).
+La disposition des touches est décrite à la section 13.
 
 ## 6 bis. Minecraft (0.5.0)
 
@@ -425,8 +425,6 @@ Menu **Performances** (icône jauge), sous Minecraft.
   un clic ouvre l'article. En ligne uniquement.
 - **Profils d'interface** (Apparence) : enregistrez l'apparence actuelle sous un nom
   (« Bureau », « Salon »…) et basculez d'un clic.
-- **Extensions** : chaque extension affiche son empreinte, et « Signée par l'auteur » si
-  elle est signée ; voir [`PLUGINS.md`](PLUGINS.md#signer-une-extension-100).
 
 ## 7. Recherche avancée et collections intelligentes
 
@@ -463,7 +461,7 @@ mettent à jour seules et apparaissent dans le filtre *Collections*.
   source, succès débloqués, jeux terminés et sessions récentes. Chaque chiffre indique sa
   provenance : données des plateformes, sessions suivies par Halcyon ou corrections manuelles.
 - **Journal** : lancements, sessions, succès, ajouts, installations, mises à jour,
-  sauvegardes, mods, profils, extensions et synchronisations. Il est filtrable par catégorie
+  sauvegardes, mods, profils et synchronisations. Il est filtrable par catégorie
   et consultable par recherche.
 
 ### Récap et story (1.1)
@@ -590,20 +588,15 @@ favoris, **Select** ouvre le menu contextuel, **LB / RB** changent de vue (bibli
 d'onglet (fiche), **R3** coche le jeu sélectionné (sélection multiple, section 3 bis). Start
 entre en Big Picture, où R3 passe de la rangée à l'étagère, puis au musée.
 
-Page **Manettes** : manettes connectées (marque Xbox, PlayStation, Nintendo, Valve…,
-batterie, dernière utilisée). Un **profil de manette** modifie les touches de navigation de
-Halcyon (Valider, Retour, Recherche, Favori, Big Picture, menu contextuel, LB / RB, et
-« Cocher un jeu · étagère », R3 par défaut). Pour en changer une : *Changer*,
-puis appuyez sur le bouton voulu. Le profil ajoute aussi des **options par émulateur** à la
-ligne de commande, par exemple `--appendconfig=…` pour RetroArch. Le profil actif s'applique
-partout. Un profil de lancement d'un jeu émulé peut en imposer un autre. Pendant un jeu PC,
+Depuis la 1.0.0, il n'y a plus de page **Manettes** : la disposition standard ci-dessus
+s'applique (un profil de touches créé avec une préversion reste appliqué). Pendant un jeu PC,
 Halcyon n'intercepte jamais la manette : la configuration reste celle du jeu, de Steam Input
 ou de votre pilote.
 
 ## 14. Apparence
 
-Thèmes intégrés (Halcyon, Minuit, Braise, Forêt, Graphite), importés (`.halcyontheme` /
-`.json`) ou fournis par une extension. Vous pouvez aussi régler :
+Thèmes intégrés (Halcyon, Minuit, Braise, Forêt, Graphite) ou importés (`.halcyontheme` /
+`.json`). Vous pouvez aussi régler :
 
 - la couleur d'accent ;
 - la densité, confortable ou compacte ;
@@ -627,13 +620,10 @@ survol est désactivé par défaut. *Pendant une partie* : silencieux (défaut),
 normal. *Rétablir* revient aux valeurs d'origine. Sans carte son, Halcyon reste muet sans
 erreur. Les sons sont originaux, créés pour Halcyon : [`SON.md`](SON.md).
 
-## 15. Extensions
+## 15. Extensions (retirées en 1.0.0)
 
-Page **Extensions** : installer depuis un dossier, un `plugin.json` ou une archive `.zip` /
-`.halcyonplugin`. Une extension ne contient **que des données** : émulateurs, plateformes,
-emplacements de sauvegarde, thèmes, dossiers de jeux, sources de métadonnées et liens. Les
-fichiers exécutables sont refusés. Elle est installée **désactivée** et s'active après
-lecture de ses autorisations. Pour en créer une, voir [`PLUGINS.md`](PLUGINS.md).
+Les extensions ont été retirées de Halcyon en 1.0.0. Un dossier `plugins` laissé par une
+préversion est ignoré ; vous pouvez le supprimer du dossier des données.
 
 ## 16. Que jouer ?
 
@@ -643,21 +633,10 @@ durée compatible, puis des parties à reprendre, des jeux presque terminés (su
 découvrir (genres que vous jouez le plus) et à redécouvrir. Chaque suggestion indique sa
 raison. *Surprends-moi* ouvre la fiche d'un jeu au hasard parmi ces suggestions.
 
-## 17. Jeu à distance
+## 17. Jeu à distance (retiré en 1.0.0)
 
-Halcyon pilote **Sunshine** (sur le PC qui exécute les jeux) et **Moonlight** (sur l'appareil
-qui affiche). Il ne réimplémente aucun protocole de diffusion.
-
-1. Installez Sunshine sur le PC de jeu, Moonlight sur l'autre appareil. Halcyon les détecte
-   (installation, `PATH`, Flatpak) ou accepte le chemin de Moonlight.
-2. **Machines** : ajoutez l'adresse du PC de jeu. Halcyon indique s'il est joignable.
-3. **Appairer** : Moonlight affiche un code PIN, à saisir dans l'interface web de Sunshine
-   (*Ouvrir la configuration* sur le PC de jeu).
-4. **Jeux** liste les applications publiées. **Diffuser** démarre Moonlight, et *Arrêter la
-   session* ferme le jeu distant.
-5. Depuis une fiche, **Publier dans Sunshine** ajoute le jeu aux applications de Sunshine
-   après confirmation, avec une copie de sauvegarde de `apps.json`. Sunshine lance alors
-   Halcyon (`--launch`), qui applique profil, mods et sauvegardes comme pour un lancement local.
+Le pilotage de Sunshine et Moonlight a été retiré en 1.0.0. Les jeux déjà publiés dans
+Sunshine y restent ; Moonlight et Sunshine s'utilisent directement.
 
 ## 18. Raccourcis, lancement rapide et mode compact
 
@@ -718,11 +697,11 @@ la **Xbox Game Bar** sous Windows. L'overlay Steam reste disponible pour les jeu
   Halcyon, avec son profil par défaut.
 - **Instance unique** : relancer Halcyon, ouvrir un raccourci de jeu ou un fichier associé
   réutilise la fenêtre déjà ouverte.
-- **Associations de fichiers** : les fichiers `.halcyontheme` et `.halcyonplugin` s'ouvrent dans
+- **Associations de fichiers** : les fichiers `.halcyontheme` s'ouvrent dans
   Halcyon, qui demande confirmation avant toute installation.
 
 Ligne de commande : `halcyon --launch <id>`, `--quick`, `--big-picture`, `--minimized`,
-`halcyon <fichier.halcyontheme|.halcyonplugin>`.
+`halcyon <fichier.halcyontheme>`.
 
 ## 21. Hors ligne
 
@@ -736,7 +715,7 @@ forcé* (**Paramètres › Connexion**) coupe toute requête réseau.
 
 **Paramètres › Exporter ou restaurer la configuration** : une archive `.zip` contient la
 bibliothèque, les métadonnées et visuels personnalisés, les collections, les profils, les
-réglages des émulateurs, les thèmes, les extensions, les statistiques et les fiches des mods.
+réglages des émulateurs, les thèmes, les statistiques et les fiches des mods.
 **Les fichiers des jeux n'y sont jamais inclus.** Les clés d'API en sont exclues par défaut,
 tout comme les fichiers des mods ; deux options permettent de les ajouter.
 
@@ -778,7 +757,7 @@ automatique au premier lancement. Les événements sensibles sont inscrits dans
 
 **Vérification d'intégrité** (**Paramètres › Stockage et diagnostic**) : elle contrôle la base
 de données, les paramètres, l'accès au dossier des données, les dossiers des jeux installés,
-les jaquettes et les extensions.
+et les jaquettes.
 
 ## 24. Données, confidentialité, dépannage
 

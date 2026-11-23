@@ -8,7 +8,7 @@ Icon=halcyon
 Terminal=false
 Categories=Game;
 Keywords=jeux;games;steam;epic;emulateur;launcher;
-MimeType=application/x-halcyon-theme;application/x-halcyon-plugin;
+MimeType=application/x-halcyon-theme;
 StartupWMClass=halcyon
 Actions=quick;bigpicture;
 

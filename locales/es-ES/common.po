@@ -13,63 +13,63 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: common\n"
 
-#: crates/halcyon-app/ui/app.slint:189 crates/halcyon-app/ui/pages/home.slint:181 crates/halcyon-app/ui/pages/library.slint:553
+#: crates/halcyon-app/ui/app.slint:186 crates/halcyon-app/ui/pages/home.slint:181 crates/halcyon-app/ui/pages/library.slint:553
 #: crates/halcyon-app/src/ctl_palette.rs:40
 msgid "Ajouter un jeu"
 msgstr "Añadir un juego"
 
-#: crates/halcyon-app/ui/app.slint:207 crates/halcyon-app/ui/app.slint:233 crates/halcyon-app/ui/pages/appearance.slint:195
+#: crates/halcyon-app/ui/app.slint:204 crates/halcyon-app/ui/app.slint:230 crates/halcyon-app/ui/pages/appearance.slint:195
 #: crates/halcyon-app/ui/pages/appearance.slint:294 crates/halcyon-app/ui/pages/emulators.slint:65 crates/halcyon-app/ui/pages/emulators.slint:152
-#: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:89 crates/halcyon-app/ui/pages/saves.slint:14
+#: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:104 crates/halcyon-app/ui/pages/saves.slint:21
 #: crates/halcyon-app/ui/pages/settings.slint:145 crates/halcyon-app/ui/pages/settings.slint:187 crates/halcyon-app/ui/pages/settings.slint:562
 #: crates/halcyon-installer/ui/setup.slint:426
 msgid "Parcourir…"
 msgstr "Examinar…"
 
-#: crates/halcyon-app/ui/app.slint:218 crates/halcyon-app/ui/pages/collections.slint:609 crates/halcyon-app/ui/pages/emulators.slint:145
-#: crates/halcyon-app/ui/state.slint:93 crates/halcyon-core/src/query.rs:32
+#: crates/halcyon-app/ui/app.slint:215 crates/halcyon-app/ui/pages/collections.slint:609 crates/halcyon-app/ui/pages/emulators.slint:145
+#: crates/halcyon-app/ui/state.slint:90 crates/halcyon-core/src/query.rs:32
 msgid "Nom"
 msgstr "Nombre"
 
-#: crates/halcyon-app/ui/app.slint:223 crates/halcyon-app/ui/pages/game.slint:641 crates/halcyon-app/ui/pages/game.slint:728
+#: crates/halcyon-app/ui/app.slint:220 crates/halcyon-app/ui/pages/game.slint:672 crates/halcyon-app/ui/pages/game.slint:759
 msgid "Arguments"
 msgstr "Argumentos"
 
-#: crates/halcyon-app/ui/app.slint:228 crates/halcyon-app/ui/pages/game.slint:124 crates/halcyon-app/ui/pages/game.slint:685
+#: crates/halcyon-app/ui/app.slint:225 crates/halcyon-app/ui/pages/game.slint:139 crates/halcyon-app/ui/pages/game.slint:716
 msgid "Répertoire de travail"
 msgstr "Directorio de trabajo"
 
-#: crates/halcyon-app/ui/app.slint:247 crates/halcyon-app/ui/app.slint:283 crates/halcyon-app/ui/pages/collections.slint:702
-#: crates/halcyon-app/ui/pages/controllers.slint:116 crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225
-#: crates/halcyon-app/ui/pages/game.slint:741 crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258
-#: crates/halcyon-app/ui/pages/settings.slint:272 crates/halcyon-app/ui/pages/settings.slint:858 crates/halcyon-app/ui/pages/smart.slint:190
-#: crates/halcyon-app/ui/uninstall_state.slint:201 crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
+#: crates/halcyon-app/ui/app.slint:244 crates/halcyon-app/ui/app.slint:280 crates/halcyon-app/ui/pages/collections.slint:702
+#: crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225 crates/halcyon-app/ui/pages/game.slint:772
+#: crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258 crates/halcyon-app/ui/pages/settings.slint:272
+#: crates/halcyon-app/ui/pages/settings.slint:858 crates/halcyon-app/ui/pages/smart.slint:190 crates/halcyon-app/ui/uninstall_state.slint:201
+#: crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
 msgid "Annuler"
 msgstr "Cancelar"
 
-#: crates/halcyon-app/ui/app.slint:251 crates/halcyon-app/ui/pages/emulators.slint:301 crates/halcyon-app/ui/pages/game.slint:466
-#: crates/halcyon-app/ui/pages/game.slint:731 crates/halcyon-app/ui/pages/game.slint:890 crates/halcyon-app/ui/pages/remote.slint:98
-#: crates/halcyon-app/ui/pages/saves.slint:73 crates/halcyon-app/ui/pages/settings.slint:570
+#: crates/halcyon-app/ui/app.slint:248 crates/halcyon-app/ui/pages/emulators.slint:301 crates/halcyon-app/ui/pages/game.slint:481
+#: crates/halcyon-app/ui/pages/game.slint:762 crates/halcyon-app/ui/pages/game.slint:921 crates/halcyon-app/ui/pages/saves.slint:169
+#: crates/halcyon-app/ui/pages/settings.slint:570
 msgid "Ajouter"
 msgstr "Añadir"
 
-#: crates/halcyon-app/ui/app.slint:841 crates/halcyon-app/ui/pages/library.slint:650 crates/halcyon-app/src/ctl_bigpicture.rs:181
+#: crates/halcyon-app/ui/app.slint:835 crates/halcyon-app/ui/pages/library.slint:650 crates/halcyon-app/src/ctl_bigpicture.rs:181
 #: crates/halcyon-app/src/ctl_home.rs:26 crates/halcyon-app/src/ctl_shelf.rs:129
 msgid "Favoris"
 msgstr "Favoritos"
 
-#: crates/halcyon-app/ui/app.slint:882 crates/halcyon-app/ui/pages/game.slint:542
+#: crates/halcyon-app/ui/app.slint:876 crates/halcyon-app/ui/pages/game.slint:564
 msgid "Notes"
 msgstr "Notas"
 
-#: crates/halcyon-app/ui/app.slint:887 crates/halcyon-app/ui/pages/controllers.slint:117 crates/halcyon-app/ui/pages/emulators.slint:226
-#: crates/halcyon-app/ui/pages/game.slint:1112 crates/halcyon-app/ui/pages/minecraft.slint:473 crates/halcyon-app/ui/pages/saves.slint:89
-#: crates/halcyon-app/ui/pages/settings.slint:51 crates/halcyon-app/ui/pages/smart.slint:191 crates/halcyon-app/src/dialogs.rs:35
+#: crates/halcyon-app/ui/app.slint:881 crates/halcyon-app/ui/pages/emulators.slint:226 crates/halcyon-app/ui/pages/game.slint:1140
+#: crates/halcyon-app/ui/pages/minecraft.slint:473 crates/halcyon-app/ui/pages/saves.slint:189 crates/halcyon-app/ui/pages/settings.slint:51
+#: crates/halcyon-app/ui/pages/smart.slint:191 crates/halcyon-app/src/dialogs.rs:35
 msgid "Enregistrer"
 msgstr "Guardar"
 
 #: crates/halcyon-app/ui/components.slint:110 crates/halcyon-app/ui/pages/bigpicture.slint:207 crates/halcyon-app/ui/pages/bigpicture.slint:356
-#: crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/bigpicture.slint:628 crates/halcyon-app/ui/pages/game.slint:1515
+#: crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/bigpicture.slint:628 crates/halcyon-app/ui/pages/game.slint:1543
 #: crates/halcyon-app/ui/pages/home.slint:127 crates/halcyon-app/ui/pages/library.slint:131 crates/halcyon-app/ui/pages/library.slint:217
 #: crates/halcyon-app/ui/pages/library.slint:883 crates/halcyon-app/ui/pages/minecraft.slint:172 crates/halcyon-app/ui/pages/minecraft.slint:568
 #: crates/halcyon-app/src/ctl_bigpicture.rs:386 crates/halcyon-app/src/ctl_home.rs:645
@@ -77,7 +77,7 @@ msgid "Jouer"
 msgstr "Jugar"
 
 #: crates/halcyon-app/ui/components.slint:879 crates/halcyon-app/ui/pages/bigpicture.slint:356 crates/halcyon-app/ui/pages/bigpicture.slint:542
-#: crates/halcyon-app/ui/pages/game.slint:1515 crates/halcyon-app/ui/pages/home.slint:127 crates/halcyon-app/ui/pages/library.slint:96
+#: crates/halcyon-app/ui/pages/game.slint:1543 crates/halcyon-app/ui/pages/home.slint:127 crates/halcyon-app/ui/pages/library.slint:96
 #: crates/halcyon-app/ui/pages/library.slint:131 crates/halcyon-app/ui/pages/library.slint:217 crates/halcyon-app/ui/pages/museum.slint:242
 #: crates/halcyon-app/ui/pages/museum.slint:308 crates/halcyon-app/ui/pages/shelf.slint:440 crates/halcyon-app/src/ctl_bigpicture.rs:311
 #: crates/halcyon-app/src/ctl_home.rs:647 crates/halcyon-app/src/models.rs:217
@@ -87,25 +87,25 @@ msgstr "No instalado"
 #: crates/halcyon-app/ui/components.slint:1423 crates/halcyon-app/ui/pages/achievements.slint:27 crates/halcyon-app/ui/pages/appearance.slint:132
 #: crates/halcyon-app/ui/pages/appearance.slint:132 crates/halcyon-app/ui/pages/appearance.slint:132 crates/halcyon-app/ui/pages/appearance.slint:132
 #: crates/halcyon-app/ui/pages/appearance.slint:207 crates/halcyon-app/ui/pages/appearance.slint:212 crates/halcyon-app/ui/pages/downloads.slint:36
-#: crates/halcyon-app/ui/pages/game.slint:377 crates/halcyon-app/ui/pages/game.slint:1560 crates/halcyon-app/ui/pages/game.slint:1576
+#: crates/halcyon-app/ui/pages/game.slint:392 crates/halcyon-app/ui/pages/game.slint:1588 crates/halcyon-app/ui/pages/game.slint:1604
 #: crates/halcyon-app/ui/pages/performance.slint:99 crates/halcyon-app/ui/pages/performance.slint:105 crates/halcyon-app/ui/pages/settings.slint:908
 #, placeholders
 msgid "{} %"
 msgstr "{} %"
 
-#: crates/halcyon-app/ui/pages/achievements.slint:49 crates/halcyon-app/ui/pages/game.slint:414
+#: crates/halcyon-app/ui/pages/achievements.slint:49 crates/halcyon-app/ui/pages/game.slint:429
 msgid "Synchronisation…"
 msgstr "Sincronizando…"
 
-#: crates/halcyon-app/ui/pages/achievements.slint:49 crates/halcyon-app/ui/pages/game.slint:414
+#: crates/halcyon-app/ui/pages/achievements.slint:49 crates/halcyon-app/ui/pages/game.slint:429
 msgid "Synchroniser"
 msgstr "Sincronizar"
 
-#: crates/halcyon-app/ui/pages/achievements.slint:75 crates/halcyon-app/ui/pages/game.slint:424
+#: crates/halcyon-app/ui/pages/achievements.slint:75 crates/halcyon-app/ui/pages/game.slint:439
 msgid "Configurer les comptes"
 msgstr "Configurar cuentas"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:36 crates/halcyon-app/ui/shell.slint:302 crates/halcyon-app/src/ctl_system.rs:50
+#: crates/halcyon-app/ui/pages/appearance.slint:36 crates/halcyon-app/ui/shell.slint:299 crates/halcyon-app/src/ctl_system.rs:47
 msgid "Apparence"
 msgstr "Apariencia"
 
@@ -114,8 +114,8 @@ msgid "Thème"
 msgstr "Tema"
 
 #: crates/halcyon-app/ui/pages/appearance.slint:104 crates/halcyon-app/ui/pages/appearance.slint:202 crates/halcyon-app/ui/pages/appearance.slint:273
-#: crates/halcyon-app/ui/pages/emulators.slint:72 crates/halcyon-app/ui/pages/emulators.slint:78 crates/halcyon-app/ui/pages/game.slint:231
-#: crates/halcyon-app/ui/pages/game.slint:239 crates/halcyon-app/ui/pages/game.slint:1040 crates/halcyon-app/ui/pages/settings.slint:198
+#: crates/halcyon-app/ui/pages/emulators.slint:72 crates/halcyon-app/ui/pages/emulators.slint:78 crates/halcyon-app/ui/pages/game.slint:246
+#: crates/halcyon-app/ui/pages/game.slint:254 crates/halcyon-app/ui/pages/game.slint:1069 crates/halcyon-app/ui/pages/settings.slint:198
 #: crates/halcyon-app/ui/pages/settings.slint:1033
 msgid "Appliquer"
 msgstr "Aplicar"
@@ -136,8 +136,8 @@ msgstr "Completo"
 msgid "Réduit"
 msgstr "Reducido"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:122 crates/halcyon-app/ui/pages/settings.slint:74 crates/halcyon-app/ui/state.slint:291
-#: crates/halcyon-app/src/ctl_bigpicture.rs:426 crates/halcyon-app/src/ctl_bigpicture.rs:430 crates/halcyon-app/src/ctl_emulators.rs:182
+#: crates/halcyon-app/ui/pages/appearance.slint:122 crates/halcyon-app/ui/pages/settings.slint:74 crates/halcyon-app/ui/state.slint:286
+#: crates/halcyon-app/src/ctl_bigpicture.rs:426 crates/halcyon-app/src/ctl_bigpicture.rs:430 crates/halcyon-app/src/ctl_emulators.rs:181
 msgid "Aucun"
 msgstr "Ninguno"
 
@@ -145,11 +145,11 @@ msgstr "Ninguno"
 msgid "Taille du texte"
 msgstr "Tamaño del texto"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:166 crates/halcyon-app/ui/shell.slint:423 crates/halcyon-app/src/ctl_bigpicture.rs:418
+#: crates/halcyon-app/ui/pages/appearance.slint:166 crates/halcyon-app/ui/shell.slint:420 crates/halcyon-app/src/ctl_bigpicture.rs:418
 msgid "Mode Performance"
 msgstr "Modo rendimiento"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:203 crates/halcyon-app/ui/pages/remote.slint:91 crates/halcyon-app/src/ctl_home.rs:715
+#: crates/halcyon-app/ui/pages/appearance.slint:203 crates/halcyon-app/src/ctl_home.rs:715
 msgid "Retirer"
 msgstr "Quitar"
 
@@ -157,19 +157,19 @@ msgstr "Quitar"
 msgid "Accueil"
 msgstr "Inicio"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:255 crates/halcyon-app/ui/pages/collections.slint:135 crates/halcyon-app/ui/pages/game.slint:1092
+#: crates/halcyon-app/ui/pages/appearance.slint:255 crates/halcyon-app/ui/pages/collections.slint:135 crates/halcyon-app/ui/pages/game.slint:1120
 msgid "Monter"
 msgstr "Subir"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:256 crates/halcyon-app/ui/pages/collections.slint:143 crates/halcyon-app/ui/pages/game.slint:1091
+#: crates/halcyon-app/ui/pages/appearance.slint:256 crates/halcyon-app/ui/pages/collections.slint:143 crates/halcyon-app/ui/pages/game.slint:1119
 msgid "Descendre"
 msgstr "Bajar"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:274 crates/halcyon-app/ui/pages/game.slint:1059
+#: crates/halcyon-app/ui/pages/appearance.slint:274 crates/halcyon-app/ui/pages/game.slint:1088
 msgid "Supprimer le profil"
 msgstr "Eliminar perfil"
 
-#: crates/halcyon-app/ui/pages/appearance.slint:301 crates/halcyon-app/ui/pages/game.slint:1121
+#: crates/halcyon-app/ui/pages/appearance.slint:301 crates/halcyon-app/ui/pages/game.slint:1149
 msgid "Importer"
 msgstr "Importar"
 
@@ -186,20 +186,20 @@ msgstr "Sorpréndeme"
 msgid "À découvrir"
 msgstr "Por descubrir"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:85 crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-app/ui/pages/game.slint:1558
-#: crates/halcyon-app/ui/pages/game.slint:1640 crates/halcyon-app/ui/pages/home.slint:118 crates/halcyon-app/ui/pages/library.slint:822
-#: crates/halcyon-app/ui/state.slint:93 crates/halcyon-app/src/ctl_home.rs:30 crates/halcyon-core/src/query.rs:35
+#: crates/halcyon-app/ui/pages/bigpicture.slint:85 crates/halcyon-app/ui/pages/game.slint:517 crates/halcyon-app/ui/pages/game.slint:1586
+#: crates/halcyon-app/ui/pages/game.slint:1668 crates/halcyon-app/ui/pages/home.slint:118 crates/halcyon-app/ui/pages/library.slint:822
+#: crates/halcyon-app/ui/state.slint:90 crates/halcyon-app/src/ctl_home.rs:30 crates/halcyon-core/src/query.rs:35
 msgid "Temps de jeu"
 msgstr "Tiempo de juego"
 
 #: crates/halcyon-app/ui/pages/bigpicture.slint:97 crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/bigpicture.slint:588
-#: crates/halcyon-app/ui/pages/game.slint:1560 crates/halcyon-app/ui/pages/game.slint:1575 crates/halcyon-app/ui/shell.slint:289
+#: crates/halcyon-app/ui/pages/game.slint:1588 crates/halcyon-app/ui/pages/game.slint:1603 crates/halcyon-app/ui/shell.slint:289
 #: crates/halcyon-app/src/ctl_home.rs:658 crates/halcyon-app/src/ctl_recap.rs:259 crates/halcyon-app/src/ctl_system.rs:38
 #: crates/halcyon-app/src/ctl_themes.rs:181 crates/halcyon-storage/src/activity.rs:34
 msgid "Succès"
 msgstr "Logros"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:114 crates/halcyon-app/ui/pages/game.slint:561
+#: crates/halcyon-app/ui/pages/bigpicture.slint:114 crates/halcyon-app/ui/pages/game.slint:586
 msgid "État"
 msgstr "Estado"
 
@@ -209,22 +209,22 @@ msgstr "Estado"
 msgid "Bibliothèque"
 msgstr "Biblioteca"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:207 crates/halcyon-app/src/gamepad.rs:58
+#: crates/halcyon-app/ui/pages/bigpicture.slint:207 crates/halcyon-app/src/gamepad.rs:56
 msgid "Recherche"
 msgstr "Búsqueda"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/bigpicture.slint:630 crates/halcyon-app/src/gamepad.rs:59
+#: crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/bigpicture.slint:630 crates/halcyon-app/src/gamepad.rs:57
 #: crates/halcyon-core/src/rules.rs:60 crates/halcyon-core/src/rules.rs:154
 msgid "Favori"
 msgstr "Favorito"
 
-#: crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/game.slint:1535 crates/halcyon-app/ui/pages/library.slint:119
+#: crates/halcyon-app/ui/pages/bigpicture.slint:542 crates/halcyon-app/ui/pages/game.slint:1563 crates/halcyon-app/ui/pages/library.slint:119
 #: crates/halcyon-app/ui/pages/library.slint:231 crates/halcyon-app/src/ctl_bigpicture.rs:389 crates/halcyon-app/src/ctl_home.rs:650
 msgid "Ajouter aux favoris"
 msgstr "Añadir a favoritos"
 
 #: crates/halcyon-app/ui/pages/bigpicture.slint:629 crates/halcyon-installer/ui/setup.slint:459 crates/halcyon-installer/ui/setup.slint:505
-#: crates/halcyon-installer/ui/setup.slint:638 crates/halcyon-app/src/gamepad.rs:57
+#: crates/halcyon-installer/ui/setup.slint:638 crates/halcyon-app/src/gamepad.rs:55
 msgid "Retour"
 msgstr "Atrás"
 
@@ -235,11 +235,11 @@ msgstr "Atrás"
 msgid "Fermer"
 msgstr "Cerrar"
 
-#: crates/halcyon-app/ui/pages/collections.slint:227 crates/halcyon-app/ui/pages/game.slint:1262 crates/halcyon-app/ui/pages/library.slint:420
+#: crates/halcyon-app/ui/pages/collections.slint:227 crates/halcyon-app/ui/pages/game.slint:1290 crates/halcyon-app/ui/pages/library.slint:420
 msgid "Collections"
 msgstr "Colecciones"
 
-#: crates/halcyon-app/ui/pages/collections.slint:242 crates/halcyon-app/ui/pages/game.slint:1272
+#: crates/halcyon-app/ui/pages/collections.slint:242 crates/halcyon-app/ui/pages/game.slint:1300
 msgid "Aucune collection pour l'instant."
 msgstr "Aún no hay colecciones."
 
@@ -257,44 +257,16 @@ msgid_plural "{n} jeux"
 msgstr[0] "{n} juego"
 msgstr[1] "{n} juegos"
 
-#: crates/halcyon-app/ui/pages/collections.slint:371 crates/halcyon-app/ui/pages/game.slint:149
+#: crates/halcyon-app/ui/pages/collections.slint:371 crates/halcyon-app/ui/pages/game.slint:164
 msgid "Renommer"
 msgstr "Cambiar nombre"
 
-#: crates/halcyon-app/ui/pages/collections.slint:564 crates/halcyon-app/ui/pages/game.slint:1058
+#: crates/halcyon-app/ui/pages/collections.slint:564 crates/halcyon-app/ui/pages/game.slint:1087
 msgid "Créer"
 msgstr "Crear"
 
-#: crates/halcyon-app/ui/pages/controllers.slint:17 crates/halcyon-app/ui/shell.slint:298 crates/halcyon-app/src/ctl_system.rs:44
-#: crates/halcyon-app/src/ctl_themes.rs:187
-msgid "Manettes"
-msgstr "Mandos"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:62 crates/halcyon-app/ui/pages/controllers.slint:92 crates/halcyon-app/ui/pages/game.slint:629
-#: crates/halcyon-app/ui/pages/game.slint:766
-msgid "Nouveau profil"
-msgstr "Nuevo perfil"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:78 crates/halcyon-app/ui/pages/settings.slint:885
-msgid "Navigation"
-msgstr "Navegación"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:83 crates/halcyon-app/ui/pages/emulators.slint:91 crates/halcyon-app/ui/pages/game.slint:812
-#: crates/halcyon-app/ui/pages/smart.slint:138
-msgid "Modifier"
-msgstr "Editar"
-
-#: crates/halcyon-app/ui/pages/controllers.slint:84 crates/halcyon-app/ui/pages/emulators.slint:92 crates/halcyon-app/ui/pages/game.slint:359
-#: crates/halcyon-app/ui/pages/game.slint:813 crates/halcyon-app/ui/pages/game.slint:949 crates/halcyon-app/ui/pages/minecraft.slint:383
-#: crates/halcyon-app/ui/pages/smart.slint:139 crates/halcyon-app/src/ctl_collections.rs:678 crates/halcyon-app/src/ctl_emulators.rs:289
-#: crates/halcyon-app/src/ctl_minecraft.rs:420 crates/halcyon-app/src/ctl_minecraft.rs:625 crates/halcyon-app/src/ctl_minecraft.rs:818
-#: crates/halcyon-app/src/ctl_mods.rs:281 crates/halcyon-app/src/ctl_mods.rs:382 crates/halcyon-app/src/ctl_pads.rs:242
-#: crates/halcyon-app/src/ctl_profiles.rs:609 crates/halcyon-app/src/ctl_saves.rs:585 crates/halcyon-app/src/ctl_tracking.rs:723
-msgid "Supprimer"
-msgstr "Eliminar"
-
 #: crates/halcyon-app/ui/pages/downloads.slint:55 crates/halcyon-app/ui/shell.slint:293 crates/halcyon-app/src/ctl_bigpicture.rs:420
-#: crates/halcyon-app/src/ctl_system.rs:48
+#: crates/halcyon-app/src/ctl_system.rs:46
 msgid "Téléchargements"
 msgstr "Descargas"
 
@@ -302,19 +274,32 @@ msgstr "Descargas"
 msgid "Reprendre"
 msgstr "Reanudar"
 
+#: crates/halcyon-app/ui/pages/emulators.slint:91 crates/halcyon-app/ui/pages/game.slint:843 crates/halcyon-app/ui/pages/smart.slint:138
+msgid "Modifier"
+msgstr "Editar"
+
+#: crates/halcyon-app/ui/pages/emulators.slint:92 crates/halcyon-app/ui/pages/game.slint:374 crates/halcyon-app/ui/pages/game.slint:844
+#: crates/halcyon-app/ui/pages/game.slint:979 crates/halcyon-app/ui/pages/minecraft.slint:383 crates/halcyon-app/ui/pages/smart.slint:139
+#: crates/halcyon-app/src/ctl_collections.rs:678 crates/halcyon-app/src/ctl_emulators.rs:288 crates/halcyon-app/src/ctl_minecraft.rs:420
+#: crates/halcyon-app/src/ctl_minecraft.rs:625 crates/halcyon-app/src/ctl_minecraft.rs:818 crates/halcyon-app/src/ctl_mods.rs:281
+#: crates/halcyon-app/src/ctl_mods.rs:382 crates/halcyon-app/src/ctl_profiles.rs:609 crates/halcyon-app/src/ctl_saves.rs:579
+#: crates/halcyon-app/src/ctl_tracking.rs:723
+msgid "Supprimer"
+msgstr "Eliminar"
+
 #: crates/halcyon-app/ui/pages/emulators.slint:126 crates/halcyon-app/ui/pages/settings.slint:545
 msgid "Retirer ce dossier"
 msgstr "Quitar esta carpeta"
 
-#: crates/halcyon-app/ui/pages/emulators.slint:147 crates/halcyon-app/ui/pages/game.slint:110
+#: crates/halcyon-app/ui/pages/emulators.slint:147 crates/halcyon-app/ui/pages/game.slint:125
 msgid "Exécutable"
 msgstr "Ejecutable"
 
-#: crates/halcyon-app/ui/pages/emulators.slint:211 crates/halcyon-app/ui/pages/game.slint:117
+#: crates/halcyon-app/ui/pages/emulators.slint:211 crates/halcyon-app/ui/pages/game.slint:132
 msgid "Arguments de lancement"
 msgstr "Argumentos de inicio"
 
-#: crates/halcyon-app/ui/pages/emulators.slint:266 crates/halcyon-app/ui/pages/game.slint:827 crates/halcyon-app/ui/pages/saves.slint:39
+#: crates/halcyon-app/ui/pages/emulators.slint:266 crates/halcyon-app/ui/pages/game.slint:859 crates/halcyon-app/ui/pages/saves.slint:111
 #: crates/halcyon-app/ui/shell.slint:206
 msgid "Analyse…"
 msgstr "Analizando…"
@@ -324,125 +309,120 @@ msgstr "Analizando…"
 msgid "Émulateurs"
 msgstr "Emuladores"
 
-#: crates/halcyon-app/ui/pages/game.slint:156 crates/halcyon-app/src/models.rs:197
+#: crates/halcyon-app/ui/pages/game.slint:171 crates/halcyon-app/src/models.rs:197
 msgid "Émulateur"
 msgstr "Emulador"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-core/src/model.rs:168
+#: crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-core/src/model.rs:168
 msgid "Aucun statut"
 msgstr "Sin estado"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-core/src/model.rs:169
+#: crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-app/ui/pages/game.slint:1669 crates/halcyon-core/src/model.rs:169
 msgid "À jouer"
 msgstr "Pendiente"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-app/ui/shell.slint:533
+#: crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-app/ui/pages/game.slint:1669 crates/halcyon-app/ui/shell.slint:530
 #: crates/halcyon-app/src/ctl_home.rs:37 crates/halcyon-core/src/model.rs:170
 msgid "En cours"
 msgstr "Jugando"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-app/ui/pages/home.slint:345
+#: crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-app/ui/pages/game.slint:1669 crates/halcyon-app/ui/pages/home.slint:345
 #: crates/halcyon-core/src/model.rs:171 crates/halcyon-installer/src/main.rs:743
 msgid "Terminé"
 msgstr "Terminado"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-core/src/model.rs:172
+#: crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-app/ui/pages/game.slint:1669 crates/halcyon-core/src/model.rs:172
 msgid "Abandonné"
 msgstr "Abandonado"
 
-#: crates/halcyon-app/ui/pages/game.slint:498 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-core/src/rules.rs:61
+#: crates/halcyon-app/ui/pages/game.slint:514 crates/halcyon-app/ui/pages/game.slint:1669 crates/halcyon-core/src/rules.rs:61
 msgid "Statut"
 msgstr "Estado"
 
-#: crates/halcyon-app/ui/pages/game.slint:516 crates/halcyon-app/src/models.rs:202
+#: crates/halcyon-app/ui/pages/game.slint:536 crates/halcyon-app/src/models.rs:202
 msgid "Aucune"
 msgstr "Ninguna"
 
-#: crates/halcyon-app/ui/pages/game.slint:560 crates/halcyon-app/ui/pages/settings.slint:240
+#: crates/halcyon-app/ui/pages/game.slint:585 crates/halcyon-app/ui/pages/settings.slint:240
 msgid "Version installée"
 msgstr "Versión instalada"
 
-#: crates/halcyon-app/ui/pages/game.slint:580 crates/halcyon-app/ui/pages/minecraft.slint:544 crates/halcyon-app/src/ctl_shell.rs:306
+#: crates/halcyon-app/ui/pages/game.slint:606 crates/halcyon-app/ui/pages/minecraft.slint:544 crates/halcyon-app/src/ctl_shell.rs:305
 msgid "Ouvrir le dossier"
 msgstr "Abrir carpeta"
 
-#: crates/halcyon-app/ui/pages/game.slint:661 crates/halcyon-app/ui/pages/minecraft.slint:530 crates/halcyon-core/src/profiles.rs:27
+#: crates/halcyon-app/ui/pages/game.slint:692 crates/halcyon-app/ui/pages/minecraft.slint:530 crates/halcyon-core/src/profiles.rs:27
 msgid "Plein écran"
 msgstr "Pantalla completa"
 
-#: crates/halcyon-app/ui/pages/game.slint:664 crates/halcyon-app/ui/pages/performance.slint:104 crates/halcyon-app/ui/pages/performance.slint:227
+#: crates/halcyon-app/ui/pages/game.slint:695 crates/halcyon-app/ui/pages/performance.slint:104 crates/halcyon-app/ui/pages/performance.slint:227
 #: crates/halcyon-app/src/ctl_extras.rs:410 crates/halcyon-integrations/src/sysmon.rs:153
 msgid "Carte graphique"
 msgstr "Tarjeta gráfica"
 
-#: crates/halcyon-app/ui/pages/game.slint:806 crates/halcyon-app/ui/state.slint:189 crates/halcyon-app/ui/state.slint:267
-#: crates/halcyon-app/src/ctl_emulators.rs:91 crates/halcyon-app/src/ctl_mods.rs:42
+#: crates/halcyon-app/ui/pages/game.slint:837 crates/halcyon-app/ui/state.slint:186 crates/halcyon-app/ui/state.slint:264
+#: crates/halcyon-app/src/ctl_emulators.rs:90 crates/halcyon-app/src/ctl_mods.rs:42
 msgid "Par défaut"
 msgstr "Predeterminado"
 
-#: crates/halcyon-app/ui/pages/game.slint:826 crates/halcyon-app/ui/pages/game.slint:1588 crates/halcyon-app/ui/pages/saves.slint:35
+#: crates/halcyon-app/ui/pages/game.slint:858 crates/halcyon-app/ui/pages/game.slint:1616 crates/halcyon-app/ui/pages/saves.slint:89
 #: crates/halcyon-app/ui/shell.slint:296 crates/halcyon-app/src/ctl_home.rs:659 crates/halcyon-app/src/ctl_system.rs:42
 #: crates/halcyon-app/src/ctl_themes.rs:185 crates/halcyon-storage/src/activity.rs:37
 msgid "Sauvegardes"
 msgstr "Partidas guardadas"
 
-#: crates/halcyon-app/ui/pages/game.slint:864 crates/halcyon-app/ui/pages/home.slint:440 crates/halcyon-app/ui/pages/plugins.slint:55
-#: crates/halcyon-app/ui/pages/settings.slint:1144 crates/halcyon-app/ui/pages/settings.slint:1160 crates/halcyon-app/src/ctl_shell.rs:304
+#: crates/halcyon-app/ui/pages/game.slint:895 crates/halcyon-app/ui/pages/home.slint:440 crates/halcyon-app/ui/pages/settings.slint:1144
+#: crates/halcyon-app/ui/pages/settings.slint:1160 crates/halcyon-app/src/ctl_shell.rs:303
 msgid "Ouvrir"
 msgstr "Abrir"
 
-#: crates/halcyon-app/ui/pages/game.slint:948 crates/halcyon-app/src/ctl_saves.rs:488
+#: crates/halcyon-app/ui/pages/game.slint:978 crates/halcyon-app/src/ctl_saves.rs:482
 msgid "Restaurer"
 msgstr "Restaurar"
 
-#: crates/halcyon-app/ui/pages/game.slint:977 crates/halcyon-app/ui/pages/game.slint:1594 crates/halcyon-app/ui/pages/minecraft.slint:184
+#: crates/halcyon-app/ui/pages/game.slint:1007 crates/halcyon-app/ui/pages/game.slint:1622 crates/halcyon-app/ui/pages/minecraft.slint:184
 #: crates/halcyon-app/ui/pages/minecraft.slint:568 crates/halcyon-storage/src/activity.rs:38
 msgid "Mods"
 msgstr "Mods"
 
-#: crates/halcyon-app/ui/pages/game.slint:1084 crates/halcyon-app/ui/pages/plugins.slint:82
-#, placeholders
-msgid "v{} disponible"
-msgstr "v{} disponible"
-
-#: crates/halcyon-app/ui/pages/game.slint:1085 crates/halcyon-app/ui/pages/minecraft.slint:101 crates/halcyon-app/src/ctl_bigpicture.rs:309
+#: crates/halcyon-app/ui/pages/game.slint:1113 crates/halcyon-app/ui/pages/minecraft.slint:101 crates/halcyon-app/src/ctl_bigpicture.rs:309
 #: crates/halcyon-app/src/ctl_extras.rs:417 crates/halcyon-app/src/models.rs:217 crates/halcyon-core/src/rules.rs:59
 #: crates/halcyon-core/src/rules.rs:153
 msgid "Installé"
 msgstr "Instalado"
 
-#: crates/halcyon-app/ui/pages/game.slint:1535 crates/halcyon-app/ui/pages/library.slint:119 crates/halcyon-app/ui/pages/library.slint:231
+#: crates/halcyon-app/ui/pages/game.slint:1563 crates/halcyon-app/ui/pages/library.slint:119 crates/halcyon-app/ui/pages/library.slint:231
 #: crates/halcyon-app/src/ctl_bigpicture.rs:388 crates/halcyon-app/src/ctl_home.rs:650
 msgid "Retirer des favoris"
 msgstr "Quitar de favoritos"
 
-#: crates/halcyon-app/ui/pages/game.slint:1544 crates/halcyon-app/src/ctl_home.rs:661
+#: crates/halcyon-app/ui/pages/game.slint:1572 crates/halcyon-app/src/ctl_home.rs:661
 msgid "Ouvrir le dossier du jeu"
 msgstr "Abrir carpeta del juego"
 
-#: crates/halcyon-app/ui/pages/game.slint:1559 crates/halcyon-app/ui/pages/settings.slint:774 crates/halcyon-app/src/ctl_saves.rs:643
+#: crates/halcyon-app/ui/pages/game.slint:1587 crates/halcyon-app/ui/pages/settings.slint:774 crates/halcyon-app/src/ctl_saves.rs:637
 #: crates/halcyon-app/src/ctl_update.rs:269 crates/halcyon-app/src/models.rs:214
 msgid "Jamais"
 msgstr "Nunca"
 
-#: crates/halcyon-app/ui/pages/game.slint:1580 crates/halcyon-app/ui/pages/home.slint:503 crates/halcyon-app/ui/shell.slint:290
+#: crates/halcyon-app/ui/pages/game.slint:1608 crates/halcyon-app/ui/pages/home.slint:503 crates/halcyon-app/ui/shell.slint:290
 #: crates/halcyon-app/src/ctl_home.rs:29 crates/halcyon-app/src/ctl_system.rs:39 crates/halcyon-app/src/ctl_themes.rs:182
 msgid "Statistiques"
 msgstr "Estadísticas"
 
-#: crates/halcyon-app/ui/pages/game.slint:1582 crates/halcyon-app/src/ctl_home.rs:34
+#: crates/halcyon-app/ui/pages/game.slint:1610 crates/halcyon-app/src/ctl_home.rs:34
 msgid "Captures"
 msgstr "Capturas"
 
-#: crates/halcyon-app/ui/pages/game.slint:1642 crates/halcyon-app/ui/pages/library.slint:823 crates/halcyon-app/ui/state.slint:93
+#: crates/halcyon-app/ui/pages/game.slint:1670 crates/halcyon-app/ui/pages/library.slint:823 crates/halcyon-app/ui/state.slint:90
 msgid "Dernier lancement"
 msgstr "Último inicio"
 
-#: crates/halcyon-app/ui/pages/game.slint:1648 crates/halcyon-app/ui/pages/home.slint:120 crates/halcyon-core/src/rules.rs:67
+#: crates/halcyon-app/ui/pages/game.slint:1676 crates/halcyon-app/ui/pages/home.slint:120 crates/halcyon-core/src/rules.rs:67
 msgid "Source"
 msgstr "Fuente"
 
-#: crates/halcyon-app/ui/pages/home.slint:132 crates/halcyon-app/ui/pages/library.slint:222 crates/halcyon-app/src/ctl_shell.rs:305
+#: crates/halcyon-app/ui/pages/home.slint:132 crates/halcyon-app/ui/pages/library.slint:222 crates/halcyon-app/src/ctl_shell.rs:304
 msgid "Voir la fiche"
 msgstr "Ver ficha"
 
@@ -455,7 +435,7 @@ msgstr "Análisis en curso…"
 msgid "Rechercher mes jeux"
 msgstr "Buscar en mis juegos"
 
-#: crates/halcyon-app/ui/pages/home.slint:315 crates/halcyon-app/ui/shell.slint:344
+#: crates/halcyon-app/ui/pages/home.slint:315 crates/halcyon-app/ui/shell.slint:341
 msgid "Ctrl K"
 msgstr "Ctrl K"
 
@@ -499,35 +479,29 @@ msgstr "Añadir a una colección…"
 msgid "Fiche"
 msgstr "Ficha"
 
-#: crates/halcyon-app/ui/pages/minecraft.slint:94 crates/halcyon-app/ui/pages/plugins.slint:86
-#, placeholders
-msgid "par {}"
-msgstr "por {}"
-
 #: crates/halcyon-app/ui/pages/minecraft.slint:104 crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-app/ui/pages/minecraft.slint:445
-#: crates/halcyon-app/ui/pages/settings.slint:1097 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
-#: crates/halcyon-installer/src/main.rs:339
+#: crates/halcyon-app/ui/pages/settings.slint:1097 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-installer/src/main.rs:339
 msgid "Installer"
 msgstr "Instalar"
 
-#: crates/halcyon-app/ui/pages/minecraft.slint:172 crates/halcyon-app/ui/pages/minecraft.slint:564 crates/halcyon-app/ui/shell.slint:414
+#: crates/halcyon-app/ui/pages/minecraft.slint:172 crates/halcyon-app/ui/pages/minecraft.slint:564 crates/halcyon-app/ui/shell.slint:411
 msgid "En jeu"
 msgstr "Jugando"
 
-#: crates/halcyon-app/ui/pages/minecraft.slint:310 crates/halcyon-app/ui/pages/remote.slint:43 crates/halcyon-app/ui/pages/updates.slint:21
+#: crates/halcyon-app/ui/pages/minecraft.slint:310 crates/halcyon-app/ui/pages/updates.slint:21
 msgid "Actualiser"
 msgstr "Actualizar"
 
-#: crates/halcyon-app/ui/pages/minecraft.slint:397 crates/halcyon-app/ui/pages/minecraft.slint:413 crates/halcyon-app/ui/shell.slint:314
+#: crates/halcyon-app/ui/pages/minecraft.slint:397 crates/halcyon-app/ui/pages/minecraft.slint:413 crates/halcyon-app/ui/shell.slint:311
 msgid "Rechercher"
 msgstr "Buscar"
 
-#: crates/halcyon-app/ui/pages/minecraft.slint:568 crates/halcyon-app/ui/shell.slint:303 crates/halcyon-app/src/ctl_system.rs:26
-#: crates/halcyon-app/src/ctl_system.rs:51
+#: crates/halcyon-app/ui/pages/minecraft.slint:568 crates/halcyon-app/ui/shell.slint:300 crates/halcyon-app/src/ctl_system.rs:26
+#: crates/halcyon-app/src/ctl_system.rs:48
 msgid "Paramètres"
 msgstr "Ajustes"
 
-#: crates/halcyon-app/ui/pages/performance.slint:62 crates/halcyon-app/ui/shell.slint:301 crates/halcyon-app/src/ctl_system.rs:46
+#: crates/halcyon-app/ui/pages/performance.slint:62 crates/halcyon-app/ui/shell.slint:298 crates/halcyon-app/src/ctl_system.rs:44
 msgid "Performances"
 msgstr "Rendimiento"
 
@@ -549,24 +523,10 @@ msgstr "Memoria"
 msgid "Recommandations"
 msgstr "Recomendaciones"
 
-#: crates/halcyon-app/ui/pages/performance.slint:134 crates/halcyon-app/src/ctl_plugins.rs:233
-msgid "Activer"
-msgstr "Activar"
-
 #: crates/halcyon-app/ui/pages/performance.slint:176 crates/halcyon-app/ui/pages/storage.slint:70 crates/halcyon-app/ui/shell.slint:295
 #: crates/halcyon-app/src/ctl_home.rs:32
 msgid "Stockage"
 msgstr "Almacenamiento"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:18 crates/halcyon-app/ui/shell.slint:300 crates/halcyon-app/src/ctl_system.rs:49
-#: crates/halcyon-app/src/ctl_themes.rs:189
-msgid "Extensions"
-msgstr "Extensiones"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:91 crates/halcyon-installer/ui/setup.slint:386 crates/halcyon-installer/ui/setup.slint:567
-#: crates/halcyon-app/src/ctl_plugins.rs:256 crates/halcyon-app/src/ctl_uninstall.rs:133
-msgid "Désinstaller"
-msgstr "Desinstalar"
 
 #: crates/halcyon-app/ui/pages/recap.slint:225 crates/halcyon-app/ui/pages/stats.slint:64
 #, placeholders
@@ -576,16 +536,6 @@ msgstr "{} d"
 #: crates/halcyon-app/ui/pages/recap.slint:233 crates/halcyon-app/ui/pages/stats.slint:94
 msgid "Jeux les plus joués"
 msgstr "Juegos más jugados"
-
-#: crates/halcyon-app/ui/pages/remote.slint:41 crates/halcyon-app/ui/shell.slint:299 crates/halcyon-app/src/ctl_system.rs:45
-#: crates/halcyon-app/src/ctl_themes.rs:188
-msgid "Jeu à distance"
-msgstr "Juego remoto"
-
-#: crates/halcyon-app/ui/pages/remote.slint:43 crates/halcyon-app/ui/pages/settings.slint:1152 crates/halcyon-app/src/ctl_plugins.rs:281
-#: crates/halcyon-update/src/core.rs:146
-msgid "Vérification…"
-msgstr "Comprobando…"
 
 #: crates/halcyon-app/ui/pages/settings.slint:169 crates/halcyon-app/ui/pages/settings.slint:496 crates/halcyon-app/src/ctl_bigpicture.rs:418
 msgid "Désactivé"
@@ -611,7 +561,7 @@ msgid "Comportement"
 msgstr "Comportamiento"
 
 #: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:965
-#: crates/halcyon-app/ui/shell.slint:416
+#: crates/halcyon-app/ui/shell.slint:413
 msgid "Hors ligne"
 msgstr "Sin conexión"
 
@@ -660,7 +610,11 @@ msgstr "Conexión"
 msgid "Raccourcis clavier"
 msgstr "Atajos de teclado"
 
-#: crates/halcyon-app/ui/pages/shelf.slint:61 crates/halcyon-app/src/ctl_gl3d.rs:351
+#: crates/halcyon-app/ui/pages/settings.slint:1152 crates/halcyon-update/src/core.rs:146
+msgid "Vérification…"
+msgstr "Comprobando…"
+
+#: crates/halcyon-app/ui/pages/shelf.slint:61 crates/halcyon-app/src/ctl_gl3d.rs:373
 msgid "Aucun résumé pour ce jeu."
 msgstr "No hay resumen para este juego."
 
@@ -668,62 +622,62 @@ msgstr "No hay resumen para este juego."
 msgid "Désinstaller…"
 msgstr "Desinstalar…"
 
-#: crates/halcyon-app/ui/state.slint:218 crates/halcyon-app/src/ctl_profiles.rs:462
+#: crates/halcyon-app/ui/state.slint:215 crates/halcyon-app/src/ctl_profiles.rs:462
 msgid "Sans profil"
 msgstr "Sin perfil"
 
-#: crates/halcyon-app/ui/state.slint:269 crates/halcyon-app/src/ctl_mods.rs:172
+#: crates/halcyon-app/ui/state.slint:266 crates/halcyon-app/src/ctl_mods.rs:172
 msgid "Ne pas changer les mods"
 msgstr "No cambiar los mods"
 
-#: crates/halcyon-app/src/controller.rs:1109 crates/halcyon-app/src/controller.rs:1127 crates/halcyon-app/src/controller.rs:1338
+#: crates/halcyon-app/src/controller.rs:1063 crates/halcyon-app/src/controller.rs:1081 crates/halcyon-app/src/controller.rs:1292
 #: crates/halcyon-app/src/ctl_achievements.rs:591 crates/halcyon-app/src/ctl_collections.rs:250 crates/halcyon-app/src/ctl_collections.rs:398
 #: crates/halcyon-app/src/ctl_collections.rs:430 crates/halcyon-app/src/ctl_collections.rs:611 crates/halcyon-app/src/ctl_collections.rs:647
 #: crates/halcyon-app/src/ctl_collections.rs:665 crates/halcyon-app/src/ctl_collections.rs:681 crates/halcyon-app/src/ctl_collections.rs:700
-#: crates/halcyon-app/src/ctl_collections.rs:731 crates/halcyon-app/src/ctl_emulators.rs:118
+#: crates/halcyon-app/src/ctl_collections.rs:731 crates/halcyon-app/src/ctl_emulators.rs:117
 #, placeholders
 msgid "Erreur : {e}"
 msgstr "Error: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1159 crates/halcyon-app/src/controller.rs:1168 crates/halcyon-app/src/ctl_home.rs:557
+#: crates/halcyon-app/src/controller.rs:1113 crates/halcyon-app/src/controller.rs:1122 crates/halcyon-app/src/ctl_home.rs:557
 #: crates/halcyon-app/src/ctl_home.rs:566
 #, placeholders
 msgid "Ouverture impossible : {e}"
 msgstr "No se puede abrir: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1203 crates/halcyon-app/src/controller.rs:1313 crates/halcyon-app/src/ctl_profiles.rs:554
+#: crates/halcyon-app/src/controller.rs:1157 crates/halcyon-app/src/controller.rs:1267 crates/halcyon-app/src/ctl_profiles.rs:554
 #, placeholders
 msgid "Répertoire introuvable : {wd}"
 msgstr "Directorio no encontrado: {wd}"
 
-#: crates/halcyon-app/src/controller.rs:1214 crates/halcyon-app/src/controller.rs:1245 crates/halcyon-app/src/controller.rs:1270
+#: crates/halcyon-app/src/controller.rs:1168 crates/halcyon-app/src/controller.rs:1199 crates/halcyon-app/src/controller.rs:1224
 #: crates/halcyon-app/src/ctl_mods.rs:212 crates/halcyon-app/src/ctl_mods.rs:306 crates/halcyon-app/src/ctl_mods.rs:335
-#: crates/halcyon-app/src/ctl_profiles.rs:599 crates/halcyon-app/src/ctl_saves.rs:398 crates/halcyon-app/src/ctl_tracking.rs:144
+#: crates/halcyon-app/src/ctl_profiles.rs:599 crates/halcyon-app/src/ctl_saves.rs:392 crates/halcyon-app/src/ctl_tracking.rs:144
 #: crates/halcyon-app/src/ctl_tracking.rs:155 crates/halcyon-app/src/ctl_tracking.rs:174
 #, placeholders
 msgid "Enregistrement impossible : {e}"
 msgstr "No se puede guardar: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1258 crates/halcyon-app/src/ctl_collections.rs:628
+#: crates/halcyon-app/src/controller.rs:1212 crates/halcyon-app/src/ctl_collections.rs:628
 #, placeholders
 msgid "Image illisible : {src}"
 msgstr "Imagen ilegible: {src}"
 
-#: crates/halcyon-app/src/controller.rs:1266 crates/halcyon-app/src/ctl_collections.rs:635
+#: crates/halcyon-app/src/controller.rs:1220 crates/halcyon-app/src/ctl_collections.rs:635
 #, placeholders
 msgid "Copie impossible : {e}"
 msgstr "No se puede copiar: {e}"
 
-#: crates/halcyon-app/src/controller.rs:1853 crates/halcyon-integrations/src/artwork.rs:31
+#: crates/halcyon-app/src/controller.rs:1789 crates/halcyon-integrations/src/artwork.rs:31
 msgid "accès refusé (clé d'API invalide ou profil privé)"
 msgstr "acceso denegado (clave de API no válida o perfil privado)"
 
-#: crates/halcyon-app/src/controller.rs:2100 crates/halcyon-app/src/ctl_emulators.rs:373
+#: crates/halcyon-app/src/controller.rs:2017 crates/halcyon-app/src/ctl_emulators.rs:372
 #, placeholders
 msgid "Dossier introuvable : {path}"
 msgstr "Carpeta no encontrada: {path}"
 
-#: crates/halcyon-app/src/controller.rs:2222 crates/halcyon-app/src/ctl_minecraft.rs:953
+#: crates/halcyon-app/src/controller.rs:2139 crates/halcyon-app/src/ctl_minecraft.rs:953
 msgid "Enregistré"
 msgstr "Guardado"
 
@@ -748,7 +702,7 @@ msgid "{v} %"
 msgstr "{v} %"
 
 #: crates/halcyon-app/src/ctl_backup.rs:96 crates/halcyon-app/src/ctl_backup.rs:97 crates/halcyon-app/src/ctl_backup.rs:98
-#: crates/halcyon-app/src/ctl_themes.rs:566 crates/halcyon-app/src/ctl_tracking.rs:797
+#: crates/halcyon-app/src/ctl_themes.rs:550 crates/halcyon-app/src/ctl_tracking.rs:797
 #, placeholders
 msgid "Export impossible : {e}"
 msgstr "No se pudo exportar: {e}"
@@ -782,7 +736,7 @@ msgstr "Analizar fuentes"
 msgid "Collection « {name} » supprimée"
 msgstr "Colección «{name}» eliminada"
 
-#: crates/halcyon-app/src/ctl_collections.rs:776 crates/halcyon-app/src/ctl_system.rs:497
+#: crates/halcyon-app/src/ctl_collections.rs:776 crates/halcyon-app/src/ctl_system.rs:493
 #, placeholders
 msgid "{source} · non installé"
 msgstr "{source} · no instalado"
@@ -804,32 +758,21 @@ msgstr "Iniciando {name}"
 msgid "nom de fichier refusé"
 msgstr "nombre de archivo rechazado"
 
-#: crates/halcyon-app/src/ctl_mods.rs:267 crates/halcyon-app/src/ctl_themes.rs:521
+#: crates/halcyon-app/src/ctl_mods.rs:267 crates/halcyon-app/src/ctl_themes.rs:505
 #, placeholders
 msgid "Import impossible : {e}"
 msgstr "No se pudo importar: {e}"
-
-#: crates/halcyon-app/src/ctl_pads.rs:234 crates/halcyon-app/src/ctl_profiles.rs:591 crates/halcyon-app/src/ctl_profiles.rs:597
-#, placeholders
-msgid "Profil « {name} » enregistré"
-msgstr "Perfil «{name}» guardado"
 
 #: crates/halcyon-app/src/ctl_palette.rs:36 crates/halcyon-app/src/ctl_system.rs:22
 msgid "Big Picture"
 msgstr "Big Picture"
 
-#: crates/halcyon-app/src/ctl_plugins.rs:209 crates/halcyon-app/src/ctl_update.rs:155 crates/halcyon-app/src/ctl_update.rs:533
-#, placeholders
-msgid "Installation impossible : {e}"
-msgstr "No se pudo instalar: {e}"
-
-#: crates/halcyon-app/src/ctl_plugins.rs:266 crates/halcyon-app/src/ctl_profiles.rs:612 crates/halcyon-app/src/ctl_saves.rs:589
-#: crates/halcyon-app/src/ctl_tracking.rs:726
+#: crates/halcyon-app/src/ctl_profiles.rs:612 crates/halcyon-app/src/ctl_saves.rs:583 crates/halcyon-app/src/ctl_tracking.rs:726
 #, placeholders
 msgid "Suppression impossible : {e}"
 msgstr "No se puede eliminar: {e}"
 
-#: crates/halcyon-app/src/ctl_shell.rs:297 crates/halcyon-app/src/ctl_tracking.rs:36
+#: crates/halcyon-app/src/ctl_shell.rs:296 crates/halcyon-app/src/ctl_tracking.rs:36
 #, placeholders
 msgid "{v} min"
 msgstr "{v} min"
@@ -842,7 +785,7 @@ msgstr "Inicio rápido"
 msgid "Mode compact"
 msgstr "Modo compacto"
 
-#: crates/halcyon-app/src/ctl_system.rs:656 crates/halcyon-app/src/ctl_tracking.rs:161
+#: crates/halcyon-app/src/ctl_system.rs:652 crates/halcyon-app/src/ctl_tracking.rs:161
 msgid "Notes enregistrées"
 msgstr "Notas guardadas"
 
@@ -881,11 +824,6 @@ msgstr "archivo ilegible: {e}"
 #: crates/halcyon-integrations/src/mods.rs:256 crates/halcyon-integrations/src/saves.rs:527
 msgid "identifiant invalide"
 msgstr "identificador no válido"
-
-#: crates/halcyon-integrations/src/plugin_trust.rs:78 crates/halcyon-integrations/src/plugins.rs:199 crates/halcyon-integrations/src/remote_play.rs:170
-#, placeholders
-msgid "{file} invalide : {e}"
-msgstr "{file} no válido: {e}"
 
 #: crates/halcyon-storage/src/repo.rs:601 crates/halcyon-storage/src/repo.rs:612 crates/halcyon-storage/src/repo.rs:629
 #: crates/halcyon-storage/src/tracking.rs:226

@@ -31,7 +31,7 @@ const NAV_PAGES: [Page; 9] =
     [Page::Home, Page::Library, Page::Assistant, Page::Achievements, Page::Stats, Page::Journal, Page::Updates, Page::Saves, Page::Settings];
 
 /// Pages proposées par le lancement rapide (libellé, mots-clés, page).
-const QUICK_PAGES: [(&str, &str, Page); 19] = [
+const QUICK_PAGES: [(&str, &str, Page); 16] = [
     (tr_noop!("Accueil"), trc_noop!("keywords", "home debut"), Page::Home),
     (tr_noop!("Bibliothèque"), trc_noop!("keywords", "jeux library"), Page::Library),
     (tr_noop!("Que jouer ?"), trc_noop!("keywords", "assistant suggestions recommandations"), Page::Assistant),
@@ -41,12 +41,9 @@ const QUICK_PAGES: [(&str, &str, Page); 19] = [
     (tr_noop!("Mises à jour"), trc_noop!("keywords", "updates telechargements"), Page::Updates),
     (tr_noop!("Sauvegardes"), trc_noop!("keywords", "saves backup"), Page::Saves),
     (tr_noop!("Émulateurs"), trc_noop!("keywords", "emulation roms retro"), Page::Emulators),
-    (tr_noop!("Manettes"), trc_noop!("keywords", "controller gamepad pad"), Page::Controllers),
-    (tr_noop!("Jeu à distance"), trc_noop!("keywords", "streaming sunshine moonlight remote"), Page::Remote),
     (tr_noop!("Performances"), trc_noop!("keywords", "performance center fps cpu gpu ram processeur memoire carte graphique monitoring"), Page::Performance),
     (tr_noop!("Minecraft"), trc_noop!("keywords", "java mods modpacks fabric forge neoforge"), Page::Minecraft),
     (tr_noop!("Téléchargements"), trc_noop!("keywords", "downloads file attente pause debit vitesse"), Page::Downloads),
-    (tr_noop!("Extensions"), trc_noop!("keywords", "plugins"), Page::Plugins),
     (tr_noop!("Apparence"), trc_noop!("keywords", "theme couleurs fond"), Page::Appearance),
     (tr_noop!("Paramètres"), trc_noop!("keywords", "settings options reglages raccourcis"), Page::Settings),
     (tr_noop!("Paramètres › Raccourcis"), trc_noop!("keywords", "clavier hotkey"), Page::Settings),
@@ -460,17 +457,16 @@ impl Controller {
         }
     }
 
-    /// Fichier ouvert avec Halcyon (association) : thème ou extension.
+    /// Fichier ouvert avec Halcyon (association) : thème.
     pub(crate) fn open_path(self: &Rc<Self>, p: &std::path::Path) {
         let name = p.file_name().map(|n| n.to_string_lossy().to_lowercase()).unwrap_or_default();
+        if !(name.ends_with(".halcyontheme") || name.ends_with(".json")) || name.ends_with("plugin.json") {
+            log::info!("fichier ignoré (les extensions ne sont plus prises en charge) : {}", p.display());
+            return;
+        }
         if let Some(app) = self.app() {
-            if name.ends_with(".halcyontheme") || name.ends_with(".json") && !name.ends_with("plugin.json") {
-                app.global::<Nav>().invoke_go(Page::Appearance);
-                self.import_theme(&p.display().to_string());
-            } else {
-                app.global::<Nav>().invoke_go(Page::Plugins);
-                self.install_plugin(&p.display().to_string());
-            }
+            app.global::<Nav>().invoke_go(Page::Appearance);
+            self.import_theme(&p.display().to_string());
         }
     }
 
@@ -803,15 +799,6 @@ impl Controller {
         }
         if missing_art > 0 {
             lines.push(trn!(missing_art, "{n} jaquette manquante : elle sera retéléchargée si les visuels en ligne sont activés", "{n} jaquettes manquantes : elles seront retéléchargées si les visuels en ligne sont activés"));
-        }
-        let bad_plugins: Vec<String> = halcyon_integrations::plugins::list(&self.plugins_dir(), crate::ctl_plugins::VERSION)
-            .into_iter()
-            .filter(|p| !p.usable())
-            .map(|p| p.id())
-            .collect();
-        if !bad_plugins.is_empty() {
-            problems += 1;
-            lines.push(tr!("Extensions inutilisables : {list}", list = bad_plugins.join(", ")));
         }
         let summary = if problems == 0 { tr!("Aucun problème détecté") } else { trn!(problems, "{n} problème à corriger", "{n} problèmes à corriger") };
         let logged = if problems == 0 { tr_later!("Aucun problème détecté") } else { trn_later!(problems, "{n} problème à corriger", "{n} problèmes à corriger") };

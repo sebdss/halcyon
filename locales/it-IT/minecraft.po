@@ -13,6 +13,11 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: minecraft\n"
 
+#: crates/halcyon-app/ui/pages/minecraft.slint:94
+#, placeholders
+msgid "par {}"
+msgstr "di {}"
+
 #: crates/halcyon-app/ui/pages/minecraft.slint:98
 #, placeholders
 msgid "{} téléchargements, {}"

@@ -1,7 +1,13 @@
+// Journal d'activité (Activité) — composition « Berge » (1.0.0).
+//
+// Index à gauche (recherche et catégories, perche sur les catégories retenues), chronologie
+// à droite : en-tête de jour sous un filet, heure, repère de catégorie et fil. Sous 1000 px,
+// l'index laisse place aux catégories en ligne.
+
 import { ListView } from "std-widgets.slint";
 import { Theme, Icons } from "../theme.slint";
 import { Actions, JournalUi } from "../state.slint";
-import { Chip, TextField, PageHeader, Icon, SecondaryButton } from "../components.slint";
+import { Chip, TextField, PageHeader, Icon, SecondaryButton, TextButton } from "../components.slint";
 
 component Entry inherits Rectangle {
     in property <string> title;
@@ -10,8 +16,7 @@ component Entry inherits Rectangle {
     in property <int> category;
     in property <bool> clickable;
     callback clicked;
-    height: 52px;
-    border-radius: Theme.radius-sm;
+    height: Theme.row-height;
     background: ta.has-hover && root.clickable ? Theme.surface : transparent;
     ta := TouchArea {
         mouse-cursor: root.clickable ? pointer : default;
@@ -21,12 +26,12 @@ component Entry inherits Rectangle {
         : category == 3 ? Icons.download : category == 4 ? Icons.save : category == 5 ? Icons.puzzle : Icons.settings;
     property <color> tint: category == 0 || category == 1 ? Theme.warm : category == 6 ? Theme.text-dim : Theme.accent;
     // Fil de la chronologie.
-    Rectangle { x: 88px; width: 1px; background: Theme.border-strong; }
+    Rectangle { x: 82px; width: 1px; background: Theme.border-strong; }
     HorizontalLayout {
-        padding-left: 6px;
+        padding-left: 4px;
         padding-right: 12px;
         spacing: 0px;
-        Text { width: 70px; text: root.time; color: Theme.text-dim; font-family: Theme.display; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
+        Text { width: 66px; text: root.time; color: Theme.text-dim; font-family: Theme.display; font-size: Theme.t-caption; font-weight: 600; vertical-alignment: center; }
         Rectangle {
             width: 26px;
             Rectangle { x: 8px; y: (parent.height - 9px) / 2; width: 9px; height: 9px; background: root.tint; }
@@ -44,21 +49,58 @@ component Entry inherits Rectangle {
     }
 }
 
+/// Entrée de l'index : catégorie retenue (perche et graisse) ou non.
+component IndexEntry inherits Rectangle {
+    in property <string> text;
+    in property <bool> checked;
+    callback toggled;
+    height: 36px;
+    background: ta.has-hover ? Theme.surface : transparent;
+    border-radius: Theme.radius-sm;
+    accessible-role: checkbox;
+    accessible-checked: root.checked;
+    accessible-label: root.text;
+    accessible-action-default => { root.toggled(); }
+    forward-focus: fs;
+    fs := FocusScope {
+        key-pressed(e) => {
+            if e.text == " " || e.text == "\n" { root.toggled(); return accept; }
+            reject
+        }
+    }
+    ta := TouchArea { mouse-cursor: pointer; clicked => { fs.focus(); root.toggled(); } }
+    if root.checked: Rectangle { x: 0; y: 9px; width: Theme.perch; height: parent.height - 18px; background: Theme.accent; }
+    if fs.has-focus: Rectangle { border-width: 2px; border-color: Theme.accent; border-radius: Theme.radius-sm; }
+    Text {
+        x: 14px;
+        width: parent.width - 20px;
+        text: root.text;
+        color: root.checked ? Theme.text : Theme.text-muted;
+        font-size: Theme.t-small;
+        font-weight: root.checked ? 650 : 400;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+}
+
 export component JournalPage inherits Rectangle {
+    property <bool> narrow: root.width < 1000px;
+    property <bool> filtered: JournalUi.count < JournalUi.total;
+
     VerticalLayout {
         padding: Theme.page-padding;
-        padding-top: 28px;
-        spacing: 20px;
+        padding-top: 32px;
+        spacing: 24px;
 
         PageHeader {
             title: @tr("Journal d'activité");
             subtitle: @tr("Historique lisible de vos sessions, succès, installations et mises à jour. Les journaux techniques restent dans le dossier des journaux.");
         }
 
-        HorizontalLayout {
+        if root.narrow: HorizontalLayout {
             spacing: 8px;
             TextField {
-                width: 300px;
+                width: 260px;
                 text <=> JournalUi.search;
                 placeholder: @tr("Rechercher dans le journal");
                 icon: Icons.search;
@@ -71,58 +113,100 @@ export component JournalPage inherits Rectangle {
                 toggled => { JournalUi.toggle-category(i); }
             }
             Rectangle { horizontal-stretch: 1; }
-            Text {
-                text: JournalUi.count < JournalUi.total ? @tr("{} sur {} entrées", JournalUi.count, JournalUi.total) : @tr("{n} entrée" | "{n} entrées" % JournalUi.count);
-                color: Theme.text-dim;
-                font-size: Theme.t-caption;
-                vertical-alignment: center;
-            }
         }
 
-        if JournalUi.entries.length == 0: VerticalLayout {
-            alignment: center;
-            spacing: 12px;
+        HorizontalLayout {
+            spacing: 36px;
             vertical-stretch: 1;
-            Text {
-                text: JournalUi.total == 0 ? @tr("Le journal est vide pour l'instant.") : @tr("Aucune entrée ne correspond à ces filtres.");
-                color: Theme.text;
-                font-family: Theme.display;
-                font-size: Theme.t-subheading;
-                font-weight: 700;
-                horizontal-alignment: center;
-            }
-            if JournalUi.total == 0: Text {
-                text: @tr("Vos sessions, succès, installations et mises à jour s'y inscriront au fil de l'eau.");
-                color: Theme.text-muted;
-                font-size: Theme.t-small;
-                horizontal-alignment: center;
-            }
-            if JournalUi.total > 0: HorizontalLayout {
-                alignment: center;
-                SecondaryButton { text: @tr("Effacer les filtres"); clicked => { JournalUi.clear-filters(); } }
-            }
-        }
 
-        if JournalUi.entries.length > 0: ListView {
-            vertical-stretch: 1;
-            for e in JournalUi.entries: VerticalLayout {
-                spacing: 0px;
-                if e.new-day: Text {
-                    text: e.day;
-                    color: Theme.text;
-                    font-family: Theme.display;
-                    font-size: Theme.t-body;
-                    font-weight: 700;
-                    height: 48px;
-                    vertical-alignment: center;
+            // Index : recherche, catégories, nombre d'entrées.
+            if !root.narrow: VerticalLayout {
+                width: 220px;
+                spacing: 4px;
+                alignment: start;
+                TextField {
+                    text <=> JournalUi.search;
+                    placeholder: @tr("Rechercher dans le journal");
+                    icon: Icons.search;
+                    has-icon: true;
+                    edited => { JournalUi.search-changed(); }
                 }
-                Entry {
-                    title: e.title;
-                    detail: e.detail;
-                    time: e.time;
-                    category: e.category;
-                    clickable: e.game-id > 0;
-                    clicked => { Actions.open-game(e.game-id); }
+                Rectangle { height: 14px; }
+                for c[i] in JournalUi.categories: IndexEntry {
+                    text: c;
+                    checked: JournalUi.selected[i];
+                    toggled => { JournalUi.toggle-category(i); }
+                }
+                Rectangle { height: 14px; }
+                Rectangle { height: 1px; background: Theme.border; }
+                Rectangle { height: 10px; }
+                Text {
+                    text: root.filtered ? @tr("{} sur {} entrées", JournalUi.count, JournalUi.total) : @tr("{n} entrée" | "{n} entrées" % JournalUi.count);
+                    color: Theme.text-dim;
+                    font-size: Theme.t-caption;
+                    wrap: word-wrap;
+                }
+                if root.filtered: HorizontalLayout {
+                    alignment: start;
+                    TextButton { text: @tr("Effacer les filtres"); clicked => { JournalUi.clear-filters(); } }
+                }
+            }
+
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 0px;
+
+                if JournalUi.entries.length == 0: VerticalLayout {
+                    alignment: center;
+                    spacing: 12px;
+                    vertical-stretch: 1;
+                    Text {
+                        text: JournalUi.total == 0 ? @tr("Le journal est vide pour l'instant.") : @tr("Aucune entrée ne correspond à ces filtres.");
+                        color: Theme.text;
+                        font-family: Theme.display;
+                        font-size: Theme.t-subheading;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                    }
+                    if JournalUi.total == 0: Text {
+                        text: @tr("Vos sessions, succès, installations et mises à jour s'y inscriront au fil de l'eau.");
+                        color: Theme.text-muted;
+                        font-size: Theme.t-small;
+                        horizontal-alignment: center;
+                    }
+                    if JournalUi.total > 0: HorizontalLayout {
+                        alignment: center;
+                        SecondaryButton { text: @tr("Effacer les filtres"); clicked => { JournalUi.clear-filters(); } }
+                    }
+                }
+
+                if JournalUi.entries.length > 0: ListView {
+                    vertical-stretch: 1;
+                    for e in JournalUi.entries: VerticalLayout {
+                        spacing: 0px;
+                        // En-tête de jour : filet de tête, date dans la police d'affichage.
+                        if e.new-day: VerticalLayout {
+                            padding-top: 14px;
+                            padding-bottom: 6px;
+                            spacing: 10px;
+                            Rectangle { height: 1px; background: Theme.border-strong; }
+                            Text {
+                                text: e.day;
+                                color: Theme.text;
+                                font-family: Theme.display;
+                                font-size: Theme.t-body;
+                                font-weight: 700;
+                            }
+                        }
+                        Entry {
+                            title: e.title;
+                            detail: e.detail;
+                            time: e.time;
+                            category: e.category;
+                            clickable: e.game-id > 0;
+                            clicked => { Actions.open-game(e.game-id); }
+                        }
+                    }
                 }
             }
         }

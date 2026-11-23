@@ -13,24 +13,24 @@ msgstr ""
 "X-Halcyon-Decimal-Separator: ,\n"
 "X-Halcyon-Domain: installer\n"
 
-#: crates/halcyon-app/ui/app.slint:207 crates/halcyon-app/ui/app.slint:233 crates/halcyon-app/ui/pages/appearance.slint:195
+#: crates/halcyon-app/ui/app.slint:204 crates/halcyon-app/ui/app.slint:230 crates/halcyon-app/ui/pages/appearance.slint:195
 #: crates/halcyon-app/ui/pages/appearance.slint:294 crates/halcyon-app/ui/pages/emulators.slint:65 crates/halcyon-app/ui/pages/emulators.slint:152
-#: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:89 crates/halcyon-app/ui/pages/saves.slint:14
+#: crates/halcyon-app/ui/pages/emulators.slint:293 crates/halcyon-app/ui/pages/game.slint:104 crates/halcyon-app/ui/pages/saves.slint:21
 #: crates/halcyon-app/ui/pages/settings.slint:145 crates/halcyon-app/ui/pages/settings.slint:187 crates/halcyon-app/ui/pages/settings.slint:562
 #: crates/halcyon-installer/ui/setup.slint:426
 msgid "Parcourir…"
 msgstr "Examinar…"
 
-#: crates/halcyon-app/ui/app.slint:247 crates/halcyon-app/ui/app.slint:283 crates/halcyon-app/ui/pages/collections.slint:702
-#: crates/halcyon-app/ui/pages/controllers.slint:116 crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225
-#: crates/halcyon-app/ui/pages/game.slint:741 crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258
-#: crates/halcyon-app/ui/pages/settings.slint:272 crates/halcyon-app/ui/pages/settings.slint:858 crates/halcyon-app/ui/pages/smart.slint:190
-#: crates/halcyon-app/ui/uninstall_state.slint:201 crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
+#: crates/halcyon-app/ui/app.slint:244 crates/halcyon-app/ui/app.slint:280 crates/halcyon-app/ui/pages/collections.slint:702
+#: crates/halcyon-app/ui/pages/downloads.slint:38 crates/halcyon-app/ui/pages/emulators.slint:225 crates/halcyon-app/ui/pages/game.slint:772
+#: crates/halcyon-app/ui/pages/minecraft.slint:50 crates/halcyon-app/ui/pages/minecraft.slint:258 crates/halcyon-app/ui/pages/settings.slint:272
+#: crates/halcyon-app/ui/pages/settings.slint:858 crates/halcyon-app/ui/pages/smart.slint:190 crates/halcyon-app/ui/uninstall_state.slint:201
+#: crates/halcyon-installer/ui/setup.slint:565 crates/halcyon-installer/ui/setup.slint:637
 msgid "Annuler"
 msgstr "Cancelar"
 
 #: crates/halcyon-app/ui/pages/bigpicture.slint:629 crates/halcyon-installer/ui/setup.slint:459 crates/halcyon-installer/ui/setup.slint:505
-#: crates/halcyon-installer/ui/setup.slint:638 crates/halcyon-app/src/gamepad.rs:57
+#: crates/halcyon-installer/ui/setup.slint:638 crates/halcyon-app/src/gamepad.rs:55
 msgid "Retour"
 msgstr "Atrás"
 
@@ -48,20 +48,20 @@ msgid_plural "{n} éléments"
 msgstr[0] "{n} elemento"
 msgstr[1] "{n} elementos"
 
-#: crates/halcyon-app/ui/pages/game.slint:486 crates/halcyon-app/ui/pages/game.slint:1641 crates/halcyon-app/ui/pages/home.slint:345
+#: crates/halcyon-app/ui/pages/game.slint:501 crates/halcyon-app/ui/pages/game.slint:1669 crates/halcyon-app/ui/pages/home.slint:345
 #: crates/halcyon-core/src/model.rs:171 crates/halcyon-installer/src/main.rs:743
 msgid "Terminé"
 msgstr "Terminado"
 
-#: crates/halcyon-app/ui/pages/game.slint:555 crates/halcyon-app/ui/pages/game.slint:1110 crates/halcyon-installer/src/engine.rs:401
+#: crates/halcyon-app/ui/pages/game.slint:577 crates/halcyon-app/ui/pages/game.slint:1138 crates/halcyon-installer/src/engine.rs:401
 msgid "Version"
 msgstr "Versión"
 
-#: crates/halcyon-app/ui/pages/game.slint:1644 crates/halcyon-installer/src/main.rs:322
+#: crates/halcyon-app/ui/pages/game.slint:1672 crates/halcyon-installer/src/main.rs:322
 msgid "Mise à jour"
 msgstr "Actualización"
 
-#: crates/halcyon-app/ui/pages/game.slint:1647 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
+#: crates/halcyon-app/ui/pages/game.slint:1675 crates/halcyon-installer/ui/setup.slint:28 crates/halcyon-installer/ui/setup.slint:198
 #: crates/halcyon-installer/src/main.rs:321
 msgid "Installation"
 msgstr "Instalación"
@@ -72,8 +72,7 @@ msgid "Analyse en cours…"
 msgstr "Análisis en curso…"
 
 #: crates/halcyon-app/ui/pages/minecraft.slint:104 crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-app/ui/pages/minecraft.slint:445
-#: crates/halcyon-app/ui/pages/settings.slint:1097 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-app/src/ctl_plugins.rs:195
-#: crates/halcyon-installer/src/main.rs:339
+#: crates/halcyon-app/ui/pages/settings.slint:1097 crates/halcyon-installer/ui/setup.slint:27 crates/halcyon-installer/src/main.rs:339
 msgid "Installer"
 msgstr "Instalar"
 
@@ -84,11 +83,6 @@ msgstr "Carpeta"
 #: crates/halcyon-app/ui/pages/minecraft.slint:331 crates/halcyon-installer/ui/setup.slint:371 crates/halcyon-installer/src/main.rs:342
 msgid "Réparer"
 msgstr "Reparar"
-
-#: crates/halcyon-app/ui/pages/plugins.slint:91 crates/halcyon-installer/ui/setup.slint:386 crates/halcyon-installer/ui/setup.slint:567
-#: crates/halcyon-app/src/ctl_plugins.rs:256 crates/halcyon-app/src/ctl_uninstall.rs:133
-msgid "Désinstaller"
-msgstr "Desinstalar"
 
 #: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:979
 #: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_extras.rs:395
@@ -193,6 +187,10 @@ msgstr "Reinstalar"
 #: crates/halcyon-installer/ui/setup.slint:380
 msgid "Réécrit tous les fichiers du programme. Vos données ne sont pas touchées."
 msgstr "Vuelve a escribir todos los archivos del programa. Tus datos no se tocan."
+
+#: crates/halcyon-installer/ui/setup.slint:386 crates/halcyon-installer/ui/setup.slint:567 crates/halcyon-app/src/ctl_uninstall.rs:133
+msgid "Désinstaller"
+msgstr "Desinstalar"
 
 #: crates/halcyon-installer/ui/setup.slint:387
 msgid "Retire Halcyon. Vous choisissez ensuite de garder ou non vos données."
@@ -1006,10 +1004,6 @@ msgstr "acceso directo {lnk} no creado"
 msgid "registre : {e}"
 msgstr "registro: {e}"
 
-#: crates/halcyon-installer/src/platform.rs:333
+#: crates/halcyon-installer/src/platform.rs:337
 msgid "Thème Halcyon"
 msgstr "Tema de Halcyon"
-
-#: crates/halcyon-installer/src/platform.rs:333
-msgid "Extension Halcyon"
-msgstr "Extensión de Halcyon"

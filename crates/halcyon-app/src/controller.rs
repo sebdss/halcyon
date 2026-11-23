@@ -115,7 +115,6 @@ pub struct Controller {
     /// Ne plus écrire les paramètres (restauration en cours).
     pub(crate) no_save: Cell<bool>,
     /// Emplacements de sauvegarde fournis par les extensions (nom compact du jeu → motifs).
-    pub(crate) plugin_saves: RefCell<HashMap<String, Vec<String>>>,
     pub(crate) save_candidates: RefCell<Vec<halcyon_integrations::saves::Candidate>>,
     /// Base Ludusavi des emplacements de sauvegarde (chargée en arrière-plan).
     pub(crate) ludusavi: RefCell<Option<Arc<halcyon_integrations::ludusavi::Index>>>,
@@ -124,11 +123,7 @@ pub struct Controller {
     pub(crate) save_remote: RefCell<Option<String>>,
     pub(crate) mod_profile_cache: RefCell<Option<halcyon_storage::ModProfile>>,
     /// Extensions activées et valides.
-    pub(crate) plugins: RefCell<Vec<halcyon_integrations::plugins::Manifest>>,
-    pub(crate) plugin_updates: RefCell<HashMap<String, String>>,
     pub(crate) pads: RefCell<Vec<crate::gamepad::PadInfo>>,
-    pub(crate) pad_edit: RefCell<Option<halcyon_storage::settings::PadProfile>>,
-    pub(crate) remote_state: RefCell<crate::ctl_remote::RemoteState>,
     pub(crate) mc: RefCell<crate::ctl_minecraft::McState>,
     pub(crate) perfc: RefCell<crate::ctl_perf::PerfState>,
     pub(crate) downloads_timer: RefCell<Option<slint::Timer>>,
@@ -212,17 +207,12 @@ impl Controller {
             online: Cell::new(true),
             save_root_ok: Cell::new(true),
             no_save: Cell::new(false),
-            plugin_saves: RefCell::new(HashMap::new()),
             save_candidates: RefCell::new(Vec::new()),
             ludusavi: RefCell::new(None),
             workshop_titles: RefCell::new(HashMap::new()),
             save_remote: RefCell::new(None),
             mod_profile_cache: RefCell::new(None),
-            plugins: RefCell::new(Vec::new()),
-            plugin_updates: RefCell::new(HashMap::new()),
             pads: RefCell::new(Vec::new()),
-            pad_edit: RefCell::new(None),
-            remote_state: RefCell::new(Default::default()),
             mc: RefCell::new(Default::default()),
             tray: RefCell::new(None),
             hotkey: RefCell::new(None),
@@ -246,7 +236,6 @@ impl Controller {
 
         // Chronométrage du démarrage (journal détaillé : HALCYON_DEBUG=1).
         let mut sw = crate::perf::Stopwatch::new("démarrage");
-        ctrl.load_plugins();
         sw.lap("extensions");
         ctrl.load_registry();
         ctrl.detect_emulators();
@@ -293,7 +282,6 @@ impl Controller {
         self.announce_recap();
         self.check_free_games();
         self.check_disks();
-        self.refresh_remote();
         self.ensure_tray();
         self.register_global_hotkey();
         self.start_system_timer();
@@ -566,34 +554,6 @@ impl Controller {
         tui.on_apply_profile(with!(|c, i| c.apply_ui_profile(i.max(0) as usize)));
         tui.on_delete_profile(with!(|c, i| c.delete_ui_profile(i.max(0) as usize)));
 
-        let pui = app.global::<crate::PluginsUi>();
-        pui.on_install(with!(|c, p| c.install_plugin(&p)));
-        pui.on_set_enabled(with!(|c, id, on| c.set_plugin_enabled(&id, on)));
-        pui.on_uninstall(with!(|c, id| c.uninstall_plugin(&id)));
-        pui.on_check_updates(with!(|c| c.check_plugin_updates()));
-        pui.on_open_dir(with!(|c| c.open_plugins_dir()));
-
-        let gui = app.global::<crate::PadsUi>();
-        gui.on_set_active(with!(|c, i| c.set_active_pad_profile(i.max(0) as usize)));
-        gui.on_new_profile(with!(|c| c.new_pad_profile()));
-        gui.on_edit(with!(|c, id| c.edit_pad_profile(i64::from(id))));
-        gui.on_save(with!(|c, name| c.save_pad_profile(&name)));
-        gui.on_delete(with!(|c, id| c.delete_pad_profile(i64::from(id))));
-        gui.on_capture_start(with!(|c, a| c.start_capture(&a)));
-        gui.on_capture_cancel(with!(|c| c.cancel_capture()));
-        gui.on_set_emu_arg(with!(|c, id, args| c.set_pad_emu_arg(&id, &args)));
-
-        let rui = app.global::<crate::RemoteUi>();
-        rui.on_refresh(with!(|c| c.refresh_remote()));
-        rui.on_add_host(with!(|c, n, a| c.add_remote_host(&n, &a)));
-        rui.on_remove_host(with!(|c, i| c.remove_remote_host(i.max(0) as usize)));
-        rui.on_select_host(with!(|c, i| c.select_remote_host(i.max(0) as usize)));
-        rui.on_pair(with!(|c, i| c.pair_remote(i.max(0) as usize)));
-        rui.on_stream(with!(|c, i, a| c.stream_remote(i.max(0) as usize, &a)));
-        rui.on_quit(with!(|c, i| c.quit_remote(i.max(0) as usize)));
-        rui.on_open_sunshine(with!(|c| c.open_sunshine()));
-        rui.on_set_moonlight_path(with!(|c, p| c.set_moonlight_path(&p)));
-
         app.global::<crate::StatsUi>().on_export(with!(|c, f| c.export_stats(&f)));
 
         let dl = app.global::<crate::DownloadsUi>();
@@ -612,7 +572,6 @@ impl Controller {
         aui.on_refresh(with!(|c| c.refresh_assistant()));
         aui.on_surprise(with!(|c| c.surprise()));
 
-        app.global::<DetailUi>().on_publish_sunshine(with!(|c, id| c.publish_sunshine(id as GameId)));
 
         let weak3 = weak.clone();
         app.window().on_close_requested(move || match weak3.upgrade() {
@@ -876,8 +835,6 @@ impl Controller {
         self.refresh_detail_achievements(&g);
         self.refresh_tracking_ui(&g);
         self.refresh_profiles_ui(&g);
-        dui.set_links(ModelRc::new(VecModel::from(self.plugin_links(&g))));
-        dui.set_can_publish(self.can_publish() && g.installed);
         self.refresh_requirements(&g);
     }
 
@@ -1028,9 +985,6 @@ impl Controller {
             Page::Updates => self.refresh_updates(),
             Page::Saves => self.refresh_saves_page(),
             Page::Appearance => self.refresh_appearance_ui(),
-            Page::Plugins => self.refresh_plugins_ui(),
-            Page::Controllers => self.refresh_pads_ui(),
-            Page::Remote => self.refresh_remote(),
             Page::Assistant => self.refresh_assistant(),
             Page::Minecraft => self.mc_open(),
             _ => {}
@@ -1390,12 +1344,7 @@ impl Controller {
             ui.set_scan_status(tr!("Préparation…").into());
         }
         self.task_start("scan", tr!("Analyse des sources"));
-        let mut settings = self.settings.borrow().clone();
-        for f in self.plugin_game_folders() {
-            if !settings.scan_folders.contains(&f) {
-                settings.scan_folders.push(f);
-            }
-        }
+        let settings = self.settings.borrow().clone();
         let steam_web = if self.net_allowed() { self.steam_web() } else { None };
         let tags_cache = self.paths.cache_dir.join(format!("steam-tags-{}.json", steam_web::steam_language()));
         let tags_online = self.net_allowed() && settings.online_metadata;
@@ -1585,10 +1534,6 @@ impl Controller {
         let sgdb_key = s.steamgriddb_api_key.trim().to_string();
         #[allow(clippy::type_complexity)]
         let mut sgdb_jobs: Vec<(GameId, String, [bool; 3], PathBuf, String)> = Vec::new();
-        // Sources des extensions : jeux sans description que la boutique Steam ne couvre pas.
-        let sources = if s.online_metadata { self.plugin_metadata_sources() } else { Vec::new() };
-        #[allow(clippy::type_complexity)]
-        let mut plugin_jobs: Vec<(GameId, usize, String, Option<String>, String)> = Vec::new();
         {
             let lib = self.lib.borrow();
             let dir = self.paths.artwork_dir();
@@ -1658,19 +1603,10 @@ impl Controller {
                     if let (false, Ok(appid)) = (failures.contains_key(&key), g.source_key.parse::<u64>()) {
                         meta_jobs.push((g.id, appid, key));
                     }
-                } else if g.description.is_none() && plugin_jobs.len() < METADATA_PER_RUN {
-                    let appid = (g.source == GameSource::Steam).then(|| g.source_key.clone());
-                    for (i, (m, src)) in sources.iter().enumerate() {
-                        let key = format!("plugin-{}-{}-{}-{}", m.id, src.name, g.source.as_str(), sanitize(&g.source_key));
-                        if !failures.contains_key(&key) {
-                            plugin_jobs.push((g.id, i, g.name.clone(), appid.clone(), key));
-                            break;
-                        }
-                    }
                 }
             }
         }
-        if art_jobs.is_empty() && meta_jobs.is_empty() && plugin_jobs.is_empty() && sgdb_jobs.is_empty() && store_jobs.is_empty() && libretro_jobs.is_empty() {
+        if art_jobs.is_empty() && meta_jobs.is_empty() && sgdb_jobs.is_empty() && store_jobs.is_empty() && libretro_jobs.is_empty() {
             self.downloading.store(false, Ordering::SeqCst);
             return;
         }
@@ -1689,7 +1625,7 @@ impl Controller {
             Some(&tr!(
                 "Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}",
                 sgdb_jobs = art_jobs.len() + store_jobs.len() + libretro_jobs.len() + sgdb_jobs.len(),
-                plugin_jobs = meta_jobs.len() + plugin_jobs.len()
+                plugin_jobs = meta_jobs.len()
             )),
         );
         let db = self.db.clone();
@@ -1882,25 +1818,6 @@ impl Controller {
                             Err(FetchError::Network(e)) => {
                                 log::warn!("métadonnées interrompues : {e}");
                                 break;
-                            }
-                        }
-                    }
-                }
-                if network_errors < 3 {
-                    for (id, index, name, appid, key) in plugin_jobs {
-                        let (m, src) = &sources[index];
-                        std::thread::sleep(std::time::Duration::from_millis(500));
-                        match halcyon_integrations::plugins::fetch_metadata(&dl, m, src, &name, appid.as_deref()) {
-                            Ok(meta) if meta.description.is_some() || !meta.genres.is_empty() || meta.developer.is_some() => {
-                                let _ = db.lock().unwrap_or_else(|e| e.into_inner()).apply_online_metadata(id, &meta);
-                                post(move |c| c.on_metadata_updated(id));
-                            }
-                            Ok(_) => {
-                                failures.insert(key, now_unix());
-                            }
-                            Err(e) => {
-                                log::warn!("source « {} » ({}) : {e}", src.name, m.id);
-                                failures.insert(key, now_unix());
                             }
                         }
                     }

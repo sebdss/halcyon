@@ -6,7 +6,7 @@ import {
     GameCard, GridRow, GameDetail, SourceInfo, LibraryStats, AchievementRow, ProviderStat, MonthBar, CollectionItem,
     EmulatorRow, PlatformRow, PlatformChoice, McProfileRow, McVersionRow, McModRow, McProjectRow, BpRow, SessionRow, VersionRow, CompanionRow, ProfileRow, ActivityRow, BarItem, TopGame,
     UpdateRow, SmartRow, RuleRow, SaveLocRow, SaveCandRow, SnapshotRow, SaveGameRow, ModRow, WorkshopRow, StoryPage, StorageDisk, StorageGame, ReqRow, ThemeRow, ToggleRow,
-    PluginRow, PadRow, PadProfileRow, MappingRow, EmuArgRow, HostRow, SuggestRow, LinkRow, QuickRow, ShortcutRow,
+    SuggestRow, QuickRow, ShortcutRow,
     StripItem, TaskRow, WidgetSlot, WidgetRow, KeyValue, MenuEntry, CaptureItem, NewsRow
 } from "types.slint";
 
@@ -20,14 +20,11 @@ export struct NavVisibility {
     updates: bool,
     saves: bool,
     emulators: bool,
-    controllers: bool,
-    remote: bool,
-    plugins: bool,
 }
 
 export enum Page {
-    home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant, controllers,
-    remote, plugins, appearance, minecraft, performance, downloads, recap, storage, collections
+    home, library, game, achievements, emulators, settings, stats, journal, updates, saves, assistant,
+    appearance, minecraft, performance, downloads, recap, storage, collections
 }
 
 export global Nav {
@@ -285,13 +282,8 @@ export global DetailUi {
     callback mod-undeploy(int);
     callback mod-check(int, string);
 
-    /// Liens fournis par les extensions.
-    in property <[LinkRow]> links;
     /// Profil de manette associé aux profils de lancement (0 : aucun).
     in property <[string]> pad-profile-labels: [@tr("Aucun")];
-    // Jeu à distance
-    in property <bool> can-publish;
-    callback publish-sunshine(int);
 }
 
 export global SavesUi {
@@ -737,7 +729,7 @@ export global SettingsUi {
 export global AppUi {
     in property <NavVisibility> nav: {
         big-picture: true, assistant: true, achievements: true, stats: true, journal: true, updates: true, saves: true,
-        emulators: true, controllers: true, remote: true, plugins: true
+        emulators: true
     };
     in property <bool> scanning;
     /// Connexion Internet détectée (et mode hors ligne non forcé).
@@ -817,61 +809,6 @@ export global ThemeUi {
     callback import-theme(string);
     callback export-theme();
     callback reset();
-}
-
-export global PluginsUi {
-    in property <[PluginRow]> plugins;
-    in property <string> dir;
-    in property <string> status;
-    callback install(string);
-    callback set-enabled(string, bool);
-    callback uninstall(string);
-    callback check-updates();
-    callback open-dir();
-}
-
-export global PadsUi {
-    in property <[PadRow]> pads;
-    in property <[PadProfileRow]> profiles;
-    in property <[string]> profile-labels;
-    in property <int> active;
-    in-out property <int> editing: -1;
-    in-out property <string> edit-name;
-    in property <[MappingRow]> mapping;
-    in property <[EmuArgRow]> emu-args;
-    in property <string> capture;
-    in property <string> last-button;
-    callback set-active(int);
-    callback new-profile();
-    callback edit(int);
-    callback save(string);
-    callback delete(int);
-    callback capture-start(string);
-    callback capture-cancel();
-    callback set-emu-arg(string, string);
-}
-
-export global RemoteUi {
-    in property <bool> sunshine;
-    in property <string> sunshine-via;
-    in property <bool> sunshine-running;
-    in property <string> apps-file;
-    in property <bool> moonlight;
-    in property <string> moonlight-via;
-    in property <[HostRow]> hosts;
-    in property <int> selected-host: -1;
-    in property <[string]> apps;
-    in property <string> status;
-    in property <bool> busy;
-    callback refresh();
-    callback add-host(string, string);
-    callback remove-host(int);
-    callback select-host(int);
-    callback pair(int);
-    callback stream(int, string);
-    callback quit(int);
-    callback open-sunshine();
-    callback set-moonlight-path(string);
 }
 
 export global AssistUi {
