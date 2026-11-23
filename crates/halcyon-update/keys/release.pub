@@ -8,4 +8,5 @@
 # Tant qu'aucune clé n'est présente ici (ni dans la variable de compilation
 # HALCYON_UPDATE_PUBKEY), Halcyon signale les nouvelles versions mais refuse de les
 # installer automatiquement. Procédure : docs/HUS.md, « Mise en place des clés ».
-XO2Mo34VFiXqpEdIEUewzXfWwiInjpC/6GDgt4vehes=
+# 1.0.0 : nouvelle clé (la clé privée des préversions a été perdue).
+PBH3V0JwvTWj0tYli1io3k6cF9d5PT9UXm5IoAom9v0=
