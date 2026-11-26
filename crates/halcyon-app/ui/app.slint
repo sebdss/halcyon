@@ -44,7 +44,7 @@ import { AssistantPage } from "pages/assistant.slint";
 import { CollectionsPage, CollectionPicker, CreateCollectionDialog } from "pages/collections.slint";
 import { CollUi } from "collections_state.slint";
 import { UninstallUi, UninstallDialog } from "uninstall_state.slint";
-import { Sidebar, SpaceBar, Spaces, TopBar, CommandCenter } from "shell.slint";
+import { Sidebar, SpaceBar, Spaces, TopBar, CommandCenter, WindowResizeEdges } from "shell.slint";
 import { ScrollView } from "std-widgets.slint";
 
 export {
@@ -436,6 +436,10 @@ component QuickLaunch inherits Rectangle {
 export component AppWindow inherits Window {
     title: "Halcyon";
     icon: Icons.logo;
+    // Windows : la barre de titre du système est remplacée par la barre supérieure.
+    no-frame: AppUi.custom-frame;
+    changed width => { AppUi.window-geometry-changed(); }
+    changed height => { AppUi.window-geometry-changed(); }
     // Petites fenêtres prises en charge : la barre latérale se replie, les pages s'adaptent.
     min-width: 800px;
     min-height: 560px;
@@ -751,6 +755,12 @@ export component AppWindow inherits Window {
 
     // Confirmation de désinstallation : au-dessus du mode console aussi.
     if UninstallUi.open: UninstallDialog {
+        width: root.width;
+        height: root.height;
+    }
+
+    // Fenêtre sans cadre : bords de redimensionnement (sauf agrandie ou en mode console).
+    if AppUi.custom-frame && !AppUi.maximized && !BpUi.active: WindowResizeEdges {
         width: root.width;
         height: root.height;
     }

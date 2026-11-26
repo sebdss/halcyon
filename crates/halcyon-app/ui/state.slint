@@ -727,6 +727,18 @@ export global SettingsUi {
 }
 
 export global AppUi {
+    // Barre de titre intégrée (Windows) : fenêtre sans cadre système, déplacement,
+    // agrandissement et redimensionnement confiés au système par Rust.
+    in property <bool> custom-frame;
+    in property <bool> maximized;
+    callback window-drag();
+    callback window-minimize();
+    callback window-toggle-maximize();
+    callback window-close();
+    /// Bord saisi : 0 haut, 1 bas, 2 droite, 3 gauche, 4 haut-droite, 5 haut-gauche,
+    /// 6 bas-droite, 7 bas-gauche.
+    callback window-resize(int);
+    callback window-geometry-changed();
     in property <NavVisibility> nav: {
         big-picture: true, assistant: true, achievements: true, stats: true, journal: true, updates: true, saves: true,
         emulators: true

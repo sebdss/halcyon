@@ -36,8 +36,8 @@ msgstr "Back"
 
 #: crates/halcyon-app/ui/pages/bigpicture.slint:767 crates/halcyon-app/ui/pages/collections.slint:523 crates/halcyon-app/ui/pages/collections.slint:597
 #: crates/halcyon-app/ui/pages/emulators.slint:143 crates/halcyon-app/ui/pages/recap.slint:157 crates/halcyon-app/ui/pages/smart.slint:106
-#: crates/halcyon-app/ui/uninstall_state.slint:216 crates/halcyon-installer/ui/setup.slint:639 crates/halcyon-installer/ui/setup.slint:681
-#: crates/halcyon-installer/ui/setup.slint:693 crates/halcyon-app/src/ctl_bigpicture.rs:395
+#: crates/halcyon-app/ui/shell.slint:67 crates/halcyon-app/ui/uninstall_state.slint:216 crates/halcyon-installer/ui/setup.slint:639
+#: crates/halcyon-installer/ui/setup.slint:681 crates/halcyon-installer/ui/setup.slint:693 crates/halcyon-app/src/ctl_bigpicture.rs:395
 msgid "Fermer"
 msgstr "Close"
 
@@ -85,7 +85,7 @@ msgid "Réparer"
 msgstr "Repair"
 
 #: crates/halcyon-app/ui/pages/settings.slint:326 crates/halcyon-app/ui/pages/settings.slint:396 crates/halcyon-app/ui/pages/settings.slint:979
-#: crates/halcyon-app/ui/shell.slint:203 crates/halcyon-app/ui/shell.slint:277 crates/halcyon-app/src/ctl_extras.rs:395
+#: crates/halcyon-app/ui/shell.slint:279 crates/halcyon-app/ui/shell.slint:353 crates/halcyon-app/src/ctl_extras.rs:395
 #: crates/halcyon-app/src/ctl_palette.rs:20 crates/halcyon-installer/src/engine.rs:333 crates/halcyon-installer/src/engine.rs:335
 #: crates/halcyon-storage/src/activity.rs:40
 msgid "Système"

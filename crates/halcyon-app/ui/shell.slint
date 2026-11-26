@@ -6,6 +6,80 @@ import { Theme, Icons, Art } from "theme.slint";
 import { TaskRow } from "types.slint";
 import { Nav, Page, Actions, AppUi, LibraryUi, AchUi, EmuUi, UpdatesUi, QuickUi, CommandUi, SystemUi, McUi } from "state.slint";
 import { Icon, IconButton, Overline, ProgressBar, Spinner, SecondaryButton, TextButton } from "components.slint";
+
+/// Zone de saisie de la fenêtre (barre de titre intégrée) : glisser déplace la fenêtre,
+/// double-clic l'agrandit ou la restaure. À placer sous les boutons de la barre.
+export component WindowDragArea inherits TouchArea {
+    enabled: AppUi.custom-frame;
+    pointer-event(e) => {
+        if (e.kind == PointerEventKind.down && e.button == PointerEventButton.left) {
+            AppUi.window-drag();
+        }
+    }
+}
+
+/// Bouton de fenêtre (réduire, agrandir, fermer), dessiné au trait.
+component WindowButton inherits Rectangle {
+    in property <int> kind; // 0 réduire, 1 agrandir, 2 restaurer, 3 fermer
+    in property <string> label;
+    in property <bool> on-image;
+    callback clicked;
+    width: 46px;
+    property <color> ink: ta.has-hover && root.kind == 3 ? #ffffff : ta.has-hover ? Theme.text : root.on-image ? #ffffffd0 : Theme.text-muted;
+    background: !ta.has-hover ? transparent : root.kind == 3 ? (ta.pressed ? #a52313 : #c42b1c) : ta.pressed ? Theme.surface-hover.darker(0.15) : Theme.surface-hover;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
+    ta := TouchArea { clicked => { root.clicked(); } }
+    if root.kind == 0: Rectangle { width: 10px; height: 1px; background: root.ink; }
+    if root.kind == 1: Rectangle { width: 10px; height: 10px; border-width: 1px; border-color: root.ink; }
+    if root.kind == 2: Path {
+        width: 10px;
+        height: 10px;
+        viewbox-width: 10;
+        viewbox-height: 10;
+        stroke: root.ink;
+        stroke-width: 1px;
+        commands: "M 2.5 2.5 L 2.5 0.5 L 9.5 0.5 L 9.5 7.5 L 7.5 7.5 M 0.5 2.5 L 7.5 2.5 L 7.5 9.5 L 0.5 9.5 Z";
+    }
+    if root.kind == 3: Path {
+        width: 10px;
+        height: 10px;
+        viewbox-width: 10;
+        viewbox-height: 10;
+        stroke: root.ink;
+        stroke-width: 1px;
+        commands: "M 0 0 L 10 10 M 10 0 L 0 10";
+    }
+}
+
+/// Réduire, agrandir ou restaurer, fermer : à droite de la barre supérieure.
+export component WindowControls inherits HorizontalLayout {
+    in property <bool> on-image;
+    spacing: 0px;
+    WindowButton { kind: 0; label: @tr("Réduire"); on-image: root.on-image; clicked => { AppUi.window-minimize(); } }
+    WindowButton {
+        kind: AppUi.maximized ? 2 : 1;
+        label: AppUi.maximized ? @tr("Restaurer") : @tr("Agrandir");
+        on-image: root.on-image;
+        clicked => { AppUi.window-toggle-maximize(); }
+    }
+    WindowButton { kind: 3; label: @tr("Fermer"); on-image: root.on-image; clicked => { AppUi.window-close(); } }
+}
+
+/// Bords de redimensionnement d'une fenêtre sans cadre (masqués quand elle est agrandie).
+export component WindowResizeEdges inherits Rectangle {
+    property <length> e: 5px;
+    property <length> c: 10px;
+    TouchArea { y: 0; height: root.e; x: root.c; width: parent.width - 2 * root.c; mouse-cursor: n-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(0); } } }
+    TouchArea { y: parent.height - root.e; height: root.e; x: root.c; width: parent.width - 2 * root.c; mouse-cursor: s-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(1); } } }
+    TouchArea { x: parent.width - root.e; width: root.e; y: root.c; height: parent.height - 2 * root.c; mouse-cursor: e-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(2); } } }
+    TouchArea { x: 0; width: root.e; y: root.c; height: parent.height - 2 * root.c; mouse-cursor: w-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(3); } } }
+    TouchArea { x: parent.width - root.c; y: 0; width: root.c; height: root.c; mouse-cursor: ne-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(4); } } }
+    TouchArea { x: 0; y: 0; width: root.c; height: root.c; mouse-cursor: nw-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(5); } } }
+    TouchArea { x: parent.width - root.c; y: parent.height - root.c; width: root.c; height: root.c; mouse-cursor: se-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(6); } } }
+    TouchArea { x: 0; y: parent.height - root.c; width: root.c; height: root.c; mouse-cursor: sw-resize; pointer-event(ev) => { if (ev.kind == PointerEventKind.down) { AppUi.window-resize(7); } } }
+}
 import { DownloadsUi } from "downloads_state.slint";
 
 /// Entrée de la colonne de navigation. Étendue : icône et libellé ; repliée : icône seule,
@@ -165,9 +239,11 @@ export component Sidebar inherits Rectangle {
         padding-bottom: 12px;
         spacing: 2px;
 
-        // Marque : logo et nom composé dans la police d'affichage.
+        // Marque : logo et nom composé dans la police d'affichage. Avec la barre de titre
+        // intégrée, la zone sert aussi à déplacer la fenêtre.
         Rectangle {
             height: 60px;
+            WindowDragArea { }
             Image {
                 x: root.collapsed ? (parent.width - self.width) / 2 + 4px : 22px;
                 y: 8px;
@@ -377,9 +453,11 @@ export component TopBar inherits Rectangle {
         image-fit: fill;
         colorize: #000000a0;
     }
+    // Barre de titre intégrée : les zones vides de la barre déplacent la fenêtre.
+    WindowDragArea { }
     HorizontalLayout {
         padding-left: 16px;
-        padding-right: 16px;
+        padding-right: AppUi.custom-frame ? 0px : 16px;
         spacing: 4px;
         IconButton {
             y: 11px;
@@ -440,6 +518,8 @@ export component TopBar inherits Rectangle {
                 if (CommandUi.open) { CommandUi.opened(); }
             }
         }
+        if AppUi.custom-frame: Rectangle { width: 12px; }
+        if AppUi.custom-frame: WindowControls { on-image: root.transparent-bg; }
     }
     if !root.transparent-bg: Rectangle { y: parent.height - 1px; height: 1px; background: Theme.border; }
 }

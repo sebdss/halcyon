@@ -53,56 +53,56 @@ msgstr "Entrée : ouvrir"
 msgid "Aucun résultat"
 msgstr "Aucun résultat"
 
-#: crates/halcyon-app/ui/app.slint:735
+#: crates/halcyon-app/ui/app.slint:739
 #, placeholders
 msgid "Succès débloqué, {}"
 msgstr "Succès débloqué, {}"
 
-#: crates/halcyon-app/ui/app.slint:735
+#: crates/halcyon-app/ui/app.slint:739
 msgid "Succès débloqué"
 msgstr "Succès débloqué"
 
-#: crates/halcyon-app/ui/app.slint:793
+#: crates/halcyon-app/ui/app.slint:803
 msgid "Halcyon — compact"
 msgstr "Halcyon — compact"
 
-#: crates/halcyon-app/ui/app.slint:817
+#: crates/halcyon-app/ui/app.slint:827
 msgid "Rechercher un jeu…"
 msgstr "Rechercher un jeu…"
 
-#: crates/halcyon-app/ui/app.slint:823
+#: crates/halcyon-app/ui/app.slint:833
 msgid "Toujours au premier plan"
 msgstr "Toujours au premier plan"
 
-#: crates/halcyon-app/ui/app.slint:824
+#: crates/halcyon-app/ui/app.slint:834
 msgid "Fenêtre complète"
 msgstr "Fenêtre complète"
 
-#: crates/halcyon-app/ui/app.slint:833
+#: crates/halcyon-app/ui/app.slint:843
 msgid "Résultats"
 msgstr "Résultats"
 
-#: crates/halcyon-app/ui/app.slint:834
+#: crates/halcyon-app/ui/app.slint:844
 msgid "Aucun jeu trouvé"
 msgstr "Aucun jeu trouvé"
 
-#: crates/halcyon-app/ui/app.slint:836
+#: crates/halcyon-app/ui/app.slint:846
 msgid "Récemment joués"
 msgstr "Récemment joués"
 
-#: crates/halcyon-app/ui/app.slint:838
+#: crates/halcyon-app/ui/app.slint:848
 msgid "Vos favoris et jeux récents apparaîtront ici."
 msgstr "Vos favoris et jeux récents apparaîtront ici."
 
-#: crates/halcyon-app/ui/app.slint:852
+#: crates/halcyon-app/ui/app.slint:862
 msgid "Halcyon — session"
 msgstr "Halcyon — session"
 
-#: crates/halcyon-app/ui/app.slint:871
+#: crates/halcyon-app/ui/app.slint:881
 msgid "Masquer jusqu'à la prochaine partie"
 msgstr "Masquer jusqu'à la prochaine partie"
 
-#: crates/halcyon-app/ui/app.slint:874
+#: crates/halcyon-app/ui/app.slint:884
 msgid "Session en cours"
 msgstr "Session en cours"
 
@@ -219,118 +219,126 @@ msgstr "Bonne partie !"
 msgid "Lancement en cours…"
 msgstr "Lancement en cours…"
 
-#: crates/halcyon-app/ui/shell.slint:192
+#: crates/halcyon-app/ui/shell.slint:60
+msgid "Réduire"
+msgstr "Réduire"
+
+#: crates/halcyon-app/ui/shell.slint:63
+msgid "Agrandir"
+msgstr "Agrandir"
+
+#: crates/halcyon-app/ui/shell.slint:268
 msgid "en jeu"
 msgstr "en jeu"
 
-#: crates/halcyon-app/ui/shell.slint:193 crates/halcyon-app/ui/shell.slint:277
+#: crates/halcyon-app/ui/shell.slint:269 crates/halcyon-app/ui/shell.slint:353
 msgid "Activité"
 msgstr "Activité"
 
-#: crates/halcyon-app/ui/shell.slint:196 crates/halcyon-app/ui/shell.slint:277
+#: crates/halcyon-app/ui/shell.slint:272 crates/halcyon-app/ui/shell.slint:353
 msgid "Outils"
 msgstr "Outils"
 
-#: crates/halcyon-app/ui/shell.slint:205
+#: crates/halcyon-app/ui/shell.slint:281
 msgid "Console"
 msgstr "Console"
 
-#: crates/halcyon-app/ui/shell.slint:206
+#: crates/halcyon-app/ui/shell.slint:282
 msgid "Analyser"
 msgstr "Analyser"
 
-#: crates/halcyon-app/ui/shell.slint:291
+#: crates/halcyon-app/ui/shell.slint:367
 msgid "Récap"
 msgstr "Récap"
 
-#: crates/halcyon-app/ui/shell.slint:300
+#: crates/halcyon-app/ui/shell.slint:376
 msgid "nouvelle version"
 msgstr "nouvelle version"
 
-#: crates/halcyon-app/ui/shell.slint:327
+#: crates/halcyon-app/ui/shell.slint:403
 msgid "Rechercher un jeu, une page, un réglage"
 msgstr "Rechercher un jeu, une page, un réglage"
 
-#: crates/halcyon-app/ui/shell.slint:389
+#: crates/halcyon-app/ui/shell.slint:467
 msgid "Précédent (Alt+←)"
 msgstr "Précédent (Alt+←)"
 
-#: crates/halcyon-app/ui/shell.slint:397
+#: crates/halcyon-app/ui/shell.slint:475
 msgid "Suivant (Alt+→)"
 msgstr "Suivant (Alt+→)"
 
-#: crates/halcyon-app/ui/shell.slint:411
+#: crates/halcyon-app/ui/shell.slint:489
 #, placeholders
 msgid "En jeu : {}"
 msgstr "En jeu : {}"
 
-#: crates/halcyon-app/ui/shell.slint:412
+#: crates/halcyon-app/ui/shell.slint:490
 msgid "Performance (auto)"
 msgstr "Performance (auto)"
 
-#: crates/halcyon-app/ui/shell.slint:412
+#: crates/halcyon-app/ui/shell.slint:490
 msgid "Performance"
 msgstr "Performance"
 
-#: crates/halcyon-app/ui/shell.slint:420
+#: crates/halcyon-app/ui/shell.slint:498
 msgid "Quitter le mode Performance"
 msgstr "Quitter le mode Performance"
 
-#: crates/halcyon-app/ui/shell.slint:428
+#: crates/halcyon-app/ui/shell.slint:506
 msgid "Mode standard (clic : minimaliste)"
 msgstr "Mode standard (clic : minimaliste)"
 
-#: crates/halcyon-app/ui/shell.slint:428
+#: crates/halcyon-app/ui/shell.slint:506
 msgid "Mode minimaliste (clic : cinéma)"
 msgstr "Mode minimaliste (clic : cinéma)"
 
-#: crates/halcyon-app/ui/shell.slint:428
+#: crates/halcyon-app/ui/shell.slint:506
 msgid "Mode cinéma (clic : standard)"
 msgstr "Mode cinéma (clic : standard)"
 
-#: crates/halcyon-app/ui/shell.slint:437 crates/halcyon-app/ui/shell.slint:514 crates/halcyon-app/src/ctl_palette.rs:38
+#: crates/halcyon-app/ui/shell.slint:515 crates/halcyon-app/ui/shell.slint:594 crates/halcyon-app/src/ctl_palette.rs:38
 msgid "Centre de commandes"
 msgstr "Centre de commandes"
 
-#: crates/halcyon-app/ui/shell.slint:516
+#: crates/halcyon-app/ui/shell.slint:596
 #, placeholders
 msgid "{n} tâche en cours"
 msgid_plural "{n} tâches en cours"
 msgstr[0] "{n} tâche en cours"
 msgstr[1] "{n} tâches en cours"
 
-#: crates/halcyon-app/ui/shell.slint:516
+#: crates/halcyon-app/ui/shell.slint:596
 msgid "Aucune tâche en cours"
 msgstr "Aucune tâche en cours"
 
-#: crates/halcyon-app/ui/shell.slint:516
+#: crates/halcyon-app/ui/shell.slint:596
 #, placeholders
 msgid "{n} erreur récente"
 msgid_plural "{n} erreurs récentes"
 msgstr[0] "{n} erreur récente"
 msgstr[1] "{n} erreurs récentes"
 
-#: crates/halcyon-app/ui/shell.slint:521
+#: crates/halcyon-app/ui/shell.slint:601
 msgid "Fermer (Échap)"
 msgstr "Fermer (Échap)"
 
-#: crates/halcyon-app/ui/shell.slint:536
+#: crates/halcyon-app/ui/shell.slint:616
 msgid "Récent"
 msgstr "Récent"
 
-#: crates/halcyon-app/ui/shell.slint:537
+#: crates/halcyon-app/ui/shell.slint:617
 msgid "Effacer"
 msgstr "Effacer"
 
-#: crates/halcyon-app/ui/shell.slint:540
+#: crates/halcyon-app/ui/shell.slint:620
 msgid "Les analyses, téléchargements, synchronisations, sauvegardes, notifications et erreurs apparaîtront ici."
 msgstr "Les analyses, téléchargements, synchronisations, sauvegardes, notifications et erreurs apparaîtront ici."
 
-#: crates/halcyon-app/ui/state.slint:82 crates/halcyon-app/src/controller.rs:714
+#: crates/halcyon-app/ui/state.slint:82 crates/halcyon-app/src/controller.rs:718
 msgid "Toutes les collections"
 msgstr "Toutes les collections"
 
-#: crates/halcyon-app/ui/state.slint:84 crates/halcyon-app/src/controller.rs:691
+#: crates/halcyon-app/ui/state.slint:84 crates/halcyon-app/src/controller.rs:695
 msgid "Tous les genres"
 msgstr "Tous les genres"
 
@@ -338,227 +346,227 @@ msgstr "Tous les genres"
 msgid "Ajout récent"
 msgstr "Ajout récent"
 
-#: crates/halcyon-app/ui/state.slint:752
+#: crates/halcyon-app/ui/state.slint:764
 msgid "Confirmer"
 msgstr "Confirmer"
 
-#: crates/halcyon-app/src/controller.rs:357
+#: crates/halcyon-app/src/controller.rs:360
 msgid "Jamais analysé pendant cette session"
 msgstr "Jamais analysé pendant cette session"
 
-#: crates/halcyon-app/src/controller.rs:663
+#: crates/halcyon-app/src/controller.rs:667
 #, placeholders
 msgid "Filtre non reconnu : {join} (exemples : statut:terminé, temps:>10h, succès:manquants)"
 msgstr "Filtre non reconnu : {join} (exemples : statut:terminé, temps:>10h, succès:manquants)"
 
-#: crates/halcyon-app/src/controller.rs:785
+#: crates/halcyon-app/src/controller.rs:789
 #, placeholders
 msgid "{effective_playtime} de jeu"
 msgstr "{effective_playtime} de jeu"
 
-#: crates/halcyon-app/src/controller.rs:788
+#: crates/halcyon-app/src/controller.rs:792
 #, placeholders
 msgid "Joué : {t}"
 msgstr "Joué : {t}"
 
-#: crates/halcyon-app/src/controller.rs:791
+#: crates/halcyon-app/src/controller.rs:795
 #, placeholders
 msgid "{unlocked}/{n} succès"
 msgid_plural "{unlocked}/{n} succès"
 msgstr[0] "{unlocked}/{n} succès"
 msgstr[1] "{unlocked}/{n} succès"
 
-#: crates/halcyon-app/src/controller.rs:807
+#: crates/halcyon-app/src/controller.rs:811
 #, placeholders
 msgid "Émulateur : {name}"
 msgstr "Émulateur : {name}"
 
-#: crates/halcyon-app/src/controller.rs:808
+#: crates/halcyon-app/src/controller.rs:812
 msgid "Aucun émulateur détecté pour cette plateforme"
 msgstr "Aucun émulateur détecté pour cette plateforme"
 
-#: crates/halcyon-app/src/controller.rs:1092
+#: crates/halcyon-app/src/controller.rs:1096
 #, placeholders
 msgid "« {name} » est masqué (filtre « Masqués » pour le retrouver)"
 msgstr "« {name} » est masqué (filtre « Masqués » pour le retrouver)"
 
-#: crates/halcyon-app/src/controller.rs:1094
+#: crates/halcyon-app/src/controller.rs:1098
 #, placeholders
 msgid "« {name} » est de nouveau visible"
 msgstr "« {name} » est de nouveau visible"
 
-#: crates/halcyon-app/src/controller.rs:1103
+#: crates/halcyon-app/src/controller.rs:1107
 msgid "Aucun dossier associé"
 msgstr "Aucun dossier associé"
 
-#: crates/halcyon-app/src/controller.rs:1108
+#: crates/halcyon-app/src/controller.rs:1112
 #, placeholders
 msgid "Ce dossier n'existe pas : {e}"
 msgstr "Ce dossier n'existe pas : {e}"
 
-#: crates/halcyon-app/src/controller.rs:1151
+#: crates/halcyon-app/src/controller.rs:1155
 #, placeholders
 msgid "Exécutable introuvable : {exe}"
 msgstr "Exécutable introuvable : {exe}"
 
-#: crates/halcyon-app/src/controller.rs:1166
+#: crates/halcyon-app/src/controller.rs:1170
 msgid "Paramètres enregistrés"
 msgstr "Paramètres enregistrés"
 
-#: crates/halcyon-app/src/controller.rs:1197
+#: crates/halcyon-app/src/controller.rs:1201
 msgid "Métadonnées enregistrées"
 msgstr "Métadonnées enregistrées"
 
-#: crates/halcyon-app/src/controller.rs:1236
+#: crates/halcyon-app/src/controller.rs:1240
 msgid "Visuel mis à jour"
 msgstr "Visuel mis à jour"
 
-#: crates/halcyon-app/src/controller.rs:1252
+#: crates/halcyon-app/src/controller.rs:1256
 msgid "Jeu retiré de la bibliothèque"
 msgstr "Jeu retiré de la bibliothèque"
 
-#: crates/halcyon-app/src/controller.rs:1261
+#: crates/halcyon-app/src/controller.rs:1265
 #, placeholders
 msgid "Fichier introuvable : {exe_path}"
 msgstr "Fichier introuvable : {exe_path}"
 
-#: crates/halcyon-app/src/controller.rs:1275
+#: crates/halcyon-app/src/controller.rs:1279
 #, placeholders
 msgid "« {name} » a été ajouté"
 msgstr "« {name} » a été ajouté"
 
-#: crates/halcyon-app/src/controller.rs:1313
+#: crates/halcyon-app/src/controller.rs:1317
 #, placeholders
 msgid "Ajouté à la collection « {name} »"
 msgstr "Ajouté à la collection « {name} »"
 
-#: crates/halcyon-app/src/controller.rs:1344
+#: crates/halcyon-app/src/controller.rs:1348
 msgid "Préparation…"
 msgstr "Préparation…"
 
-#: crates/halcyon-app/src/controller.rs:1346
+#: crates/halcyon-app/src/controller.rs:1350
 msgid "Analyse des sources"
 msgstr "Analyse des sources"
 
-#: crates/halcyon-app/src/controller.rs:1453 crates/halcyon-app/src/controller.rs:1454
+#: crates/halcyon-app/src/controller.rs:1457 crates/halcyon-app/src/controller.rs:1458
 #, placeholders
 msgid "Erreur de base de données : {e}"
 msgstr "Erreur de base de données : {e}"
 
-#: crates/halcyon-app/src/controller.rs:1478
+#: crates/halcyon-app/src/controller.rs:1482
 #, placeholders
 msgid "Terminée en {secs} s · {n} jeu"
 msgid_plural "Terminée en {secs} s · {n} jeux"
 msgstr[0] "Terminée en {secs} s · {n} jeu"
 msgstr[1] "Terminée en {secs} s · {n} jeux"
 
-#: crates/halcyon-app/src/controller.rs:1485
+#: crates/halcyon-app/src/controller.rs:1489
 #, placeholders
 msgid "{status} · {n} nouveau"
 msgid_plural "{status} · {n} nouveaux"
 msgstr[0] "{status} · {n} nouveau"
 msgstr[1] "{status} · {n} nouveaux"
 
-#: crates/halcyon-app/src/controller.rs:1500
+#: crates/halcyon-app/src/controller.rs:1504
 #, placeholders
 msgid "Analyse incomplète : {e}"
 msgstr "Analyse incomplète : {e}"
 
-#: crates/halcyon-app/src/controller.rs:1502
+#: crates/halcyon-app/src/controller.rs:1506
 #, placeholders
 msgid "{n} nouveau jeu ajouté"
 msgid_plural "{n} nouveaux jeux ajoutés"
 msgstr[0] "{n} nouveau jeu ajouté"
 msgstr[1] "{n} nouveaux jeux ajoutés"
 
-#: crates/halcyon-app/src/controller.rs:1621
+#: crates/halcyon-app/src/controller.rs:1625
 msgid "Visuels et fiches en ligne"
 msgstr "Visuels et fiches en ligne"
 
-#: crates/halcyon-app/src/controller.rs:1625
+#: crates/halcyon-app/src/controller.rs:1629
 #, placeholders
 msgid "Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}"
 msgstr "Visuels à récupérer : {sgdb_jobs} · fiches : {plugin_jobs}"
 
-#: crates/halcyon-app/src/controller.rs:1791
+#: crates/halcyon-app/src/controller.rs:1795
 msgid "SteamGridDB a refusé la clé d'API : vérifiez-la dans Paramètres › Comptes"
 msgstr "SteamGridDB a refusé la clé d'API : vérifiez-la dans Paramètres › Comptes"
 
-#: crates/halcyon-app/src/controller.rs:1831
+#: crates/halcyon-app/src/controller.rs:1835
 #, placeholders
 msgid "{n} visuel récupéré · réseau indisponible, reprise plus tard"
 msgid_plural "{n} visuels récupérés · réseau indisponible, reprise plus tard"
 msgstr[0] "{n} visuel récupéré · réseau indisponible, reprise plus tard"
 msgstr[1] "{n} visuels récupérés · réseau indisponible, reprise plus tard"
 
-#: crates/halcyon-app/src/controller.rs:1833
+#: crates/halcyon-app/src/controller.rs:1837
 #, placeholders
 msgid "{n} visuel récupéré"
 msgid_plural "{n} visuels récupérés"
 msgstr[0] "{n} visuel récupéré"
 msgstr[1] "{n} visuels récupérés"
 
-#: crates/halcyon-app/src/controller.rs:1885
+#: crates/halcyon-app/src/controller.rs:1889
 #, placeholders
 msgid "Paramètres non enregistrés : {e}"
 msgstr "Paramètres non enregistrés : {e}"
 
-#: crates/halcyon-app/src/controller.rs:1908
+#: crates/halcyon-app/src/controller.rs:1912
 msgid "Epic Games (launcher Epic, Heroic ou Legendary)"
 msgstr "Epic Games (launcher Epic, Heroic ou Legendary)"
 
-#: crates/halcyon-app/src/controller.rs:1909
+#: crates/halcyon-app/src/controller.rs:1913
 msgid "GOG (Heroic ou GOG Galaxy)"
 msgstr "GOG (Heroic ou GOG Galaxy)"
 
-#: crates/halcyon-app/src/controller.rs:1956
+#: crates/halcyon-app/src/controller.rs:1960
 #, placeholders
 msgid "{thumbs} sur le disque · {u64} en mémoire"
 msgstr "{thumbs} sur le disque · {u64} en mémoire"
 
-#: crates/halcyon-app/src/controller.rs:1988
+#: crates/halcyon-app/src/controller.rs:1992
 #, placeholders
 msgid "Dossier introuvable : {p}"
 msgstr "Dossier introuvable : {p}"
 
-#: crates/halcyon-app/src/controller.rs:2006
+#: crates/halcyon-app/src/controller.rs:2010
 msgid "Source trouvée — lancez une analyse pour importer les jeux"
 msgstr "Source trouvée — lancez une analyse pour importer les jeux"
 
-#: crates/halcyon-app/src/controller.rs:2006
+#: crates/halcyon-app/src/controller.rs:2010
 msgid "Source toujours introuvable à cet emplacement"
 msgstr "Source toujours introuvable à cet emplacement"
 
-#: crates/halcyon-app/src/controller.rs:2025
+#: crates/halcyon-app/src/controller.rs:2029
 msgid "Ce dossier est déjà surveillé"
 msgstr "Ce dossier est déjà surveillé"
 
-#: crates/halcyon-app/src/controller.rs:2111
+#: crates/halcyon-app/src/controller.rs:2115
 msgid "Le SteamID64 est un nombre (17 chiffres)"
 msgstr "Le SteamID64 est un nombre (17 chiffres)"
 
-#: crates/halcyon-app/src/controller.rs:2125
+#: crates/halcyon-app/src/controller.rs:2129
 msgid "L'identifiant d'application Discord est un nombre"
 msgstr "L'identifiant d'application Discord est un nombre"
 
-#: crates/halcyon-app/src/controller.rs:2155
+#: crates/halcyon-app/src/controller.rs:2159
 #, placeholders
 msgid "{removed} libérés"
 msgstr "{removed} libérés"
 
-#: crates/halcyon-app/src/controller.rs:2221
+#: crates/halcyon-app/src/controller.rs:2225
 msgid "Hors ligne : actualités indisponibles."
 msgstr "Hors ligne : actualités indisponibles."
 
-#: crates/halcyon-app/src/controller.rs:2224
+#: crates/halcyon-app/src/controller.rs:2228
 msgid "Chargement des actualités…"
 msgstr "Chargement des actualités…"
 
-#: crates/halcyon-app/src/controller.rs:2233
+#: crates/halcyon-app/src/controller.rs:2237
 msgid "Aucune actualité publiée."
 msgstr "Aucune actualité publiée."
 
-#: crates/halcyon-app/src/controller.rs:2237
+#: crates/halcyon-app/src/controller.rs:2241
 msgid "Actualités indisponibles pour le moment."
 msgstr "Actualités indisponibles pour le moment."
 

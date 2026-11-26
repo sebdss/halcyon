@@ -1,5 +1,17 @@
 # Journal des modifications
 
+## Non publié
+
+### Interface
+
+- **Windows : barre de titre intégrée.** La barre de titre du système disparaît ; la barre
+  supérieure de Halcyon porte Réduire, Agrandir / Restaurer et Fermer (rouge au survol), et
+  ses zones vides (ainsi que le logo) déplacent la fenêtre ; double-clic pour agrandir. Le
+  déplacement et le redimensionnement passent par Windows : ancrage aux bords, Win + flèches
+  et ombre portée sont conservés. Fermer suit le réglage « Fermer dans la zone de
+  notification ». `HALCYON_SYSTEM_FRAME=1` rend la barre du système. Linux garde le cadre
+  de son bureau.
+
 ## 1.0.0 — Version stable
 
 Première version publiée sur le canal **Stable**. Elle réunit tout le travail des préversions
