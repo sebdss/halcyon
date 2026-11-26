@@ -20,6 +20,7 @@ mod ctl_shelf;
 mod ctl_downloads;
 mod ctl_emulators;
 mod ctl_extras;
+mod ctl_frame;
 mod ctl_home;
 mod ctl_lang;
 mod ctl_library;
@@ -123,6 +124,7 @@ fn main() {
     slint::Timer::single_shot(Duration::from_millis(400), move || {
         if let Some(c) = weak.upgrade() {
             c.startup();
+            c.frame_shown();
             c.hus_init(args.hus_health.clone());
             // `--minimized` (démarrage avec la session) : dans la zone de notification si possible.
             if args.minimized {

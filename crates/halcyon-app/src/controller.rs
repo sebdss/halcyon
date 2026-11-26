@@ -103,6 +103,8 @@ pub struct Controller {
     pub(crate) bp: RefCell<BigPicture>,
     pub(crate) bp_clock: RefCell<Option<slint::Timer>>,
     pub(crate) pad_connected: Cell<bool>,
+    /// Dernier appui sur la barre de titre intégrée (double-clic : agrandir).
+    pub(crate) frame_last_press: Cell<Option<std::time::Instant>>,
     pub(crate) smart: RefCell<Vec<halcyon_storage::SmartCollection>>,
     pub(crate) smart_edit: RefCell<crate::ctl_tracking::SmartEdit>,
     pub(crate) smart_rules: Rc<VecModel<crate::RuleRow>>,
@@ -196,6 +198,7 @@ impl Controller {
             bp: RefCell::new(BigPicture::default()),
             bp_clock: RefCell::new(None),
             pad_connected: Cell::new(false),
+            frame_last_press: Cell::new(None),
             smart: RefCell::new(Vec::new()),
             smart_edit: RefCell::new(Default::default()),
             smart_rules: Rc::new(VecModel::default()),
@@ -579,6 +582,7 @@ impl Controller {
             None => slint::CloseRequestResponse::HideWindow,
         });
         self.wire_system(app);
+        self.wire_frame(app);
         self.wire_hus(app);
         self.wire_shell(app);
         self.wire_home(app);
