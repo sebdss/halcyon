@@ -1,6 +1,6 @@
 # Journal des modifications
 
-## Non publié
+## 1.0.1 — Barre de titre Windows
 
 ### Interface
 
